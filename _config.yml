@@ -130,10 +130,10 @@ comments:
     issue_term: # < url | pathname | title | ...>
   # Giscus options › https://giscus.app
   giscus:
-    repo: 7a6ac0/7a6ac0.github.io # <gh-username>/<repo>
-    repo_id: R_kgDOUNzY3g
+    repo: justmaocom/justmaocom.github.io # <gh-username>/<repo>
+    repo_id: R_kgDOUafyvw
     category: Announcements
-    category_id: DIC_kwDOUNzY3s4DE2ES
+    category_id: DIC_kwDOUafyv84DFqiX
     mapping: # optional, default to 'pathname'
     strict: # optional, default to '0'
     input_position: top # optional, default to 'bottom'
