@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "gpa-question-webapp 系統架構",
+    "output": "system-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/7a6ac0/gpa-question-webapp",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb"
+    },
+    "viewBox": [1050, 620],
+    "views": [
+      {
+        "id": "ingestion-path",
+        "label": "題庫匯入",
+        "focus": ["pcc-bank", "local-files", "ingestion-cli", "postgres"],
+        "note": "從手動下載的官方檔案追到資料庫中的題目。"
+      },
+      {
+        "id": "practice-path",
+        "label": "練習與統計",
+        "focus": ["browser", "web-ui", "fastapi", "postgres"],
+        "note": "從瀏覽器作答追到 session 與類別正確率。"
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "pcc-bank",
+      "type": "external",
+      "label": "公共工程委員會題庫",
+      "sublabel": "官方公開來源",
+      "pos": [40, 100],
+      "size": [180, 72]
+    },
+    {
+      "id": "local-files",
+      "type": "external",
+      "label": "本機題庫檔案",
+      "sublabel": "PDF / DOCX",
+      "pos": [285, 100],
+      "size": [160, 72]
+    },
+    {
+      "id": "ingestion-cli",
+      "type": "backend",
+      "label": "題庫匯入 CLI",
+      "sublabel": "解析、雜湊、upsert",
+      "tag": "src/ingestion",
+      "sources": [
+        { "path": "src/ingestion/cli.py", "line": 39, "end_line": 86, "label": "匯入入口" },
+        { "path": "src/ingestion/base.py", "line": 13, "end_line": 100, "label": "雜湊與 upsert" }
+      ],
+      "pos": [510, 100],
+      "size": [180, 72]
+    },
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "使用者瀏覽器",
+      "sublabel": "練習、作答、查看弱項",
+      "pos": [40, 330],
+      "size": [180, 72]
+    },
+    {
+      "id": "web-ui",
+      "type": "frontend",
+      "label": "瀏覽器介面",
+      "sublabel": "Jinja2 + Vanilla JS",
+      "tag": "src/templates",
+      "sources": [
+        { "path": "src/templates/weakness.html", "line": 12, "end_line": 98, "label": "弱項頁面" }
+      ],
+      "pos": [285, 330],
+      "size": [160, 72]
+    },
+    {
+      "id": "fastapi",
+      "type": "backend",
+      "label": "FastAPI 應用程式",
+      "sublabel": "隨機取題、作答、統計",
+      "tag": "src/api",
+      "sources": [
+        { "path": "src/api/main.py", "line": 5, "end_line": 40, "label": "應用程式入口" },
+        { "path": "src/api/routes/sessions.py", "line": 32, "end_line": 280, "label": "練習路由" }
+      ],
+      "pos": [510, 330],
+      "size": [180, 72]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL 16",
+      "sublabel": "題目、session、作答紀錄",
+      "tag": "SQLAlchemy",
+      "sources": [
+        { "path": "src/models/database.py", "line": 44, "end_line": 140, "label": "資料模型" },
+        { "path": "docker-compose.yml", "line": 1, "end_line": 29, "label": "資料庫服務" }
+      ],
+      "pos": [800, 215],
+      "size": [190, 82]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "gpa-question-webapp",
+      "wraps": ["ingestion-cli", "web-ui", "fastapi", "postgres"],
+      "pad": 28
+    }
+  ],
+  "connections": [
+    {
+      "id": "download-question-bank",
+      "from": "pcc-bank",
+      "to": "local-files",
+      "label": "手動下載",
+      "variant": "dashed"
+    },
+    {
+      "id": "read-source-files",
+      "from": "local-files",
+      "to": "ingestion-cli",
+      "label": "讀取 PDF / DOCX",
+      "labelAt": [478, 186]
+    },
+    {
+      "id": "persist-questions",
+      "from": "ingestion-cli",
+      "to": "postgres",
+      "label": "寫入題目",
+      "variant": "emphasis"
+    },
+    {
+      "id": "open-practice-ui",
+      "from": "browser",
+      "to": "web-ui",
+      "label": "開啟與操作"
+    },
+    {
+      "id": "call-api",
+      "from": "web-ui",
+      "to": "fastapi",
+      "label": "HTTP / JSON"
+    },
+    {
+      "id": "query-practice-data",
+      "from": "fastapi",
+      "to": "postgres",
+      "label": "SQLAlchemy 讀寫",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "amber",
+      "title": "題庫匯入",
+      "items": ["官方檔案由使用者手動下載", "CLI 解析題型並以雜湊更新題目"]
+    },
+    {
+      "dot": "cyan",
+      "title": "練習流程",
+      "items": ["FastAPI 隨機取題並記錄每次作答", "前端依類別正確率列出弱項"]
+    }
+  ]
+}

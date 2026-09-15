@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="430" viewBox="0 0 800 430" role="img" aria-labelledby="title desc">
+  <title id="title">背熟 PDF 題序與題序洗牌後的反差</title>
+  <desc id="desc">左側照固定順序作答時能預告答案，右側題序洗牌後才發現需要重新理解題目。</desc>
+  <rect width="800" height="430" rx="24" fill="#f4f1e8"/>
+  <text x="400" y="46" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="26" font-weight="700" fill="#20242c">你以為背熟了題庫</text>
+
+  <rect x="36" y="72" width="342" height="278" rx="18" fill="#ffffff" stroke="#26344a" stroke-width="3"/>
+  <text x="207" y="108" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="18" font-weight="700" fill="#26344a">PDF 第六輪</text>
+  <rect x="78" y="132" width="258" height="116" rx="8" fill="#eef2f7" stroke="#8996aa" stroke-width="2"/>
+  <line x1="103" y1="161" x2="300" y2="161" stroke="#a7b0bf" stroke-width="5" stroke-linecap="round"/>
+  <line x1="103" y1="188" x2="284" y2="188" stroke="#a7b0bf" stroke-width="5" stroke-linecap="round"/>
+  <line x1="103" y1="215" x2="310" y2="215" stroke="#a7b0bf" stroke-width="5" stroke-linecap="round"/>
+  <rect x="105" y="266" width="204" height="52" rx="14" fill="#d9f3df"/>
+  <text x="207" y="298" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="18" font-weight="700" fill="#176437">下一題，答案是 B</text>
+
+  <path d="M400 196h30" stroke="#d2613c" stroke-width="5" stroke-linecap="round"/>
+  <path d="M420 184l14 12-14 12" fill="none" stroke="#d2613c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="442" y="72" width="322" height="278" rx="18" fill="#ffffff" stroke="#26344a" stroke-width="3"/>
+  <text x="603" y="108" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="18" font-weight="700" fill="#26344a">題序洗牌後</text>
+  <g transform="translate(482 132) rotate(-5 112 50)">
+    <rect width="224" height="92" rx="8" fill="#fff1cf" stroke="#d6a534" stroke-width="2"/>
+    <text x="112" y="39" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="16" fill="#5b4618">第 37 題</text>
+    <text x="112" y="67" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="15" fill="#5b4618">這題在問什麼</text>
+  </g>
+  <rect x="489" y="253" width="228" height="65" rx="14" fill="#fde2dd"/>
+  <text x="603" y="280" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="16" font-weight="700" fill="#9a3424">題序記憶已離線</text>
+  <text x="603" y="305" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="15" fill="#9a3424">理解度重新載入中</text>
+
+  <rect x="116" y="371" width="568" height="38" rx="19" fill="#26344a"/>
+  <text x="400" y="396" text-anchor="middle" font-family="Noto Sans TC, PingFang TC, sans-serif" font-size="17" font-weight="700" fill="#ffffff">熟悉答案位置，和熟悉題目是兩件事</text>
+</svg>
