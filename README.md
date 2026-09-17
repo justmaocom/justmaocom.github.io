@@ -1,39 +1,68 @@
-# Chirpy Starter
+# 只是一根毛
 
-[![Gem Version](https://img.shields.io/gem/v/jekyll-theme-chirpy)][gem]&nbsp;
-[![GitHub license](https://img.shields.io/github/license/cotes2020/chirpy-starter.svg?color=blue)][mit]
+[justmao.com](https://justmao.com) 的原始碼。這是 JustMao 的個人網站，主要記錄 AI Agent、RAG、後端、資安與軟體開發實作。
 
-A minimal, ready-to-use template for creating a blog with the [**Chirpy**][chirpy] Jekyll theme. Get up and running in minutes with all critical files pre-configured.
+網站以 [Jekyll](https://jekyllrb.com/) 和 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 建置，內容使用正體中文，並透過 GitHub Actions 部署到 GitHub Pages。
 
-## Why This Starter Exists
+## 技術與設定
 
-When installing Chirpy through [RubyGems.org][gem], Jekyll can only read a subset of theme files (`_data`, `_layouts`, `_includes`, `_sass`, `assets`) and limited `_config.yml` options from the gem. As a result, users cannot enjoy the full out-of-the-box experience that Chirpy offers.
+- Ruby 3.4、Jekyll 與 `jekyll-theme-chirpy ~> 7.6`
+- GitHub Pages 自動部署與 `html-proofer` 站內連結檢查
+- `assets/lib` submodule 提供自架的字型與前端套件
+- PWA 與離線快取
+- Giscus 留言
+- 自訂網域 `justmao.com`
 
-To unlock all features, the following files must be present in your Jekyll site:
+Chirpy 主題本身由 gem 提供。這個 repository 只保留站台設定、內容，以及 gem 無法完整提供的 `_plugins/`、`_tabs/` 和 `index.html`。若要覆寫主題版面，請把主題 gem 中的檔案複製到 repository 內的相同路徑後再修改。
 
-```shell
-.
-├── _config.yml
-├── _plugins
-├── _tabs
-└── index.html
+## 本機執行
+
+請先安裝 Git、Ruby 3.4、Bundler 與 Bash。macOS 內建的 Ruby 2.6 無法執行此專案。
+
+```bash
+git clone --recurse-submodules https://github.com/justmaocom/justmaocom.github.io.git
+cd justmaocom.github.io
+bundle install
+bash tools/run.sh
 ```
 
-This starter bundles those files from the latest **Chirpy** release along with a [CD][CD] workflow, so you can start writing immediately.
+網站預設位於 [http://127.0.0.1:4000](http://127.0.0.1:4000)。若 clone 時沒有下載 submodule，請補執行：
 
-## Usage
+```bash
+git submodule update --init
+```
 
-Check out the [theme's docs](https://github.com/cotes2020/jekyll-theme-chirpy/wiki).
+本專案使用 Git 歷史計算文章最後更新時間，請勿使用 shallow clone。完整的環境設定、草稿預覽方式與常見問題請見[本機執行指南](docs/local-development.md)。
 
-## Contributing
+## 驗證
 
-This repository is automatically updated with new releases from the theme repository. If you encounter any issues or want to contribute to its improvement, please visit the [theme repository][chirpy] to provide feedback.
+送出變更前，執行與 CI 相同的 production 建置及站內連結檢查：
 
-## License
+```bash
+bash tools/test.sh
+```
 
-This work is published under [MIT][mit] License.
+## 主要結構
 
-[gem]: https://rubygems.org/gems/jekyll-theme-chirpy
-[chirpy]: https://github.com/cotes2020/jekyll-theme-chirpy/
-[CD]: https://en.wikipedia.org/wiki/Continuous_deployment
-[mit]: https://github.com/cotes2020/chirpy-starter/blob/master/LICENSE
+```text
+_posts/          正式文章
+_tabs/           側邊欄頁面
+_plugins/        自訂 Jekyll plugin
+_data/           聯絡方式與分享選單設定
+assets/img/      網站與文章圖片
+assets/lib/      Chirpy 前端資源 submodule
+docs/            開發與文章撰寫文件
+tools/           本機啟動與驗證腳本
+_config.yml      網站與主題設定
+index.html       首頁入口
+```
+
+文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)。
+
+## 部署
+
+推送到 `main` 或 `master` 後，GitHub Actions 會使用 Ruby 3.4 建置網站、執行 `html-proofer`，再將輸出部署到 GitHub Pages。工作流程也可從 Actions 頁面手動執行。
+
+## 授權
+
+本專案採用 [MIT License](LICENSE)。
