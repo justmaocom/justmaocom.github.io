@@ -8,6 +8,10 @@ media_subpath: /assets/img/posts/openai-libheif-sso-attack-chain/
 mermaid: true
 ---
 
+> On July 25, our team hacked OpenAI. It took us less than 72 hours.
+>
+> Hacktron AI，[原始貼文](https://x.com/HacktronAI/status/2100795824812777893)
+
 你打開一份 SSO 權限審查表，服務名稱只填了「論壇」。下一欄要列出登入後可觸及的產品和外部資源，ChatGPT、Codex 與 GitHub 接連出現。這個情境的出處，是 Hacktron 在 2026 年 9 月公開的[事件敘述](https://www.hacktron.ai/blog/hacking-openai)。論壇的圖片上傳問題，為什麼會牽連到內部程式庫？
 
 圖片解碼漏洞與 Discourse 的修補，都能用公開資料完整核對。OpenAI SSO 的錯誤設定、員工帳號接管和內部 pull request，則只有研究團隊的說法。把兩類證據分開，才能看懂這次事件真正提醒了什麼。
