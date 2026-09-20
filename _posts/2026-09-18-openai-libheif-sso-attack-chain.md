@@ -5,6 +5,9 @@ date: 2026-09-18 14:24:48 +0800
 categories: [觀點筆記, 資訊安全]
 tags: [application-security, sso, codex, discourse, libheif]
 media_subpath: /assets/img/posts/openai-libheif-sso-attack-chain/
+image:
+  path: cover.webp
+  alt: Hacktron 公開了一條從 Discourse 圖片解碼漏洞延伸到 OpenAI 帳號與內部 GitHub 資源的攻擊鏈。
 mermaid: true
 ---
 
