@@ -2,7 +2,7 @@
 title: OpenWiki 追得到程式碼變更，卻證明不了文件正確
 description: OpenWiki 用 Git 變更與 Grounded Claims 找出該更新的 repo wiki 頁面，但來源檢查全綠只代表引用沒過期。從 0.5.2 原始碼拆解它做到哪裡，以及導入要付的成本。
 date: 2026-09-19 08:20:00 +0800
-categories: [觀點筆記, 開發工具]
+categories: [AI, 文件維護]
 tags: [openwiki, coding-agent, documentation]
 media_subpath: /assets/img/posts/openwiki-agent-docs-maintenance/
 ---

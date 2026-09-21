@@ -2,7 +2,7 @@
 title: 採購法 PDF 題庫變成不靠題序記憶的練習網站
 description: 從解析題庫、隨機組卷，並用跨練習統計找出弱項
 date: 2026-09-15 13:42:04 +0800
-categories: [專案實作, Web應用]
+categories: [軟體開發, Web應用]
 tags: [python, fastapi, sqlalchemy, postgresql, pdf-parsing, side-project]
 media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
 ---

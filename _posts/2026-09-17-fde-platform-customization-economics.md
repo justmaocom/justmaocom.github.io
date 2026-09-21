@@ -2,7 +2,7 @@
 title: FDE 能否規模化，取決於共用平台而不是工程師人數
 description: 整理 Kevin Bai 對前線部署工程的判斷框架，說明何時需要 FDE、共用平台如何承接客製工作，以及擴編前必須付出的維護成本。
 date: 2026-09-17 16:15:05 +0800
-categories: [觀點筆記, 組織設計]
+categories: [軟體工程, FDE]
 tags: [fde, forward-deployed-engineer, enterprise-software, go-to-market, product-platform, talk-notes]
 media_subpath: /assets/img/posts/fde-platform-customization-economics/
 ---

@@ -2,7 +2,7 @@
 title: 從一張 HEIF 圖片看 SSO 如何把論壇事故帶進 Codex
 description: Hacktron 公開了一條從 Discourse 圖片解碼漏洞延伸到 OpenAI 帳號與內部 GitHub 資源的攻擊鏈。本文拆解證據、修補層次與信任關係，並整理可直接用於維運和權限審查的問題清單。
 date: 2026-09-18 14:24:48 +0800
-categories: [觀點筆記, 資訊安全]
+categories: [資訊安全, 攻擊鏈]
 tags: [application-security, sso, codex, discourse, libheif]
 media_subpath: /assets/img/posts/openai-libheif-sso-attack-chain/
 image:
