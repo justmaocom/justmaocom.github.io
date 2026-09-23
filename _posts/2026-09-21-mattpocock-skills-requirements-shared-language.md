@@ -14,7 +14,10 @@ image:
 
 本文提到的 skill，可以先理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明。`mattpocock/skills` 把這類工作拆成訪談、詞彙整理與重新說明。本文會釐清五個相關 skill 的分工，並說明訪談結束後哪些內容會留在專案裡。
 
-> 本文是 mattpocock/skills 系列第 2 篇。上一篇先說明[如何設定專案規則，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)。
+> mattpocock/skills 系列｜第 2 篇
+>
+> - 上一篇（第 1 篇）：[先設定專案規則，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)
+> - 下一篇（第 3 篇）：[先找出缺口，再決定要寫規格還是拆工作單](/posts/mattpocock-skills-specs-work-breakdown/)
 >
 > 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。
 {: .prompt-info }
