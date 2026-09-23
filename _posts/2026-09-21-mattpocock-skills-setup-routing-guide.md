@@ -1,5 +1,5 @@
 ---
-title: "mattpocock/skills 入門：先設定專案規則，再用 ask-matt 找下一步"
+title: "mattpocock/skills 系列（1）：先設定專案規則，再用 ask-matt 找下一步"
 description: "從安裝與初始設定開始，說明 setup-matt-pocock-skills 與 ask-matt 的分工，並以按席次計費需求示範首次使用流程。"
 date: 2026-09-21 11:16:29 +0800
 categories: [AI, skills]
