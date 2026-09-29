@@ -1,0 +1,27 @@
+{% comment %}
+  主題在 <head> 尾端預留的自訂位置（gem 版本只有一行註解）。
+
+  輸出各語系版本的 hreflang 連結，並同步載入 assets/js/i18n.js 做語系偵測與切換。
+  polyglot 建置非預設語系時，page.url 不含語系前綴，所以同一頁在各語系的網址都是
+  「語系前綴 + page.url」。分類名稱在各語系不同（例如 資訊安全／信息安全／Security），
+  分類頁沒有一對一的對應版本，因此不輸出 hreflang。
+
+  default_lang 那一行的屬性順序必須是 hreflang 在前、href 在後：polyglot 靠這個
+  順序辨認它，才不會替它補上當下語系的前綴。
+{% endcomment %}
+{% unless page.layout == 'category' %}
+  {% for i18n_lang in site.languages %}
+    {% if i18n_lang == site.default_lang %}
+      <link rel="alternate" hreflang="{{ i18n_lang }}" href="{{ site.url }}{{ site.baseurl }}{{ page.url }}">
+    {% else %}
+      <link rel="alternate" hreflang="{{ i18n_lang }}" href="{{ site.url }}{{ site.baseurl }}/{{ i18n_lang }}{{ page.url }}">
+    {% endif %}
+  {% endfor %}
+  <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ site.baseurl }}{{ page.url }}">
+{% endunless %}
+<script
+  src="{{ site.baseurl }}/assets/js/i18n.js"
+  data-lang="{{ site.active_lang }}"
+  data-default-lang="{{ site.default_lang }}"
+  data-baseurl="{{ site.baseurl }}"
+></script>

@@ -15,6 +15,14 @@
 
   const clamp = (value, lo, hi) => Math.min(Math.max(value, lo), hi);
 
+  // 介面文字跟著頁面語系（<html lang>）走，未列出的語系用繁中
+  const STRINGS = {
+    'zh-TW': { dialog: '圖表放大檢視', out: '縮小', reset: '重設縮放', resetText: '重設', in: '放大', close: '關閉', open: '放大檢視圖表' },
+    'zh-CN': { dialog: '图表放大查看', out: '缩小', reset: '重置缩放', resetText: '重置', in: '放大', close: '关闭', open: '放大查看图表' },
+    en: { dialog: 'Diagram viewer', out: 'Zoom out', reset: 'Reset zoom', resetText: 'Reset', in: 'Zoom in', close: 'Close', open: 'Open diagram viewer' }
+  };
+  const t = STRINGS[document.documentElement.lang] || STRINGS['zh-TW'];
+
   let ui = null;
   let opener = null; // 觸發開啟的圖表，關閉後把焦點還回去
   let size = { w: 0, h: 0 }; // 圖表原始尺寸，取自 viewBox
@@ -32,17 +40,17 @@
     root.className = 'mermaid-zoom';
     root.setAttribute('role', 'dialog');
     root.setAttribute('aria-modal', 'true');
-    root.setAttribute('aria-label', '圖表放大檢視');
+    root.setAttribute('aria-label', t.dialog);
     root.hidden = true;
     root.innerHTML = [
       '<div class="mermaid-zoom__stage">',
       '<div class="mermaid-zoom__canvas"></div>',
       '</div>',
       '<div class="mermaid-zoom__toolbar">',
-      '<button type="button" data-act="out" aria-label="縮小">&minus;</button>',
-      '<button type="button" data-act="reset" aria-label="重設縮放">重設</button>',
-      '<button type="button" data-act="in" aria-label="放大">&plus;</button>',
-      '<button type="button" data-act="close" aria-label="關閉">&times;</button>',
+      `<button type="button" data-act="out" aria-label="${t.out}">&minus;</button>`,
+      `<button type="button" data-act="reset" aria-label="${t.reset}">${t.resetText}</button>`,
+      `<button type="button" data-act="in" aria-label="${t.in}">&plus;</button>`,
+      `<button type="button" data-act="close" aria-label="${t.close}">&times;</button>`,
       '</div>'
     ].join('');
 
@@ -285,7 +293,7 @@
       el.dataset.zoomable = 'true';
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
-      el.setAttribute('aria-label', '放大檢視圖表');
+      el.setAttribute('aria-label', t.open);
     });
   }
 

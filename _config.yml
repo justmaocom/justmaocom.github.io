@@ -8,6 +8,35 @@ theme: jekyll-theme-chirpy
 # otherwise, the layout language will use the default value of 'en'.
 lang: zh-TW
 
+# 多語系（jekyll-polyglot）› https://github.com/untra/polyglot
+# 預設語系輸出在站台根目錄，其他語系輸出在 /<lang>/ 之下。
+# 建置時 polyglot 會依序以各語系跑一次完整流程，並透過 lang_vars 把 site.lang 換成當下語系，
+# 主題就會套用對應的 _data/locales 介面文字。
+languages: ["zh-TW", "zh-CN", "en"]
+default_lang: zh-TW
+lang_vars: [lang]
+# 這些檔案只輸出一份在根目錄，不複製到 /<lang>/ 之下
+exclude_from_localization:
+  - assets/lib
+  - assets/img
+  - assets/js/mermaid-zoom.js
+  - assets/js/i18n.js
+  - assets/robots.txt
+  - CNAME
+  - google5762b861fb04640c.html
+
+# 非預設語系的站台資訊，建置該語系時覆寫同名的頂層欄位（見 _plugins/i18n-hook.rb）
+i18n_site:
+  zh-CN:
+    tagline: 从问题开始，把答案写下来
+    description: >-
+      JustMao的个人网站，分享技术、阅读、写作与生活中的笔记和思考。
+  en:
+    title: JustMao
+    tagline: Start with a question, write down the answer
+    description: >-
+      JustMao's personal site: notes and thoughts on technology, reading, writing, and life.
+
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Asia/Taipei
 
@@ -137,7 +166,7 @@ comments:
     mapping: # optional, default to 'pathname'
     strict: # optional, default to '0'
     input_position: top # optional, default to 'bottom'
-    lang: zh-TW # optional, default to the value of `site.lang`
+    lang: # optional, default to the value of `site.lang`
     reactions_enabled: # optional, default to the value of `1`
 
 # Self-hosted static assets, optional › https://github.com/cotes2020/chirpy-static-assets
@@ -197,6 +226,24 @@ defaults:
       path: _drafts
     values:
       comments: false
+  # 各語系的譯文放在 _posts/<lang>/ 與 _tabs/<lang>/，檔名與繁中原文相同，
+  # polyglot 依相同的 permalink 把它們視為同一篇文章的不同語系版本
+  - scope:
+      path: _posts/zh-CN
+    values:
+      lang: zh-CN
+  - scope:
+      path: _posts/en
+    values:
+      lang: en
+  - scope:
+      path: _tabs/zh-CN
+    values:
+      lang: zh-CN
+  - scope:
+      path: _tabs/en
+    values:
+      lang: en
   - scope:
       path: ""
       type: tabs # see `site.collections`

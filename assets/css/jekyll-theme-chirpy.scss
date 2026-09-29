@@ -44,6 +44,14 @@ pre.mermaid[data-zoomable] {
   }
 }
 
+html:lang(zh-CN) pre.mermaid[data-zoomable]::after {
+  content: '点击放大';
+}
+
+html:lang(en) pre.mermaid[data-zoomable]::after {
+  content: 'Click to zoom';
+}
+
 /* 觸控裝置沒有 hover，提示直接留著 */
 @media (hover: none) {
   pre.mermaid[data-zoomable]::after {
@@ -128,5 +136,113 @@ html.mermaid-zoom-open {
   .mermaid-zoom,
   pre.mermaid[data-zoomable]::after {
     transition: none;
+  }
+}
+
+/* --- 語系切換（搭配 assets/js/i18n.js），位於頂欄搜尋框旁，選單外觀比照主題的 #mode-toggle --- */
+
+#topbar .lang-switcher {
+  /* 頂欄是 justify-content-between；桌面版吃掉左側空間，讓按鈕貼著搜尋框 */
+  @media (min-width: 992px) {
+    margin-left: auto;
+    margin-right: 0.75rem;
+  }
+}
+
+/* 手機版展開搜尋時，主題會隱藏頂欄其他按鈕並顯示「取消」，語系按鈕跟著收起 */
+#topbar:has(#search-cancel.d-block) .lang-switcher {
+  display: none;
+}
+
+/* 膠囊外框比照搜尋框，並加深框線與文字，讓按鈕在頂欄中看得出來 */
+#topbar #lang-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--text-muted-color) 45%, transparent);
+  border-radius: 1rem;
+  background: var(--main-bg);
+  color: var(--text-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s;
+
+  i {
+    color: inherit;
+    font-size: 0.875rem;
+  }
+
+  .lang-caret {
+    font-size: 0.625rem;
+    opacity: 0.7;
+    transition: transform 0.2s;
+  }
+
+  &:hover,
+  &[aria-expanded='true'] {
+    color: var(--link-color);
+    border-color: var(--link-color);
+  }
+
+  &[aria-expanded='true'] .lang-caret {
+    transform: rotate(180deg);
+  }
+
+  /* 手機版頂欄空間有限，拿掉箭頭並縮小留白 */
+  @media (max-width: 991.98px) {
+    gap: 0.3rem;
+    padding: 0 0.6rem;
+
+    .lang-caret {
+      display: none;
+    }
+  }
+}
+
+#lang-toggle {
+
+  + .dropdown-menu {
+    min-width: 9rem;
+    background-color: var(--menu-bg);
+    border-color: var(--menu-border-color);
+    box-shadow: var(--menu-shadow-color) 0 1px 4px;
+    border-radius: 0.75rem !important;
+
+    &.show {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .dropdown-item {
+      border-radius: 0.5rem;
+      color: var(--sidebar-muted-color);
+      font-size: 90%;
+
+      &.active {
+        font-weight: 600;
+        color: var(--menu-active-color);
+
+        &::after {
+          content: '\f00c';
+          font: var(--fa-font-solid);
+          font-size: 0.75rem;
+          color: var(--sidebar-btn-color);
+          margin-left: auto;
+          padding-left: 1rem;
+        }
+      }
+
+      &:active,
+      &:hover,
+      &.active {
+        background-color: var(--menu-highlight-bg);
+      }
+    }
   }
 }

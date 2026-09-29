@@ -1,0 +1,16 @@
+---
+permalink: /robots.txt
+# 覆寫主題的 assets/robots.txt，列出每個語系各自的 sitemap
+---
+
+User-agent: *
+
+Disallow: /norobots/
+
+{% for i18n_lang in site.languages -%}
+{%- if i18n_lang == site.default_lang -%}
+Sitemap: {{ '/sitemap.xml' | absolute_url }}
+{% else -%}
+Sitemap: {{ site.url }}{{ site.baseurl }}/{{ i18n_lang }}/sitemap.xml
+{% endif -%}
+{%- endfor %}
