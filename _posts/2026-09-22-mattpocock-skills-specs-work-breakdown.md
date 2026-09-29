@@ -17,6 +17,7 @@ image:
 > mattpocock/skills 系列｜第 3 篇
 >
 > - 上一篇（第 2 篇）：[把模糊需求問清楚，留下共用詞彙](/posts/mattpocock-skills-requirements-shared-language/)
+> - 下一篇（第 4 篇）：[AI 開工寫程式前，先決定要看哪一種訊號](/posts/mattpocock-skills-implementation-feedback-loops/)
 >
 > 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。文中的按席次計費流程依原始指令推演，不是實測輸出。
 {: .prompt-info }
