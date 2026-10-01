@@ -1,0 +1,62 @@
+{%- comment -%}
+  依 _data/projects.yml 輸出專案卡片，由 _tabs/<lang>/projects.md 引入；按鈕文字在 _data/locales/<lang>.yml 的 projects。
+  專案名稱與預覽圖連到 website，沒有 website 時連到 github。
+  整段包在單一個從行首開始的 <div> 內，kramdown 才會把它當成 HTML 區塊原樣保留。
+{%- endcomment -%}
+{%- include lang.html -%}
+{%- assign labels = site.data.locales[lang].projects -%}
+<div class="projects">
+{%- for project in site.data.projects -%}
+{%- comment -%} name 可以是字串或三語系 hash；對字串取 [lang] 會得到 nil，因此落到最後的 default {%- endcomment -%}
+{%- assign name = project.name[lang] | default: project.name['zh-TW'] | default: project.name -%}
+{%- assign main_url = project.website | default: project.github -%}
+<article class="project">
+{%- assign domain = main_url | remove_first: 'https://' | remove_first: 'http://' | split: '/' | first -%}
+{%- if project.image -%}
+{%- comment -%}
+  <a> 不加 class，且與 <img> 之間不留空白：主題的 refactor-content 會沿用這個 <a>（補上 img-link class），
+  否則會在外面再包一層燈箱用的 <a>，變成巢狀連結
+{%- endcomment -%}
+<div class="project-preview" aria-hidden="true">
+<div class="project-window">
+<span class="project-window-bar">{{ domain }}</span>
+<a href="{{ main_url }}" target="_blank" rel="noopener noreferrer" tabindex="-1"><img src="{{ project.image | relative_url }}" alt=""></a>
+</div>
+</div>
+{%- else -%}
+{%- comment -%} 沒有截圖時用骨架畫面當 placeholder，外框與截圖相同，同一行的卡片內容才會對齊 {%- endcomment -%}
+{%- if project.website -%}
+{%- assign placeholder = domain -%}
+{%- else -%}
+{%- assign placeholder = project.github | remove_first: 'https://github.com/' | remove: '.git' -%}
+{%- endif -%}
+<div class="project-preview" aria-hidden="true">
+<div class="project-window">
+<span class="project-window-bar">{{ placeholder }}</span>
+<a class="project-placeholder" href="{{ main_url }}" target="_blank" rel="noopener noreferrer" tabindex="-1">
+<span class="ph-header"><span class="ph-title"></span><span class="ph-nav"></span></span>
+<span class="ph-grid">{% for i in (1..8) %}<span class="ph-item"></span>{% endfor %}</span>
+</a>
+</div>
+</div>
+{%- endif -%}
+<div class="project-body">
+<p class="project-meta"><span class="project-index">{% if forloop.index < 10 %}0{% endif %}{{ forloop.index }}</span>{%- if project.tech -%}<span class="project-tech">{{ project.tech | join: ' · ' }}</span>{%- endif -%}</p>
+<h2 class="project-name"><a href="{{ main_url }}" target="_blank" rel="noopener noreferrer">{{ name }}</a></h2>
+<p class="project-description">{{ project.description[lang] | default: project.description['zh-TW'] }}</p>
+{%- if project.post -%}
+{%- capture post_url -%}/posts/{{ project.post }}/{%- endcapture -%}
+<p class="project-post"><a href="{{ post_url | relative_url }}">{{ labels.post }}</a></p>
+{%- endif -%}
+<div class="project-links">
+{%- if project.website -%}
+<a class="project-btn project-btn-primary" href="{{ project.website }}" target="_blank" rel="noopener noreferrer">{{ labels.website }}</a>
+{%- endif -%}
+{%- if project.github -%}
+<a class="project-btn" href="{{ project.github }}" target="_blank" rel="noopener noreferrer"><i class="fab fa-github"></i>GitHub</a>
+{%- endif -%}
+</div>
+</div>
+</article>
+{%- endfor -%}
+</div>

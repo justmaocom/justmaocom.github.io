@@ -1,0 +1,26 @@
+# 「專案」頁（_tabs/projects.md）的資料，三個語系共用；依列出順序顯示。
+#
+# - name: 專案名稱；各語系共用時直接填字串，要翻譯時寫成和 description 一樣的三語系結構
+#   description: 一句話介紹，三個語系都要給（缺的語系會改用 zh-TW）
+#     zh-TW: ...
+#     zh-CN: ...
+#     en: ...
+#   tech: [技術, 清單]          # 選填
+#   github: https://github.com/<owner>/<repo>   # github、website 至少填一個
+#   website: https://example.com
+#   image: /assets/img/projects/<name>.webp   # 選填，網站截圖，建議寬 1200px、約 4:3
+#   post: <slug>               # 選填，介紹文章的 slug（_posts 檔名去掉日期），連到 /posts/<slug>/
+
+- name:
+    zh-TW: 政府採購法題庫練習平台
+    zh-CN: 政府采购法题库练习平台
+    en: Government Procurement Act Exam Practice
+  description:
+    zh-TW: 把政府採購法的官方 PDF／DOCX 題庫解析後匯入資料庫，每輪隨機抽題，並用跨練習統計找出弱項。
+    zh-CN: 把政府采购法的官方 PDF／DOCX 题库解析后导入数据库，每轮随机抽题，并用跨练习统计找出弱项。
+    en: Parses the official PDF and DOCX question banks for Taiwan's Government Procurement Act and loads them into a database, draws a fresh random set of questions for each practice round, and tracks results across sessions to surface weak areas.
+  tech: [Python, FastAPI, SQLAlchemy, PostgreSQL]
+  github: https://github.com/7a6ac0/gpa-question-webapp
+  website: https://gpa.justmao.com/
+  image: /assets/projects/gpa-question-webapp/preview.webp
+  post: gpa-question-webapp-study-loop

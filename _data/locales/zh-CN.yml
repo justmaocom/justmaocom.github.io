@@ -1,0 +1,9 @@
+# 與主題 gem 內的 _data/locales/zh-CN.yml 深度合併（Jekyll 4.3+），只放本站新增的字串
+
+tabs:
+  projects: 项目
+
+# _includes/projects.html 的連結文字
+projects:
+  website: 打开网站
+  post: 介绍文章

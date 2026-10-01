@@ -1,7 +1,7 @@
 ---
 # the default layout is 'page'
 icon: fas fa-info-circle
-order: 4
+order: 5
 ---
 
 I'm a software engineer. I started out in security research, moved on to Android and Flutter, and eventually landed on the backend. These days I mostly work on AI/LLM platforms, RAG, and agents.
