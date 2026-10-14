@@ -23,6 +23,7 @@ image:
 > mattpocock/skills 系列｜第 5 篇
 >
 > - 上一篇（第 4 篇）：[AI 开工写代码前，先决定要看哪一种信号](/posts/mattpocock-skills-implementation-feedback-loops/)
+> - 下一篇（第 6 篇）：[查资料、做交接、学新东西，都有固定做法](/posts/mattpocock-skills-research-handoff/)
 >
 > 本文内容以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。按席位计费的 skill 调用流程按原始指令推演；文中的合并冲突与合并后的测试失败则是实际运行结果。
 {: .prompt-info }
