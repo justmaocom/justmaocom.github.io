@@ -10,7 +10,7 @@ image:
   alt: "封面：一個按鈕很少的模組和一份分兩欄的審查報告，代表本文介紹的四個 skill：程式寫完後怎麼檢查結構、審查修改、解決合併衝突。"
 ---
 
-上一篇用 `implement` 做完了「停用成員並釋放席次」，測試從紅燈轉成綠燈，AI 最後也照指令跑了一次 `code-review`。現在你手上有三張做完的工作單，和一條準備合併回主線的分支。
+上一篇用 `implement` 做完了「停用成員並釋放席次」，測試從紅燈（失敗）轉成綠燈（通過），AI 最後也照指令跑了一次 `code-review`。現在你手上有三張做完的工作單，和一條準備合併回主線的分支（分支就是從主線複製出來、讓你放心修改的一份副本）。
 
 測試通過，只代表程式的行為和測試寫的一樣。但還有三件事是測試看不出來的：
 
@@ -51,7 +51,7 @@ image:
 
 這四個在 `ask-matt` 的路線圖裡位置都不同：[`codebase-design` 是底層詞彙](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L59)，[`improve-codebase-architecture` 是平時保養](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)，[`code-review` 是主流程的最後一步](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L26)，[`resolving-merge-conflicts` 不在任何流程裡](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L79)，卡住了才用。
 
-`improve-codebase-architecture` 是唯一[設定成 AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一個，Codex 那邊的設定檔[也關掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它會把整個專案掃一遍，花的時間不少，所以由你決定什麼時候跑。
+`improve-codebase-architecture` 是唯一[設定成 AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一個，Codex 那邊的設定檔[也關掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它會把整個專案掃過一遍，相當花時間，所以由你決定什麼時候跑。
 
 ## `codebase-design`：先統一大家講話的用詞
 
@@ -93,12 +93,12 @@ _同樣的席次功能，左邊要記五顆按鈕，右邊只要三顆。_
 
 `codebase-design` 另外附了兩份文件，處理「決定要整理某個模組之後」的事：
 
-- [`DEEPENING.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L5-L37) 說明怎麼依照模組依賴的東西來決定怎麼測，例如依賴的是外部付款服務，測試時就換成假的。它也提醒：模組整理好、在新的按鈕上補好測試之後，[舊的測試要刪掉](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L32-L37)，不要新舊兩套一起留著。
+- [`DEEPENING.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L5-L37) 說明怎麼依照模組依賴的東西來決定怎麼測，例如依賴的是外部付款服務，測試時就換成假的。它也提醒：模組整理好、針對新的按鈕補好測試之後，[舊的測試要刪掉](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L32-L37)，不要新舊兩套一起留著。
 - [`DESIGN-IT-TWICE.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DESIGN-IT-TWICE.md#L19-L44) 說明怎麼「多畫幾種設計再挑」。AI 會同時分派 3 個以上的小幫手，各自用不同的方向設計，例如「按鈕越少越好」或「最常用的情況最簡單」，最後比較並給出明確的推薦，而不是丟一份選單給你自己挑。
 
 ## `improve-codebase-architecture`：定期幫專案做健康檢查
 
-如果 `codebase-design` 是工作台，`improve-codebase-architecture` 就是[先到現場巡一遍，找出值得整理的地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)。它的目標是[把淺模組整理成深模組](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9)，讓程式更好測，AI 也更容易看懂。
+如果 `codebase-design` 是整理時用的工具箱，`improve-codebase-architecture` 就是[先到現場巡一遍，找出值得整理的地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)。它的目標是[把淺模組整理成深模組](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9)，讓程式更好測，AI 也更容易看懂。
 
 它分三步。
 
@@ -120,7 +120,7 @@ _同樣的席次功能，左邊要記五顆按鈕，右邊只要三顆。_
 
 ## `code-review`：合併前分兩邊檢查
 
-`code-review` 檢查的是[某個時間點之後的所有修改](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/code-review/SKILL.md#L6-L11)。這個時間點可以是某個分支，例如 `main`，也可以是某一次 commit。
+`code-review` 檢查的是[某個時間點之後的所有修改](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/code-review/SKILL.md#L6-L11)。這個時間點可以是某個分支，例如 `main`，也可以是某一次 commit（commit 是把一批修改存成一個版本，並附上一段說明）。
 
 它把檢查拆成兩邊，各問一個問題：
 
@@ -169,14 +169,14 @@ _兩份報告分開放，不合成一份排名。_
 
 ## `resolving-merge-conflicts`：先搞懂兩邊想做什麼，再合併
 
-先說明什麼是合併衝突。兩個人從同一份程式各自修改，改到了同一段，git 不知道該留哪一邊，就會停下來，把兩邊的版本都標出來，讓人決定。
+先說明什麼是合併衝突。兩個人從同一份程式各自修改，又剛好改到同一段，負責管理版本的工具 git 不知道該留哪一邊，就會停下來，把兩邊的版本都標出來，讓人決定。
 
 這個 skill 只有[五個步驟](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/resolving-merge-conflicts/SKILL.md#L6-L14)：
 
 1. 先看清楚現在卡在哪裡、哪些檔案有衝突。
-2. 替每一處衝突找出源頭：讀 commit 訊息、PR 和原本的工作單，搞懂兩邊各自為什麼這樣改。
+2. 替每一處衝突找出源頭：讀 commit 訊息、PR（請別人審查並合併修改的申請）和原本的工作單，搞懂兩邊各自為什麼這樣改。
 3. 一處一處解決。能兩邊都保留就都保留；真的只能選一邊時，選符合這次合併目的的那邊，並寫下為什麼。不准自己發明新功能，也[不准直接放棄合併](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/resolving-merge-conflicts/SKILL.md#L10)。
-4. 跑一次專案的自動檢查，通常是型別檢查、測試、格式化，把合併弄壞的地方修好。
+4. 跑一次專案的自動檢查，通常包括型別檢查（確認資料的種類沒有用錯）、測試和格式整理，把合併弄壞的地方修好。
 5. 完成合併並 commit。
 
 重點在第 2 步。衝突標記只告訴你「兩邊的文字不一樣」，不會告訴你兩邊各自想做到什麼。如果直接選「只留我這邊」或「只留對方那邊」，程式也許能跑，卻可能默默丟掉別人刻意加的修改。
@@ -301,9 +301,9 @@ export function deactivateMember(workspace, memberId, billing) {
 ```
 {: file="seats.js（解決後）" }
 
-順序也有講究：先檢查成員在不在，不在就直接結束，計費系統就不會收到一次沒有變化的通知。這一點兩邊的 commit 都沒寫，是 AI 合併時自己做的判斷，所以要寫進合併的 commit 訊息，讓你審查時看得到。
+順序也有講究：先檢查成員在不在，不在就直接結束，計費系統就不會收到一次沒有變化的通知。這一點兩邊的 commit 都沒提到，是 AI 合併時自己做的判斷，所以要寫進合併的 commit 訊息，讓你審查時看得到。
 
-接著照第 4 步跑測試。上一篇寫的 `node --test seats.test.js`，呼叫 `deactivateMember()` 時沒有傳入計費系統。我把合併後的程式放回上一篇的測試，用 Node.js v20.19.2 實際跑過，結果是 `fail 1`，錯誤類型為 `TypeError`。
+接著照第 4 步跑測試。上一篇寫的 `node --test seats.test.js`，呼叫 `deactivateMember()` 時沒有傳入計費系統。我把合併後的程式放回上一篇的測試，用 Node.js v20.19.2 實際跑過，結果是 `fail 1`（一個測試失敗），錯誤類型為 `TypeError`，意思是程式拿到了不能用的東西：這裡是計費系統沒有傳進來。
 
 這正是「把合併弄壞的地方修好」要處理的情況：要在測試裡補一個假的計費系統，而不是把通知計費那一行刪掉。全部通過之後，AI 才會 commit。
 
@@ -313,7 +313,7 @@ export function deactivateMember(workspace, memberId, billing) {
 
 `code-review` 刻意不替兩份報告排先後，所以先讀哪一份由你決定。我會先讀「照需求做了嗎」。這一邊有問題，代表功能可能做錯了，合併前就要處理。「照規矩寫了嗎」的壞味道，原文自己就說只是提醒，大多可以等下次整理時一起看。
 
-我也不會讓 `code-review` 當場把每個壞味道都修掉。上面模擬的「改一件事要動很多地方」，不是改個名字就能解決的。它需要的是健康檢查那一套：先巡一遍、再討論、再回到主流程。在審查時硬改，等於沒有需求文件就動結構，剛好跳過了第 3、4 篇建立的檢查點。
+我也不會讓 `code-review` 當場把每個壞味道都修掉。上面模擬的「改一件事要動很多地方」，不是改個名字就能解決的。它需要的是健康檢查那一套：先巡一遍、再討論、再回到主流程。在審查時硬改，等於沒有需求文件就去動結構，正好跳過了第 3、4 篇建立的檢查點。
 
 不過這個做法有個前提：專案真的會定期做健康檢查。如果團隊從來不排時間整理，留下來的壞味道只會越積越多。這種情況下，還不如在審查時先把最明顯的幾個修掉。
 
