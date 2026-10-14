@@ -1,13 +1,13 @@
 ---
 title: "mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突"
-description: "测试通过不代表一切都好。本文用白话介绍 codebase-design、improve-codebase-architecture、code-review 与 resolving-merge-conflicts 四个 skill，并用按席位计费的例子实际做出一次合并冲突。"
+description: "测试通过不代表一切都好。本文介绍 codebase-design、improve-codebase-architecture、code-review 与 resolving-merge-conflicts 四个 skill，并用按席位计费的例子实际做出一次合并冲突。"
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.png
-  alt: "mattpocock/skills 系列第 5 篇封面：左边是一个按钮少、里面藏很多事的模块方块，右边是一份分成“照规矩写了吗”与“照需求做了吗”两栏的审查报告；底部列出四个 skill 的名称"
+  alt: "封面：一个按钮很少的模块和一份分两栏的审查报告，代表本文介绍的四个 skill：代码写完后怎么检查结构、审查修改、解决合并冲突。"
 ---
 
 上一篇用 `implement` 做完了“停用成员并释放席位”，测试从红灯转成绿灯，AI 最后也照指令跑了一次 `code-review`。现在你手上有三张做完的工作单，和一条准备合并回主线的分支。
@@ -44,7 +44,7 @@ image:
 
 ## 四个 skill 各管什么
 
-| skill | 用白话说 | 什么时候用 | AI 会不会自己启动 |
+| skill | 做什么 | 什么时候用 | AI 会不会自己启动 |
 | --- | --- | --- | --- |
 | `codebase-design` | 一份讨论代码结构用的词汇表 | 想讨论某段代码该怎么切、怎么包 | 会 |
 | `improve-codebase-architecture` | 定期帮项目做体检，找出值得整理的地方 | 有空时；或修 bug 时发现代码很难测 | 不会，要你手动叫它 |
@@ -82,7 +82,7 @@ _同样的席位功能，左边要记五颗按钮，右边只要三颗。_
 
 ### 四条判断原则
 
-[原文一共列了四条](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65)，我用白话改写：
+[原文一共列了四条](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65)：
 
 1. **深不深，看的是按钮，不是里面。** 里面可以拆成很多小零件，只要不让用户看到就好。
 2. **删掉看看。** 想象把这个模块删掉。如果麻烦跟着消失，它只是个传话的中间人；如果麻烦散回每个使用它的地方，它就有存在的价值。

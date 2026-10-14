@@ -1,13 +1,13 @@
 ---
 title: "mattpocock/skills 系列（5）：程式寫完之後，誰來看結構、審修改、解衝突"
-description: "測試通過不代表一切都好。本文用白話介紹 codebase-design、improve-codebase-architecture、code-review 與 resolving-merge-conflicts 四個 skill，並用按席次計費的例子實際做出一次合併衝突。"
+description: "測試通過不代表一切都好。本文介紹 codebase-design、improve-codebase-architecture、code-review 與 resolving-merge-conflicts 四個 skill，並用按席次計費的例子實際做出一次合併衝突。"
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.png
-  alt: "mattpocock/skills 系列第 5 篇封面：左邊是一個按鈕少、裡面藏很多事的模組方塊，右邊是一份分成「照規矩寫了嗎」與「照需求做了嗎」兩欄的審查報告；底部列出四個 skill 的名稱"
+  alt: "封面：一個按鈕很少的模組和一份分兩欄的審查報告，代表本文介紹的四個 skill：程式寫完後怎麼檢查結構、審查修改、解決合併衝突。"
 ---
 
 上一篇用 `implement` 做完了「停用成員並釋放席次」，測試從紅燈轉成綠燈，AI 最後也照指令跑了一次 `code-review`。現在你手上有三張做完的工作單，和一條準備合併回主線的分支。
@@ -44,7 +44,7 @@ image:
 
 ## 四個 skill 各管什麼
 
-| skill | 用白話說 | 什麼時候用 | AI 會不會自己啟動 |
+| skill | 做什麼 | 什麼時候用 | AI 會不會自己啟動 |
 | --- | --- | --- | --- |
 | `codebase-design` | 一份討論程式結構用的詞彙表 | 想討論某段程式該怎麼切、怎麼包 | 會 |
 | `improve-codebase-architecture` | 定期幫專案做健康檢查，找出值得整理的地方 | 有空的時候；或修 bug 時發現程式很難測 | 不會，要你手動叫它 |
@@ -82,7 +82,7 @@ _同樣的席次功能，左邊要記五顆按鈕，右邊只要三顆。_
 
 ### 四條判斷原則
 
-[原文一共列了四條](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65)，我用白話改寫：
+[原文一共列了四條](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65)：
 
 1. **深不深，看的是按鈕，不是裡面。** 裡面可以拆成很多小零件，只要不讓使用者看到就好。
 2. **刪掉看看。** 想像把這個模組刪掉。如果麻煩跟著消失，它只是個傳話的中間人；如果麻煩散回每個使用它的地方，它就有存在的價值。

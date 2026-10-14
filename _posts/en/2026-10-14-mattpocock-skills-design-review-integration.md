@@ -1,13 +1,13 @@
 ---
 title: "mattpocock/skills Series (5): After the Code Is Written, Who Checks the Structure, Reviews the Change, and Resolves Conflicts?"
-description: "Passing tests don't mean everything is fine. This post explains, in plain language, four skills: codebase-design, improve-codebase-architecture, code-review, and resolving-merge-conflicts, and produces a real merge conflict using the per-seat billing example."
+description: "Passing tests don't mean everything is fine. This post introduces four skills: codebase-design, improve-codebase-architecture, code-review, and resolving-merge-conflicts, and produces a real merge conflict using the per-seat billing example."
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.png
-  alt: "Cover of part 5 of the mattpocock/skills series: on the left, a module block with few buttons and a lot of work hidden inside; on the right, a review report split into \"Written by the rules?\" and \"Built what was asked?\"; the four skill names are listed at the bottom"
+  alt: "Cover: a module with only a few buttons next to a two-column review report, representing the four skills this post covers for checking structure, reviewing changes, and resolving merge conflicts after the code is written."
 ---
 
 In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red to green, and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main line.
@@ -44,7 +44,7 @@ Any other term gets explained the first time it shows up.
 
 ## What Each Skill Does
 
-| skill | In plain words | When to use it | Can the AI start it on its own? |
+| skill | What it does | When to use it | Can the AI start it on its own? |
 | --- | --- | --- | --- |
 | `codebase-design` | A shared vocabulary for talking about code structure | When you want to discuss how a piece of code should be split or wrapped | Yes |
 | `improve-codebase-architecture` | A regular health check that finds parts worth tidying up | When you have time, or when fixing a bug shows the code is hard to test | No, you start it yourself |
@@ -82,7 +82,7 @@ _The same seat feature: five buttons to remember on the left, three on the right
 
 ### Four Rules of Thumb
 
-[The skill lists four](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65), rephrased here in plain words:
+[The skill lists four](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L60-L65):
 
 1. **Depth is about the buttons, not the insides.** The inside can be split into many small parts, as long as users never see them.
 2. **Try deleting it.** Imagine deleting the module. If the hassle disappears with it, it was just a go-between; if the hassle spills back into every place that uses it, it was earning its keep.
