@@ -19,6 +19,7 @@ But the AI wrote those tests too. They might just be vouching for the code it wr
 > mattpocock/skills Series | Part 4
 >
 > - Previous (Part 3): [Find the Gap First, Then Decide Whether to Write a Spec or Break Down Tickets](/posts/mattpocock-skills-specs-work-breakdown/)
+> - Next (Part 5): [After the Code Is Written, Who Checks the Structure, Reviews the Change, and Resolves Conflicts?](/posts/mattpocock-skills-design-review-integration/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the red and green test outputs shown in the post are real execution results.
 {: .prompt-info }
