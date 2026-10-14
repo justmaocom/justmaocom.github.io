@@ -10,7 +10,7 @@ image:
   alt: "Cover: a module with only a few buttons next to a two-column review report, representing the four skills this post covers for checking structure, reviewing changes, and resolving merge conflicts after the code is written."
 ---
 
-In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red to green, and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main line.
+In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main line (a branch is a copy of the main line where you can make changes safely).
 
 Passing tests only mean the code behaves the way the tests say. Three things remain that tests can't see:
 
@@ -51,7 +51,7 @@ You only need three words for this post:
 
 Each one sits in a different place on the `ask-matt` roadmap: [`codebase-design` is vocabulary underneath everything](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L59), [`improve-codebase-architecture` is routine upkeep](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52), [`code-review` is the last step of the main flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L26), and [`resolving-merge-conflicts` is outside every flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L79), used only when you're stuck.
 
-`improve-codebase-architecture` is the only one [set so the AI can't start it on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4), and the Codex config [turns that off too](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5). It scans the whole project and takes a while, so you decide when it runs.
+`improve-codebase-architecture` is the only one [set so the AI can't start it on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4), and the Codex config [turns that off too](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5). It scans the whole project, which takes quite a while, so you decide when it runs.
 
 ## `codebase-design`: Agree on the Words First
 
@@ -98,7 +98,7 @@ Rule 4 comes up a lot. People often add an extra layer "in case we change databa
 
 ## `improve-codebase-architecture`: A Regular Health Check for the Project
 
-If `codebase-design` is the workbench, `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
+If `codebase-design` is the toolbox you tidy with, `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
 
 It works in three steps.
 
@@ -120,7 +120,7 @@ In the README, the author [suggests running it every few days](https://github.co
 
 ## `code-review`: Checking From Two Sides Before Merging
 
-`code-review` checks [all the changes made after a given point](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/code-review/SKILL.md#L6-L11). That point can be a branch, such as `main`, or a particular commit.
+`code-review` checks [all the changes made after a given point](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/code-review/SKILL.md#L6-L11). That point can be a branch, such as `main`, or a particular commit (a commit is a batch of changes saved as one version, with a short note explaining it).
 
 It splits the check into two sides, each asking one question:
 
@@ -169,14 +169,14 @@ As the previous post mentioned, [`tdd` leaves tidying up the code to the review 
 
 ## `resolving-merge-conflicts`: Understand What Each Side Wanted, Then Merge
 
-First, what a merge conflict is. Two people start from the same code and each make changes. When they change the same lines, git can't tell which version to keep, so it stops, marks both versions, and lets a person decide.
+First, what a merge conflict is. Two people start from the same code and each make changes. When they happen to change the same lines, git, the tool that tracks versions, can't tell which version to keep, so it stops, marks both versions, and lets a person decide.
 
 The skill is just [five steps](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/resolving-merge-conflicts/SKILL.md#L6-L14):
 
 1. See where things are stuck and which files have conflicts.
-2. Trace each conflict to its source: read the commit messages, PRs, and original tickets to understand why each side made its change.
+2. Trace each conflict to its source: read the commit messages, PRs (requests asking others to review and merge changes), and original tickets to understand why each side made its change.
 3. Resolve them one at a time. Keep both sides wherever possible; when you truly can only keep one, keep the one that fits the goal of this merge and write down why. Don't invent new features, and [never just abandon the merge](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/resolving-merge-conflicts/SKILL.md#L10).
-4. Run the project's automatic checks, usually type checking, tests, and formatting, and fix whatever the merge broke.
+4. Run the project's automatic checks, usually type checking (making sure each piece of data is the right kind), tests, and formatting, and fix whatever the merge broke.
 5. Finish the merge and commit.
 
 Step 2 is the heart of it. Conflict markers only tell you "the text differs on each side," not what each side was trying to do. If you just choose "keep mine" or "keep theirs," the code may run, but it can quietly throw away a change someone made on purpose.
@@ -303,7 +303,7 @@ export function deactivateMember(workspace, memberId, billing) {
 
 The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging, so it belongs in the merge commit message where you'll see it during review.
 
-Then, per step 4, run the tests. The `node --test seats.test.js` from the previous post calls `deactivateMember()` without passing in a billing system. I put the merged code back under that test and actually ran it on Node.js v20.19.2: the result was `fail 1`, with a `TypeError`.
+Then, per step 4, run the tests. The `node --test seats.test.js` from the previous post calls `deactivateMember()` without passing in a billing system. I put the merged code back under that test and actually ran it on Node.js v20.19.2: the result was `fail 1` (one test failed), with a `TypeError`, meaning the code received something it couldn't use: here, the billing system was never passed in.
 
 This is exactly the "fix whatever the merge broke" case: add a fake billing system to the test, rather than deleting the line that notifies billing. Only after everything passes does the AI commit.
 
@@ -313,7 +313,7 @@ This section is my own view; the source material doesn't say it directly.
 
 `code-review` deliberately doesn't rank the two reports, so which one you read first is up to you. I read "built what was asked?" first. A problem there means the feature may be wrong and must be handled before merging. The smells on the "written by the rules?" side are, by the skill's own account, just heads-ups, and most can wait for the next tidy-up.
 
-I also wouldn't have `code-review` fix every smell on the spot. The "one change, many places" in the walkthrough isn't something a rename solves. It needs the full health-check treatment: walk through, discuss, then go back into the main flow. Forcing it during review means reshaping the code without any requirements, skipping exactly the checkpoints that parts 3 and 4 set up.
+I also wouldn't have `code-review` fix every smell on the spot. The "one change, many places" in the walkthrough isn't something a rename solves. It needs the full health-check treatment: walk through, discuss, then go back into the main flow. Forcing it during review means reshaping the code without any requirements document, skipping exactly the checkpoints that parts 3 and 4 set up.
 
 That said, this assumes the project really does run health checks regularly. If the team never makes time to tidy up, leftover smells just pile up. In that case, you're better off fixing the most obvious ones during review.
 
