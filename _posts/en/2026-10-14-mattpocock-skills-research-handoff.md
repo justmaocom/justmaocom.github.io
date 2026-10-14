@@ -14,9 +14,9 @@ The first five parts were all about getting a feature built: clarifying requirem
 
 - How does the payment service calculate a prorated charge? Someone has to read the official docs.
 - The prototype lives in another folder. How do you carry over what was agreed in this conversation?
-- Only you can log into the payment service's dashboard to get the keys; the AI can't help there.
+- Only you can log into the payment service's dashboard to get the keys (secret strings that let a program use the service); the AI can't help there.
 - You only half understand "prorated billing" yourself and want to learn it properly.
-- The project's instructions for the AI keep getting longer, and the AI keeps not following them.
+- The project's instructions for the AI keep getting longer, yet the AI often doesn't follow them.
 
 None of these are coding, yet they often hold everything up. `mattpocock/skills` handles them with five skills: `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`.
 
@@ -42,7 +42,7 @@ None of these are coding, yet they often hold everything up. `mattpocock/skills`
 
 | skill | What it does | When to use it | Can the AI start it on its own? |
 | --- | --- | --- | --- |
-| `research` | Sends a background helper to read primary sources and write a note with citations | When you need facts from official docs, API rules, and the like | Yes |
+| `research` | Sends a background helper to read primary sources and write a note with citations | When you need facts from official docs, API rules (how programs talk to each other), and the like | Yes |
 | `handoff` | Turns the current conversation into a handoff sheet | When switching folders, switching tools, or passing work to a colleague | No, you start it yourself |
 | `wizard` | Writes a small program that walks you through steps one by one | When you hit a step only you can do, such as logging into a dashboard to get a key | Yes |
 | `teach` | Teaches you a new topic over several sessions, inside one folder | When you want to really learn something | No, you start it yourself |
@@ -90,15 +90,15 @@ _The next person doesn't need the whole conversation, just a sheet that states w
 
 `ask-matt` keeps its use [very narrow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L67): only when switching to a different AI tool, moving to a different folder, handing to a colleague, or splitting off a side task midway.
 
-Other times there are easier options, such as simply continuing in the same conversation, or letting the tool compress the conversation automatically and carry on. `prototype` from part 4 is the classic case: the prototype lives in a separate folder, so you [hand off once on the way there and once on the way back](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21), bringing what the prototype taught you back into the original discussion.
+Other times there are easier options, such as simply continuing in the same conversation, or letting the tool automatically condense the conversation into a summary and carry on. `prototype` from part 4 is the classic case: the prototype lives in a separate folder, so you [hand off once on the way there and once on the way back](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21), bringing what the prototype taught you back into the original discussion.
 
 ## `wizard`: For Steps Only You Can Do, Let a Program Walk You Through
 
-Some things the AI genuinely can't do: log into the payment service's dashboard and copy a key, click a few buttons on a cloud host's website, store a password in GitHub's encrypted settings. Explaining these steps to the AI again every time gets old.
+Some things the AI genuinely can't do: log into the payment service's dashboard and copy a key, click a few buttons on a cloud provider's website, store a password in GitHub's encrypted settings. Explaining these steps to the AI again every time gets old.
 
 `wizard`'s answer is to [write a small interactive program](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L8) that walks you through, step by step, like furniture assembly instructions: it opens the web page for you, tells you what to click and copy, waits for you to paste, saves the value where it belongs automatically, has you confirm at every step, and shows how many steps are left.
 
-The program is a bash script, a list of commands run one after another in the terminal. The look and the interaction are [already written in the template `template.sh`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L10), including progress display, hidden password entry, and re-running without corrupting the settings file. The AI only plans the steps and fills in each one; the shared code in the template's top half must never be edited.
+The program is a bash script, a list of commands run one after another in the terminal (the text window where you type commands). The look and the interaction are [already written in the template `template.sh`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L10), including progress display, hidden password entry, and re-running without corrupting the settings file. The AI only plans the steps and fills in each one; the shared code in the template's top half must never be edited.
 
 ![On the left, a terminal showing "Step 1/2: payment service keys," with a note that the web page is open and a prompt to paste the key, the input shown as dots; on the right, the results: keys written to .env, the needed key stored in GitHub's encrypted settings; the bottom reads "For what only you can do, let a program walk you through it step by step"](wizard-human-steps.png){: width="800" height="450" }
 _The AI writes the steps; you just follow the screen and paste the values._
@@ -250,13 +250,13 @@ bash -n setup-billing.sh
 ```
 {: .nolineno }
 
-This command printed nothing and exited with 0, which means the syntax is fine. I didn't actually run the script, since it opens a browser and waits for someone to paste keys, and `wizard` [tells the AI not to run it end to end itself](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L43). What's left is for you to run `./setup-billing.sh` in the terminal and follow the screen step by step.
+This command printed nothing and exited with 0 (the signal for a normal finish), which means the syntax is fine. I didn't actually run the script, since it opens a browser and waits for someone to paste keys, and `wizard` [tells the AI not to run it end to end itself](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L43). What's left is for you to run `./setup-billing.sh` in the terminal and follow the screen step by step.
 
 ## My Take: Start With Rule 3 of `handoff`
 
 This section is my own view; the source material doesn't say it directly.
 
-Of the five skills, the easiest to underrate is `handoff`, with its mere five rules. But I think rule 3, "don't copy what's already written elsewhere; just link it," applies far beyond handoff sheets.
+Of the five skills, the easiest to underrate is `handoff`, with just five rules. But I think rule 3, "don't copy what's already written elsewhere; just link it," applies far beyond handoff sheets.
 
 `research` notes cite their sources, `wizard` saves values to `.env` instead of leaving them in the conversation, and `writing-for-agents` asks that each thing be written in only one place. They share one idea: give everything a single original copy, and have everything else point to it. The specs, tickets, and `CONTEXT.md` from the first five parts are those originals.
 
