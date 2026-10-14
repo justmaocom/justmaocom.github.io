@@ -23,6 +23,7 @@ Passing tests only mean the code behaves the way the tests say. Three things rem
 > mattpocock/skills Series | Part 5
 >
 > - Previous (Part 4): [Before AI Starts Coding, Decide Which Signal to Trust](/posts/mattpocock-skills-implementation-feedback-loops/)
+> - Next (Part 6): [Research, Handoffs, and Learning Something New, Each With a Set Routine](/posts/mattpocock-skills-research-handoff/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the merge conflict and the post-merge test failure are real execution results.
 {: .prompt-info }
