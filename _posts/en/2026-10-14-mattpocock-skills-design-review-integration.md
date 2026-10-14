@@ -40,8 +40,6 @@ You only need three words for this post:
 | interface | What someone needs to know to use the module, like the buttons and the manual on an appliance |
 | seam | A spot in the code where a part can be swapped out, like a power socket. The "test seam" from the previous post is one of these |
 
-Any other term gets explained the first time it shows up.
-
 ## What Each Skill Does
 
 | skill | What it does | When to use it | Can the AI start it on its own? |
