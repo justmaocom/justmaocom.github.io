@@ -19,6 +19,7 @@ image:
 > mattpocock/skills 系列｜第 4 篇
 >
 > - 上一篇（第 3 篇）：[先找出缺口，再决定要写规格还是拆工作单](/posts/mattpocock-skills-specs-work-breakdown/)
+> - 下一篇（第 5 篇）：[先讲好模块的词汇，再分两条轴审查修改](/posts/mattpocock-skills-design-review-integration/)
 >
 > 本文内容以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。按席位计费的 skill 调用流程依原始指令推演；文中的红灯与绿灯测试输出则是实际运行结果。
 {: .prompt-info }
@@ -30,7 +31,7 @@ image:
 | 本文用词 | 原文 | 意思 |
 | --- | --- | --- |
 | 红灯、绿灯 | red、green | 测试失败显示红色，通过显示绿色。先写一个会失败的测试，再写刚好让它通过的代码，这一来一回就是一轮 |
-| 测试接点 | seam | 从外面观察程序行为的公开入口，例如一个对外提供的函数。测试只从这里进去，不碰内部细节 |
+| 测试接缝 | seam | 从外面观察程序行为的公开入口，例如一个对外提供的函数。测试只从这里进去，不碰内部细节 |
 | 反馈回路 | feedback loop | 一条可以反复运行、立刻告诉你“对”或“错”的命令，例如一次测试或一个脚本 |
 | 原型 | prototype | 只为了回答一个设计问题而写、之后不会直接上线的代码 |
 
@@ -43,7 +44,7 @@ image:
 | skill | 什么时候出场 | 靠什么判断做对了 |
 | --- | --- | --- |
 | `implement` | 规格或工作单已经准备好 | 类型检查、测试，以及最后的 `code-review` |
-| `tdd` | 要先写测试、再写代码 | 事先确认的测试接点上，一个先红后绿的测试 |
+| `tdd` | 要先写测试、再写代码 | 事先确认的测试接缝上，一个先红后绿的测试 |
 | `diagnosing-bugs` | 功能坏掉、报错或变慢，第一眼找不到原因 | 一条已经对这个 bug 亮过红灯的命令 |
 | `prototype` | 设计问题无法在纸上判断 | 由人实际点过或看过之后的反应 |
 
@@ -67,7 +68,7 @@ Commit your work to the current branch.
 逐行看，AI 会做下面五件事：
 
 1. 读你指定的规格或工作单，依照内容实现。
-2. 能用 `tdd` 的地方就用，而且只在事先谈好的测试接点上写测试。
+2. 能用 `tdd` 的地方就用，而且只在事先谈好的测试接缝上写测试。
 3. 过程中经常跑类型检查与单一测试文件，整套测试只在最后跑一次。
 4. 做完后调用 `code-review` 审查这次的修改。
 5. 把成果 commit 到当前分支。
@@ -82,14 +83,14 @@ Commit your work to the current branch.
 
 `implement` 的第二行把测试交给 `tdd`。`tdd` 先处理“在哪里测”，再处理“怎么测”。
 
-[它的规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L18-L24)要求 AI 在写任何测试之前，先列出准备测试的接点，并请你确认。没确认过的接点，一个测试都不写。原文的理由是不可能每个地方都测，先谈好接点，测试才会集中在最重要的流程与最复杂的逻辑上。
+[它的规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L18-L24)要求 AI 在写任何测试之前，先列出准备测试的接缝，并请你确认。没确认过的接缝，一个测试都不写。原文的理由是不可能每个地方都测，先谈好接缝，测试才会集中在最重要的流程与最复杂的逻辑上。
 
 AI 开始探索程序时，[若项目里有 `CONTEXT.md` 就先读](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L10)，让测试名称沿用项目的共用词汇。这份词汇表就是第 2 篇用 `grill-with-docs` 留下的那一份。
 
-接点确认后，才进入红绿循环。[循环规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L34-L38)有三条：
+接缝确认后，才进入红绿循环。[循环规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L34-L38)有三条：
 
 - **先红后绿。** 先写一个会失败的测试，再只写刚好让它通过的代码，不替后面还没写的测试预先做准备。
-- **一次一小段。** 每一轮只处理一个接点、一个测试与一份最小实现。
+- **一次一小段。** 每一轮只处理一个接缝、一个测试与一份最小实现。
 - **重构不在循环里。** 重构是指不改变程序行为、只整理写法，这件事留到 `code-review` 阶段再做。
 
 `tdd` 另外点名[三种反模式](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L28-L32)：
@@ -127,12 +128,12 @@ _还没有会亮红灯的命令，推测再多也无法确认哪一个对。_
 1. **[复现并缩小](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L68-L86)。** 确认亮红灯的是用户反馈的那个症状，再每次拿掉一项输入或步骤，直到剩下的每一项都缺一不可。
 2. **提出假设。** 一次列出 3 到 5 个排过优先级的假设，每个都写明它预测会发生什么，并[先给你看](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L88-L98)。你不在时，AI 照自己的排序继续。
 3. **[加入观察点](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L100-L112)。** 观察点是在代码里打印出中间值等调试输出。每个观察点对应一个假设，一次只改一个变量。调试用的输出一律加上像 `[DEBUG-a4f2]` 这样的前缀，结束时搜索一次就能全部删掉。
-4. **修复并补回归测试。** 回归测试用来确认同一个 bug 不会再出现。先写一个会失败的回归测试，再修复。前提是[找得到正确的测试接点](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L114-L128)；如果找不到，也说明了一件事：现在的代码结构没办法用测试挡住这个 bug 再次出现。
+4. **修复并补回归测试。** 回归测试用来确认同一个 bug 不会再出现。先写一个会失败的回归测试，再修复。前提是[找得到正确的测试接缝](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L114-L128)；如果找不到，也说明了一件事：现在的代码结构没办法用测试挡住这个 bug 再次出现。
 5. **[清理](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L130-L138)。** 重跑原本的回路、确认回归测试通过、删掉 `[DEBUG-` 开头的输出，并把最后证实的假设写进 commit 或 PR 说明。
 
 第 2 步的假设要写成“如果原因是 X，那么改变 Y 会让 bug 消失”。套在席位上，可以写成“如果原因是禁用时没有把成员移出已分配名单，那么在禁用流程补上移除动作，可用席位就会正确增加”。写不出预测的假设要丢掉或改写。
 
-第 4 步找不到测试接点时，[`ask-matt` 把后续交给 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇会介绍。
+第 4 步找不到测试接缝时，[`ask-matt` 把后续交给 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇会介绍。
 
 ## `prototype` 用一次性程序回答一个设计问题
 
@@ -160,7 +161,7 @@ _版本之间要在布局与操作方式上有所不同，只换颜色看不出�
 
 开头问过：AI 自己写代码也自己写测试，测试会不会只是在替程序背书？`tdd` 靠两条规则防止这种情况。
 
-**第一条是测试位置由你确认。** 上面提过，AI 列出的接点要经过你同意，才能在那里写测试。你可以趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
+**第一条是测试位置由你确认。** 上面提过，AI 列出的接缝要经过你同意，才能在那里写测试。你可以趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
 
 **第二条是预期值要有独立来源。** `tdd` 在说明[同义反复这个反模式](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31)时，要求预期值来自程序以外的依据，例如已知正确的数值、手算过的例子或规格。`tests.md` 用同一个求和函数示范了两种写法：
 
@@ -181,11 +182,11 @@ test("calculateTotal sums line items", () => {
 
 第一种写法的 `expected` 用 `reduce` 重算一次。程序怎么算，测试就怎么算，所以它永远会通过。第二种写法直接写 `15`，这个数字可以拿规格或手算核对，程序算错时测试就会失败。
 
-不过，这两条规则都只是写在 Markdown 里的指令，没有机制强制执行。[`tdd` 文件夹](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)里只有 `SKILL.md`、`tests.md`、`mocking.md` 与一份 `agents/openai.yaml`，没有任何检查脚本。AI 列出接点时，你若没细看就按同意，第一条规则等于没有作用。
+不过，这两条规则都只是写在 Markdown 里的指令，没有机制强制执行。[`tdd` 文件夹](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)里只有 `SKILL.md`、`tests.md`、`mocking.md` 与一份 `agents/openai.yaml`，没有任何检查脚本。AI 列出接缝时，你若没细看就按同意，第一条规则等于没有作用。
 
-所以测试算不算数，要你自己看两样东西：你确认过的接点清单，以及每个预期值能不能在规格里找到出处。
+所以测试算不算数，要你自己看两样东西：你确认过的接缝清单，以及每个预期值能不能在规格里找到出处。
 
-![左侧试卷的出题、作答、批改都是 AI，标准答案栏写着“照作答算一遍”，盖着 100 分；右侧试卷由你确认的接点出题，标准答案写着“15，出自规格”，由 node --test 批改；底部写着“自己出题、自己作答、自己打分”](tautological-test-exam.png){: width="800" height="450" }
+![左侧试卷的出题、作答、批改都是 AI，标准答案栏写着“照作答算一遍”，盖着 100 分；右侧试卷由你确认的接缝出题，标准答案写着“15，出自规格”，由 node --test 批改；底部写着“自己出题、自己作答、自己打分”](tautological-test-exam.png){: width="800" height="450" }
 _预期值若照程序的算法重算，测试就会永远通过。_
 
 ## 哪些地方要花你的时间
@@ -195,7 +196,7 @@ _预期值若照程序的算法重算，测试就会永远通过。_
 | 环节 | 由谁付出 | 付出什么 |
 | --- | --- | --- |
 | 调用 `implement` | 你 | 每张工作单手动调用一次，两张之间清空对话 |
-| `tdd` 写测试前 | 你 | 逐一检查 AI 列出的测试接点 |
+| `tdd` 写测试前 | 你 | 逐一检查 AI 列出的测试接缝 |
 | `implement` 收尾 | AI 与你 | 跑完整套测试与 `code-review`，你要看审查结果 |
 | `diagnosing-bugs` 第一阶段 | AI，必要时是你 | 原文要求在这里[投入不成比例的精力](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L22)；做不出回路时，要由你提供环境或日志 |
 | `diagnosing-bugs` 提出假设 | 你 | 看一遍假设排序，补上你知道的背景 |
@@ -228,7 +229,7 @@ $implement <禁用成员并释放席位的工作单链接>
 ```
 {: .nolineno }
 
-AI 读完工作单与 `CONTEXT.md` 后，依 `tdd` 的规则先列出测试接点，例如“工作区对外提供的 `deactivateMember()` 与 `availableSeats()`”。你要确认两件事：这两个函数是不是其他程序实际会调用的入口，以及验收条件里的“可用席位增加一席”能不能从这里观察到。
+AI 读完工作单与 `CONTEXT.md` 后，依 `tdd` 的规则先列出测试接缝，例如“工作区对外提供的 `deactivateMember()` 与 `availableSeats()`”。你要确认两件事：这两个函数是不是其他程序实际会调用的入口，以及验收条件里的“可用席位增加一席”能不能从这里观察到。
 
 你同意后，AI 写下第一个测试。预期值的依据是规格里的“测试决定”字段：禁用成员后，可用席位要增加一席。以买了 5 席、分配 2 席为例，禁用其中一人后，可用席位要是 4。把下面内容存成 `seats.test.js`：
 
@@ -318,7 +319,7 @@ export function deactivateMember(workspace, memberId) {
 ℹ duration_ms 43.76225
 ```
 
-这只完成了一轮。工作单的验收条件还包括“计费系统收到新的席位数量”，AI 会照着已确认的接点清单继续下一轮，每轮一个测试。全部完成后，`implement` 跑完整套测试、调用 `code-review`，再 commit 到当前分支。你要看的是审查结果，以及每个测试的预期值能不能对照规格。
+这只完成了一轮。工作单的验收条件还包括“计费系统收到新的席位数量”，AI 会照着已确认的接缝清单继续下一轮，每轮一个测试。全部完成后，`implement` 跑完整套测试、调用 `code-review`，再 commit 到当前分支。你要看的是审查结果，以及每个测试的预期值能不能对照规格。
 
 如果之后收到“禁用成员后，可用席位没有增加”的反馈，上面那条 `node --test` 就是 `diagnosing-bugs` 第一阶段要的回路。它对这个症状亮过红灯，而且从上面的 `duration_ms` 看，不到 50 毫秒就跑完，符合“几秒内跑完”的条件。
 
@@ -326,24 +327,24 @@ export function deactivateMember(workspace, memberId) {
 
 这一节是我自己的看法，原始资料没有直接这样说：工作单写得好不好，决定了实现的质量。
 
-`implement` 的指令只有五行。它没有说工作单写得模糊时该停下来问谁，也没有规定验收条件不完整时怎么处理。它只把“在事先谈好的接点上测试”交给 `tdd`，而那些接点与预期值，大多早在 `to-spec` 确认检查点、`to-tickets` 写下验收条件时就决定了。
+`implement` 的指令只有五行。它没有说工作单写得模糊时该停下来问谁，也没有规定验收条件不完整时怎么处理。它只把“在事先谈好的接缝上测试”交给 `tdd`，而那些接缝与预期值，大多早在 `to-spec` 确认检查点、`to-tickets` 写下验收条件时就决定了。
 
-所以我不会期待 `implement` 补救一张切得不好的工作单。AI 列出的接点若对不上验收条件，或预期值在规格里找不到，我会暂停实现，回到 `grill-with-docs` 或 `to-spec` 把缺的内容补齐。
+所以我不会期待 `implement` 补救一张切得不好的工作单。AI 列出的接缝若对不上验收条件，或预期值在规格里找不到，我会暂停实现，回到 `grill-with-docs` 或 `to-spec` 把缺的内容补齐。
 
-这个看法只适用于照这套流程先写规格、再切工作单的项目。单独用 `tdd` 做一个小功能时，接点与预期值是在当下的对话里直接谈定的，没有事先写好的规格或工作单可以回头补。
+这个看法只适用于照这套流程先写规格、再切工作单的项目。单独用 `tdd` 做一个小功能时，接缝与预期值是在当下的对话里直接谈定的，没有事先写好的规格或工作单可以回头补。
 
 ## 小结
 
-代码和测试都由 AI 写的时候，判断做对了没，要看 AI 自己改不了的东西。写新功能时，看测试是不是写在你确认过的接点上、预期值是不是出自规格；修 bug 时，看有没有一条对这个症状亮过红灯的命令；设计还没定时，就让你或熟悉业务的人实际点过原型再说。
+代码和测试都由 AI 写的时候，判断做对了没，要看 AI 自己改不了的东西。写新功能时，看测试是不是写在你确认过的接缝上、预期值是不是出自规格；修 bug 时，看有没有一条对这个症状亮过红灯的命令；设计还没定时，就让你或熟悉业务的人实际点过原型再说。
 
 这篇只谈把工作单变成代码的这一段。审查代码结构与这次的修改，下一篇会介绍 `codebase-design`、`improve-codebase-architecture` 与 `code-review`。
 
-回到按席位计费，接下来可以开一个新的对话，对第一张没有前置工作的工作单运行 `$implement`。AI 列出测试接点时逐一确认；它写出测试后，再核对每个预期值都能在规格里找到。
+回到按席位计费，接下来可以开一个新的对话，对第一张没有前置工作的工作单运行 `$implement`。AI 列出测试接缝时逐一确认；它写出测试后，再核对每个预期值都能在规格里找到。
 
 ## 延伸阅读
 
 - [`implement`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/SKILL.md#L1-L15)：五行指令全文，看它把哪些工作交给 `tdd` 与 `code-review`。
-- [`tdd`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L12-L38)：核对测试接点的确认规则、三种反模式与红绿循环的限制。
+- [`tdd`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L12-L38)：核对测试接缝的确认规则、三种反模式与红绿循环的限制。
 - [`tdd/tests.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/tests.md#L1-L77)：用结账与求和的示例，对照好测试与坏测试的写法差在哪里。
 - [`diagnosing-bugs`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L18-L138)：查看十种构建反馈回路的方法，以及每个阶段的完成条件。
 - [`prototype`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/SKILL.md#L6-L26)：了解逻辑原型与界面原型怎么分流，以及原型做完后要保留什么。

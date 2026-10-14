@@ -19,6 +19,7 @@ image:
 > mattpocock/skills 系列｜第 4 篇
 >
 > - 上一篇（第 3 篇）：[先找出缺口，再決定要寫規格還是拆工作單](/posts/mattpocock-skills-specs-work-breakdown/)
+> - 下一篇（第 5 篇）：[先講好模組的詞彙，再分兩條軸審查修改](/posts/mattpocock-skills-design-review-integration/)
 >
 > 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程依原始指令推演；文中的紅燈與綠燈測試輸出則是實際執行結果。
 {: .prompt-info }
