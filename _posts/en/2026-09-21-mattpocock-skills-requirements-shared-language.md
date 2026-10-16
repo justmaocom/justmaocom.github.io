@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series (2): Clarify Vague Requirements and Leave Behind a Shared Vocabulary"
-description: "A walkthrough of the grill-me and grill-with-docs interview flow: how to clarify requirements by asking questions in dependency order, and how to write confirmed terms and a few key decisions back into the project."
+title: "mattpocock/skills, Part 2: From Vague Requirements to Shared Terms"
+description: "How grill-me and grill-with-docs clarify requirements by asking questions in dependency order, then write agreed terms and key decisions back into the project."
 date: 2026-09-21 15:04:43 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
@@ -16,8 +16,8 @@ A skill, as used in this post, can be thought of as a set of instructions that t
 
 > mattpocock/skills Series | Part 2
 >
-> - Previous (Part 1): [Set Up Your Project Rules First, Then Let ask-matt Find the Next Step](/posts/mattpocock-skills-setup-routing-guide/)
-> - Next (Part 3): [Find the Gap First, Then Decide Whether to Write a Spec or Break Down Tickets](/posts/mattpocock-skills-specs-work-breakdown/)
+> - Previous (Part 1): [Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
+> - Next (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
 {: .prompt-info }
@@ -70,7 +70,7 @@ Significant technical choices may be written up as an ADR, short for Architectur
 ![Product, finance, and engineering all agree to per-seat billing, but each defines a seat differently; the glossary document on the right records a shared definition of a billable seat](mattpocock-skills-requirements-2.png){: width="800" height="450" }
 _Agreeing on the same word is not the same as agreeing on the same thing._
 
-## wait-what only handles what you just didn't follow
+## wait-what re-explains only the message you didn't follow
 
 `wait-what` is a correction entry point you use mid-conversation. When the AI's last explanation skips ahead too quickly or leaves out context, you invoke it explicitly.
 

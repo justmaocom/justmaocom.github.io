@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series (4): Before AI Starts Coding, Decide Which Signal to Trust"
-description: "Once the tickets are ready, the AI writes both the code and the tests. This post explains what implement, tdd, diagnosing-bugs, and prototype each rely on to tell whether the work is right, and walks through a real red-to-green test cycle using a per-seat billing example."
+title: "mattpocock/skills, Part 4: Trusting Code When the AI Writes the Tests"
+description: "When the AI writes both code and tests, how do you know it works? What implement, tdd, diagnosing-bugs, and prototype rely on, with a real red-to-green test."
 date: 2026-09-29 15:32:58 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
@@ -18,8 +18,8 @@ But the AI wrote those tests too. They might just be vouching for the code it wr
 
 > mattpocock/skills Series | Part 4
 >
-> - Previous (Part 3): [Find the Gap First, Then Decide Whether to Write a Spec or Break Down Tickets](/posts/mattpocock-skills-specs-work-breakdown/)
-> - Next (Part 5): [After the Code Is Written, Who Checks the Structure, Reviews the Change, and Resolves Conflicts?](/posts/mattpocock-skills-design-review-integration/)
+> - Previous (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
+> - Next (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the red and green test outputs shown in the post are real execution results.
 {: .prompt-info }
@@ -157,7 +157,7 @@ Both paths share [six rules](https://github.com/mattpocock/skills/blob/c55ee4607
 
 The last rule covers how to wrap up a prototype. Validated decisions go into the production code, while the prototype itself is committed to a throwaway branch off the mainline, and a note pointing to that branch is left on the implementation ticket. [`ask-matt` names this branch `prototype/<name>`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L80). Only validated conclusions stay on the mainline.
 
-## Tests Written by the AI Only Count Because of Two Rules
+## Two Rules That Make AI-Written Tests Worth Trusting
 
 I asked at the start: if the AI writes both the code and the tests, won't the tests just vouch for the code? `tdd` relies on two rules to prevent that.
 

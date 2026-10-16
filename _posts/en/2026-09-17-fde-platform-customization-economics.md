@@ -1,6 +1,6 @@
 ---
-title: Whether FDE Scales Depends on a Shared Platform, Not Headcount
-description: A walkthrough of Kevin Bai's framework for forward deployed engineering, covering when you need FDEs, how a shared platform absorbs custom work, and the maintenance costs you have to pay before you expand the team.
+title: "Forward Deployed Engineering Scales With Platforms, Not Headcount"
+description: "Kevin Bai's framework for forward deployed engineering: when you need FDEs, how a shared platform absorbs custom work, and the maintenance costs to plan for."
 date: 2026-09-17 16:15:05 +0800
 categories: [Software Engineering, FDE]
 tags: [fde, forward-deployed-engineer, enterprise-software, go-to-market, product-platform, talk-notes]
