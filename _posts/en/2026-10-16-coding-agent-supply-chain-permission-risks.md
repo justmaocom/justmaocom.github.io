@@ -1,6 +1,6 @@
 ---
 title: "Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent"
-description: "How third-party skills and MCP servers widen a coding agent's attack surface—prompt injection, supply-chain attacks, over-broad permissions—told through five public cases, with a practical checklist."
+description: "Five real cases show how third-party skills and MCP servers widen a coding agent's attack surface—prompt injection, supply chain, permissions—plus a checklist."
 date: 2026-10-16 16:30:00 +0800
 categories: [Security, AI Agents]
 tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-chain-security]
