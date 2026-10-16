@@ -1,27 +1,27 @@
 ---
-title: "What New Openings Does Your Coding Agent Get After You Install Third-Party Skills and MCP Servers?"
-description: "Five public cases of how third-party skills and MCP servers widen a coding agent's attack surface, from prompt injection to supply chain and permissions, plus a checklist."
+title: "Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent"
+description: "How third-party skills and MCP servers widen a coding agent's attack surface—prompt injection, supply-chain attacks, over-broad permissions—told through five public cases, with a practical checklist."
 date: 2026-10-16 16:30:00 +0800
 categories: [Security, AI Agents]
 tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-chain-security]
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.en.png
-  alt: "Cover: the title \"What New Openings Do Skills & MCP Add?\" next to a Coding Agent box with skill, MCP server, and GitHub token added, and a two-part checklist."
+  alt: "Cover: the title \"Skills & MCP: Your Coding Agent's New Attack Surface\" beside a Coding Agent box listing skill, MCP server, and GitHub token, with a two-part checklist."
 ---
 
-Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Looks harmless.
+Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Harmless enough.
 
-From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. This post answers two questions: what openings did that create, and which ones are worth the effort to close versus which ones only sound scary?
+From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. This post answers two questions: what new exposure did that create, and which risks are worth fixing versus merely scary-sounding?
 
-> Three kinds of statements are labeled separately here: **Fact** is something a public source states, always linked; **Inference** is what I conclude from the facts; **Opinion** is my judgment, which you're free to disagree with. Every source was reopened and checked on October 16, 2026.
+> I label three kinds of statements: **Fact** (stated by a linked public source), **Inference** (my conclusion from the facts), and **Opinion** (my judgment—feel free to disagree). All sources were rechecked on October 16, 2026.
 {: .prompt-info }
 
-The short version: no need to panic, but treat skills and MCP servers as "software that runs on your machine," not "a bit of configuration."
+The short version: no need to panic, but treat skills and MCP servers as code that runs on your machine, not as a bit of config.
 
 ## Five terms first
 
-| Term | One-sentence explanation |
+| Term | In one sentence |
 | --- | --- |
 | Skill | A folder with an instruction file for the AI (`SKILL.md`), optionally with scripts; when the AI decides it's relevant, it reads the file and follows it. |
 | MCP server | A small program that connects the AI to outside tools, like GitHub or a database; it tells the AI "here are my tools and how to use them." |
@@ -29,11 +29,11 @@ The short version: no need to panic, but treat skills and MCP servers as "softwa
 | Token | A string that stands in for your username and password; whoever holds it can act as you within what it allows. |
 | Sandbox | A fence around a program that limits which files it can read or write and whether it can reach the network. |
 
-For how skills get installed and invoked, see [mattpocock/skills Series (1)](/posts/mattpocock-skills-setup-routing-guide/).
+For a walkthrough of how skills are installed and invoked, see [mattpocock/skills Series (1)](/posts/mattpocock-skills-setup-routing-guide/).
 
-## The situation: you just hired two kinds of contractors
+## The setup: you just hired two contractors
 
-Picture your coding agent as a very capable assistant who believes everything. Installing a skill hands them a work manual someone else wrote. Connecting an MCP server introduces them to an outside vendor who describes what it can do.
+Picture your coding agent as a very capable assistant who believes whatever they're told. Installing a skill hands them a work manual someone else wrote. Connecting an MCP server introduces them to an outside vendor who describes what it can do.
 
 The assistant follows the manual and trusts the vendor's self-description. The catch: you wrote neither, and the assistant is holding your keys.
 
@@ -41,18 +41,18 @@ The assistant follows the manual and trusts the vendor's self-description. The c
 
 **Fact**: The [Claude Code security docs](https://code.claude.com/docs/en/security#mcp-security) say Anthropic does not security-audit or manage any MCP server; it only reviews connectors against its listing criteria before adding them to the Anthropic Directory.
 
-In other words, the vendors themselves hand that responsibility back to you.
+In other words, the vendors themselves put the responsibility on you.
 
 ## The attack surface: four entry points
 
-![A coding agent in the middle with four entry points around it: instructions hidden in tool output and documents, malicious or tampered skills and MCP servers, over-broad permissions and credentials, and commands that run automatically (including silent installs of the latest version); the bottom reads "Four entry points, often chained together"](attack-surface-map.en.png){: width="800" height="450" }
+![A coding agent in the middle with four entry points around it: instructions hidden in tool output and documents, malicious or tampered skills and MCP servers, excess access and exposed credentials, and commands that run automatically (including silent installs of the latest version); the bottom reads "Four entry points, often chained together"](attack-surface-map.en.png){: width="800" height="450" }
 _The four entry points rarely show up alone; real attacks usually chain two or three._
 
 ### Entry 1: instructions hidden in content
 
 The AI isn't good at telling who said what. Your instructions, web pages, issue text, and MCP tool descriptions all end up glued into one stream of text for the model.
 
-**Opinion (quoted)**: Simon Willison puts it bluntly in [The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): models can't reliably weigh instructions by where they came from. He offers a handy test. When an agent has all three of these, stealing data from it is easy:
+**Opinion (quoted)**: Simon Willison puts it bluntly in [The lethal trifecta](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/): models can't reliably weigh instructions by where they came from. He offers a handy test. When an agent has all three, an attacker can easily trick it into leaking your data:
 
 1. Access to your private data
 2. Exposure to content someone else controls
@@ -62,14 +62,14 @@ It isn't a formal standard, but it's an excellent way to check your own setup. T
 
 ### Entry 2: malicious or tampered skills and MCP servers
 
-At heart, both are third-party code plus third-party text. Two flavors of risk:
+Both boil down to someone else's code plus someone else's text. The risk comes in two flavors:
 
 - **Bad from the start**: instructions hidden in the description, or scripts that quietly do something else.
 - **Fine at first, changed later**: a stolen maintainer account, a swapped package version, or a server that silently rewrites its tool descriptions.
 
 The second is sneakier, because you already reviewed and approved it.
 
-### Entry 3: too much permission, credentials too easy to reach
+### Entry 3: excessive permissions and exposed credentials
 
 What an agent can do is the sum of the permissions it holds. Your `~/.ssh`, API keys in environment variables, the token from your `gh` login, passwords in MCP config files: if the user running the agent can read them, so can the agent.
 
@@ -77,13 +77,13 @@ What an agent can do is the sum of the permissions it holds. Your `~/.ssh`, API 
 
 ### Entry 4: auto-executed commands
 
-To stop being asked "may I run this?", many people turn on auto-approve or switch off the sandbox entirely. It saves a lot of time, and removes the last human checkpoint. A quieter kind of "automatic" exists too: some tools install the latest version of a package in the background without asking (that is what happened in Case 5).
+To stop being asked "may I run this?", many people turn on auto-approve or switch off the sandbox entirely. It saves a lot of time, and removes the last human checkpoint. There's a quieter kind of automation too: some tools silently install the latest version of a package in the background (as in Case 5).
 
 **Fact**: The Codex docs label `--dangerously-bypass-approvals-and-sandbox` (alias `--yolo`) as [no sandbox, no approvals, not recommended](https://learn.chatgpt.com/docs/agent-approvals-security#common-sandbox-and-approval-combinations). The Claude Code docs warn that in Manual mode [a Bash command you approve can still write anywhere your user account can](https://code.claude.com/docs/en/security#built-in-protections); the folder boundary is a prompt, not a wall.
 
-## Cases: five with primary sources
+## Five cases with primary sources
 
-Each comes with the original advisory or research report. I separate research demonstrations from real incidents, because they mean different things.
+Each comes with the original advisory or research report. I've separated research demos from real-world incidents because they carry different weight.
 
 ### Case 1: poisoned MCP tool descriptions (research demo, April 2025)
 
@@ -102,13 +102,13 @@ The same post covers two extensions:
 
 **Fact**: The report stresses this isn't a bug in the GitHub MCP server's code but a system-level design problem that happens even when every tool is trustworthy.
 
-**Inference**: This is the lethal trifecta by the textbook: one token that can read private repos (private data), read public issues (outside content), and open a PR on a public repo (a way out). Here the PR plays the role of Willison's "way to send things out," just in a different form.
+**Inference**: This is a textbook case of the lethal trifecta: one token that can read private repos (private data), read public issues (outside content), and open a PR on a public repo (a way out). Here the PR plays the role of Willison's "way to send things out," just in a different form.
 
 ### Case 3: Cursor's CVE-2025-54135 (patched)
 
-**Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. On severity, the advisory gives a CVSS 3.1 score (the industry's standard vulnerability severity score, out of 10) of 8.5. The CVE record says 8.6, but both use the identical vector.
+**Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. The advisory rates it CVSS 3.1 8.5 (CVSS is the industry's standard vulnerability severity score, out of 10); the CVE record says 8.6, though both list the same vector.
 
-**Inference**: Computing that vector with the CVSS 3.1 formula myself gives 8.5, so this post uses the advisory's 8.5.
+**Inference**: Running that vector through the CVSS 3.1 formula myself gives 8.5, so this post uses the advisory's 8.5.
 
 **Inference**: This chains Entry 1 (hidden instructions) with Entry 4 (auto-execution). A config file is itself a place that can run code; whether the agent may write it deserves the same strictness as whether it may run shell commands.
 
@@ -128,17 +128,17 @@ The same post covers two extensions:
 
 **Fact**: Nx's [postmortem](https://nx.dev/blog/s1ngularity-postmortem) says the malicious packages attempted to use local AI tools (like Claude and Gemini). The advisory also notes that npm packages get installed through more than your own `npm install`: transitive dependencies, editor extensions, and AI agents. Their own Nx Console extension (VS Code versions 18.6.30 through 18.65.1) auto-installed the latest `nx`, so people with that extension who opened their editor during the few hours the malicious versions were tagged latest (6:37 PM to 10:44 PM US Eastern on August 26) may have been hit, even if their projects didn't use Nx.
 
-**Inference**: This flips the direction. The point isn't that someone attacked your agent; it's that malware *tried* to enlist the AI tools on your machine as helpers. If your agent is already logged in, highly privileged, and needs no confirmation, that kind of borrowing is easy; if it asks you at every step, it's much harder.
+**Inference**: This flips the usual script. The point isn't that someone attacked your agent; it's that malware *tried* to enlist the AI tools on your machine as helpers. If your agent is already logged in, highly privileged, and needs no confirmation, that kind of hijacking is easy; if it asks you at every step, it's much harder.
 
 > Neither the advisory nor the postmortem says how many victims' local AI tools actually ran, or what they did. I can't confirm that part, so please don't read this as "AI tools were exploited at scale."
 {: .prompt-warning }
 
-## Defenses: four directions and what each blocks
+## Defenses: four layers and what each one stops
 
 ![On the left, three conditions: can read private data, touches outside content, can send things out, drawn as three overlapping circles. On the right, least privilege, sandbox with network off (noting that MCP servers need their own isolation), and review plus pinning each cut one of them; the bottom reads "All three together is dangerous; cut at least one"](trifecta-cut.en.png){: width="800" height="450" }
 _The goal isn't a smarter AI; it's an AI that can't do much damage even when fooled._
 
-**Opinion**: No single trick solves prompt injection. The practical approach today is to assume your agent will read malicious content someday, and make sure that on that day it can do very little harm.
+**Opinion**: No single trick solves prompt injection. The practical approach today is to assume your agent will read malicious content someday, and make sure that when it does, it can't do much harm.
 
 ### 1. Least privilege: just enough keys
 
@@ -186,8 +186,8 @@ git -C some-skill checkout <commit>
 
 ## Checklist
 
-![Three-column checklist: before installing (read the whole folder and launch command, check source and maintainer, pin the version), while using (fine-grained tokens, sandbox with limited network, no "Always Allow"), after an incident (revoke tokens, check audit logs, inspect config and shell files); the bottom reads "Manage skills and MCP like software that runs"](checklist-three-stages.en.png){: width="800" height="450" }
-_The list has three parts, one for each point in time._
+![Three-column checklist: before installing (read the whole folder and launch command, check source and maintainer, pin the version), while using (fine-grained tokens, sandbox with limited network, no "Always Allow"), after an incident (revoke tokens, check audit logs, inspect config and shell files); the bottom reads "Treat skills and MCP servers like code that runs on your machine"](checklist-three-stages.en.png){: width="800" height="450" }
+_Three stages: before, during, and after._
 
 ### Before installing
 
