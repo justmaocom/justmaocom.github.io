@@ -22,7 +22,7 @@ A skill, as used in this post, can be thought of as a set of instructions that t
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
 {: .prompt-info }
 
-## How the five skills relate
+## How the Five Skills Relate
 
 ![grill-me, grill-with-docs, and wait-what are user-invoked entry points; grill-me and grill-with-docs hand the interview to grilling, and grill-with-docs also hands vocabulary curation to domain-modeling](mattpocock-skills-requirements-1.png){: width="800" height="450" }
 _Pick the entry point that fits your current situation, and the internal flows take over the rest._
@@ -39,7 +39,7 @@ These five skills are not a sequence of steps you must run in order. `grill-me` 
 
 `grill-me`, `grill-with-docs`, and `wait-what` only run when you call them by name; the AI won't use them on its own. `grilling` and `domain-modeling`, on the other hand, can be picked up by the AI on its own and can also be called by other skills. The [invocation rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.agents/invocation.md#L1-L22) document this difference. In everyday use, you only choose the starting point, and the internal flows handle the rest.
 
-## The two starting points differ in whether they leave documents behind
+## The Two Starting Points Differ in Whether They Leave Documents Behind
 
 Both starting points use the same interview approach. The difference is whether project documentation gets updated during the interview.
 
@@ -47,7 +47,7 @@ Both starting points use the same interview approach. The difference is whether 
 
 [`grill-with-docs`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/grill-with-docs/SKILL.md#L1-L7) starts two internal flows at once. `grilling` runs the interview, and `domain-modeling` curates terms and decisions. When a project folder already exists, `ask-matt` recommends this starting point first; see its [routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L13-L18) for the exact conditions.
 
-## grilling first asks the questions that can't be skipped
+## grilling First Asks the Questions That Can't Be Skipped
 
 `grilling` starts by working out the order in which questions depend on each other. The skill's rules call this structure a "decision tree." If a question depends on the answer to an earlier one, the AI holds it for a later round.
 
@@ -55,7 +55,7 @@ Both starting points use the same interview approach. The difference is whether 
 
 [The `grilling` rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/grilling/SKILL.md#L6-L28) also spell out who answers what. Facts that can be found in files, code, or tools are for the AI to investigate; choices between different approaches are yours to make. While the AI is looking something up, it doesn't stall the whole round: only the questions that need that information wait for the result, and the rest are asked as usual. The interview ends only when every question has been dealt with and you've confirmed that you and the AI understand things the same way.
 
-## domain-modeling builds a project glossary
+## domain-modeling Builds a Project Glossary
 
 The "domain" in `domain-modeling` means the things and rules the project deals with. In this post's example, that's workspaces, members, seats, and how billing works. This skill writes confirmed names into `CONTEXT.md`. You can think of that file as a glossary specific to the project.
 
@@ -70,7 +70,7 @@ Significant technical choices may be written up as an ADR, short for Architectur
 ![Product, finance, and engineering all agree to per-seat billing, but each defines a seat differently; the glossary document on the right records a shared definition of a billable seat](mattpocock-skills-requirements-2.png){: width="800" height="450" }
 _Agreeing on the same word is not the same as agreeing on the same thing._
 
-## wait-what re-explains only the message you didn't follow
+## wait-what Re-Explains Only the Message You Didn't Follow
 
 `wait-what` is a correction entry point you use mid-conversation. When the AI's last explanation skips ahead too quickly or leaves out context, you invoke it explicitly.
 
@@ -80,7 +80,7 @@ If the project uses multiple glossary files, it first looks up the right one in 
 
 Its instruction only asks for the previous message to be re-explained; it doesn't rerun the whole interview. If the problem isn't a single message you didn't follow but requirements that are still vague overall, go back to `grill-with-docs` and continue the interview.
 
-## Interview results don't all go into the same document
+## Interview Results Don't All Go Into the Same Document
 
 ![What gets confirmed in the interview is routed to three destinations: canonical terms and definitions go into CONTEXT.md, significant decisions that involved trade-offs become ADRs, and other feature behavior, exceptions, defaults, and acceptance criteria are handed to to-spec](mattpocock-skills-requirements-3.png){: width="800" height="450" }
 _Interview results are written to the glossary, an ADR, or a later spec depending on what kind of content they are._
@@ -95,7 +95,7 @@ _Interview results are written to the glossary, an ADR, or a later spec dependin
 
 `CONTEXT.md` is a glossary, not a requirements document, and ADRs aren't a running log of every answer. Most answers stay in the conversation at first. Only when you separately invoke [`to-spec`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-spec/SKILL.md#L7-L19) does that skill turn the confirmed requirements into a feature spec for later development.
 
-## There's no fixed number of interview questions
+## There's No Fixed Number of Interview Questions
 
 The two starting points don't have their own question banks; both hand the interview to `grilling`. And `grilling` has no fixed number of rounds or questions either. If a question needs an earlier answer, the AI saves it for later. The interview ends only when every question has been dealt with and you've confirmed that both sides understand things the same way.
 
@@ -103,7 +103,7 @@ How long the interview takes depends on how much is still undecided, not on whic
 
 Because `grill-with-docs` modifies project documentation, the team still needs to review whether newly added terms are ones the team should adopt, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
 
-## Check whether you have a project first, then pick a starting point
+## Check Whether You Have a Project First, Then Pick a Starting Point
 
 First determine whether you already have a project folder holding code and docs, then look at what you're stuck on: the requirements, the vocabulary, or the last explanation.
 
@@ -119,7 +119,7 @@ This table helps you choose a starting point; it isn't an order of execution. No
 
 `grill-with-docs` suits requirements that can be fully clarified in a single conversation. If the requirements are too big to clarify in one conversation, [the `ask-matt` routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L38-L46) point you to `wayfinder` instead. `wayfinder` is a separate skill for exploring large pieces of work first to figure out where to start.
 
-## Simulated scenario: questioning seats until a spec can be written
+## Simulated Scenario: Questioning Seats Until a Spec Can Be Written
 
 I didn't actually run this flow for this post. What follows is worked out from the skills' rules alone, not the result of a real test. The scenario: you've finished the project setup from the previous post, and you're now working on per-seat billing inside the subscription service's project folder.
 
@@ -163,7 +163,7 @@ Suppose the AI then explains seat changes in a long block of text, but you don't
 
 When this stretch of the flow is done, the requirements still haven't been turned into a full spec. What you have at this point are the answers confirmed in the conversation, the terms in `CONTEXT.md`, and a few ADRs created with your agreement. If this feature will take several conversations to build, the next step is to invoke `to-spec` in the same conversation and have it organize the requirements into a spec.
 
-## What matters more to me is what gets left behind
+## What Matters More to Me Is What Gets Left Behind
 
 At this point, both the invocation rules and the document-keeping rules can be checked against the original sources. But the rules themselves can't prove that a shared vocabulary will necessarily improve how a team works together.
 
@@ -171,13 +171,13 @@ I still think that, once requirements are clarified, what's most worth leaving b
 
 This view only applies to projects maintained by several people, or ones that take several conversations to finish. A one-off brainstorm doesn't need every term documented; finishing the interview with `grill-me` is enough.
 
-## Make the same word mean the same thing first
+## Make the Same Word Mean the Same Thing First
 
 If you want to try this flow, start by finding the one word in your requirements that's most likely to be ambiguous, such as "seat." Invoke `grill-with-docs` inside the project, confirm how it relates to "member" first, and then discuss whether inviting a member takes up a seat and when billing stops after deactivation.
 
 The goal of the interview isn't to pile up questions, but to make sure the same word always means the same thing throughout the spec that follows. The next post covers how to use `to-spec` to write the spec, and then `to-tickets` to break it down into tickets you can start working on right away.
 
-## Further reading
+## Further Reading
 
 - [`grill-me`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/grill-me/SKILL.md#L1-L7): confirm that it only starts the interview flow.
 - [`grill-with-docs`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/grill-with-docs/SKILL.md#L1-L7): see which two internal flows it starts at once.

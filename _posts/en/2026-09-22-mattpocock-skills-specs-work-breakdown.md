@@ -22,7 +22,7 @@ All five skills produce documents, but each fills a different gap. Pick the wron
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The per-seat billing walkthrough is inferred from the original instructions, not taken from an actual test run.
 {: .prompt-info }
 
-## A few terms first
+## A Few Terms First
 
 All five skills revolve around the team's issue tracker. The following terms come up again and again:
 
@@ -33,7 +33,7 @@ All five skills revolve around the team's issue tracker. The following terms com
 | Ticket | ticket | A small piece of work cut from a spec that can be completed on its own |
 | Session | session | One stretch of work with the AI from start to finish. There's a limit to how much the AI can handle in one session; once too much content piles up, its judgment becomes less precise |
 
-## Each of the five skills fills a different gap
+## Each of the Five Skills Fills a Different Gap
 
 Regular feature development follows a main path: first clarify the requirements through an interview, then start implementing. When a feature is small enough to finish in one session, you can go straight to implementation after the interview. Only when it takes several sessions do `to-spec` and `to-tickets` come in between. The former organizes what was agreed into a spec; the latter cuts the spec into individual tickets. [The main flow in `ask-matt`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L13-L30) also requires these two steps to follow the requirements interview and to stay in the same conversation, so the AI remembers what was discussed earlier.
 
@@ -50,7 +50,7 @@ The other three skills are off the main path. `triage` handles work that other p
 ![On the left, all five buttons (to-spec, to-tickets, triage, wayfinder, and to-questionnaire) are pressed; on the right, only one path lights up based on the information gap, with a caption at the bottom saying "This isn't a stamp card; you don't need to fill all five slots"](planning-skills-punch-card.png){: width="800" height="450" }
 _Having five names on the same list doesn't mean you run all of them every time._
 
-## `to-spec` only organizes what's already been discussed
+## `to-spec` Only Organizes What's Already Been Discussed
 
 `to-spec` works from the current conversation and the AI's understanding of the existing code. Its [first rule](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-spec/SKILL.md#L7-L19) explicitly tells it not to interview you again, but only to synthesize what has already been discussed. So if the requirements still have open questions, calling it now won't get you answers; those gaps will simply be carried over into the spec as-is.
 
@@ -62,7 +62,7 @@ The spec doesn't include specific file paths or code, because those details go s
 
 Short tasks don't necessarily need a spec. If the whole feature can be finished in this session, [the main flow goes straight to implementation](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L22-L26).
 
-### `to-spec` example
+### `to-spec` Example
 
 Suppose the team has confirmed two things: when a member is deactivated, their seat is reclaimed immediately; and there's no refund on the current bill, with the reduced seat count taking effect from the next one. `to-spec` could turn the conversation into the following spec (excerpt):
 
@@ -92,7 +92,7 @@ Workspace admins don't know when a seat is freed up after they deactivate a memb
 
 This spec only contains confirmed answers. If "takes effect from the next bill" hasn't been confirmed by finance yet, `to-spec` shouldn't write it in on the team's behalf. In that case, use `to-questionnaire` (covered later) to get the answer first.
 
-## `to-tickets` makes every ticket a small, complete slice of the feature
+## `to-tickets` Makes Every Ticket a Small, Complete Slice of the Feature
 
 `to-tickets` can take a spec, a plan, an existing issue, or just the current conversation. After reading everything, it cuts the work into individual tickets.
 
@@ -107,7 +107,7 @@ The AI doesn't publish its first cut directly. It first lists each ticket's titl
 
 There's one exception: mechanical changes that ripple across the whole project, such as renaming a field that's used everywhere. A change like this affects the entire project at once, so it can't be cut into slices that each work independently. For these, the original rules switch to an "expand-contract" approach: first let the old and new forms coexist so nothing breaks; then migrate usages to the new form in batches; and finally, after confirming nothing still uses the old form, delete it.
 
-### `to-tickets` example
+### `to-tickets` Example
 
 The same seat spec won't be split into three tickets for "change the data," "change the code," and "change the UI." One of the tickets could read:
 
@@ -129,7 +129,7 @@ After an admin picks an unused seat on the members page and completes the assign
 
 This ticket touches everything from data storage to the UI, but once it's done it can be demonstrated on its own. The later "Deactivate a member and free their seat" ticket will list it as a blocker, because the system has to be able to assign seats before you can verify the behavior of reclaiming them.
 
-## `triage` takes on work that other people send in
+## `triage` Takes On Work That Other People Send In
 
 "Triage" originally refers to sorting patients in an emergency room. Here it means sorting work you didn't create yourself: problems reported by users, feature requests from others, and, if the project is configured for it, code changes (PRs) sent in directly by outside contributors. Tickets produced by `to-tickets` already carry the label for handing off to the AI, so [they don't need to go through triage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L34-L46).
 
@@ -147,7 +147,7 @@ If an item ends up with conflicting statuses, [`triage`'s status rules](https://
 
 Categorization can't rely on the report text alone. The AI first reads the entire discussion thread, checks whether the code already implements the requested feature, and looks at similar requests that were rejected in the past. Then it proposes a category and status, then stops and waits for the maintainer's instructions. After that, it follows the reported steps to reproduce the problem, confirms the report is accurate, and asks follow-up questions if needed. Finally, it acts on the result: for items that can go to the AI, it leaves a handoff note; for items that need a person, it writes one in the same format and notes why it can't be handed to the AI; for items missing information, it lists what's been confirmed and what the reporter still needs to provide; for features that already exist, it points out where they are and closes the item. [The full processing order](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/triage/SKILL.md#L68-L90) separates verification, follow-up questions, and status updates into distinct steps.
 
-### `triage` example
+### `triage` Example
 
 Suppose a user sends in a report that says only, "After deactivating a member, the available seats didn't increase." After reading the report and checking the existing code, the AI first proposes a category to the maintainer. Once the maintainer agrees, it follows the steps in the report and confirms the problem exists. The organized result might look like this:
 
@@ -161,7 +161,7 @@ Suppose a user sends in a report that says only, "After deactivating a member, t
 
 If verification shows the system actually does free the seat and only the UI isn't updating, the handoff note should narrow the scope to the display. If the report doesn't say which plan was used or what actions were taken, the status should first be set to `needs-info`, asking the reporter for more details, rather than guessing at the cause.
 
-## `wayfinder` handles the decisions you can't fully list yet
+## `wayfinder` Handles the Decisions You Can't Fully List Yet
 
 Some work is so big that you can't see the whole picture in one session; you can't even list which decisions need to be made. As the name suggests, a `wayfinder` is someone who finds the way. It first creates a "map" in the issue tracker, recording the destination, the decisions already made, the areas that are still unclear, and what's out of scope this time. Questions that can already be stated clearly each get their own "decision ticket."
 
@@ -169,7 +169,7 @@ When a decision ticket is done, what it produces is a decision, not a finished f
 
 If the first pass shows every question is already clear and the whole thing can be talked through in one session, [there's no need for a map](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wayfinder/SKILL.md#L103-L116), and the AI stops to ask how you'd like to proceed. Once all the decisions on the map are done, the flow returns to `to-spec`, which gathers the answers scattered across the decision tickets into a single spec and then passes it to `to-tickets`.
 
-### `wayfinder` example
+### `wayfinder` Example
 
 Suppose you need to switch existing billing from "per member" to "per assigned seat," and at the start the team may not even know which decisions need to be made. At this point, you can write up what you can currently see as a map:
 
@@ -206,7 +206,7 @@ After the first decision ticket is resolved, "how to restore if the migration fa
 ![In the first pass, the map records the destination and the unclear areas, while known questions get their own decision tickets; only after the batch-migration decision ticket is resolved does "when to fall back to old billing if migration fails" become a new decision ticket](wayfinder-decision-map.png){: width="800" height="450" }
 _Decision tickets are opened separately under the map; the answer to one decision ticket may make the next question concrete enough to ask._
 
-## `to-questionnaire` goes to the person who holds the answer
+## `to-questionnaire` Goes to the Person Who Holds the Answer
 
 Some questions can't be looked up, and shouldn't be decided by whoever is in the current conversation. Let's switch scenarios: suppose the finance lead hasn't yet confirmed in which billing period seat changes should take effect. `to-questionnaire` turns questions like this into a questionnaire that the other person can fill out when they have time, or that you fill out together in a meeting.
 
@@ -214,7 +214,7 @@ It [only asks you two things](https://github.com/mattpocock/skills/blob/c55ee460
 
 The questionnaire explains the purpose, the background, and how to answer. Questions are ordered by importance, because the recipient may only fill it out once; each question asks about just one thing, and the questionnaire ends with "Is there anything we didn't ask that we should know?" Only once the answers come back do they become material for `grill-with-docs` or `to-spec`, and [`ask-matt` also lists these two flows as where a questionnaire goes next](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L73-L83). The questionnaire itself doesn't make decisions for the project.
 
-### `to-questionnaire` example
+### `to-questionnaire` Example
 
 If the answer lies with the finance lead, the generated `to-questionnaire-seat-billing.md` could include:
 
@@ -252,7 +252,7 @@ Please reply by this Friday; it takes about 10 minutes. Pick one option per ques
 
 Only after the recipient fills in the answers can the team write conclusions like "no refund this period" into the spec. The options in the questionnaire are there just to make answering easier; they don't mean the team already leans toward any of them.
 
-## They all leave documents, but for different purposes
+## They All Leave Documents, but for Different Purposes
 
 All five skills leave text behind. Look at who each artifact goes to next, and the differences become clear.
 
@@ -266,7 +266,7 @@ All five skills leave text behind. Look at who each artifact goes to next, and t
 
 Specs and tickets can both carry `ready-for-agent`, but they differ in size: a spec covers an entire feature, while a ticket is just one small slice of it. Only when a feature is too big to finish in one session does it need to be cut into tickets.
 
-## Every extra layer of planning adds another round of human review
+## Every Extra Layer of Planning Adds Another Round of Human Review
 
 This process doesn't skip human review; it moves the review to before the documents are published.
 
@@ -274,7 +274,7 @@ With `to-spec`, you confirm the checkpoints; with `to-tickets`, you confirm how 
 
 `wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets. Each session usually resolves only one, so all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
 
-## First look at where the information is missing
+## First Look at Where the Information Is Missing
 
 When choosing, start by looking at the situation in front of you:
 
@@ -288,7 +288,7 @@ When choosing, start by looking at the situation in front of you:
 
 This table only decides where to start right now. After `wayfinder` finishes, the flow returns to `to-spec`; once a questionnaire comes back, its answers can also feed back into the requirements discussion. The skills off the main path fill in gaps, and once the gaps are filled, you return to the main path.
 
-## Simulated scenario: cutting per-seat billing into work you can start on
+## Simulated Scenario: Cutting Per-Seat Billing Into Work You Can Start On
 
 The walkthrough below doesn't actually run these skills, because they would write to the project's issue tracker or the current folder. It is inferred from the original rules in version `1.2.3`; actual results will vary with the project's content, existing decision records, and the conversation.
 
@@ -318,7 +318,7 @@ At this point, check three things: whether each ticket can be verified on its ow
 
 If finance hasn't yet confirmed when seat changes show up on the bill, first use `to-questionnaire` to get the answer from the person responsible, then come back and finish the spec. If you can't even list up front which decisions the migration period requires, use `wayfinder` to build a map instead. Different gaps mean different starting points.
 
-## I look for the gap first instead of running all five
+## I Look for the Gap First Instead of Running All Five
 
 The inputs, artifacts, and timing described above can all be found in the original instructions. What follows is my personal judgment; the source material can't prove that this approach will always save time.
 
@@ -328,7 +328,7 @@ Running all five skills produces more documents, but doesn't necessarily make th
 
 This judgment applies to team projects that hand off work through an issue tracker, where the work spans several sessions. If you just want to make a small change within this session, implement it directly.
 
-## First decide who the next document is for
+## First Decide Who the Next Document Is For
 
 Once the requirements are talked through, which skill should you start with? First look at who the next document is for, and what kind of information is currently missing.
 
@@ -336,7 +336,7 @@ If you need a complete requirements write-up to hand off for further planning, u
 
 Back to the per-seat billing scenario: the smallest next step is to stay in the same conversation, run `to-spec`, confirm the checkpoints, and then decide based on the amount of work whether to cut it into tickets.
 
-## Further reading
+## Further Reading
 
 - [`to-spec`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-spec/SKILL.md#L7-L73): see the spec's fixed sections, how checkpoints are confirmed, and the publishing rules.
 - [`to-tickets`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-tickets/SKILL.md#L15-L105): check the ticket slicing rules, blocking relationships, and the two ticket formats.
