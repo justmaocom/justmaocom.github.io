@@ -95,7 +95,7 @@ Rule 4 comes up a lot. People often add an extra layer "in case we change databa
 `codebase-design` comes with two more documents for after you've decided to tidy up a module:
 
 - [`DEEPENING.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L5-L37) explains how to decide how to test based on what the module depends on; for example, if it depends on an outside payment service, tests swap in a fake one. It also reminds you that once the module is tidied up and new tests are written against its new buttons, [the old tests should be deleted](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L32-L37) rather than keeping both sets.
-- [`DESIGN-IT-TWICE.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DESIGN-IT-TWICE.md#L19-L44) explains how to "sketch several designs before picking one." The AI sends out three or more helpers at once, each designing in a different direction, such as "as few buttons as possible" or "make the most common case simplest," then compares them and gives a clear recommendation instead of handing you a menu.
+- [`DESIGN-IT-TWICE.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DESIGN-IT-TWICE.md#L19-L44) applies John Ousterhout's "design it twice" idea from *A Philosophy of Software Design*: sketch several designs before picking one. The AI sends out three or more helpers at once, each designing in a different direction, such as "as few buttons as possible" or "make the most common case simplest," then compares them and gives a clear recommendation instead of handing you a menu.
 
 ## `improve-codebase-architecture`: A Regular Health Check for the Project
 
@@ -199,7 +199,7 @@ As noted above, this skill was removed in `1.3.0`, and [the archived docs page](
 | Reading the review | You | Read the two sides separately; smells are just heads-ups, and whether to act is up to you |
 | Resolving conflicts | The AI, and you when needed | Trace what each side was for; when only one side can stay, check the AI's choice and its reasons |
 
-The two most time-consuming tasks are the health check and "design it twice" (sketching several designs), since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
+The two most time-consuming tasks are the health check and "design it twice," since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
 
 ## Which One to Use When
 

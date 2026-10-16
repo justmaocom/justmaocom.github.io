@@ -1,5 +1,5 @@
 ---
-title: "From a Forum Image to Codex: The HEIF and SSO Attack Chain on OpenAI"
+title: "From a Forum Image Upload to Codex: The HEIF and SSO Attack on OpenAI"
 description: "Hacktron chained a Discourse image bug and an SSO flaw to reach OpenAI accounts and internal GitHub. What's verifiable, what was fixed, and what to audit."
 date: 2026-09-18 14:24:48 +0800
 categories: [Security, Attack Chains]

@@ -1,5 +1,5 @@
 ---
-title: "A Randomized Quiz App for Taiwan's Government Procurement Exam"
+title: "A Shuffled Procurement Exam Quiz So You Can't Just Memorize the Order"
 description: "How the app parses the official question bank, serves questions in random order, and tracks your weak categories across sessions."
 date: 2026-09-15 13:42:04 +0800
 categories: [Software Development, Web Applications]

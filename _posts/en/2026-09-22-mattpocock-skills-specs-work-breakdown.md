@@ -272,7 +272,7 @@ This process doesn't skip human review; it moves the review to before the docume
 
 With `to-spec`, you confirm the checkpoints; with `to-tickets`, you confirm how coarse or fine the slicing is and the blocking relationships. `triage` makes a recommendation first and then waits for the maintainer's instructions; `to-questionnaire` needs you to explain who the recipient is and what answers to bring back.
 
-`wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets, and each session usually resolves only one, and all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
+`wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets. Each session usually resolves only one, so all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
 
 ## First look at where the information is missing
 

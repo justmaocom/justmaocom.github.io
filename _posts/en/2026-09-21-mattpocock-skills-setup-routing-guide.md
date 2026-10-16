@@ -1,6 +1,6 @@
 ---
 title: "mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills"
-description: "You don't need to memorize 25 skills. How to install mattpocock/skills, what setup leaves in your project, and how ask-matt finds your next step."
+description: "No need to memorize 25 skills: how to install mattpocock/skills, what setup-matt-pocock-skills adds to your project, and how ask-matt suggests your next step."
 date: 2026-09-21 11:16:29 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
