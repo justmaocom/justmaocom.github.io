@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series (5): After the Code Is Written, Who Checks the Structure, Reviews the Change, and Resolves Conflicts?"
-description: "Passing tests don't mean everything is fine. This post introduces four skills: codebase-design, improve-codebase-architecture, code-review, and resolving-merge-conflicts, and produces a real merge conflict using the per-seat billing example."
+title: "mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts"
+description: "Passing tests don't mean you're done. Four skills for checking structure, reviewing changes, and resolving merge conflicts, using the per-seat billing example."
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
@@ -10,7 +10,7 @@ image:
   alt: "Cover: a module with only a few buttons next to a two-column review report, representing the four skills this post covers for checking structure, reviewing changes, and resolving merge conflicts after the code is written."
 ---
 
-In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main line (a branch is a copy of the main line where you can make changes safely).
+In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main branch (a branch is a copy of the main branch where you can make changes safely).
 
 Passing tests only mean the code behaves the way the tests say. Three things remain that tests can't see:
 
@@ -22,8 +22,8 @@ Passing tests only mean the code behaves the way the tests say. Three things rem
 
 > mattpocock/skills Series | Part 5
 >
-> - Previous (Part 4): [Before AI Starts Coding, Decide Which Signal to Trust](/posts/mattpocock-skills-implementation-feedback-loops/)
-> - Next (Part 6): [Research, Handoffs, and Learning Something New, Each With a Set Routine](/posts/mattpocock-skills-research-handoff/)
+> - Previous (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
+> - Next (Part 6): [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the merge conflict and the post-merge test failure are real execution results.
 {: .prompt-info }
@@ -31,9 +31,9 @@ Passing tests only mean the code behaves the way the tests say. Three things rem
 > Since this series started, `mattpocock/skills` has moved on to `1.3.x`. [`v1.3.0` removed `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1), and the official note says nothing replaces it. The same release also renamed the glossary file `CONTEXT.md` to `GLOSSARY.md`. To stay consistent with the first four parts, this post still uses `1.2.3`.
 {: .prompt-warning }
 
-## Three Words First
+## Three Terms First
 
-You only need three words for this post:
+You only need three terms for this post:
 
 | Term | In one sentence |
 | --- | --- |
@@ -95,7 +95,7 @@ Rule 4 comes up a lot. People often add an extra layer "in case we change databa
 `codebase-design` comes with two more documents for after you've decided to tidy up a module:
 
 - [`DEEPENING.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L5-L37) explains how to decide how to test based on what the module depends on; for example, if it depends on an outside payment service, tests swap in a fake one. It also reminds you that once the module is tidied up and new tests are written against its new buttons, [the old tests should be deleted](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DEEPENING.md#L32-L37) rather than keeping both sets.
-- [`DESIGN-IT-TWICE.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DESIGN-IT-TWICE.md#L19-L44) explains how to "sketch several designs before picking one." The AI sends out three or more helpers at once, each designing in a different direction, such as "as few buttons as possible" or "make the most common case simplest," then compares them and gives a clear recommendation instead of handing you a menu.
+- [`DESIGN-IT-TWICE.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/DESIGN-IT-TWICE.md#L19-L44) applies John Ousterhout's "design it twice" idea from *A Philosophy of Software Design*: sketch several designs before picking one. The AI sends out three or more helpers at once, each designing in a different direction, such as "as few buttons as possible" or "make the most common case simplest," then compares them and gives a clear recommendation instead of handing you a menu.
 
 ## `improve-codebase-architecture`: A Regular Health Check for the Project
 
@@ -199,7 +199,7 @@ As noted above, this skill was removed in `1.3.0`, and [the archived docs page](
 | Reading the review | You | Read the two sides separately; smells are just heads-ups, and whether to act is up to you |
 | Resolving conflicts | The AI, and you when needed | Trace what each side was for; when only one side can stay, check the AI's choice and its reasons |
 
-The most time-consuming are the health check and "sketching several designs," since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
+The two most time-consuming tasks are the health check and "design it twice," since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
 
 ## Which One to Use When
 

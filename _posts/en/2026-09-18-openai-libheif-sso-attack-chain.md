@@ -1,6 +1,6 @@
 ---
-title: How One HEIF Image and SSO Carried a Forum Incident into Codex
-description: Hacktron published an attack chain that started with an image-decoding bug in Discourse and reached OpenAI accounts and internal GitHub resources. This post breaks down the evidence, the layers of the fix, and the trust relationships involved, and ends with a list of questions you can use directly in operations and access reviews.
+title: "From a Forum Image Upload to Codex: The HEIF and SSO Attack on OpenAI"
+description: "Hacktron chained a Discourse image bug and an SSO flaw to reach OpenAI accounts and internal GitHub. What's verifiable, what was fixed, and what to audit."
 date: 2026-09-18 14:24:48 +0800
 categories: [Security, Attack Chains]
 tags: [application-security, sso, codex, discourse, libheif]
@@ -25,7 +25,7 @@ This disclosure covers two different problems. The first is CVE-2026-32882 in `l
 
 The second problem is in OpenAI SSO. According to [Hacktron's incident report](https://www.hacktron.ai/blog/hacking-openai#intro), the team first gained access to the Discourse environment behind `community.openai.com`, then used an authentication configuration issue to take over the ChatGPT accounts of several OpenAI employees. The team says Codex on one of those accounts was already connected to OpenAI's GitHub organization, so they used Codex to open pull request `#1186742` in an internal monorepo, and then stopped testing.
 
-For the second half of the chain, there is no public OpenAI SSO configuration, login exchange, or internal pull request to check against. So this post can only confirm that "Hacktron reports this." It cannot go further and conclude that Slack, email, or other connectors were also accessed. That line matters.
+For the second half of the chain, there is no public OpenAI SSO configuration, login exchange, or internal pull request to check against. So this post can only confirm that "Hacktron reports this." It cannot go further and conclude that Slack, email, or other connectors were also accessed. That distinction matters.
 
 Laying out the timeline shows the two kinds of evidence interleaved:
 
@@ -99,7 +99,7 @@ Do only the first, and the next decoder bug still runs with the old privileges. 
 
 The upstream `libheif` [fix commit](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae) rewrites the overlap area calculation in `HeifPixelImage::overlay`, converting the additions to `int64_t` before comparing bounds. The commit title is just "simplify overlay overlap area computation," with no indication that it is a security fix. The diff shows what the code changed, but it is not enough to reconstruct the full exploit, and it does not explain why downstream packages missed the fix.
 
-## How SSO Carried the Forum Incident into Codex
+## How SSO Extended the Forum Breach into Codex
 
 Remote code execution on the forum only explains the first leg of the attack chain. What happens next depends on how OpenAI SSO handles forum logins, and which products and connectors a successfully logged-in account can use. The public technical material on this part is thin.
 
@@ -114,7 +114,7 @@ What this case lacks most is technical detail on the second layer. The public ma
 ![An SSO access review form where forum, ChatGPT, Codex, and GitHub are crammed into a field meant for a single line](sso-review-form.png){: width="960" height="540" }
 _When a login identity carries over to other services, one line on the review form quickly stops being enough._
 
-## Looking Only at the Upstream Version Misjudges Patch Status
+## Upstream Version Numbers Alone Can Mislead You About Patch Status
 
 Seeing `libheif 1.19.8` does not by itself mean a system is still vulnerable. Linux distributions backport security fixes without changing the upstream version number, so to judge patch status you have to compare the full package revision against the distro's advisory.
 

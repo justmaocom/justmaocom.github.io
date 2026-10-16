@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series (6): Research, Handoffs, and Learning Something New, Each With a Set Routine"
-description: "Plenty of things besides writing code slow a project down: looking things up, handing work to the next person, setting up accounts only you can access, learning a new topic. This post introduces five skills, research, wizard, handoff, teach, and writing-for-agents, and walks through them with the per-seat billing example."
+title: "mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning"
+description: "Not everything that slows a project down is code. Five skills (research, wizard, handoff, teach, and writing-for-agents), shown with a per-seat billing example."
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
@@ -18,11 +18,11 @@ The first five parts were all about getting a feature built: clarifying requirem
 - You only half understand "prorated billing" yourself and want to learn it properly.
 - The project's instructions for the AI keep getting longer, yet the AI often doesn't follow them.
 
-None of these are coding, yet they often hold everything up. `mattpocock/skills` handles them with five skills: `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`.
+None of this is coding, yet it often holds everything up. `mattpocock/skills` handles them with five skills: `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`.
 
 > mattpocock/skills Series | Part 6
 >
-> - Previous (Part 5): [After the Code Is Written, Who Checks the Structure, Reviews the Change, and Resolves Conflicts?](/posts/mattpocock-skills-design-review-integration/)
+> - Previous (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). All five skills already exist in `1.2.3` and are still there in the latest release, `1.3.1`. The skill invocations in the per-seat billing example are inferred from the original instructions; the syntax check on the wizard script is a real execution result.
 {: .prompt-info }
@@ -30,7 +30,7 @@ None of these are coding, yet they often hold everything up. `mattpocock/skills`
 > After `1.3.1`, the main branch on GitHub picked up small, not-yet-released fixes to three of these skills: [the `wizard` script template](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh) fixed a few compatibility issues, [`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) spells out how to find the temporary folder, and [`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) asks that a quiz's correct answer not always sit in the same position. None of this changes what this post describes.
 {: .prompt-tip }
 
-## Three Words First
+## Three Terms First
 
 | Term | In one sentence |
 | --- | --- |
@@ -78,7 +78,7 @@ It has just [five rules](https://github.com/mattpocock/skills/blob/c55ee46073ed9
 1. Summarize the current conversation into a handoff document, saved in the computer's temporary folder, not in the project.
 2. Include a "suggested skills" section telling the next person which skills to call first.
 3. Don't copy what's already written elsewhere, such as specs, tickets, or commits (a commit saves a batch of changes as one version, with a note); just give the path or link.
-4. Black out anything sensitive, such as passwords, keys, and personal data.
+4. Redact anything sensitive, such as passwords, keys, and personal data.
 5. If you said what the next session is for when calling it, tailor the sheet to that.
 
 Rule 3 matters most. A handoff sheet has to be short for anyone to read it; copying the spec in not only makes it longer, the two copies can later drift apart.
@@ -266,7 +266,7 @@ That said, the habit has a precondition: the originals have to actually exist an
 
 ## Wrapping Up
 
-Work outside of coding can have a set routine too:
+Work that isn't coding can follow a repeatable process too:
 
 - To check facts, use `research` to send a helper to primary sources and bring back a note with citations.
 - To change place or person, use `handoff` to write a sheet with just the key points and links to the rest.

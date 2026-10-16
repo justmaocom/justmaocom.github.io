@@ -1,6 +1,6 @@
 ---
-title: Turning a Procurement Act PDF Question Bank into a Practice Site That Doesn't Reward Memorizing Question Order
-description: Parsing the question bank, building randomized quizzes, and using cross-session stats to find weak areas
+title: "A Shuffled Procurement Exam Quiz So You Can't Just Memorize the Order"
+description: "How the app parses the official question bank, serves questions in random order, and tracks your weak categories across sessions."
 date: 2026-09-15 13:42:04 +0800
 categories: [Software Development, Web Applications]
 tags: [python, fastapi, sqlalchemy, postgresql, pdf-parsing, side-project]
@@ -97,7 +97,7 @@ The result was `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. 
 
 ## What really matters is a practice record you can look back on
 
-The verifiable material above only confirms that the features exist. I still believe this project's value lies in closing a review loop, though nothing in this post can prove it will raise exam scores.
+Everything above confirms only that these features exist. I still believe this project's value lies in closing a review loop, though nothing in this post can prove it will raise exam scores.
 
 A fixed PDF gives you questions and answers; the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For this household need, the tech choices are just a means to an end. The real product is being able to keep repeating the loop of "answer, find weak areas, practice again."
 

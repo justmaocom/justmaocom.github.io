@@ -1,23 +1,23 @@
 ---
-title: "mattpocock/skills Series (3): Find the Gap First, Then Decide Whether to Write a Spec or Break Down Tickets"
-description: "Once the requirements have been talked through, should you write a spec, break the work into tickets, or go ask the person who holds the answer? Using per-seat billing as the example, this post explains which kind of gap to-spec, to-tickets, triage, wayfinder, and to-questionnaire each fill."
+title: "mattpocock/skills, Part 3: Spec, Tickets, or More Questions?"
+description: "Spec, tickets, or a questionnaire? Using per-seat billing, this post maps which gap each of to-spec, to-tickets, triage, wayfinder, and to-questionnaire fills."
 date: 2026-09-22 15:05:23 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
   path: cover.png
-  alt: "Cover of part 3 of the mattpocock/skills series: find the gap first, then decide whether to write a spec or break down tickets; each of five information gaps maps to one skill"
+  alt: "Cover of part 3 of the mattpocock/skills series: find the gap first, then decide whether to write a spec or break the work into tickets; each of five information gaps maps to one skill"
 ---
 
 In the previous post, we finished talking through the per-seat billing requirements. `CONTEXT.md` now records the difference between a "billable seat" and a "member", and the conversation also settled what happens when a member is deactivated. The next step is to turn those conclusions into work someone can actually start on, but there are five skills in front of us that all seem to have something to do with "planning": `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire`.
 
 All five skills produce documents, but each fills a different gap. Pick the wrong one and the AI will still follow the instructions to the end, but all you get is one more document that nobody needs yet.
 
-> mattpocock/skills series | Part 3
+> mattpocock/skills Series | Part 3
 >
-> - Previous (Part 2): [Clarify Vague Requirements and Leave Behind a Shared Vocabulary](/posts/mattpocock-skills-requirements-shared-language/)
-> - Next (Part 4): [Before AI Starts Coding, Decide Which Signal to Trust](/posts/mattpocock-skills-implementation-feedback-loops/)
+> - Previous (Part 2): [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
+> - Next (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The per-seat billing walkthrough is inferred from the original instructions, not taken from an actual test run.
 {: .prompt-info }
@@ -163,7 +163,7 @@ If verification shows the system actually does free the seat and only the UI isn
 
 ## `wayfinder` handles the decisions you can't fully list yet
 
-Some work is so big that you can't see the whole picture in one session; you can't even list which decisions need to be made. Literally, a `wayfinder` is "someone who finds the way." It first creates a "map" in the issue tracker, recording the destination, the decisions already made, the areas that are still unclear, and what's out of scope this time. Questions that can already be stated clearly each get their own "decision ticket."
+Some work is so big that you can't see the whole picture in one session; you can't even list which decisions need to be made. As the name suggests, a `wayfinder` is someone who finds the way. It first creates a "map" in the issue tracker, recording the destination, the decisions already made, the areas that are still unclear, and what's out of scope this time. Questions that can already be stated clearly each get their own "decision ticket."
 
 When a decision ticket is done, what it produces is a decision, not a finished feature. [`wayfinder`'s rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wayfinder/SKILL.md#L7-L25) require it, by default, to only plan and not start implementing. Each session resolves at most one decision ticket; the only exception is pure-research decision tickets, which can be handed to multiple AIs to investigate in parallel. The answer is written as a comment on that decision ticket. Once a decision ticket is closed, the map only gets a one-line summary and a link, and the details stay in the decision ticket. If an answer clarifies an area that was previously unclear, a new decision ticket is opened for it.
 
@@ -272,7 +272,7 @@ This process doesn't skip human review; it moves the review to before the docume
 
 With `to-spec`, you confirm the checkpoints; with `to-tickets`, you confirm how coarse or fine the slicing is and the blocking relationships. `triage` makes a recommendation first and then waits for the maintainer's instructions; `to-questionnaire` needs you to explain who the recipient is and what answers to bring back.
 
-`wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets, and each session usually resolves only one, so all that time is paid for by the people involved in the decisions. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
+`wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets. Each session usually resolves only one, so all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
 
 ## First look at where the information is missing
 

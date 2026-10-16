@@ -1,6 +1,6 @@
 ---
 title: OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct
-description: OpenWiki uses Git changes and Grounded Claims to find which repo wiki pages need updating, but an all-green source check only means the citations haven't gone stale. This post walks through the 0.5.2 source to show how far it actually goes and what adopting it costs.
+description: "OpenWiki flags wiki pages that need updating, but green source checks don't prove the docs are right. A look at what v0.5.2 actually checks and what it costs."
 date: 2026-09-19 08:20:00 +0800
 categories: [AI, Documentation]
 tags: [openwiki, coding-agent, documentation]

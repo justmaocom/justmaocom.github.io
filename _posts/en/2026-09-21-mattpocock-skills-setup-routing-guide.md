@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series (1): Set Up Your Project Rules First, Then Let ask-matt Find the Next Step"
-description: "You don't need to memorize 25 skills to start using mattpocock/skills. This post covers how to install them, what setup-matt-pocock-skills leaves behind in your project, and how to use ask-matt to find your next step."
+title: "mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills"
+description: "No need to memorize 25 skills: how to install mattpocock/skills, what setup-matt-pocock-skills adds to your project, and how ask-matt suggests your next step."
 date: 2026-09-21 11:16:29 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
@@ -19,7 +19,7 @@ That said, `ask-matt` is more like a help desk than a manager that automatically
 
 > mattpocock/skills Series | Part 1
 >
-> - Next (Part 2): [Clarify Vague Requirements and Leave Behind a Shared Vocabulary](/posts/mattpocock-skills-requirements-shared-language/)
+> - Next (Part 2): [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills. The repository also contains 9 items that are still experimental and 4 that aren't currently being promoted, listed in [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18) and [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8) respectively. This series only covers the 25 included in the official plugin.
 {: .prompt-info }
