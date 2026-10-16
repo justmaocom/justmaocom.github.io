@@ -7,7 +7,7 @@ tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-ch
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.png
-  alt: 封面：一個 Coding Agent 接上外掛、工具和網路，旁邊列出四個風險入口和一份檢查清單。
+  alt: 封面：標題「裝了 skill 和 MCP 之後，Agent 多了哪些破口？」，旁邊是加上 skill、MCP server、GitHub 權杖的 Coding Agent，以及兩段式檢查清單。
 ---
 
 星期一早上，你在 Claude Code 裡裝了一個同事推薦的 skill，又在 Cursor 加了一個能查 GitHub issue 的 MCP server。設定檔只多了十幾行，看起來很無害。
@@ -106,7 +106,9 @@ Agent 能做的事，等於它拿到的權限總和。本機的 `~/.ssh`、環�
 
 ### 案例 3：Cursor 的 CVE-2025-54135（已修補的漏洞）
 
-**事實**：根據 [Cursor 的安全公告 GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) 與 [CVE 紀錄](https://www.cve.org/CVERecord?id=CVE-2025-54135)：1.3.9 以前的 Cursor（這是 CVE 紀錄的寫法；公告的受影響版本欄寫的是 1.2.1 以前）允許 agent 不經核准就在工作區建立新檔案；編輯既有的隱藏設定檔（以點開頭的 dotfile，例如 `.cursor/mcp.json`）要核准，但「新建」不用。所以若工作區還沒有 `.cursor/mcp.json`，攻擊者可以搭配一個間接的提示注入，讓 agent 寫出這個檔案、加進一個新的 MCP server，進而執行任意程式。修補版本是 1.3.9。嚴重度方面，公告的 CVSS 3.1 分數（業界通用的漏洞嚴重度分數，滿分 10）是 8.5；CVE 紀錄寫 8.6，但兩邊的評分向量完全相同，我照 CVSS 3.1 公式自己算過，這個向量算出來是 8.5。
+**事實**：根據 [Cursor 的安全公告 GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) 與 [CVE 紀錄](https://www.cve.org/CVERecord?id=CVE-2025-54135)：1.3.9 以前的 Cursor（這是 CVE 紀錄的寫法；公告的受影響版本欄寫的是 1.2.1 以前）允許 agent 不經核准就在工作區建立新檔案；編輯既有的隱藏設定檔（以點開頭的 dotfile，例如 `.cursor/mcp.json`）要核准，但「新建」不用。所以若工作區還沒有 `.cursor/mcp.json`，攻擊者可以搭配一個間接的提示注入，讓 agent 寫出這個檔案、加進一個新的 MCP server，進而執行任意程式。修補版本是 1.3.9。嚴重度方面，公告的 CVSS 3.1 分數（業界通用的漏洞嚴重度分數，滿分 10）是 8.5；CVE 紀錄寫 8.6，但兩邊的評分向量完全相同。
+
+**推論**：我照 CVSS 3.1 公式自己算過這個向量，結果是 8.5，因此本文採用公告的 8.5。
 
 **推論**：這把入口一（藏在內容裡的指令）和入口四（自動執行）串在一起。設定檔本身就是「可以執行程式」的地方，agent 能不能寫它，應該跟能不能跑 shell 一樣嚴格。
 
@@ -140,7 +142,7 @@ _防護的目標不是讓 AI 變聰明，而是讓它就算被騙了也做不了
 
 ### 1. 最小權限：給它剛好夠用的鑰匙
 
-- GitHub 權杖用細粒度權杖（fine-grained token，只開特定 repo 和特定權限的通行碼，在 GitHub 的 Settings → Developer settings → Personal access tokens 建立）；不要直接把 `gh` 的完整登入狀態給 agent。
+- GitHub 權杖用細粒度權杖（fine-grained token，只開特定 repo 和特定權限的通行碼，在 GitHub 的 Settings → Developer settings → Personal access tokens → Fine-grained tokens 建立）；不要直接把 `gh` 的完整登入狀態給 agent。
 - 一個工作階段只碰一個專案。Invariant 在案例 2 的建議之一，就是[限制 agent 每個工作階段只能操作一個 repo](https://invariantlabs.ai/blog/mcp-github-vulnerability)（他們是用自家的 Guardrails 工具示範，概念可以用其他方式實作）。
 - MCP 授權範圍從最小開始，需要時再加。這是 [MCP 安全最佳實務的「範圍最小化」](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#scope-minimization)。
 - 把憑證移出明文檔案。Nx 的事後檢討也建議避免把權杖和 API key 明文放在設定檔裡。
@@ -170,8 +172,8 @@ _防護的目標不是讓 AI 變聰明，而是讓它就算被騙了也做不了
 具體寫法像這樣（`<commit>` 換成你審過的那個 commit）：
 
 ```bash
-# MCP：寫死已修補的版本，而不是 npx mcp-remote
-npx -y mcp-remote@0.1.16 https://mcp.example.com/mcp
+# MCP：寫死你審過的版本號（至少要 0.1.16 以上，才包含 CVE-2025-6514 的修補），不要寫 npx mcp-remote 或 @latest
+npx -y mcp-remote@<你審過的版本號> https://mcp.example.com/mcp
 
 # Skill：先 clone，再切到審過的 commit
 git clone https://github.com/someone/some-skill.git

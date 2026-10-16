@@ -7,7 +7,7 @@ tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-ch
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.en.png
-  alt: "Cover: a coding agent connected to plugins, tools, and the network, next to four risk entry points and a checklist."
+  alt: "Cover: the title \"What New Openings Do Skills & MCP Add?\" next to a Coding Agent box with skill, MCP server, and GitHub token added, and a two-part checklist."
 ---
 
 Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Looks harmless.
@@ -106,7 +106,9 @@ The same post covers two extensions:
 
 ### Case 3: Cursor's CVE-2025-54135 (patched)
 
-**Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. On severity, the advisory gives a CVSS 3.1 score (the industry's standard vulnerability severity score, out of 10) of 8.5. The CVE record says 8.6, but both use the identical vector, and computing that vector with the CVSS 3.1 formula myself gives 8.5.
+**Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. On severity, the advisory gives a CVSS 3.1 score (the industry's standard vulnerability severity score, out of 10) of 8.5. The CVE record says 8.6, but both use the identical vector.
+
+**Inference**: Computing that vector with the CVSS 3.1 formula myself gives 8.5, so this post uses the advisory's 8.5.
 
 **Inference**: This chains Entry 1 (hidden instructions) with Entry 4 (auto-execution). A config file is itself a place that can run code; whether the agent may write it deserves the same strictness as whether it may run shell commands.
 
@@ -140,7 +142,7 @@ _The goal isn't a smarter AI; it's an AI that can't do much damage even when foo
 
 ### 1. Least privilege: just enough keys
 
-- Use fine-grained GitHub tokens (tokens limited to specific repos and permissions, created under Settings → Developer settings → Personal access tokens); don't hand the agent your full `gh` login.
+- Use fine-grained GitHub tokens (tokens limited to specific repos and permissions, created under Settings → Developer settings → Personal access tokens → Fine-grained tokens); don't hand the agent your full `gh` login.
 - One project per session. One of Invariant's recommendations in Case 2 is [limiting the agent to one repo per session](https://invariantlabs.ai/blog/mcp-github-vulnerability) (they demonstrate it with their own Guardrails product; the idea can be implemented other ways).
 - Start MCP authorization with minimal scopes and add more when needed, per the [MCP best practices on scope minimization](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#scope-minimization).
 - Get credentials out of plaintext files. Nx's postmortem recommends the same.
@@ -170,8 +172,8 @@ _The goal isn't a smarter AI; it's an AI that can't do much damage even when foo
 Concretely (replace `<commit>` with the commit you reviewed):
 
 ```bash
-# MCP: pin the patched version instead of plain npx mcp-remote
-npx -y mcp-remote@0.1.16 https://mcp.example.com/mcp
+# MCP: pin a version you have audited (at least 0.1.16, which includes the CVE-2025-6514 fix); not plain npx mcp-remote or @latest
+npx -y mcp-remote@<audited-version> https://mcp.example.com/mcp
 
 # Skill: clone, then check out the reviewed commit
 git clone https://github.com/someone/some-skill.git
