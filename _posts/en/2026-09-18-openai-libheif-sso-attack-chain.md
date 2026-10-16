@@ -19,7 +19,7 @@ You open an SSO access review sheet, and the service name field just says "forum
 
 The image-decoding vulnerability and Discourse's fix can both be fully verified from public sources. The OpenAI SSO misconfiguration, the employee account takeover, and the internal pull request, on the other hand, rest only on the research team's word. You have to keep those two kinds of evidence apart to see what this incident is really warning us about.
 
-## First, Separate the Two Vulnerabilities from the Attack Chain
+## First, Separate the Two Vulnerabilities From the Attack Chain
 
 This disclosure covers two different problems. The first is CVE-2026-32882 in `libheif`. Discourse's [security advisory](https://github.com/discourse/discourse/security/advisories/GHSA-vhm9-85gw-x335) confirms that a malicious HEIF file uploaded as an image can lead to remote code execution. The advisory gives it a CVSS 3.1 score of 8.8 and lists four patched Discourse release lines.
 
@@ -99,7 +99,7 @@ Do only the first, and the next decoder bug still runs with the old privileges. 
 
 The upstream `libheif` [fix commit](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae) rewrites the overlap area calculation in `HeifPixelImage::overlay`, converting the additions to `int64_t` before comparing bounds. The commit title is just "simplify overlay overlap area computation," with no indication that it is a security fix. The diff shows what the code changed, but it is not enough to reconstruct the full exploit, and it does not explain why downstream packages missed the fix.
 
-## How SSO Extended the Forum Breach into Codex
+## How SSO Extended the Forum Breach Into Codex
 
 Remote code execution on the forum only explains the first leg of the attack chain. What happens next depends on how OpenAI SSO handles forum logins, and which products and connectors a successfully logged-in account can use. The public technical material on this part is thin.
 

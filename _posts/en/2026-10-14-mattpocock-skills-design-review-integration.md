@@ -215,7 +215,7 @@ The two most time-consuming tasks are the health check and "design it twice," si
 
 The skill invocations below were not actually run; the flow is inferred from the `1.2.3` instructions. The merge conflict was produced for real with git 2.47.3, and the post-merge test was run on Node.js v20.19.2; the code is a minimal example written for this post, not taken from `mattpocock/skills`.
 
-### Reviewing "Deactivate a member and release the seat"
+### Reviewing "Deactivate a Member and Release the Seat"
 
 After the third ticket is done, `implement` calls `code-review` automatically. You can also run it yourself in a new conversation:
 
