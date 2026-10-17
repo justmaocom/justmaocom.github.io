@@ -10,7 +10,7 @@ image:
   alt: "The six parts follow the order of development and cover all 25 plugin skills; find the step you're stuck on and start there."
 ---
 
-Maybe someone mentioned `mattpocock/skills`, you opened the repo, and found a long list of skill names. Or maybe you landed on one part of this series from a search and want to see what comes before and after it. The series has six parts, and each covers one stretch of the development process. This guide skips the details and answers three questions: what this set of skills is, how the six parts fit together, and which part you should start with.
+Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you found a long list of skill names. Or maybe you landed on one part of this series from a search and want to see what comes before and after it. The series has six parts, and each covers one stretch of the development process. This guide skips the details and answers three questions: what this set of skills is, how the six parts fit together, and which part you should start with.
 
 > mattpocock/skills Series | Guide
 >
@@ -40,9 +40,9 @@ Going by the six parts, these skills fit best when:
 - Your team tracks and hands off work in an issue tracker, such as GitHub Issues.
 - You want the AI to follow fixed steps, with a person signing off at each key point.
 
-On the other hand, you may not need them when:
+On the other hand, you may not need the full process when:
 
-- You only want to make a small change in this one conversation. Just make it (Part 3).
+- The feature fits in one conversation. Once the requirements are clear, go straight to implementation and skip `to-spec` and `to-tickets` (Part 3).
 - You're talking through an idea that hasn't taken shape yet. One interview with `grill-me` is enough; there's no need to document every term (Part 2).
 - The task is a one-off outside any project folder. There's no need to set up a whole project just to use one skill (Part 1).
 
@@ -69,7 +69,7 @@ Faced with 25 skills, where do you begin? This part explains how to choose betwe
 
 ### Part 2: From Vague Requirements to Shared Terms
 
-The meeting notes use "member," "user," and "seat" interchangeably. How do you pin them down? This part covers `grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`, and `wait-what`. The AI asks questions round by round in the order they depend on each other, agreed terms go into the project glossary, `CONTEXT.md`, and a few important decisions are written up as decision records.
+The meeting notes use "member," "user," and "seat" interchangeably. How do you pin them down? This part covers `grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`, and `wait-what`. The AI asks questions round by round in the order they depend on each other. With `grill-with-docs`, agreed terms go into the project glossary, `CONTEXT.md`, and a few important decisions are written up as decision records.
 
 → [Part 2: From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 
@@ -93,7 +93,7 @@ Passing tests don't mean the structure isn't getting messier, or that the change
 
 ### Part 6: Skills for Research, Handoffs, and Learning
 
-Work outside coding can stall a project too: looking up official docs, handing work to the next person, setup steps only you can do because only you can log in, and learning a new topic. This part covers `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`, each with its own repeatable process.
+Work outside coding can stall a project too: looking up official docs, handing work to the next person, setup steps that need your own login, and learning a new topic. This part covers `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`, each with its own repeatable process.
 
 → [Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
 
@@ -101,7 +101,7 @@ Work outside coding can stall a project too: looking up official docs, handing w
 
 You don't have to read from start to finish. Think about where you're stuck right now:
 
-![Reading paths: first-time users read Parts 1, 2, and 3; unclear requirements, Part 2; unsure whether to write a spec or tickets, Part 3; want to trust AI-written code, Parts 4 and 5; handoffs, research, or learning, Part 6; the full process, Parts 1 through 6](reading-paths.en.png){: width="800" height="450" }
+![Reading paths: first-time users read Parts 1, 2, and 3; unclear requirements, Part 2; unsure whether to write a spec or tickets, Part 3; want to trust AI-written code, Parts 4 and 5; reviews, structure, or merge conflicts, Part 5; handoffs, research, or learning, Part 6; the full process, Parts 1 through 6](reading-paths.en.png){: width="800" height="450" }
 _Find where you're stuck, then start with the matching part._
 
 | Your situation | Read |
