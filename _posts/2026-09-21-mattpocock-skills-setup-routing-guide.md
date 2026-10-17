@@ -21,6 +21,7 @@ image:
 > mattpocock/skills 系列｜第 1 篇
 >
 > - 下一篇（第 2 篇）：[把模糊需求問清楚，留下共用詞彙](/posts/mattpocock-skills-requirements-shared-language/)
+> - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
 > 本文以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。官方外掛的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47)收錄 25 個 skill；程式庫裡另有 9 個仍在試驗中、4 個目前不主動推廣的項目，分別列在 [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18)和 [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8)。本系列只討論官方外掛收錄的 25 個。
 {: .prompt-info }
