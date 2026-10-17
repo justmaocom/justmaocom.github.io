@@ -35,7 +35,7 @@ Agent Skill 就是做這件事的。這篇從「寫 skill 的人」的角度出�
 
 Claude Code 的文件給了一個很實際的判準：你一直把[同一段指示、檢查清單或多步驟流程貼進對話](https://code.claude.com/docs/en/skills)，或是 `CLAUDE.md` 裡某一段已經從「事實」長成了「流程」，就該寫成 skill。
 
-差別在載入的時機。`CLAUDE.md` 每次對話都會讀進去；skill 的本文只在用到時才載入，所以同一份文件寫明，長篇參考資料在用到之前幾乎不佔成本。`AGENTS.md` 也是常駐的，每一行都有成本，[系列第 6 篇](/posts/mattpocock-skills-research-handoff/)談過這一點。
+差別在載入的時機。`CLAUDE.md` 每次對話都會讀進去；skill 的本文只在用到時才載入。同一份文件也寫明，長篇參考資料在用到之前幾乎不佔成本。`AGENTS.md` 也是常駐的，每一行都有成本，[系列第 6 篇](/posts/mattpocock-skills-research-handoff/)談過這一點。
 
 反過來，也有不必寫的時候。agentskills.io 的[最佳實踐](https://agentskills.io/skill-creation/best-practices)講得很直接：如果 agent 沒有這個 skill 也能把整件事做好，這個 skill 可能沒有價值。Anthropic 的[撰寫指南](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)建議先做評測：讓 AI 在沒有 skill 的情況下做幾次代表性的任務，記下它具體錯在哪裡，再寫剛好能補上這些缺口的指示。
 
@@ -89,10 +89,10 @@ agent 啟動時，不會把每個 skill 都讀完。依[規範的漸進式揭露
 
 關於 description 該怎麼寫，兩份官方文件的說法不一樣，我照實列出來：
 
-- **agentskills.io**（[最佳化指南](https://agentskills.io/skill-creation/optimizing-descriptions#writing-effective-descriptions)）：用祈使語氣，寫成對 agent 的指示，例如「Use this skill when...」；寫使用者想達成什麼，而不是 skill 內部怎麼做；主動列出適用情境，包括使用者沒講出領域名稱的時候；保持精簡。
+- **agentskills.io**（[最佳化指南](https://agentskills.io/skill-creation/optimizing-descriptions#writing-effective-descriptions)）：用祈使語氣，寫成對 agent 的指示，例如「Use this skill when...」，而不是「This skill does...」；寫使用者想達成什麼，而不是 skill 內部怎麼做；主動列出適用情境，包括使用者沒講出領域名稱的時候；保持精簡。
 - **Anthropic**（[撰寫指南](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions)）：一律用第三人稱，例如「Processes Excel files and generates reports」，避免「I can help you...」或「You can use this to...」。理由是 description 會被放進系統提示，視角不一致可能影響 skill 被找到。
 
-兩者並不衝突，都反對用「我」或「你」的口吻，只是一個偏好祈使句，一個偏好第三人稱。我的範例是兩種都用：第一句用第三人稱說它做什麼，第二句用「Use this skill when...」列出情境，最後一句寫明什麼時候不用：
+這兩種寫法其實是互相衝突的：agentskills.io 明說要寫「Use this skill when...」，而不是「This skill does...」；Anthropic 的例子卻正是「Processes Excel files...」這種第三人稱的句子。我的範例用的是折衷寫法，這是我自己的選擇，不是哪份文件的建議：第一句用第三人稱說它做什麼，第二句用「Use this skill when...」列出情境，最後一句寫明什麼時候不用：
 
 ```yaml
 description: Checks the front matter of Chirpy blog posts in this repo against the site's rules (required fields, English title and description length, date offset, category depth, cover image alt text). Use this skill after writing or editing a post under _posts/, before opening a PR for a post, or when the user asks whether a post's title, description, date or cover alt is OK, even if they don't say "front matter". Do not use it for typo fixes in the post body or for general YAML questions.
@@ -178,8 +178,9 @@ Check Chirpy post front matter against this site's rules.
 Usage: python3 scripts/check_front_matter.py [OPTIONS] PATH [PATH ...]
 
 PATH can be a post file or a directory (all *.md files under it are checked).
-The language is taken from the path: _posts/en/ -> en, _posts/zh-CN/ -> zh-CN,
-anything else -> zh-TW. Use --lang to override it for every file.
+The language comes from the folder right after _posts/: en -> en,
+zh-CN -> zh-CN, anything else -> zh-TW. Outside _posts/, only the file's
+parent folder counts. Use --lang to override it for every file.
 
 Options:
   --lang {zh-TW,zh-CN,en}  Treat every file as this language
@@ -216,6 +217,7 @@ checking-post-front-matter/evals/evals.json
 checking-post-front-matter/evals/files/2026-10-01-bad-zh.md
 checking-post-front-matter/evals/files/en/2026-10-01-bad-en.md
 checking-post-front-matter/evals/files/en/2026-10-01-good-en.md
+checking-post-front-matter/evals/files/en/2026-10-01-no-image-en.md
 checking-post-front-matter/evals/trigger-queries.json
 checking-post-front-matter/references/site-rules.md
 checking-post-front-matter/scripts/check_front_matter.py
@@ -258,9 +260,9 @@ when the user asks why a rule exists. Do not read it on every run.
   `path` / `alt`, and `categories` as `[a, b]` or a `- item` list. A block
   scalar (`|` or `>`) is reported as a `yaml` problem. Rewrite that value
   on one line instead of installing PyYAML.
-- Language comes from the path: `_posts/en/` is English, `_posts/zh-CN/` is
-  Simplified Chinese, everything else is Traditional Chinese. Use `--lang`
-  for files outside `_posts/`.
+- Language comes from the folder right after `_posts/`: `en/` is English,
+  `zh-CN/` is Simplified Chinese, anything else is Traditional Chinese.
+  Outside `_posts/` only the parent folder counts; use `--lang` if unsure.
 - `date-future` compares with the machine clock. Jekyll skips future posts
   at build time, so do not "fix" it by building with `--future`; move the
   date to a time that has already passed.
@@ -287,7 +289,7 @@ Each `rule` in the checker's output maps to one rule below.
 | `date-format` | `YYYY-MM-DD HH:MM:SS +0800` (any `+/-HHMM` offset) | Writing the offset keeps the publish day the same on every machine and in CI |
 | `date-future` | `date` is not later than now | Jekyll does not build posts dated in the future |
 | `categories` | At most 2 entries | Chirpy's category hierarchy has two levels |
-| `alt` | `image.alt` exists; Chinese ≤ 60 characters, English ≤ 140; does not start with 「封面：」 or 「本文」; differs from `description` | Chirpy uses the alt as the cover's alt text, the caption under the cover and the home card's alt text, so it should be a one-sentence summary of the post |
+| `alt` | Checked only when the post has a cover (`image`): `image.alt` exists; Chinese ≤ 60 characters, English ≤ 140; does not start with 「封面：」 or 「本文」; differs from `description` | Chirpy uses the alt as the cover's alt text, the caption under the cover and the home card's alt text, so it should be a one-sentence summary of the post |
 | `yaml` | The value could be read by the checker's YAML subset | See the Gotchas in SKILL.md |
 | `front-matter` | The file starts with a `---` block and closes it | Without it, Jekyll treats the file as having no front matter |
 
@@ -303,8 +305,9 @@ Source: the repo's `docs/chirpy-post-authoring.md`.
 Usage: python3 scripts/check_front_matter.py [OPTIONS] PATH [PATH ...]
 
 PATH can be a post file or a directory (all *.md files under it are checked).
-The language is taken from the path: _posts/en/ -> en, _posts/zh-CN/ -> zh-CN,
-anything else -> zh-TW. Use --lang to override it for every file.
+The language comes from the folder right after _posts/: en -> en,
+zh-CN -> zh-CN, anything else -> zh-TW. Outside _posts/, only the file's
+parent folder counts. Use --lang to override it for every file.
 
 Options:
   --lang {zh-TW,zh-CN,en}  Treat every file as this language
@@ -410,11 +413,12 @@ def lang_of(path, forced):
     if forced:
         return forced
     parts = path.resolve().parts
-    if "en" in parts:
-        return "en"
-    if "zh-CN" in parts:
-        return "zh-CN"
-    return "zh-TW"
+    if "_posts" in parts:
+        last = len(parts) - 1 - parts[::-1].index("_posts")
+        folder = parts[last + 1] if last + 2 < len(parts) else ""
+    else:
+        folder = path.resolve().parent.name
+    return folder if folder in ("en", "zh-CN") else "zh-TW"
 
 
 def check(path, lang, now):
@@ -447,10 +451,12 @@ def check(path, lang, now):
     if cats is not None and len(cats) > 2:
         probs.append(("categories", "categories",
                       f"{len(cats)} levels, Chirpy supports at most 2"))
+    has_image = any(k == "image" or k.startswith("image.") for k in fields)
     alt = fields.get("image.alt")
-    if not alt:
-        probs.append(("alt", "image.alt", "'image.alt' is missing or empty"))
-    else:
+    if has_image and not alt:
+        probs.append(("alt", "image.alt",
+                      "'image.alt' is missing or empty; posts with an image need one"))
+    elif alt:
         if len(alt) > lim["alt"]:
             probs.append(("alt", "image.alt",
                           f"{len(alt)} characters, limit is {lim['alt']} for {lang}"))
@@ -519,15 +525,16 @@ if __name__ == "__main__":
 
 ### 跑一次
 
-對 `evals/files/` 裡的三個測試檔跑一次。其中兩個是故意寫錯的，一個是正確的：
+對 `evals/files/` 裡的四個測試檔跑一次。其中兩個是故意寫錯的；另外兩個是正確的，一個有封面、一個沒有封面：
 
 ```console
 $ python3 scripts/check_front_matter.py evals/files
 checking evals/files/2026-10-01-bad-zh.md as zh-TW
 checking evals/files/en/2026-10-01-bad-en.md as en
 checking evals/files/en/2026-10-01-good-en.md as en
+checking evals/files/en/2026-10-01-no-image-en.md as en
 {
-  "checked": 3,
+  "checked": 4,
   "failed": 2,
   "results": [
     {
@@ -538,7 +545,7 @@ checking evals/files/en/2026-10-01-good-en.md as en
         {
           "rule": "date-future",
           "field": "date",
-          "message": "2030-01-01 09:00:00 +0800 is later than 2026-10-17T23:08:22+08:00; Jekyll skips future posts at build time"
+          "message": "2030-01-01 09:00:00 +0800 is later than 2026-10-17T23:33:41+08:00; Jekyll skips future posts at build time"
         },
         {
           "rule": "categories",
@@ -575,7 +582,7 @@ checking evals/files/en/2026-10-01-good-en.md as en
         {
           "rule": "alt",
           "field": "image.alt",
-          "message": "'image.alt' is missing or empty"
+          "message": "'image.alt' is missing or empty; posts with an image need one"
         }
       ]
     }
@@ -583,17 +590,14 @@ checking evals/files/en/2026-10-01-good-en.md as en
 }
 ```
 
-exit code 是 1。前三行是寫到 stderr 的進度訊息，後面的 JSON 是 stdout。正確的那個檔案沒有出現在 `results` 裡，因為預設只列出有問題的檔案。用法錯誤時 exit code 是 2：
+exit code 是 1。前四行是寫到 stderr 的進度訊息，後面的 JSON 是 stdout。兩個正確的檔案都沒有出現在 `results` 裡，因為預設只列出有問題的檔案。用法錯誤時 exit code 是 2：
 
 ```console
 $ python3 scripts/check_front_matter.py evals/files/nope.md
 Error: path not found: evals/files/nope.md
 ```
 
-接著對本站 main 分支（commit `636e148`）上的 36 個文章檔全部跑一次。結果是 36 個檔案裡有 10 個不合規：
-
-- 3 篇文章的三語版本，總共 9 個檔案，完全沒有 `image` 區塊，所以被報 `image.alt` 缺少。
-- 2 個英文檔的標題超過 70 字元：OpenWiki 那篇 72 字元，供應鏈安全那篇 79 字元。
+接著對本站 main 分支（commit `636e148`）上的 36 個文章檔全部跑一次。結果是 36 個檔案裡有 2 個不合規，都是英文標題超過 70 字元：OpenWiki 那篇 72 字元，供應鏈安全那篇 79 字元。另外有 3 篇文章的三語版本沒有封面圖，所以沒有檢查 alt，也不算問題。
 
 這些我只記錄下來，沒有在這次一起改。
 
@@ -799,7 +803,7 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 - **不要讓 skill 抓外部網址的內容當指示。** Anthropic 的文件寫明，[會抓外部資料的 skill 風險特別高](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations)，抓回來的內容可能藏著惡意指令；就算是可信的 skill，外部依賴一變也可能被汙染。
 - **`allowed-tools` 給到最小。** 這個欄位在 Claude Code 裡，會讓 skill 在被叫用的那一輪不經詢問就使用列出的工具。文件特別寫明，[workspace trust 擋不住這個欄位](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)：repo 裡的 skill 可以替自己開權限，連在沒信任過的資料夾裡用 `-p` 執行也會套用。範例沒有用這個欄位。
 - **腳本裡不放任何秘密資訊。** 這是我的做法，不是哪份文件的規定：金鑰、權杖一律從環境變數讀，不寫進 skill 的任何檔案，因為整個資料夾都會被分享、被提交到 repo。
-- **依賴要鎖版本。** 腳本指南要求[一次性指令寫明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，同一個指令過一段時間才會有一樣的行為。
+- **依賴要鎖版本。** 腳本指南要求[一次性指令寫明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，這樣同一個指令隔一段時間再跑，結果也會一樣。
 - **會改東西的操作要提供 `--dry-run`。** 腳本指南建議，破壞性或會改變狀態的操作，[讓 agent 能先預覽會發生什麼](https://agentskills.io/skill-creation/using-scripts#further-considerations)。範例的腳本只讀檔、從不寫檔，所以不需要這個參數。
 
 使用者會把你的 skill 當成軟體來審查，那你能做的，就是讓它好審：檔案少、每個腳本做什麼一看就懂、沒有連到外面的東西。

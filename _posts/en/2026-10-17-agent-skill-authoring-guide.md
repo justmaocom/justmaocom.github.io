@@ -89,10 +89,10 @@ The same guide points out something easy to miss: agents usually reach for a ski
 
 The two official guides disagree on phrasing, so here they are side by side:
 
-- **agentskills.io** ([optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions#writing-effective-descriptions)): use imperative phrasing, written as an instruction to the agent ("Use this skill when..."); describe what the user is trying to achieve, not how the skill works inside; explicitly list the situations it applies to, including ones where the user never names the domain; keep it concise.
+- **agentskills.io** ([optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions#writing-effective-descriptions)): use imperative phrasing, written as an instruction to the agent ("Use this skill when..." rather than "This skill does..."); describe what the user is trying to achieve, not how the skill works inside; explicitly list the situations it applies to, including ones where the user never names the domain; keep it concise.
 - **Anthropic** ([authoring guide](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions)): always write in the third person, as in "Processes Excel files and generates reports", and avoid "I can help you..." or "You can use this to...". The reason given is that the description goes into the system prompt, and an inconsistent point of view can cause discovery problems.
 
-They don't actually conflict. Both reject "I" and "you"; one prefers imperatives, the other the third person. My example uses both: the first sentence says what it does in the third person, the second lists situations with "Use this skill when...", and the last says when not to use it:
+The two actually pull in opposite directions: agentskills.io asks for "Use this skill when..." rather than "This skill does...", while Anthropic's own example is exactly that kind of third-person sentence ("Processes Excel files..."). My example is a compromise, my own choice rather than either doc's advice: the first sentence says what it does in the third person, the second lists situations with "Use this skill when...", and the last says when not to use it:
 
 ```yaml
 description: Checks the front matter of Chirpy blog posts in this repo against the site's rules (required fields, English title and description length, date offset, category depth, cover image alt text). Use this skill after writing or editing a post under _posts/, before opening a PR for a post, or when the user asks whether a post's title, description, date or cover alt is OK, even if they don't say "front matter". Do not use it for typo fixes in the post body or for general YAML questions.
@@ -178,8 +178,9 @@ Check Chirpy post front matter against this site's rules.
 Usage: python3 scripts/check_front_matter.py [OPTIONS] PATH [PATH ...]
 
 PATH can be a post file or a directory (all *.md files under it are checked).
-The language is taken from the path: _posts/en/ -> en, _posts/zh-CN/ -> zh-CN,
-anything else -> zh-TW. Use --lang to override it for every file.
+The language comes from the folder right after _posts/: en -> en,
+zh-CN -> zh-CN, anything else -> zh-TW. Outside _posts/, only the file's
+parent folder counts. Use --lang to override it for every file.
 
 Options:
   --lang {zh-TW,zh-CN,en}  Treat every file as this language
@@ -216,6 +217,7 @@ checking-post-front-matter/evals/evals.json
 checking-post-front-matter/evals/files/2026-10-01-bad-zh.md
 checking-post-front-matter/evals/files/en/2026-10-01-bad-en.md
 checking-post-front-matter/evals/files/en/2026-10-01-good-en.md
+checking-post-front-matter/evals/files/en/2026-10-01-no-image-en.md
 checking-post-front-matter/evals/trigger-queries.json
 checking-post-front-matter/references/site-rules.md
 checking-post-front-matter/scripts/check_front_matter.py
@@ -258,9 +260,9 @@ when the user asks why a rule exists. Do not read it on every run.
   `path` / `alt`, and `categories` as `[a, b]` or a `- item` list. A block
   scalar (`|` or `>`) is reported as a `yaml` problem. Rewrite that value
   on one line instead of installing PyYAML.
-- Language comes from the path: `_posts/en/` is English, `_posts/zh-CN/` is
-  Simplified Chinese, everything else is Traditional Chinese. Use `--lang`
-  for files outside `_posts/`.
+- Language comes from the folder right after `_posts/`: `en/` is English,
+  `zh-CN/` is Simplified Chinese, anything else is Traditional Chinese.
+  Outside `_posts/` only the parent folder counts; use `--lang` if unsure.
 - `date-future` compares with the machine clock. Jekyll skips future posts
   at build time, so do not "fix" it by building with `--future`; move the
   date to a time that has already passed.
@@ -287,7 +289,7 @@ Each `rule` in the checker's output maps to one rule below.
 | `date-format` | `YYYY-MM-DD HH:MM:SS +0800` (any `+/-HHMM` offset) | Writing the offset keeps the publish day the same on every machine and in CI |
 | `date-future` | `date` is not later than now | Jekyll does not build posts dated in the future |
 | `categories` | At most 2 entries | Chirpy's category hierarchy has two levels |
-| `alt` | `image.alt` exists; Chinese ≤ 60 characters, English ≤ 140; does not start with 「封面：」 or 「本文」; differs from `description` | Chirpy uses the alt as the cover's alt text, the caption under the cover and the home card's alt text, so it should be a one-sentence summary of the post |
+| `alt` | Checked only when the post has a cover (`image`): `image.alt` exists; Chinese ≤ 60 characters, English ≤ 140; does not start with 「封面：」 or 「本文」; differs from `description` | Chirpy uses the alt as the cover's alt text, the caption under the cover and the home card's alt text, so it should be a one-sentence summary of the post |
 | `yaml` | The value could be read by the checker's YAML subset | See the Gotchas in SKILL.md |
 | `front-matter` | The file starts with a `---` block and closes it | Without it, Jekyll treats the file as having no front matter |
 
@@ -303,8 +305,9 @@ Source: the repo's `docs/chirpy-post-authoring.md`.
 Usage: python3 scripts/check_front_matter.py [OPTIONS] PATH [PATH ...]
 
 PATH can be a post file or a directory (all *.md files under it are checked).
-The language is taken from the path: _posts/en/ -> en, _posts/zh-CN/ -> zh-CN,
-anything else -> zh-TW. Use --lang to override it for every file.
+The language comes from the folder right after _posts/: en -> en,
+zh-CN -> zh-CN, anything else -> zh-TW. Outside _posts/, only the file's
+parent folder counts. Use --lang to override it for every file.
 
 Options:
   --lang {zh-TW,zh-CN,en}  Treat every file as this language
@@ -410,11 +413,12 @@ def lang_of(path, forced):
     if forced:
         return forced
     parts = path.resolve().parts
-    if "en" in parts:
-        return "en"
-    if "zh-CN" in parts:
-        return "zh-CN"
-    return "zh-TW"
+    if "_posts" in parts:
+        last = len(parts) - 1 - parts[::-1].index("_posts")
+        folder = parts[last + 1] if last + 2 < len(parts) else ""
+    else:
+        folder = path.resolve().parent.name
+    return folder if folder in ("en", "zh-CN") else "zh-TW"
 
 
 def check(path, lang, now):
@@ -447,10 +451,12 @@ def check(path, lang, now):
     if cats is not None and len(cats) > 2:
         probs.append(("categories", "categories",
                       f"{len(cats)} levels, Chirpy supports at most 2"))
+    has_image = any(k == "image" or k.startswith("image.") for k in fields)
     alt = fields.get("image.alt")
-    if not alt:
-        probs.append(("alt", "image.alt", "'image.alt' is missing or empty"))
-    else:
+    if has_image and not alt:
+        probs.append(("alt", "image.alt",
+                      "'image.alt' is missing or empty; posts with an image need one"))
+    elif alt:
         if len(alt) > lim["alt"]:
             probs.append(("alt", "image.alt",
                           f"{len(alt)} characters, limit is {lim['alt']} for {lang}"))
@@ -519,15 +525,16 @@ if __name__ == "__main__":
 
 ### Run It Once
 
-Here it is against the three test files in `evals/files/`, two broken on purpose and one correct:
+Here it is against the four test files in `evals/files/`: two broken on purpose, and two correct ones, one with a cover and one without:
 
 ```console
 $ python3 scripts/check_front_matter.py evals/files
 checking evals/files/2026-10-01-bad-zh.md as zh-TW
 checking evals/files/en/2026-10-01-bad-en.md as en
 checking evals/files/en/2026-10-01-good-en.md as en
+checking evals/files/en/2026-10-01-no-image-en.md as en
 {
-  "checked": 3,
+  "checked": 4,
   "failed": 2,
   "results": [
     {
@@ -538,7 +545,7 @@ checking evals/files/en/2026-10-01-good-en.md as en
         {
           "rule": "date-future",
           "field": "date",
-          "message": "2030-01-01 09:00:00 +0800 is later than 2026-10-17T23:08:22+08:00; Jekyll skips future posts at build time"
+          "message": "2030-01-01 09:00:00 +0800 is later than 2026-10-17T23:33:41+08:00; Jekyll skips future posts at build time"
         },
         {
           "rule": "categories",
@@ -575,7 +582,7 @@ checking evals/files/en/2026-10-01-good-en.md as en
         {
           "rule": "alt",
           "field": "image.alt",
-          "message": "'image.alt' is missing or empty"
+          "message": "'image.alt' is missing or empty; posts with an image need one"
         }
       ]
     }
@@ -583,17 +590,14 @@ checking evals/files/en/2026-10-01-good-en.md as en
 }
 ```
 
-The exit code is 1. The first three lines are progress notes on stderr; the JSON after them is stdout. The correct file isn't in `results` because only files with problems are listed by default. A usage error exits with 2:
+The exit code is 1. The first four lines are progress notes on stderr; the JSON after them is stdout. Neither correct file is in `results`, because only files with problems are listed by default. A usage error exits with 2:
 
 ```console
 $ python3 scripts/check_front_matter.py evals/files/nope.md
 Error: path not found: evals/files/nope.md
 ```
 
-Then I ran it on all 36 post files on this site's main branch (commit `636e148`). Ten of the 36 failed:
-
-- Nine files, the three language versions of three posts, have no `image` block at all, so each is flagged for a missing `image.alt`.
-- Two English files have titles over 70 characters: the OpenWiki post at 72 and the supply-chain security post at 79.
+Then I ran it on all 36 post files on this site's main branch (commit `636e148`). Two of the 36 failed, both English titles over 70 characters: the OpenWiki post at 72 and the supply-chain security post at 79. Three posts have no cover image in any language, so their alt isn't checked and they don't count as problems.
 
 I've recorded these but didn't fix them as part of this post.
 
@@ -814,7 +818,7 @@ What follows is my opinion, not a conclusion from any of the docs.
 
 **For cross-agent use, give up a few convenient fields.** `when_to_use` and `disable-model-invocation` are handy in Claude Code, but put them in `SKILL.md` and the skill fails skills-ref and claude.ai uploads. For a skill only you use in Claude Code, that's fine. For one your team uses across tools, I'd stick to the six fields.
 
-**A description that hasn't been trigger-tested is a guess.** That includes this post's example. I wrote 20 queries, but until they're run, I don't know whether the skill gets picked when someone asks me to check a title's length.
+**A description that hasn't been trigger-tested is a guess.** That includes this post's example. I wrote 20 queries, but until they're run, I don't know whether the skill gets picked when someone asks the agent to check a title's length.
 
 ## Further Reading
 
