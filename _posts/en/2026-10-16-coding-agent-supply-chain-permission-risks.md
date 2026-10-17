@@ -19,7 +19,7 @@ From that moment, your coding agent reads instructions you never wrote, runs cod
 
 The short version: no need to panic, but treat skills and MCP servers as code that runs on your machine, not as a bit of config.
 
-## Five terms first
+## Five Terms First
 
 | Term | In one sentence |
 | --- | --- |
@@ -31,7 +31,7 @@ The short version: no need to panic, but treat skills and MCP servers as code th
 
 For a walkthrough of how skills are installed and invoked, see [mattpocock/skills Series (1)](/posts/mattpocock-skills-setup-routing-guide/).
 
-## The setup: you just hired two contractors
+## The Setup: You Just Hired Two Contractors
 
 Picture your coding agent as a very capable assistant who believes whatever they're told. Installing a skill hands them a work manual someone else wrote. Connecting an MCP server introduces them to an outside vendor who describes what it can do.
 
@@ -43,12 +43,12 @@ The assistant follows the manual and trusts the vendor's self-description. The c
 
 In other words, the vendors themselves put the responsibility on you.
 
-## The attack surface: four entry points
+## The Attack Surface: Four Entry Points
 
 ![A coding agent in the middle with four entry points around it: instructions hidden in tool output and documents, malicious or tampered skills and MCP servers, excess access and exposed credentials, and commands that run automatically (including silent installs of the latest version); the bottom reads "Four entry points, often chained together"](attack-surface-map.en.png){: width="800" height="450" }
 _The four entry points rarely show up alone; real attacks usually chain two or three._
 
-### Entry 1: instructions hidden in content
+### Entry 1: Instructions Hidden in Content
 
 The AI isn't good at telling who said what. Your instructions, web pages, issue text, and MCP tool descriptions all end up glued into one stream of text for the model.
 
@@ -60,7 +60,7 @@ The AI isn't good at telling who said what. Your instructions, web pages, issue 
 
 It isn't a formal standard, but it's an excellent way to check your own setup. The defenses below keep coming back to these three.
 
-### Entry 2: malicious or tampered skills and MCP servers
+### Entry 2: Malicious or Tampered Skills and MCP Servers
 
 Both boil down to someone else's code plus someone else's text. The risk comes in two flavors:
 
@@ -69,23 +69,23 @@ Both boil down to someone else's code plus someone else's text. The risk comes i
 
 The second is sneakier, because you already reviewed and approved it.
 
-### Entry 3: excessive permissions and exposed credentials
+### Entry 3: Excessive Permissions and Exposed Credentials
 
 What an agent can do is the sum of the permissions it holds. Your `~/.ssh`, API keys in environment variables, the token from your `gh` login, passwords in MCP config files: if the user running the agent can read them, so can the agent.
 
 **Fact**: The [official MCP security best practices](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#local-mcp-server-compromise) state that local MCP servers run with the same privileges as the MCP client, and list requesting a huge bundle of scopes up front as a common mistake, since a leaked token then reaches much further.
 
-### Entry 4: auto-executed commands
+### Entry 4: Auto-Executed Commands
 
 To stop being asked "may I run this?", many people turn on auto-approve or switch off the sandbox entirely. It saves a lot of time, and removes the last human checkpoint. There's a quieter kind of automation too: some tools silently install the latest version of a package in the background (as in Case 5).
 
 **Fact**: The Codex docs label `--dangerously-bypass-approvals-and-sandbox` (alias `--yolo`) as [no sandbox, no approvals, not recommended](https://learn.chatgpt.com/docs/agent-approvals-security#common-sandbox-and-approval-combinations). The Claude Code docs warn that in Manual mode [a Bash command you approve can still write anywhere your user account can](https://code.claude.com/docs/en/security#built-in-protections); the folder boundary is a prompt, not a wall.
 
-## Five cases with primary sources
+## Five Cases With Primary Sources
 
 Each comes with the original advisory or research report. I've separated research demos from real-world incidents because they carry different weight.
 
-### Case 1: poisoned MCP tool descriptions (research demo, April 2025)
+### Case 1: Poisoned MCP Tool Descriptions (Research Demo, April 2025)
 
 **Fact**: In [MCP Security Notification: Tool Poisoning Attacks](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks), Invariant Labs showed an MCP tool that appears to just add two numbers, but whose description hides instructions telling the AI to read `~/.cursor/mcp.json` and `~/.ssh/id_rsa`, stuff the contents into an innocuous parameter, and not mention it to the user. It worked in Cursor, and they noted the confirmation dialog didn't show the full arguments.
 
@@ -96,7 +96,7 @@ The same post covers two extensions:
 
 **Inference**: "I'll only use the trusted tool" doesn't protect you. Once a malicious server sits in the same agent as the trusted tool, its description is already in front of the AI.
 
-### Case 2: one GitHub issue leaks a private repo (research demo, May 2025)
+### Case 2: One GitHub Issue Leaks a Private Repo (Research Demo, May 2025)
 
 **Fact**: In [GitHub MCP Exploited](https://invariantlabs.ai/blog/mcp-github-vulnerability), Invariant Labs planted an issue containing instructions in a public repo. The user only asked the agent to look at the public repo's open issues; after reading that issue, the agent pulled information from private repos and published it in a PR on the public repo. They used Claude Desktop with the official GitHub MCP server, and noted many users choose "Always Allow" and stop checking each call.
 
@@ -104,7 +104,7 @@ The same post covers two extensions:
 
 **Inference**: This is a textbook case of the lethal trifecta: one token that can read private repos (private data), read public issues (outside content), and open a PR on a public repo (a way out). Here the PR plays the role of Willison's "way to send things out," just in a different form.
 
-### Case 3: Cursor's CVE-2025-54135 (patched)
+### Case 3: Cursor's CVE-2025-54135 (Patched)
 
 **Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. The advisory rates it CVSS 3.1 8.5 (CVSS is the industry's standard vulnerability severity score, out of 10); the CVE record says 8.6, though both list the same vector.
 
@@ -112,7 +112,7 @@ The same post covers two extensions:
 
 **Inference**: This chains Entry 1 (hidden instructions) with Entry 4 (auto-execution). A config file is itself a place that can run code; whether the agent may write it deserves the same strictness as whether it may run shell commands.
 
-### Case 4: mcp-remote's CVE-2025-6514 (patched)
+### Case 4: mcp-remote's CVE-2025-6514 (Patched)
 
 **Fact**: [CVE-2025-6514](https://www.cve.org/CVERecord?id=CVE-2025-6514) records that `mcp-remote` (an npm package that connects local clients to remote MCP servers) was open to OS command injection when connecting to an untrusted MCP server, via a crafted URL in the `authorization_endpoint` response. (`authorization_endpoint` is the "go here to sign in" address in an OAuth flow; OAuth is the common "sign in by authorizing through another service" mechanism.) Affected versions are 0.0.5 through 0.1.15; [GitHub advisory GHSA-6xpm-ggf7-wc3p](https://github.com/advisories/GHSA-6xpm-ggf7-wc3p) lists 0.1.16 as the first patched version. The CVE record, the GitHub advisory, and [JFrog's research](https://jfrog.com/blog/2025-6514-critical-mcp-remote-rce-vulnerability) all give CVSS 3.1 9.6 (Critical). The fix is in [this commit](https://github.com/punkpeye/mcp-remote/commit/607b226a356cb61a239ffaba2fb3db1c9dea4bac).
 
@@ -122,7 +122,7 @@ The same post covers two extensions:
 
 **Inference**: "Just connecting to an MCP server" is an execution risk, not only a data risk. Choosing which server to connect to is the same kind of decision as choosing which package to install.
 
-### Case 5: malicious Nx releases enlist local AI tools (real incident, August 2025)
+### Case 5: Malicious Nx Releases Enlist Local AI Tools (Real Incident, August 2025)
 
 **Fact**: According to Nx's [advisory GHSA-cxm3-wv7p-598c](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c), attackers used an injection bug in GitHub Actions (GitHub's built-in automation) to get the npm publish token (the credential for pushing new versions to the npm registry) and, on the evening of August 26, 2025 (US Eastern time), published malicious versions of `nx` and related packages. They carried a postinstall script (a script that runs automatically right after a package is installed) that scanned the file system, collected credentials, and uploaded them to a repo whose name contains `s1ngularity-repository` under the victim's own GitHub account. The script in the advisory's appendix includes a prompt addressed to a "file-search agent," asking it to list paths of config and environment files.
 
@@ -133,21 +133,21 @@ The same post covers two extensions:
 > Neither the advisory nor the postmortem says how many victims' local AI tools actually ran, or what they did. I can't confirm that part, so please don't read this as "AI tools were exploited at scale."
 {: .prompt-warning }
 
-## Defenses: four layers and what each one stops
+## Defenses: Four Layers and What Each One Stops
 
 ![On the left, three conditions: can read private data, touches outside content, can send things out, drawn as three overlapping circles. On the right, least privilege, sandbox with network off (noting that MCP servers need their own isolation), and review plus pinning each cut one of them; the bottom reads "All three together is dangerous; cut at least one"](trifecta-cut.en.png){: width="800" height="450" }
 _The goal isn't a smarter AI; it's an AI that can't do much damage even when fooled._
 
 **Opinion**: No single trick solves prompt injection. The practical approach today is to assume your agent will read malicious content someday, and make sure that when it does, it can't do much harm.
 
-### 1. Least privilege: just enough keys
+### 1. Least Privilege: Just Enough Keys
 
 - Use fine-grained GitHub tokens (tokens limited to specific repos and permissions, created under Settings → Developer settings → Personal access tokens → Fine-grained tokens); don't hand the agent your full `gh` login.
 - One project per session. One of Invariant's recommendations in Case 2 is [limiting the agent to one repo per session](https://invariantlabs.ai/blog/mcp-github-vulnerability) (they demonstrate it with their own Guardrails product; the idea can be implemented other ways).
 - Start MCP authorization with minimal scopes and add more when needed, per the [MCP best practices on scope minimization](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#scope-minimization).
 - Get credentials out of plaintext files. Nx's postmortem recommends the same.
 
-### 2. Sandboxing: keep it inside a fence
+### 2. Sandboxing: Keep It Inside a Fence
 
 **Fact**:
 
@@ -158,13 +158,13 @@ _The goal isn't a smarter AI; it's an AI that can't do much damage even when foo
 
 **Inference**: A sandbox fences in "commands the agent runs," not necessarily "what an MCP server does on its own." A local MCP server is a separate program and needs its own isolation.
 
-### 3. Review: read before installing, watch for changes after
+### 3. Review: Read Before Installing, Watch for Changes After
 
 - For skills, review the whole folder, not just `SKILL.md`. Anthropic's docs say to [check scripts, images, and other resources](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations), and watch for unexpected network calls, file access, and skills that fetch external URLs.
 - For MCP servers, look at exactly how they're launched: the full command and arguments. The MCP spec requires one-click setups to [show the exact command, untruncated](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#local-mcp-server-compromise).
 - Review `.mcp.json`, `.cursor/mcp.json`, `.claude/`, and skill folders in PRs like code. The Claude Code docs note that [reviewing `.mcp.json` doesn't show every server a session can load](https://code.claude.com/docs/en/security#mcp-security); plugins and other scopes add servers too.
 
-### 4. Version pinning: don't let it change behind your back
+### 4. Version Pinning: Don't Let It Change Behind Your Back
 
 - Install skills from a fixed commit, not a moving main.
 - MCP servers are often launched with `npx` or `uvx` (commands that download a package and run it directly). Pin the version; avoid `@latest` (always fetch the newest) or leaving the version out. In the Nx incident, auto-installing the latest version is exactly what hit people who didn't even use Nx.
@@ -189,7 +189,7 @@ git -C some-skill checkout <commit>
 ![Three-column checklist: before installing (read the whole folder and launch command, check source and maintainer, pin the version), while using (fine-grained tokens, sandbox with limited network, no "Always Allow"), after an incident (revoke tokens, check audit logs, inspect config and shell files); the bottom reads "Treat skills and MCP servers like code that runs on your machine"](checklist-three-stages.en.png){: width="800" height="450" }
 _Three stages: before, during, and after._
 
-### Before installing
+### Before Installing
 
 - [ ] Who's the source: you, your company, or a maintained project with a public issue channel?
 - [ ] Skill: have you read the whole folder? Any scripts, outbound network calls, home-directory reads?
@@ -198,7 +198,7 @@ _Three stages: before, during, and after._
 - [ ] Is the version pinned to a commit or version number?
 - [ ] After adding it, does your setup now satisfy all three parts of the lethal trifecta?
 
-### While using
+### While Using
 
 - [ ] Is the agent's token fine-grained, short-lived, and scoped to what's needed?
 - [ ] Is the sandbox on? Is network off by default, or limited to specific domains?
@@ -207,7 +207,7 @@ _Three stages: before, during, and after._
 - [ ] Is work that reads untrusted content (strangers' issues, outside web pages) kept apart from work that holds private data?
 - [ ] Do changes to the project's agent config go through code review?
 
-### After an incident (or a suspected one)
+### After an Incident (or a Suspected One)
 
 - [ ] Revoke and reissue every token the agent could reach: GitHub, npm, cloud, MCP credentials.
 - [ ] Check GitHub audit logs for unfamiliar repos, PRs, or pushes. The Nx advisory asked users to [check their security log for newly created repos](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c).

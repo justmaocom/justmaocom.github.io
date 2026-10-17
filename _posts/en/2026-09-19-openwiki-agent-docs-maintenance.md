@@ -11,7 +11,7 @@ media_subpath: /assets/img/posts/openwiki-agent-docs-maintenance/
 
 [When LangChain announced OpenWiki](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation), it argued that as long as the agent instruction file points to a repo wiki, a coding agent can pull in documentation on demand, without cramming a lot of explanation into a single instruction file. This split keeps the instruction file short, but it adds a wiki that goes stale as the code changes. Below, I look at how OpenWiki deals with that problem from two angles: the update flow and the source checks.
 
-## OpenWiki turns repo docs into an updatable wiki
+## OpenWiki Turns Repo Docs Into an Updatable Wiki
 
 OpenWiki is a command-line tool that generates and maintains a repo wiki. The source I checked for this post is commit [`715109a`](https://github.com/langchain-ai/openwiki/tree/715109a8ab1cda6d47680fcc8170e203c751bf61). At that commit, [`package.json`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/package.json) lists version `0.5.2`, requires Node.js `22.22.0` or later, and is released under the [`MIT License`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/LICENSE#L1).
 
@@ -22,7 +22,7 @@ The agent instructions OpenWiki writes position `openwiki/` as an evidence index
 ![A short instruction file points to the repo wiki, and the wiki links back to source code and tests](agents-md-points-to-wiki.png){: width="800" height="430" }
 _AGENTS.md only points the way; the wiki is an on-demand evidence index, and you still go back to the code to confirm._
 
-## How a single update decides which pages to change
+## How a Single Update Decides Which Pages to Change
 
 OpenWiki generates wiki pages, and for the important statements on each page it creates a Claim that records the source code location backing that statement. Each page plus its Claims forms one page job, and page jobs are processed in order. The Claims aren't written into the wiki body; they're stored separately in a sidecar metadata file. When you run a repo update, OpenWiki works through the following steps in order.
 
@@ -36,7 +36,7 @@ _An update first looks at what changed in the code, then decides on pages and wr
 
 Each time OpenWiki finishes a page, it writes the result to this run's checkpoint. If the process fails partway through, the records for completed pages aren't lost. Only after every page passes validation and this run's generation record is written does [`finishRepositoryRun`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/generation/repository-run.ts#L1487) remove the run state. This means partial progress survives an interruption; it does not mean an unfinished wiki is ready to merge.
 
-## How far Claims can check
+## How Far Claims Can Check
 
 The purpose of Grounded Claims is to let important statements in the docs be traced back to the source code. Every Claim links to a `repo://` URI, and the location can be an entire file or narrowed down to a range of lines. Beyond line numbers, the repository resolver also computes a SHA-256 of the cited content and stores hashes of the first and last lines and the surrounding content. If someone inserts code near the top of the file and the original lines all shift down, the resolver uses the original content and its context to find the new location. This logic lives in [`resolveLineRangeEvidence`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/evidence/repository/resolver.ts#L294) and [`locateUnchangedLineRange`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/evidence/repository/resolver.ts#L404).
 
@@ -49,15 +49,15 @@ So an all-green source check only means each Claim can still reach the content i
 ![A CI panel shows all-green source checks, a developer asks whether the docs are correct, and a reviewer pulls out a red pen](claims-green-review-red-pen.png){: width="800" height="430" }
 _Even with all Claims green, the doc statements still need a human check._
 
-## What changes when it's part of daily work
+## What Changes When It's Part of Daily Work
 
-### Coming back to a personal project after a few months
+### Coming Back to a Personal Project After a Few Months
 
 When you maintain a personal project, you're both the developer and the doc reviewer. Coming back after a few months away to fix a login bug, you might still remember which directory the feature lives in, but forget where the session gets renewed, which tests cover timeouts, and which environment variable the deployment reads. If the wiki has a page explaining the login flow, with Claims linking to the session code, the tests, and the deployment config, a coding agent can read those few locations first instead of searching the whole repo for related keywords.
 
 It's also easy to skip review on a personal project, since nobody will reject an incorrect docs PR. If the project is already split into several modules, or you only touch it every few months, consider making spot-checking Claims a routine part of every update. If the project has only a handful of files and you're changing it every week, reading the source and tests directly usually saves more time.
 
-### On-call and cross-team changes at a company
+### On-Call and Cross-Team Changes at a Company
 
 Say the on-call engineer gets an alert about duplicate orders being created, but the original author is on vacation. The first step is to find the API that receives orders, where retries happen, and where the service generates and checks idempotency keys. If the wiki's order-flow page already links to that code and those tests, the engineer and a coding agent can start directly from the cited locations. The wiki won't pinpoint the root cause of the incident, but it helps the engineer confirm which services a request passes through without waiting for the original author to come online.
 
@@ -65,7 +65,7 @@ Cross-team changes make the cost of outdated docs more obvious. Suppose the paym
 
 Whether a project is personal or corporate doesn't directly determine whether it needs a repo wiki. A wiki only has a chance to save repeated lookup time if everyone who takes over has to rediscover the entry points, flows, and tests each time, and if someone is responsible for checking the docs.
 
-## Which repos are worth the maintenance cost
+## Which Repos Are Worth the Maintenance Cost
 
 OpenWiki adds model calls, CI configuration, and human review. Before adopting it, at least confirm who bears the following costs.
 
@@ -78,7 +78,7 @@ If a repo contains multiple subsystems, coding agents often need to modify unfam
 
 Company repos also need to exclude paths that shouldn't be handed to a model. `.openwikiignore` blocks OpenWiki's file tools from reading the specified content. Once ignore rules are enabled, OpenWiki's local execution backend also rejects arbitrary shell commands, because a shell could bypass the file tools and read ignored files directly. This restriction is implemented in [`OpenWikiLocalShellBackend.execute`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/agent/docs-only-backend.ts#L481). `.openwikiignore` only restricts OpenWiki's tools; it doesn't replace repo access controls, and it can't undo secrets that have already been committed to Git.
 
-## Validate the update flow on one repo first
+## Validate the Update Flow on One Repo First
 
 First, make sure the CLI starts locally. The commands below install OpenWiki into a new directory under `/tmp`, so they don't touch the test repo's dependencies or write to npm's usual global install location. I actually ran these commands on macOS arm64 with Node.js `25.2.1` and npm `11.6.2`. OpenWiki uses Ink's interactive terminal UI, so run it in an environment with a PTY, such as Terminal. If stdin doesn't support raw mode, Ink prints an error right away.
 
@@ -115,19 +115,19 @@ A successful exit only means the process finished. Whether it's worth adopting d
 3. Spot-check a few Claims from that page, confirming one by one that the doc statement is precise, that the `repo://` range actually supports it, and that the related tests match the statement.
 4. Record generation time, model usage, the number of incorrect statements, and the time spent on manual edits. Only these numbers let you compare it against the time it takes to maintain docs by hand.
 
-## How far should docs maintenance be automated
+## How Far Should Docs Maintenance Be Automated
 
 The source code cited above lets you verify how OpenWiki tracks its sources, but it can't prove that it saves every team money or time. The adoption order I'd use: first run `--init` and `--update` manually on one real repo, keep the wiki and Claims for the team to review, but hold off on enabling the scheduled workflow. Once doc quality and review time are acceptable, let GitHub Actions open update PRs on a schedule.
 
 OpenWiki stores the code location and content version each Claim cites, so reviewers can find out whether a source still exists. You can't do that check by looking only at when the docs were last generated. Even so, the team still needs to record how many incorrect statements spot-checks turn up, which major flows are missing from the wiki, and how much manual editing each docs PR requires. If this review work takes more time than updating the docs by hand did, automation has just moved that time into PR review.
 
-## Start with one update whose sources you can check
+## Start With One Update Whose Sources You Can Check
 
 OpenWiki first compares Git changes, then has the planner read the repo structure and tests to decide which pages to handle. As each page finishes, it checks the page, the Claims sidecar, and the cited sources, and before the batch completes it checks the index and internal links. These mechanisms can confirm what progress was saved when a run was interrupted, and whether the content version a Claim cites has changed. They can't tell whether the docs interpreted the code correctly.
 
 The smallest test is to run `--init` once in a throwaway repo, commit a code change that has tests, then run `--update`. After that, spot-check the Claims on the pages related to the change, and record model usage, the number of errors, and human review time. Only add the scheduled workflow to a production repo if the docs describe the change correctly and the update cost is acceptable.
 
-## Further reading
+## Further Reading
 
 - [Introducing OpenWiki](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation): understand why the launch post favors a short agent instruction file that links to a large repo wiki.
 - [OpenWiki README](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md): look up how to use the CLI, code mode, Grounded Claims, and scheduled updates.

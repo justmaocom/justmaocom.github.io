@@ -11,7 +11,7 @@ You've sold an enterprise a platform that only becomes useful once someone build
 
 The real problem here is where delivery ends. When a customer can afford the platform but lacks the engineering capacity to turn it into results, how much customization should the vendor deliver, and how do you keep every deal from turning into a new maintenance liability?
 
-## FDEs deliver customer outcomes on top of a platform
+## FDEs Deliver Customer Outcomes on Top of a Platform
 
 FDE stands for Forward Deployed Engineering: engineers work directly with customers to build the solutions they need on an existing software platform. At the end of his talk, Kevin Bai boiled the role down to one phrase: ["a customer-facing software engineer"](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=1019s). The company has to be willing to hold these people to the same hiring bar as software engineers, and also to put them directly in front of customers.
 
@@ -21,7 +21,7 @@ This post covers the AI Engineer World's Fair 2026 talk [Forward Deployed Engine
 
 From [3:03 to 3:35](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=183s), Bai explains what an FDE actually delivers. The customer gets software and engineering services together, and what they ultimately sign off on is a business outcome built on the platform. The engineer has to understand the customer's business and then use the platform to build the application, workflow, or solution. In this post I'll use the term GTM (go-to-market) to mean how a company reaches customers, closes deals, and keeps serving them.
 
-## Look at product complexity together with buyer capability
+## Look at Product Complexity Together With Buyer Capability
 
 Bai borrows the Punnett square (the 2×2 grid from biology) to explain when FDE applies. One axis is how much technical skill it takes to use the product; the other is whether the buyer can absorb that complexity. From [4:03 to 5:15](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=243s) he walks through three of the combinations.
 
@@ -35,7 +35,7 @@ This table is Bai's classification from the talk, not an assessment of everythin
 
 The key is the third row. The buyer knows exactly what outcome they want, but has no engineering team that can build on the platform. If the vendor hands over only the tool, the customer still has to recruit, train, and manage engineers themselves. At [6:00](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=360s), Bai describes FDE as lending the customer engineers who already know the platform.
 
-## A shared platform keeps custom requirements maintainable
+## A Shared Platform Keeps Custom Requirements Maintainable
 
 FDEs do write custom code, but they don't start from an empty project. From [8:42 to 9:05](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=522s), Bai says engineers should assemble applications and workflows from capabilities the shared platform already provides. The product team maintains those capabilities in common, and each customer solution handles only what's different.
 
@@ -43,7 +43,7 @@ Foundry Ontology is the only example named in the talk. [Palantir's official doc
 
 Custom work still needs boundaries. From [16:10 to 16:48](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=970s), Bai offers a simple rule: behavior that serves only one customer stays in that customer's implementation; capabilities that can serve multiple customers should eventually move back into the shared platform. The talk doesn't give a number for "how many customers makes something shareable," so that threshold is still the product team's call.
 
-## Treating FDE as staff augmentation misreads the cost structure
+## Treating FDE as Staff Augmentation Misreads the Cost Structure
 
 A common but inaccurate way to put it is: "FDE just means sending engineers to the customer's site to do contract work." From [8:13 to 8:52](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=493s), Bai draws the line directly. If every engineer builds a system from scratch for every customer, the company is running a development services business, not what he calls platform-based FDE.
 
@@ -54,7 +54,7 @@ _Same FDE title, but the underlying platform changes what the engineer maintains
 
 The financial figures in the talk can't directly prove this model is profitable, either. From [6:39 to 7:07](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=399s), Bai compares several companies by ACV (average contract value). He cites Palantir at $4 million, ServiceNow at $1.2 million, and Workday at $600,000, with qualifiers like "last I checked" and "I think." The [official annotated transcript](https://ai.engineer/talks/KwhgfwOSToQ-forward-deployed-engineering-101#commercial-case) explicitly notes that these figures have no measurement date, calculation method, or independent ranking. They only illustrate the speaker's business argument and can't be treated as an apples-to-apples comparison between companies.
 
-## A platform controls maintenance costs; it doesn't eliminate them
+## A Platform Controls Maintenance Costs; It Doesn't Eliminate Them
 
 Even with a shared platform, you still have to maintain customer solutions. From [10:38 to 11:12](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=638s), Bai lists a platform as a prerequisite for building an FDE team, while stressing that the maintenance burden remains substantial even when the platform is solid. A platform reduces duplicated building; it doesn't make customer differences go away.
 
@@ -62,7 +62,7 @@ Scattered knowledge is the second cost. In the Q&A from [15:05 to 15:29](https:/
 
 The hiring bar doesn't drop just because the role is close to customers, either. From [16:59 to 17:25](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=1019s), Bai names two requirements for the ideal candidate: they clear the software engineering hiring bar, and the company is comfortable handing customer communication over to them. That means you can't staff FDE roles by simply swapping in presales or customer support people; both hiring and training have to cover engineering and customer communication.
 
-## Two gates decide whether a company needs FDE
+## Two Gates Decide Whether a Company Needs FDE
 
 From [9:50 to 11:12](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=590s), Bai lays out two gates. The first is whether the company has to sell a technically complex product to non-technical buyers. The second is whether the company already has a shared platform, or is willing to invest in building one.
 
@@ -74,7 +74,7 @@ From [9:50 to 11:12](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=590s), Bai la
 
 AI doesn't remove these two gates. From [11:28 to 12:35](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=688s), Bai explicitly flags one part of the talk as his personal hypothesis. He believes AI has made writing code and building custom software easier, and has made more platforms customizable. The talk doesn't provide cross-industry data showing that "almost every platform" will head in the same direction. In this post I treat AI only as a reason to re-check the two gates, not as sufficient grounds for building an FDE team.
 
-## Run an FDE decision through one table
+## Run an FDE Decision Through One Table
 
 > This decision process hasn't been validated yet. It can rule out cases that clearly don't fit, but it can't estimate headcount, contract margins, or deployment timelines.
 {: .prompt-info }
@@ -99,7 +99,7 @@ To apply this to your own company, take your most recent enterprise sales opport
 
 Only move into a small FDE pilot when the product requires building, the customer lacks engineering capacity, and the shared capabilities already exist. If the first two hold but the platform field is still blank, define the platform investment and maintenance ownership first. If there's no capability gap between the product and the buyer, sticking with your existing GTM approach is more direct.
 
-## My take
+## My Take
 
 The transcript, the platform docs, and the two gates above can all be checked; what follows is my own judgment, and the available evidence isn't enough to prove it applies to every B2B software company. I see FDE as a joint decision about product architecture and GTM, and the number of engineers is just the staffing outcome that follows from that decision.
 
@@ -107,7 +107,7 @@ If the product team hasn't defined which capabilities are centrally maintained, 
 
 AI makes code faster to generate, but it doesn't decide for the company who carries the support burden. That's why product architecture has to be designed together with GTM. As customization gets cheaper, the company needs to be even clearer about who maintains which code over the long run.
 
-## Validate the delivery gap before you open the job req
+## Validate the Delivery Gap Before You Open the Job Req
 
 When a customer can afford the platform but lacks the engineering capacity to turn it into results, how much customization should the vendor deliver, and how do you keep every deal from turning into a new maintenance liability?
 
@@ -115,7 +115,7 @@ FDE can extend delivery all the way to customer outcomes, but the custom code ha
 
 Pick a recent enterprise sales opportunity and fill in the five fields from the previous section. Only when there's a real capability gap between the product and the buyer, and a shared platform can absorb the repeated work, is FDE the next step worth validating.
 
-## Further reading
+## Further Reading
 
 - [Forward Deployed Engineering 101](https://ai.engineer/talks/KwhgfwOSToQ-forward-deployed-engineering-101): The official page provides an annotated transcript, full timestamps, and the resources mentioned in the talk, which makes it useful for checking this post's classifications and caveats line by line.
 - [Palantir Ontology overview](https://www.palantir.com/docs/foundry/ontology/overview): The docs list the Ontology's objects, relationships, actions, functions, and permissions, giving a concrete sense of which shared platform capabilities Foundry provides.
