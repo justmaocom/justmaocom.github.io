@@ -24,6 +24,7 @@ image:
 >
 > - 上一篇（第 4 篇）：[AI 開工寫程式前，先決定要看哪一種訊號](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - 下一篇（第 6 篇）：[查資料、做交接、學新東西，都有固定做法](/posts/mattpocock-skills-research-handoff/)
+> - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
 > 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程依原始指令推演；文中的合併衝突與合併後的測試失敗則是實際執行結果。
 {: .prompt-info }

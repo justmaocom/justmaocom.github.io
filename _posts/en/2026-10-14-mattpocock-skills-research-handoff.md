@@ -23,6 +23,7 @@ None of this is coding, yet it often holds everything up. `mattpocock/skills` ha
 > mattpocock/skills Series | Part 6
 >
 > - Previous (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
+> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). All five skills already exist in `1.2.3` and are still there in the latest release, `1.3.1`. The skill invocations in the per-seat billing example are inferred from the original instructions; the syntax check on the wizard script is a real execution result.
 {: .prompt-info }

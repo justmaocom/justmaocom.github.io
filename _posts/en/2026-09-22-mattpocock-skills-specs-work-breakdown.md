@@ -18,6 +18,7 @@ All five skills produce documents, but each fills a different gap. Pick the wron
 >
 > - Previous (Part 2): [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 > - Next (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
+> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The per-seat billing walkthrough is inferred from the original instructions, not taken from an actual test run.
 {: .prompt-info }

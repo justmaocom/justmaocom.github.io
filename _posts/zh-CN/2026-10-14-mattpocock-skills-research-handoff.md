@@ -23,6 +23,7 @@ image:
 > mattpocock/skills 系列｜第 6 篇
 >
 > - 上一篇（第 5 篇）：[代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)
+> - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
 > 本文内容以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。这五个 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都还在。按席位计费的 skill 调用流程按原始指令推演；文中的 wizard 脚本语法检查则是实际运行结果。
 {: .prompt-info }
