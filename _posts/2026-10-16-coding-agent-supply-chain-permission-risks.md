@@ -7,7 +7,7 @@ tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-ch
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.png
-  alt: 封面：標題「裝了 skill 和 MCP 之後，Agent 多了哪些破口？」，旁邊是加上 skill、MCP server、GitHub 權杖的 Coding Agent，以及兩段式檢查清單。
+  alt: "把第三方 skill 和 MCP 當成在你電腦上跑的程式：權杖縮到最小，被騙時損害有限；版本鎖死，才不會被偷換。"
 ---
 
 星期一早上，你在 Claude Code 裡裝了一個同事推薦的 skill，又在 Cursor 加了一個能查 GitHub issue 的 MCP server。設定檔只多了十幾行，看起來很無害。

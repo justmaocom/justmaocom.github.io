@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.png
-  alt: "Cover: a research note with sources and a handoff sheet, representing the five skills in this post for having AI look things up, hand off work, walk you through account setup, and teach you something new."
+  alt: "Research notes, handoffs, API key setup, and docs for AI share one rule: keep a single source of truth and link to it everywhere else."
 ---
 
 The first five parts were all about getting a feature built: clarifying requirements, writing a spec, splitting tickets, writing code, reviewing and merging. But building per-seat billing for real also brings a different kind of task:

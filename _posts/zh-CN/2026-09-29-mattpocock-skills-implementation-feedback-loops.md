@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
   path: cover.png
-  alt: "mattpocock/skills 系列第 4 篇封面：终端里同一条 node --test 先显示 3 !== 4 的红灯，再转成 pass 1 的绿灯，旁边的便条写着预期值 = 4 出自规格；底部列出 implement、tdd、diagnosing-bugs 与 prototype"
+  alt: "AI 自己写代码也写测试时，要看它改不了的东西：你确认过的测试位置，以及来自规格的预期值。"
 ---
 
 上一篇用 `to-tickets` 把按席位计费切成三张工作单，每张都打上了 `ready-for-agent`，表示信息已经齐全，可以交给 AI 接手。现在要开一个新的对话，让 AI 实现其中一张“禁用成员并释放席位”。它会自己改代码，也会自己写测试，最后报告“测试全部通过”。

@@ -7,7 +7,7 @@ tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-ch
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.en.png
-  alt: "Cover: the title \"Skills & MCP: Your Coding Agent's New Attack Surface\" beside a Coding Agent box listing skill, MCP server, and GitHub token, with a two-part checklist."
+  alt: "Treat third-party skills and MCP servers as code on your machine: narrow tokens limit a tricked agent; pinned versions block silent swaps."
 ---
 
 Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Harmless enough.

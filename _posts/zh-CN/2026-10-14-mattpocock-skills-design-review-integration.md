@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.png
-  alt: "封面：一个按钮很少的模块和一份分两栏的审查报告，代表本文介绍的四个 skill：代码写完后怎么检查结构、审查修改、解决合并冲突。"
+  alt: "测试通过后还要看三件事：结构有没有越改越乱、修改是否符合需求，以及冲突时两边各想做什么。"
 ---
 
 上一篇用 `implement` 做完了“停用成员并释放席位”，测试从红灯（失败）转成绿灯（通过），AI 最后也照指令跑了一次 `code-review`。现在你手上有三张做完的工作单，和一条准备合并回主线的分支（分支就是从主线复制出来、让你放心修改的一份副本）。

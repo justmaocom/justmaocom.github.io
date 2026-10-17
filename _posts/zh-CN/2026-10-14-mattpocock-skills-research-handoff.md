@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.png
-  alt: "封面：一份附出处的研究笔记和一张交接单，代表本文介绍的五个 skill：怎么让 AI 查资料、交接工作、带你设置账号和学新东西。"
+  alt: "查资料、交接、配置密钥到写给 AI 的文档，背后是同一个原则：每件事只保留一份正本，其他地方附链接。"
 ---
 
 前五篇谈的都是“把功能做出来”：问清楚需求、写规格、拆工作单、写代码、审查与合并。但实际做按席位计费时，还会遇到另一类事情：
