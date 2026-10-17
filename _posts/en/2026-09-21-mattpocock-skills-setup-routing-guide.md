@@ -7,6 +7,7 @@ tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
   path: cover.png
+  alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, which you still start yourself."
 ---
 
 You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that mattpocock/skills can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?

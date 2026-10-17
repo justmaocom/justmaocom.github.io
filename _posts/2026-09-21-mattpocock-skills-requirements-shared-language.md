@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
   path: cover.png
-  alt: "成員、使用者與席次三張便條指向 CONTEXT.md，呈現從訪談釐清需求到建立共用詞彙的流程"
+  alt: "把需求問清楚的關鍵是讓同一個詞代表同一件事；問答留在對話裡，定義和少數重要決策才寫進專案。"
 ---
 
 你準備替訂閱服務加入按席次計費功能。會議紀錄裡同時出現「成員」、「使用者」和「席次」，卻沒有人確認三個詞是否代表同一件事。在討論停用成員是否仍要收費前，團隊得先說清楚計費對象到底是人、帳號，還是一份可以指派的資格。

@@ -7,7 +7,7 @@ tags: [application-security, sso, codex, discourse, libheif]
 media_subpath: /assets/img/posts/openai-libheif-sso-attack-chain/
 image:
   path: cover.webp
-  alt: Hacktron published an attack chain that started with an image-decoding bug in Discourse and reached OpenAI accounts and internal GitHub resources.
+  alt: "How far a forum image bug can reach depends on the trust behind SSO and Codex, so access reviews must count what AI agents can do."
 mermaid: true
 ---
 

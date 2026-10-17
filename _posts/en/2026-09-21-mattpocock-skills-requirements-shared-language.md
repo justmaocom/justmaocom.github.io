@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
   path: cover.png
-  alt: "Three sticky notes labeled member, user, and seat point to CONTEXT.md, showing the flow from clarifying requirements through an interview to building a shared vocabulary"
+  alt: "Clear requirements start with each word meaning one thing: Q&A stays in the chat; only definitions and key decisions go into the project."
 ---
 
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.

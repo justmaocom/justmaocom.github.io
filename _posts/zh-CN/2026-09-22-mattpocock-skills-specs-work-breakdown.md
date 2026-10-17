@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
   path: cover.png
-  alt: "mattpocock/skills 系列第 3 篇封面：先找出缺口，再决定要写规格还是拆工作单；五种信息缺口各自对应一个 skill"
+  alt: "先看清楚缺的是哪一种信息再挑 skill；五个全跑一遍，只会多出一堆没人用的文档。"
 ---
 
 上一篇已经把按席位计费的需求谈完。`CONTEXT.md` 写下了“计费席位”与“成员”的差别，对话中也确认了成员禁用后怎么处理。接下来要把这些结论变成可以开工的工作，眼前却有五个看起来都跟“规划”有关的 skill：`to-spec`、`to-tickets`、`triage`、`wayfinder` 与 `to-questionnaire`。

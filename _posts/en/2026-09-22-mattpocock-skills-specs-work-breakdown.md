@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
   path: cover.png
-  alt: "Cover of part 3 of the mattpocock/skills series: find the gap first, then decide whether to write a spec or break the work into tickets; each of five information gaps maps to one skill"
+  alt: "Work out which information is missing before picking a skill; running all five just piles up documents nobody uses."
 ---
 
 In the previous post, we finished talking through the per-seat billing requirements. `CONTEXT.md` now records the difference between a "billable seat" and a "member", and the conversation also settled what happens when a member is deactivated. The next step is to turn those conclusions into work someone can actually start on, but there are five skills in front of us that all seem to have something to do with "planning": `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire`.

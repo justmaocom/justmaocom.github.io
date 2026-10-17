@@ -7,6 +7,7 @@ tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
   path: cover.png
+  alt: "不必先背 25 個 skill：替專案跑一次設定，卡住時再讓 ask-matt 建議下一步，但仍要你親自啟動。"
 ---
 
 你準備替既有的訂閱服務加入按席次計費，卻不確定該先釐清需求、寫規格、補測試，還是直接動手寫程式。你聽說 mattpocock/skills 能讓 AI 程式助理把這類工作做得更有條理，打開清單卻看到 25 個 skill 名稱。難道要先把每一個都搞懂才能開始？

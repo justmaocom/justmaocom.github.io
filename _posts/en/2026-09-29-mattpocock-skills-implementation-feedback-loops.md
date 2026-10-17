@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
   path: cover.png
-  alt: "Cover of part 4 of the mattpocock/skills series: in a terminal, the same node --test command first shows a red 3 !== 4 failure, then turns into a green pass 1; a sticky note beside it says the expected value = 4 comes from the spec; implement, tdd, diagnosing-bugs, and prototype are listed at the bottom"
+  alt: "When the AI writes both code and tests, trust what it can't change: test spots you approved and expected values taken from the spec."
 ---
 
 In the previous post, I used `to-tickets` to split per-seat billing into three tickets, and each one was labeled `ready-for-agent`, meaning it had all the information needed to hand off to an AI. Now it's time to open a fresh conversation and have the AI implement one of them: "Deactivate a member and release the seat." It will change the code on its own, write the tests on its own, and finally report back that "all tests pass."

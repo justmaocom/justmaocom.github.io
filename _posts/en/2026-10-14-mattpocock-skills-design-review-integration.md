@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.png
-  alt: "Cover: a module with only a few buttons next to a two-column review report, representing the four skills this post covers for checking structure, reviewing changes, and resolving merge conflicts after the code is written."
+  alt: "After tests pass, ask: is the structure getting messier, does the change match the request, and what did each side of a conflict want?"
 ---
 
 In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main branch (a branch is a copy of the main branch where you can make changes safely).
