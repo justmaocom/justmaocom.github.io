@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.png
-  alt: "查資料、交接、設定金鑰和學新東西都有固定做法，共同原則是每件事只留一份正本，其他地方附連結。"
+  alt: "查資料、交接、設定金鑰到寫給 AI 的文件，背後是同一個原則：每件事只留一份正本，其他地方附連結。"
 ---
 
 前五篇談的都是「把功能做出來」：問清楚需求、寫規格、拆工作單、寫程式、審查與合併。但實際做按席次計費時，還會遇到另一類事情：

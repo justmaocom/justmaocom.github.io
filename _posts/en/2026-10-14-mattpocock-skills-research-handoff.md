@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.png
-  alt: "Research, handoffs, key setup, and learning each get a repeatable process built on one idea: keep a single source of truth and link to it."
+  alt: "Research notes, handoffs, API key setup, and docs for AI share one rule: keep a single source of truth and link to it everywhere else."
 ---
 
 The first five parts were all about getting a feature built: clarifying requirements, writing a spec, splitting tickets, writing code, reviewing and merging. But building per-seat billing for real also brings a different kind of task:

@@ -7,7 +7,7 @@ tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
   path: cover.png
-  alt: "When the AI writes both code and tests, trust what it can't change: test spots you approved and expected values taken from the spec."
+  alt: "When the AI writes both code and tests, check what it can't change: tests placed where you approved and expected values from the spec."
 ---
 
 In the previous post, I used `to-tickets` to split per-seat billing into three tickets, and each one was labeled `ready-for-agent`, meaning it had all the information needed to hand off to an AI. Now it's time to open a fresh conversation and have the AI implement one of them: "Deactivate a member and release the seat." It will change the code on its own, write the tests on its own, and finally report back that "all tests pass."

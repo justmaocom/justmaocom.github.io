@@ -7,7 +7,7 @@ tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-ch
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
   path: cover.png
-  alt: "把第三方 skill 和 MCP 當成會在你電腦上執行的軟體：權杖縮到最小、版本鎖死，被騙時損害才有限。"
+  alt: "把第三方 skill 和 MCP 當成在你電腦上跑的程式：權杖縮到最小，被騙時損害有限；版本鎖死，才不會被偷換。"
 ---
 
 星期一早上，你在 Claude Code 裡裝了一個同事推薦的 skill，又在 Cursor 加了一個能查 GitHub issue 的 MCP server。設定檔只多了十幾行，看起來很無害。

@@ -7,7 +7,7 @@ tags: [application-security, sso, codex, discourse, libheif]
 media_subpath: /assets/img/posts/openai-libheif-sso-attack-chain/
 image:
   path: cover.webp
-  alt: "一个论坛图片漏洞能走多远，取决于 SSO 和 Codex 背后连着多少信任，权限审查要把 AI 代理算进去。"
+  alt: "一个论坛图片漏洞能走多远，取决于 SSO 和 Codex 背后连着多少信任，所以权限审查要把 AI 代理算进去。"
 mermaid: true
 ---
 
