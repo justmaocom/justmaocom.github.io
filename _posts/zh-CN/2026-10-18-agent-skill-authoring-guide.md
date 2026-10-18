@@ -201,7 +201,7 @@ fits, or when the change removes or renames something other code depends on.
 
 ### 依赖要写明
 
-脚本指南也建议[在 `SKILL.md` 里写明前置要求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假设 agent 的环境已经装好；运行时层面的要求可以写在 `compatibility` 字段里。用 `npx` 这类一次性命令时要锁定版本，比如写 `npx eslint@9.0.0`。Anthropic 的编写指南也有一节就叫“[不要假设工具已经安装](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)”。
+脚本指南也建议[在 `SKILL.md` 里写明前置要求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假设 agent 的环境已经装好；运行时层面的要求可以写在 `compatibility` 字段里。用 `npx` 这类一次性命令时要锁定版本，比如明确指定 ESLint 用 9.0.0 版，不要只写 `npx eslint`（指定版本的写法见 npm 的 [package spec 文档](https://docs.npmjs.com/cli/using-npm/package-spec/)）。Anthropic 的编写指南也有一节就叫“[不要假设工具已经安装](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)”。
 
 A 的脚本只用 Python 标准库，另外需要 git，这两项都写进了 `compatibility`。B 没有脚本，什么都不用装，所以没写 `compatibility`，这也符合规范说的“多数 skill 不需要”。如果脚本要用第三方库，就用 [PEP 723](https://peps.python.org/pep-0723/) 在脚本里声明依赖，并在 `SKILL.md` 里写明怎么运行。
 
