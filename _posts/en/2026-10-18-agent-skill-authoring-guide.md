@@ -1,7 +1,7 @@
 ---
 title: "Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep"
 description: "Writing your own Agent Skill? Covers SKILL.md rules, descriptions that trigger correctly, references and scripts, trigger and output tests, and upkeep."
-date: 2026-10-17 23:10:00 +0800
+date: 2026-10-18 22:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, skill-authoring, testing, claude-code, codex, cursor]
 media_subpath: /assets/img/posts/agent-skill-authoring-guide/

@@ -1,7 +1,7 @@
 ---
 title: "自己寫 Agent Skill：從 SKILL.md 結構到觸發測試與維護"
 description: "想自己寫 Agent Skill？從 SKILL.md 的欄位規則、能被正確觸發的 description，到拆分參考檔與腳本、觸發測試、跨 agent 檢查與版本維護，用寫 commit 訊息和整理會議待辦兩個日常範例走一遍。"
-date: 2026-10-17 23:10:00 +0800
+date: 2026-10-18 22:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, skill-authoring, testing, claude-code, codex, cursor]
 media_subpath: /assets/img/posts/agent-skill-authoring-guide/
