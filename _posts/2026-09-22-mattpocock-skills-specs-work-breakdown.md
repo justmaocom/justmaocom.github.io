@@ -10,6 +10,9 @@ image:
   alt: "先看清楚缺的是哪一種資訊再挑 skill；五個規劃 skill 全跑一遍，只會多出一堆沒人用的文件。"
 ---
 
+> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介紹的五個 skill 都還在，但 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把文中的詞彙表 `CONTEXT.md` 改名為 `GLOSSARY.md`（`triage` 等 skill 之後只讀新檔名），也把原本還在試驗中的 `implement-spec` 移入官方 plugin，它可以把拆好的工作單一次平行實作（見[第 4 篇](/posts/mattpocock-skills-implementation-feedback-loops/)的提醒）。本系列之後會依新版全面更新。
+{: .prompt-warning }
+
 上一篇已經把按席次計費的需求談完。`CONTEXT.md` 寫下了「計費席次」與「成員」的差別，對話中也確認了成員停用後怎麼處理。接下來要把這些結論變成可以開工的工作，眼前卻有五個看起來都跟「規劃」有關的 skill：`to-spec`、`to-tickets`、`triage`、`wayfinder` 與 `to-questionnaire`。
 
 這五個 skill 都會產出文件，補的卻是不同的缺口。選錯了，AI 一樣會把指令執行完，你卻只多了一份暫時沒人用得上的文件。

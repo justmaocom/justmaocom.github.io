@@ -7,6 +7,9 @@ tags: [openwiki, coding-agent, documentation]
 media_subpath: /assets/img/posts/openwiki-agent-docs-maintenance/
 ---
 
+> **版本提醒（2026-10-19 查證）**：本文分析的是 OpenWiki `0.5.2`（commit `715109a`），npm 上最新已是 `0.7.2`（2026-10-10）。[`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同時處理多個頁面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。預設值仍是 1，要調高才會平行處理；透過 coding agent 整合執行時也仍然逐頁處理。所以下文說 page job「依序處理」、worker「一次只處理目前排到的 page job」，只在調高這個設定時不成立。之後會另行評估是否全面更新。
+{: .prompt-warning }
+
 `AGENTS.md` 適合放建置指令與工作規則，不適合塞進完整的架構說明。coding agent 接手陌生 repo 時，仍得從原始碼和測試找出模組關係、資料流與失敗處理。OpenWiki 的做法是把這些資訊整理到 repo 內的 wiki，讓 agent 需要時再讀。本文要查的是，程式碼改變後，它如何找出需要重寫的頁面，以及更新結果可以信到什麼程度。
 
 [LangChain 發表 OpenWiki 時](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation)，主張 agent 指引檔只要指向 repo wiki，coding agent 就能按需求取用文件，不必把大量說明塞進單一指引檔。這種分工讓指引檔維持簡短，卻增加了一份會隨程式碼過期的 wiki。以下分別從更新流程與來源檢查，看 OpenWiki 如何處理這個問題。

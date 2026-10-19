@@ -10,6 +10,9 @@ image:
   alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
 ---
 
+> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04, and the official plugin now has 27 skills instead of 25: `resolving-merge-conflicts` is gone, and `implement-spec`, `pr`, and `retro` are new, with `ask-matt` suggesting them too. The project glossary was renamed from `CONTEXT.md` to `GLOSSARY.md`. Skills in the new releases only look for the new name, so rename an existing file with `git mv`. A full update of this series is planned.
+{: .prompt-warning }
+
 You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that mattpocock/skills can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?
 
 First, a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. A skill can be thought of as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.

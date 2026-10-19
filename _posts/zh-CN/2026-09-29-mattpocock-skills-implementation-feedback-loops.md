@@ -10,6 +10,9 @@ image:
   alt: "AI 自己写代码也写测试时，要看它改不了的东西：你确认过的测试位置，以及来自规格的预期值。"
 ---
 
+> **版本提醒（2026-10-19 核实）**：本文以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介绍的四个 skill 都还在，但有三点不同：原本仍在试验中的 `implement-spec` 移入了官方插件，它会一次实现整份规格，用 worktree（同一个 repo 的多个工作目录）并行处理多张工作单，是逐张使用 `implement` 之外的另一种做法；同样移入官方插件的 `retro` 是主线的最后一步，在 `code-review` 之后回顾这次工作；`tdd`、`diagnosing-bugs` 读取的词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`。从 `1.3.1` 起，`ask-matt` 会在修完 bug 后建议运行 `retro`。本系列之后会按新版全面更新。
+{: .prompt-warning }
+
 上一篇用 `to-tickets` 把按席位计费切成三张工作单，每张都打上了 `ready-for-agent`，表示信息已经齐全，可以交给 AI 接手。现在要开一个新的对话，让 AI 实现其中一张“禁用成员并释放席位”。它会自己改代码，也会自己写测试，最后报告“测试全部通过”。
 
 可是这些测试也是 AI 写的。它可能只是在替自己刚写的代码背书，根本没对照需求。代码和测试都由 AI 写，你要看什么才知道它做对了？

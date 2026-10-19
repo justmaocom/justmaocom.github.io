@@ -10,6 +10,9 @@ image:
   alt: "把需求問清楚的關鍵是讓同一個詞代表同一件事；問答留在對話裡，定義和少數重要決策才寫進專案。"
 ---
 
+> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 在 2026-10-04 發布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的詞彙表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名為 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 之後只會讀寫新檔名。照本文操作時，請把文中的 `CONTEXT.md` 換成 `GLOSSARY.md`；已經有舊檔的專案，用 `git mv CONTEXT.md GLOSSARY.md` 改名。本文介紹的五個 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 都還在。本系列之後會依新版全面更新。
+{: .prompt-warning }
+
 你準備替訂閱服務加入按席次計費功能。會議紀錄裡同時出現「成員」、「使用者」和「席次」，卻沒有人確認三個詞是否代表同一件事。在討論停用成員是否仍要收費前，團隊得先說清楚計費對象到底是人、帳號，還是一份可以指派的資格。
 
 本文提到的 skill，可以先理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明。`mattpocock/skills` 把這類工作拆成訪談、詞彙整理與重新說明。本文會釐清五個相關 skill 的分工，並說明訪談結束後哪些內容會留在專案裡。
