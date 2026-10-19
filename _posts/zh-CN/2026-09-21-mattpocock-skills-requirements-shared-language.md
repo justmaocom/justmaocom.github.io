@@ -10,6 +10,9 @@ image:
   alt: "把需求问清楚的关键是让同一个词代表同一件事；问答留在对话里，只有定义和少数重要决策才写进项目。"
 ---
 
+> **版本提醒（2026-10-19 核实）**：本文以 `1.2.3` 版为准。`mattpocock/skills` 在 2026-10-04 发布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的词汇表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名为 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 今后只会读写新文件名。按本文操作时，请把文中的 `CONTEXT.md` 换成 `GLOSSARY.md`；已有旧文件的项目，用 `git mv CONTEXT.md GLOSSARY.md` 改名。本文介绍的五个 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 中都还在。本系列之后会按新版全面更新。
+{: .prompt-warning }
+
 你准备替订阅服务加入按席位计费功能。会议记录里同时出现“成员”、“用户”和“席位”，却没有人确认三个词是否代表同一件事。在讨论禁用成员是否仍要收费前，团队得先说清楚计费对象到底是人、账号，还是一份可以分配的资格。
 
 本文提到的 skill，可以先理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明。`mattpocock/skills` 把这类工作拆成访谈、词汇整理与重新说明。本文会厘清五个相关 skill 的分工，并说明访谈结束后哪些内容会留在项目里。

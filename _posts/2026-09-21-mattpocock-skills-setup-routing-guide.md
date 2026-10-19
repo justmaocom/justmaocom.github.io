@@ -10,6 +10,9 @@ image:
   alt: "不必先背 25 個 skill：替專案跑一次設定，卡住時再讓 ask-matt 建議下一步，但仍要你親自啟動。"
 ---
 
+> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從 25 個 skill 變成 27 個：移除 `resolving-merge-conflicts`，新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也會推薦這三個新 skill。專案詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`，新版 skill 只認新檔名，舊檔請用 `git mv` 改名。本系列之後會依新版全面更新。
+{: .prompt-warning }
+
 你準備替既有的訂閱服務加入按席次計費，卻不確定該先釐清需求、寫規格、補測試，還是直接動手寫程式。你聽說 mattpocock/skills 能讓 AI 程式助理把這類工作做得更有條理，打開清單卻看到 25 個 skill 名稱。難道要先把每一個都搞懂才能開始？
 
 先說明幾個名詞。AI 程式助理指的是 Claude Code、Codex 這類能讀寫專案檔案、替你寫程式的 AI 工具。skill 則可以理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明，例如怎麼訪談需求，或怎麼把規格拆成一項項工作。`mattpocock/skills` 是 Matt Pocock 公開的一整組 skill。

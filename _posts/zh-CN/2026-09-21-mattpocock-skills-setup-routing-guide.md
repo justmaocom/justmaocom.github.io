@@ -10,6 +10,9 @@ image:
   alt: "不必先背 25 个 skill：给项目跑一次设置，卡住时再让 ask-matt 建议下一步，但仍要你亲自启动。"
 ---
 
+> **版本提醒（2026-10-19 核实）**：本文以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方插件从 25 个 skill 变为 27 个：移除了 `resolving-merge-conflicts`，新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也会推荐这三个新 skill。项目词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`，新版 skill 只认新文件名，旧文件请用 `git mv` 改名。本系列之后会按新版全面更新。
+{: .prompt-warning }
+
 你准备替现有的订阅服务加入按席位计费，却不确定该先厘清需求、写规格、补测试，还是直接动手写代码。你听说 mattpocock/skills 能让 AI 编程助手把这类工作做得更有条理，打开清单却看到 25 个 skill 名称。难道要先把每一个都搞懂才能开始？
 
 先说明几个名词。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、替你写代码的 AI 工具。skill 则可以理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明，例如怎么访谈需求，或怎么把规格拆成一项项工作。`mattpocock/skills` 是 Matt Pocock 公开的一整组 skill。

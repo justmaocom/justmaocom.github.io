@@ -10,6 +10,9 @@ image:
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
 ---
 
+> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it with `git mv CONTEXT.md GLOSSARY.md`. All five skills covered here are still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). A full update of this series is planned.
+{: .prompt-warning }
+
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.
 
 A skill, as used in this post, can be thought of as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks this kind of work into interviewing, vocabulary curation, and re-explaining. This post lays out how five related skills divide the work and what stays in the project once the interview is over.

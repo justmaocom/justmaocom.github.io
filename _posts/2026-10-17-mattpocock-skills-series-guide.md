@@ -10,6 +10,9 @@ image:
   alt: "六篇照開發順序排，合起來涵蓋官方外掛的 25 個 skill；先找出你卡在哪一步，再從那一篇讀起。"
 ---
 
+> **版本提醒（2026-10-19 查證）**：本系列六篇都以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從下文說的 25 個 skill 變成 27 個：[第 5 篇](/posts/mattpocock-skills-design-review-integration/)介紹的 `resolving-merge-conflicts` 已移除；新增的 `implement-spec`、`pr`、`retro` 系列還沒介紹；[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的詞彙表 `CONTEXT.md` 也改名為 `GLOSSARY.md`。其餘 24 個 skill 都還在。本系列之後會依新版全面更新。
+{: .prompt-warning }
+
 你可能是聽人提過 `mattpocock/skills`，打開 repo 卻看到一長串 skill 名稱；也可能是從搜尋點進其中一篇，想知道前後還有什麼。這個系列寫了六篇，每篇處理開發流程裡的一段。這篇導讀不重講細節，只回答三件事：這套 skill 是什麼、六篇怎麼串起來，以及你該從哪一篇開始。
 
 > mattpocock/skills 系列｜導讀

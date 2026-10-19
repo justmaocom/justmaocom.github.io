@@ -10,6 +10,9 @@ image:
   alt: "Work out which information is missing before picking a skill; running all five planning skills just piles up documents nobody uses."
 ---
 
+> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All five skills covered here are still there, but [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) renamed the glossary file this post uses, `CONTEXT.md`, to `GLOSSARY.md` (`triage` and other skills now only read the new name). It also added `implement-spec`, which can implement all the split-up tickets in one go, in parallel (see the note in [Part 4](/posts/mattpocock-skills-implementation-feedback-loops/)). A full update of this series is planned.
+{: .prompt-warning }
+
 In the previous post, we finished talking through the per-seat billing requirements. `CONTEXT.md` now records the difference between a "billable seat" and a "member", and the conversation also settled what happens when a member is deactivated. The next step is to turn those conclusions into work someone can actually start on, but there are five skills in front of us that all seem to have something to do with "planning": `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire`.
 
 All five skills produce documents, but each fills a different gap. Pick the wrong one and the AI will still follow the instructions to the end, but all you get is one more document that nobody needs yet.

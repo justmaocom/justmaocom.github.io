@@ -10,6 +10,9 @@ image:
   alt: "When the AI writes both code and tests, check what it can't change: tests placed where you approved and expected values from the spec."
 ---
 
+> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All four skills covered here are still there, but three things are different. The new `implement-spec` implements a whole spec at once, using worktrees (several working folders of the same repo) to work on multiple tickets in parallel, as an alternative to running `implement` one ticket at a time. The new `retro` is the last step of the main flow and looks back on the work after `code-review`. And the glossary that `tdd` and `diagnosing-bugs` read was renamed from `CONTEXT.md` to `GLOSSARY.md`. Starting with `1.3.1`, `ask-matt` suggests running `retro` after a bug is fixed. A full update of this series is planned.
+{: .prompt-warning }
+
 In the previous post, I used `to-tickets` to split per-seat billing into three tickets, and each one was labeled `ready-for-agent`, meaning it had all the information needed to hand off to an AI. Now it's time to open a fresh conversation and have the AI implement one of them: "Deactivate a member and release the seat." It will change the code on its own, write the tests on its own, and finally report back that "all tests pass."
 
 But the AI wrote those tests too. They might just be vouching for the code it wrote, without ever checking against the requirements. When the AI writes both the code and the tests, what should you look at to know it actually got things right?
