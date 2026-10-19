@@ -10,7 +10,7 @@ image:
   alt: "AI 自己寫程式也寫測試時，要看它改不了的東西：你確認過的測試位置，和出自規格的預期值。"
 ---
 
-> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介紹的四個 skill 都還在，但有三點不同：新增的 `implement-spec` 會一次實作整份規格，用 worktree（同一個 repo 的多個工作目錄）平行處理多張工作單，是逐張使用 `implement` 之外的另一種做法；新增的 `retro` 是主線最後一步，在 `code-review` 之後回顧這次工作；`tdd`、`diagnosing-bugs` 讀的詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`。`1.3.1` 起，`ask-matt` 會在修完 bug 後建議執行 `retro`。本系列之後會依新版全面更新。
+> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介紹的四個 skill 都還在，但有三點不同：原本還在試驗中的 `implement-spec` 移入官方 plugin，它會一次實作整份規格，用 worktree（同一個 repo 的多個工作目錄）平行處理多張工作單，是逐張使用 `implement` 之外的另一種做法；同樣移入官方 plugin 的 `retro` 是主線最後一步，在 `code-review` 之後回顧這次工作；`tdd`、`diagnosing-bugs` 讀的詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`。`1.3.1` 起，`ask-matt` 會在修完 bug 後建議執行 `retro`。本系列之後會依新版全面更新。
 {: .prompt-warning }
 
 上一篇用 `to-tickets` 把按席次計費切成三張工作單，每張都貼上了 `ready-for-agent`，表示資訊已經齊全，可以交給 AI 接手。現在要開一個新的對話，讓 AI 實作其中一張「停用成員並釋放席次」。它會自己改程式，也會自己寫測試，最後回報「測試全部通過」。
