@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "查资料、交接、配置密钥到写给 AI 的文档，背后是同一个原则：每件事只保留一份正本，其他地方附链接。"
 ---
 

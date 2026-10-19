@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
-  path: cover.png
+  path: cover.en.png
   alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
 ---
 

@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
-  path: cover.png
+  path: cover.en.png
   alt: "When the AI writes both code and tests, check what it can't change: tests placed where you approved and expected values from the spec."
 ---
 

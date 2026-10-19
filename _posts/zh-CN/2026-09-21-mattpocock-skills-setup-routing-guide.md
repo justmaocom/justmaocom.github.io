@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "不必先背 25 个 skill：给项目跑一次设置，卡住时再让 ask-matt 建议下一步，但仍要你亲自启动。"
 ---
 

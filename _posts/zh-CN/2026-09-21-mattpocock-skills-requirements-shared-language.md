@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "把需求问清楚的关键是让同一个词代表同一件事；问答留在对话里，只有定义和少数重要决策才写进项目。"
 ---
 
