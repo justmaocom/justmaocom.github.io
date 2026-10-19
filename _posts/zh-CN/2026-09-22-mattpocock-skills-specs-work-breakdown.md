@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "先看清楚缺的是哪一种信息再挑 skill；五个规划 skill 全跑一遍，只会多出一堆没人用的文档。"
 ---
 

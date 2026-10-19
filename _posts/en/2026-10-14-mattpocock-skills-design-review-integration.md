@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
-  path: cover.png
+  path: cover.en.png
   alt: "After tests pass, ask: is the structure getting messier, does the change match the request, and what did each side of a conflict want?"
 ---
 

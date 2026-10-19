@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "测试通过后还要看三件事：结构有没有越改越乱、修改是否符合需求，以及冲突时两边各想做什么。"
 ---
 

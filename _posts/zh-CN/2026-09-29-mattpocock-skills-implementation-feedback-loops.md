@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
-  path: cover.png
+  path: cover.zh-CN.png
   alt: "AI 自己写代码也写测试时，要看它改不了的东西：你确认过的测试位置，以及来自规格的预期值。"
 ---
 

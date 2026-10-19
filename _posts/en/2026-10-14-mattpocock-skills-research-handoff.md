@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
-  path: cover.png
+  path: cover.en.png
   alt: "Research notes, handoffs, API key setup, and docs for AI share one rule: keep a single source of truth and link to it everywhere else."
 ---
 

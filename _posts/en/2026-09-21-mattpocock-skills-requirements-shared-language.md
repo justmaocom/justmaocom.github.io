@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
-  path: cover.png
+  path: cover.en.png
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
 ---
 
