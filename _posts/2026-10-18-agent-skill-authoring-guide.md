@@ -201,7 +201,7 @@ fits, or when the change removes or renames something other code depends on.
 
 ### 依賴要寫明
 
-腳本指南也建議[在 `SKILL.md` 寫明前置需求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假設 agent 的環境已經裝好；執行階段的需求可以寫在 `compatibility` 欄位。用 `npx` 這類一次性指令時要鎖版本，例如寫 `npx eslint@9.0.0`。Anthropic 的撰寫指南也有一節就叫「[不要假設工具已經安裝](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)」。
+腳本指南也建議[在 `SKILL.md` 寫明前置需求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假設 agent 的環境已經裝好；執行階段的需求可以寫在 `compatibility` 欄位。用 `npx` 這類一次性指令時要鎖版本，例如明確指定 ESLint 用 9.0.0 版，不要只寫 `npx eslint`（指定版本的寫法見 npm 的 [package spec 文件](https://docs.npmjs.com/cli/using-npm/package-spec/)）。Anthropic 的撰寫指南也有一節就叫「[不要假設工具已經安裝](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)」。
 
 A 的腳本只用 Python 標準函式庫，另外需要 git，這兩項都寫進了 `compatibility`。B 沒有腳本，什麼都不用裝，所以沒寫 `compatibility`，這也符合規範說的「多數 skill 不需要」。如果腳本要用第三方套件，就用 [PEP 723](https://peps.python.org/pep-0723/) 在腳本裡宣告依賴，並在 `SKILL.md` 寫明怎麼執行。
 

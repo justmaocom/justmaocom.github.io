@@ -201,7 +201,7 @@ The `--repo` option is there for a reason. The scripts guide says command paths 
 
 ### State Your Dependencies
 
-The scripts guide also says to [state prerequisites in `SKILL.md`](https://agentskills.io/skill-creation/using-scripts#one-off-commands) instead of assuming the agent's environment has them, and to use the `compatibility` field for runtime-level requirements. Pin versions in one-off commands, for example `npx eslint@9.0.0`. Anthropic's authoring guide has a whole section titled "[Avoid assuming tools are installed](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)".
+The scripts guide also says to [state prerequisites in `SKILL.md`](https://agentskills.io/skill-creation/using-scripts#one-off-commands) instead of assuming the agent's environment has them, and to use the `compatibility` field for runtime-level requirements. Pin versions in one-off commands, for example by telling `npx` to run ESLint 9.0.0 rather than just writing `npx eslint` (see npm's [package spec docs](https://docs.npmjs.com/cli/using-npm/package-spec/) for the syntax). Anthropic's authoring guide has a whole section titled "[Avoid assuming tools are installed](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)".
 
 A's script uses only the Python standard library and needs git, and both are written into `compatibility`. B has no script and needs nothing installed, so it has no `compatibility` field, which fits the spec's note that most skills don't need one. If a script needs third-party packages, declare them inside the script with [PEP 723](https://peps.python.org/pep-0723/) and say in `SKILL.md` how to run it.
 
