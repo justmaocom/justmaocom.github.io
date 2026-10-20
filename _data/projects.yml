@@ -21,6 +21,5 @@
     en: Parses the official PDF and DOCX question banks for Taiwan's Government Procurement Act and loads them into a database, draws a fresh random set of questions for each practice round, and tracks results across sessions to surface weak areas.
   tech: [Python, FastAPI, SQLAlchemy, PostgreSQL]
   github: https://github.com/7a6ac0/gpa-question-webapp
-  website: https://gpa.justmao.com/
   image: /assets/projects/gpa-question-webapp/preview.webp
   post: gpa-question-webapp-study-loop
