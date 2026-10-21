@@ -71,7 +71,23 @@ Your choice of install method decides whom you trust and when the content can ch
 
 There are also third-party mirrors of pstack, such as `backnotprop/pstack`. They are not maintained by `cursor/plugins`, so if you use one, read through it and pin a version first; [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/) explains why.
 
-The same logic applies to the official marketplace. According to Claude Code's [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option to choose a version or commit. `/plugin marketplace add` accepts `#ref` after the repository to [pin the whole catalog to a branch or tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add), but when I checked on 2026-10-21, `cursor/plugins` had no tags. The `sha` field that pins a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainers (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set one.
+The same logic applies to the official marketplace. Among the options listed in Claude Code's [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has none for choosing a version or commit (the page notes its tables list only commonly used options). `/plugin marketplace add` accepts `#ref` after the repository to [pin the whole catalog to a branch or tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add), but when I checked on 2026-10-21, `cursor/plugins` had no tags. The `sha` field that pins a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainers (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set one.
+
+If you want to pin a commit, the official docs also support adding a local folder as a marketplace: given a local path, `/plugin marketplace add` [reads that directory in place](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add) (the [install docs](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) list this source type too). So you can clone the repository, check out a commit you've reviewed, and add that folder as the marketplace. **The commands below were not tested:**
+
+```bash
+git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
+git -C ~/src/cursor-plugins checkout 88d47514b82e7c44f00f2b2a72ff6dd12158038c
+```
+
+Then, in Claude Code:
+
+```text
+/plugin marketplace add ~/src/cursor-plugins
+/plugin install pstack@cursor-plugins
+```
+
+This is the same "clone, then check out a reviewed commit" approach the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) recommends. How it coexists with a `cursor/plugins` marketplace you already added from GitHub wasn't tested either.
 
 This install's record shows commit `88d4751`, version `0.15.29`. After you install, check which version you got yourself, and look at what changed in pstack before you update; [the supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why.
 
@@ -103,9 +119,9 @@ The first call was just `/pstack:setup-pstack`. It detected four models, `opus`,
 4. small — medium reasoning
 ```
 
-The second call replied "3." It listed all 17 roles, such as `opus high` for `feature, refactoring` and `fable high` for `bug-fix`. Four review roles each list four models, opus, fable, sonnet, and haiku, meaning one subagent per model, four in total.
+The second call replied "3." It listed all 17 roles, such as `opus high` for `feature, refactoring` and `fable high` for `bug-fix`. Four panel roles, which run several models in parallel, each list four models: opus, fable, sonnet, and haiku, meaning one subagent per model, four in total.
 
-The third call replied, in Chinese, "write it as this table." The write was blocked, because these runs deliberately prohibited writes to global settings. It reported that it did not try another way around the block. The content it wanted to write was identical to the existing file, and the file's sha256 was the same before and after. It then offered to create two kinds of verification skills, which Part 3 will cover.
+The third call replied, in Chinese, "Write it as shown in this table." The write was blocked, because these runs deliberately prohibited writes to global settings. It reported that it did not try another way around the block. The content it wanted to write was identical to the existing file, and the file's sha256 was the same before and after. It then offered to create two kinds of verification skills, which Part 3 will cover.
 
 The three calls took about 52 seconds in total (20, 9, and 23 seconds), with an API-equivalent cost of US$0.321.
 
@@ -128,7 +144,7 @@ It took 51 seconds (API-equivalent US$0.387). The key points of its answer:
 - Very small, obvious edits don't need pstack. Just ask directly and save tokens.
 - Claude Code has no Cursor Custom Mode (a mode that keeps a skill active for the whole chat), so start every new task with `/pstack:poteto-mode`, and say "new task" before switching topics in the same chat.
 
-The [`poteto-help` instructions](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L57-L60) spell out the last two points as well. In Cursor, choosing `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) turns it into a Custom Mode. That part was not tested.
+The [`poteto-help` instructions](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L57-L60) spell out the last point as well, and "small edits don't need pstack" matches the advice in the [setup guide](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L52). In Cursor, choosing `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) turns it into a Custom Mode. That part was not tested.
 
 ## /poteto-mode: One Command, Three Tasks
 
@@ -148,8 +164,8 @@ All three tasks started with `/pstack:poteto-mode` and gave only the symptom and
 | Task | Playbook | Result | Time | API-equivalent (USD) |
 | --- | --- | --- | --- | --- |
 | Read-only investigation: which functions an amount passes through, where rounding happens, where totals could go wrong | Investigation | Full call path and 8 risk points, the first being the planted bug; no files changed | 5 min 05 s | 1.683 |
-| Bug fix: expenses in parentheses counted as income | Bug fix | 2 lines changed in `parser.py`, 2 new tests, all 10 tests pass | 1 min 58 s | 0.740 |
-| Feature: `ledger summary --json` | Feature | 3 lines changed in `cli.py`, 1 line added to the README, 3 new tests, all 13 tests pass | 2 min 40 s | 1.033 |
+| Bug fix: expenses in parentheses counted as income | Bug fix | `parser.py` +3/−2 lines, 2 new tests, all 10 tests pass | 1 min 58 s | 0.740 |
+| Feature: `ledger summary --json` | Feature | `cli.py` +4/−1 lines, README +1 line, 3 new tests, all 13 tests pass | 2 min 40 s | 1.033 |
 
 All three runs read the Claude Code adapter notes first, then the matching playbook.
 
@@ -184,7 +200,7 @@ Its report says the expected values were worked out by hand from the CSV, not co
 
 ### Feature: A Small Change, So It Skipped the Design Steps
 
-The `--json` task went through the Feature playbook. It chose to skip three steps: mapping the related code (`how`), comparing several designs in parallel (`architect`), and having the design challenged afterward (`interrogate`). Its reasons: the related code was only two small files, and running four design subagents would cost more than the change itself.
+The `--json` task went through the Feature playbook. It chose to skip three steps: mapping the related code (`how`), comparing several designs in parallel (`architect`), and having the design challenged afterward (`interrogate`). It gave a reason for each: it skipped `how` because the related code was only two small files it had already read, `architect` because running four design subagents would cost more than the change itself, and `interrogate` because the design wasn't contested.
 
 It ran the same four sets of arguments against the HEAD version and the changed version, and the results matched exactly, showing that the text output without `--json` was unchanged. Output with `--json` (excerpt):
 

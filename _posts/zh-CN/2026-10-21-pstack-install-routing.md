@@ -71,7 +71,23 @@ _第一次使用的三步：安装、选模型、从 /poteto-mode 开始。_
 
 网上也有第三方整理的 pstack 镜像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方维护的版本，要用的话请先看完内容、锁定版本，理由见[这篇供应链与权限风险的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
-同样的道理也适用于官方 marketplace。按 Claude Code 官方的[命令参考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)，`/plugin install` 没有指定版本或 commit 的选项。`/plugin marketplace add` 可以在仓库后面加 `#ref`，把整个目录[固定在某个分支或 tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add)；但 2026-10-21 核实时，`cursor/plugins` 没有任何 tag。能固定到 commit 的 `sha` 字段，是写在目录的 `marketplace.json` 里、由目录维护者设置的（见 [marketplace 参考文档](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 条目没有设置。
+同样的道理也适用于官方 marketplace。Claude Code 官方的[命令参考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)列出的选项里，`/plugin install` 没有指定版本或 commit 的选项（该页说明表格只列常用选项）。`/plugin marketplace add` 可以在仓库后面加 `#ref`，把整个目录[固定在某个分支或 tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add)；但 2026-10-21 核实时，`cursor/plugins` 没有任何 tag。能固定到 commit 的 `sha` 字段，是写在目录的 `marketplace.json` 里、由目录维护者设置的（见 [marketplace 参考文档](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 条目没有设置。
+
+如果想固定到某个 commit，官方文档也支持把本地文件夹加为 marketplace：`/plugin marketplace add` 后面接本地路径时，Claude Code 会[直接读取那个文件夹](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add)（[安装文档](https://code.claude.com/docs/en/plugins/install#add-a-marketplace)也列了这种来源）。所以可以先 clone、切到你审过的 commit，再把这个文件夹加为 marketplace。以下命令**本次未实测**：
+
+```bash
+git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
+git -C ~/src/cursor-plugins checkout 88d47514b82e7c44f00f2b2a72ff6dd12158038c
+```
+
+接着在 Claude Code 里：
+
+```text
+/plugin marketplace add ~/src/cursor-plugins
+/plugin install pstack@cursor-plugins
+```
+
+这和[供应链与权限风险的文章](/posts/coding-agent-supply-chain-permission-risks/)建议的“先 clone，再切到审过的 commit”是同一个做法。如果你已经用 GitHub 来源加过 `cursor/plugins`，两者怎么共存也没有实测。
 
 这次的安装记录显示，装到的是 commit `88d4751`、版本 `0.15.29`。建议你装好之后，也自己确认装到的是哪个版本，并在点更新之前先看一下 pstack 改了什么，理由见[供应链与权限风险的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
@@ -103,7 +119,7 @@ Cursor 版会用菜单问你问题。按[对照说明](https://github.com/cursor
 4. small — medium reasoning
 ```
 
-第二次回复“3”，它列出 17 个角色的完整表格，例如 `feature, refactoring` 用 `opus high`、`bug-fix` 用 `fable high`。有 4 个评审类角色会同时列出 opus、fable、sonnet、haiku 四个模型，表示每次各跑一个 subagent，共 4 个。
+第二次回复“3”，它列出 17 个角色的完整表格，例如 `feature, refactoring` 用 `opus high`、`bug-fix` 用 `fable high`。有 4 个多模型并行（panel）角色会同时列出 opus、fable、sonnet、haiku 四个模型，表示每次各跑一个 subagent，共 4 个。
 
 第三次回复“照这张表写入”。写入被权限挡下，因为这次特意禁止写入全局配置。它回报说没有改用其他方式绕过，而且它想写的内容和现有文件一模一样，配置文件的 sha256 前后也没变。接着它主动提议创建两种用于验证的 skill，这部分留到第 3 篇再谈。
 
@@ -128,7 +144,7 @@ Cursor 版会用菜单问你问题。按[对照说明](https://github.com/cursor
 - 很小、很明显的修改不需要 pstack，直接说就行，可以省 token。
 - Claude Code 没有 Cursor 的 Custom Mode（让某个 skill 在整段对话持续生效的模式），所以每个新任务都要用 `/pstack:poteto-mode` 开头；同一段对话里要换话题，先说“new task”。
 
-最后两点在 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L57-L60)里也写得很清楚。在 Cursor 里，从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，就能把它变成 Custom Mode；这部分没有实测。
+最后一点在 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L57-L60)里也写得很清楚；“很小的修改不需要 pstack”则和[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L52)的建议一致。在 Cursor 里，从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，就能把它变成 Custom Mode；这部分没有实测。
 
 ## /poteto-mode：同一个命令，三种任务
 
@@ -148,8 +164,8 @@ _三次任务都用同一个命令开头，分到的 playbook 都符合预期。
 | 任务 | 分到的 playbook | 结果 | 耗时 | API 等价（美元） |
 | --- | --- | --- | --- | --- |
 | 只读调查：金额从读进来到打印出来经过哪些函数、哪里四舍五入、哪里可能算错 | Investigation | 列出完整调用路径和 8 个风险点，第 1 点就是埋的 bug；没有改任何文件 | 5 分 05 秒 | 1.683 |
-| 修 bug：括号支出被算成收入 | Bug fix | `parser.py` 改 2 行、新增 2 个测试，10 个测试全部通过 | 1 分 58 秒 | 0.740 |
-| 加功能：`ledger summary --json` | Feature | `cli.py` 改 3 行、README 加 1 行、新增 3 个测试，13 个测试全部通过 | 2 分 40 秒 | 1.033 |
+| 修 bug：括号支出被算成收入 | Bug fix | `parser.py` 增 3 行、删 2 行，新增 2 个测试，10 个测试全部通过 | 1 分 58 秒 | 0.740 |
+| 加功能：`ledger summary --json` | Feature | `cli.py` 增 4 行、删 1 行，README 增 1 行，新增 3 个测试，13 个测试全部通过 | 2 分 40 秒 | 1.033 |
 
 三次都是先读 Claude Code 对照说明，再读对应的 playbook。
 
@@ -184,7 +200,7 @@ spending by category:
 
 ### 加功能：小改动，自己跳过设计步骤
 
-加 `--json` 的任务走 Feature playbook。它自己跳过了三个步骤：先摸清相关代码（`how`）、并行比较几种设计（`architect`）、事后找人质疑设计（`interrogate`）。理由是相关代码只有两个小文件，而开 4 个设计 subagent 的花费会比这个改动本身还高。
+加 `--json` 的任务走 Feature playbook。它自己跳过了三个步骤：先摸清相关代码（`how`）、并行比较几种设计（`architect`）、事后找人质疑设计（`interrogate`）。它逐项给了理由：跳过 `how`，是因为相关代码只有两个小文件，它已经读完；跳过 `architect`，是因为开 4 个设计 subagent 的花费会比这个改动本身还高；跳过 `interrogate`，是因为设计没有争议。
 
 它用 HEAD 的版本和改过的版本跑同样四组参数，比对结果完全相同，证明不加 `--json` 时的文字输出没变。加上 `--json` 的输出（节选）：
 
