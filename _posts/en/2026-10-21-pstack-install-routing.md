@@ -1,5 +1,5 @@
 ---
-title: "pstack, Part 1: Install, Pick Models, Then Let /poteto-mode Choose a Playbook"
+title: "pstack, Part 1: Install, Pick Models, Start With /poteto-mode"
 description: "pstack has 56 commands, but you only need /poteto-mode to start. Tested in Claude Code: installing, choosing models with /setup-pstack, and playbook routing."
 date: 2026-10-21 21:30:00 +0800
 categories: [AI, skills]
@@ -46,28 +46,34 @@ The [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff
 /add-plugin pstack
 ```
 
-In Claude Code, first add the `cursor/plugins` GitHub repository as a marketplace (a plugin catalog):
+In Claude Code, first add the `cursor/plugins` GitHub repository as a marketplace (a plugin catalog), then install pstack from it:
 
 ```text
 /plugin marketplace add cursor/plugins
+/plugin install pstack@cursor-plugins
 ```
 
-Then type `/plugin install` followed by the plugin name `pstack`, with `@cursor-plugins` appended right after it and no space in between. That means "install pstack from the cursor-plugins catalog."
+In the second line, `pstack@cursor-plugins` means "pstack from the cursor-plugins catalog."
 
 > These commands are quoted from the `0.15.29` README. **A fresh install was not tested this time.** My machine already had pstack, installed on 2026-10-18 and updated to `88d4751` on 2026-10-20, and the test used that copy.
 {: .prompt-warning }
+
+> Neither Claude Code command above pins a version. You get whatever is on the default branch of `cursor/plugins` at that moment. Cursor's `/add-plugin pstack` doesn't name a version either. For what to check before installing someone else's plugin, see [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
+{: .prompt-tip }
 
 Your choice of install method decides whom you trust and when the content can change:
 
 | Method | Where the content comes from | Can it change later? |
 | --- | --- | --- |
 | Cursor's `/add-plugin pstack` | Cursor's plugin system | Not tested; no conclusion here |
-| Claude Code marketplace | `cursor/plugins` as it was when you added it | Per the [Claude Code docs](https://code.claude.com/docs/en/discover-plugins#keep-plugins-updated), third-party marketplaces don't auto-update by default; new content arrives when you choose to update |
+| Claude Code marketplace | `cursor/plugins` as it was when you added it | Per the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#keep-plugins-updated), third-party marketplaces don't auto-update by default; new content arrives when you choose to update |
 | A third-party mirror | Not maintained by `cursor/plugins` | Up to the mirror's author |
 
 There are also third-party mirrors of pstack, such as `backnotprop/pstack`. They are not maintained by `cursor/plugins`, so if you use one, read through it and pin a version first; [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/) explains why.
 
-The same logic applies to the official marketplace. Adding it gives you whatever the default branch holds at that moment, not a fixed release. The [Claude Code docs](https://code.claude.com/docs/en/discover-plugins#add-a-marketplace) say you can append `#ref` to the repository to pin a branch or tag. Before you update, look at what changed in pstack.
+The same logic applies to the official marketplace. According to Claude Code's [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option to choose a version or commit. `/plugin marketplace add` accepts `#ref` after the repository to [pin the whole catalog to a branch or tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add), but when I checked on 2026-10-21, `cursor/plugins` had no tags. The `sha` field that pins a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainers (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set one.
+
+This install's record shows commit `88d4751`, version `0.15.29`. After you install, check which version you got yourself, and look at what changed in pstack before you update; [the supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why.
 
 ## /setup-pstack: Choose a Model for Each Role
 
@@ -243,6 +249,6 @@ Keep an eye on the final report. The model and effort it says it used may not ma
 - [Setup guide: Set up pstack](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md): budgets, roles, and ways to save tokens.
 - [Claude Code adapter notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md): differences between Cursor and Claude Code.
 - [`poteto-mode` SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md): the full playbook list and routing rules.
-- [Claude Code: Install and manage plugins](https://code.claude.com/docs/en/discover-plugins): adding marketplaces, pinning, and updating.
+- [Claude Code: Install and manage plugins](https://code.claude.com/docs/en/plugins/install): adding marketplaces, pinning, and updating.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what to check before installing a plugin.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): descriptions, testing, and upkeep from a skill author's side.

@@ -46,28 +46,34 @@ _第一次使用的三步：安裝、選模型、從 /poteto-mode 開始。_
 /add-plugin pstack
 ```
 
-在 Claude Code 裡，先把 `cursor/plugins` 這個 GitHub repo 加成 marketplace（外掛目錄）：
+在 Claude Code 裡，先把 `cursor/plugins` 這個 GitHub repo 加成 marketplace（外掛目錄），再從這個目錄安裝 pstack：
 
 ```text
 /plugin marketplace add cursor/plugins
+/plugin install pstack@cursor-plugins
 ```
 
-接著輸入 `/plugin install`，後面接外掛名稱 `pstack`，再緊接著寫 `@cursor-plugins`，中間不留空格，意思是「從 cursor-plugins 這個目錄安裝 pstack」。
+第二行的 `pstack@cursor-plugins` 意思是「從 cursor-plugins 這個目錄安裝 pstack」。
 
 > 以上指令照 `0.15.29` 版的 README 引用，**本次未從零安裝實測**。我的電腦上已經有 2026-10-18 裝好的 pstack，2026-10-20 更新到 `88d4751`，這次直接沿用。
 {: .prompt-warning }
+
+> 上面兩行 Claude Code 指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支上的內容；Cursor 的 `/add-plugin pstack` 同樣沒有指定版本。裝別人的外掛之前該檢查什麼，見[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+{: .prompt-tip }
 
 選哪一種裝法，等於決定你信任誰、內容什麼時候會變：
 
 | 裝法 | 內容從哪來 | 之後會不會變 |
 | --- | --- | --- |
 | Cursor 的 `/add-plugin pstack` | Cursor 的外掛機制 | 未實測，本文不下結論 |
-| Claude Code 的 marketplace | 加入當下 `cursor/plugins` 的內容 | 依 [Claude Code 文件](https://code.claude.com/docs/en/discover-plugins#keep-plugins-updated)，第三方 marketplace 預設不自動更新；你按「更新」時才會抓最新內容 |
+| Claude Code 的 marketplace | 加入當下 `cursor/plugins` 的內容 | 依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#keep-plugins-updated)，第三方 marketplace 預設不自動更新；你按「更新」時才會抓最新內容 |
 | 第三方整理的鏡像 | 不是 `cursor/plugins` 官方維護 | 由鏡像作者決定 |
 
 網路上也有第三方整理的 pstack 鏡像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方維護的版本，要用的話請先看完內容、鎖定版本，理由見[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
-同樣的道理也適用於官方 marketplace。加入 marketplace 時，拿到的是當下預設分支的內容，不是某個固定版本。[Claude Code 文件](https://code.claude.com/docs/en/discover-plugins#add-a-marketplace)寫明，加入時可以在 repo 後面加 `#ref` 指定分支或 tag；按下更新之前，最好先看一下 pstack 改了什麼。
+同樣的道理也適用於官方 marketplace。依 Claude Code 官方的[指令參考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)，`/plugin install` 沒有指定版本或 commit 的選項。`/plugin marketplace add` 可以在 repo 後面加 `#ref`，把整個目錄[固定在某個分支或 tag](https://code.claude.com/docs/en/plugins/cli-reference#plugin-marketplace-add)；但 2026-10-21 查證時，`cursor/plugins` 沒有任何 tag。能固定到 commit 的 `sha` 欄位，是寫在目錄的 `marketplace.json` 裡、由目錄維護者設定的（見 [marketplace 參考文件](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 條目沒有設定。
+
+這次的安裝紀錄顯示，裝到的是 commit `88d4751`、版本 `0.15.29`。建議你裝好之後，也自己確認裝到的是哪個版本，並在按下更新之前先看一下 pstack 改了什麼，理由見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## /setup-pstack：替每個角色選模型
 
@@ -243,6 +249,6 @@ pstack 不需要先把 56 個指令記熟。照官方說明裝一次，按更新
 - [設定指南：Set up pstack](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md)：預算、角色和省錢的方法。
 - [Claude Code 對照說明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md)：Cursor 和 Claude Code 的差異。
 - [`poteto-mode` 的 SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md)：完整的 playbook 清單和挑選規則。
-- [Claude Code：Install and manage plugins](https://code.claude.com/docs/en/discover-plugins)：marketplace 的加入、固定版本和更新方式。
+- [Claude Code：Install and manage plugins](https://code.claude.com/docs/en/plugins/install)：marketplace 的加入、固定版本和更新方式。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：安裝外掛前該檢查什麼。
 - [自己寫 Agent Skill](/posts/agent-skill-authoring-guide/)：從寫 skill 的角度看 description、測試與維護。
