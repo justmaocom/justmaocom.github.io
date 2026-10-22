@@ -1,7 +1,7 @@
 ---
 title: "pstack, Part 1: Install, Pick Models, Start With /poteto-mode"
 description: "pstack has 56 commands, but you only need /poteto-mode to start. Tested in Claude Code: installing, choosing models with /setup-pstack, and playbook routing."
-date: 2026-10-21 21:30:00 +0800
+date: 2026-10-22 15:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-install-routing/

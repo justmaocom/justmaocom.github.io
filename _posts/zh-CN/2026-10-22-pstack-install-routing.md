@@ -1,7 +1,7 @@
 ---
 title: "pstack 系列（1）：安装、选模型，再用 /poteto-mode 挑 playbook"
 description: "pstack 有 56 个命令，第一次用只要记住 /poteto-mode。本文用 Claude Code 实测，说明怎么安装、/setup-pstack 怎么选模型，以及三种任务各被分到哪个 playbook。"
-date: 2026-10-21 21:30:00 +0800
+date: 2026-10-22 15:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-install-routing/
