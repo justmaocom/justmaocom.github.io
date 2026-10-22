@@ -26,7 +26,7 @@ image:
 > 本文以 pstack [`0.15.29` 版](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `88d4751`（2026-10-20）。2026-10-21 21:31（台北時間）查證時，`cursor/plugins` 的 main 已經往前走，但 pstack 資料夾最後一次變動仍是這個 commit，版本也還是 `0.15.29`。
 {: .prompt-info }
 
-> **這次怎麼測的**：所有實測都在 2026-10-21 21:09–21:23（台北時間）進行，由操作者在我的 Mac（macOS 27.0、Claude Code 2.1.306）上用 Claude Code 的非互動模式 `claude -p` 執行，不是在互動介面手動操作。pstack 用的是我先前自己在 Claude Code 裝好的版本（user scope，對這台電腦上的所有專案生效），這次**沒有重裝**。為了安全，這次刻意設了權限白名單：禁止寫入 `~/.claude/` 底下的全域設定、禁止 `git push`、`gh`、`curl` 和上網。**Cursor 上的任何操作都沒有實測**。
+> **這次怎麼測的**：所有實測都是我在 2026-10-21 21:09–21:23（台北時間），在自己的 Mac（macOS 27.0、Claude Code 2.1.306）上用 Claude Code 的非互動模式 `claude -p` 執行的，不是在互動介面手動操作。pstack 用的是我先前自己在 Claude Code 裝好的版本（user scope，對這台電腦上的所有專案生效），這次**沒有重裝**。為了安全，這次刻意設了權限白名單：禁止寫入 `~/.claude/` 底下的全域設定、禁止 `git push`、`gh`、`curl` 和上網。**Cursor 上的任何操作都沒有實測**。
 {: .prompt-tip }
 
 ## 先看 pstack 裝了什麼
@@ -215,7 +215,7 @@ $ python3 -m ledger summary samples/october.csv --month 2026-10 --json
 }
 ```
 
-練習專案裡的兩個 commit（`3c1ea12`、`579a745`）是操作者在每次執行後自己提交的，不是 pstack 做的。兩次提示都明確要求 pstack 不要 commit，它也照做了。
+練習專案裡的兩個 commit（`3c1ea12`、`579a745`）是我在每次執行後自己提交的，不是 pstack 做的。兩次提示都明確要求 pstack 不要 commit，它也照做了。
 
 ## 這次環境觀察到的五件事
 

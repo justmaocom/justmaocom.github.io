@@ -26,7 +26,7 @@ One catch showed up in this test environment, though: the model it says it used 
 > This post is based on pstack [version `0.15.29`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `88d4751` (2026-10-20). When I checked at 21:31 on 2026-10-21 (Taipei time), `main` in `cursor/plugins` had moved on, but the last change to the pstack folder was still this commit, and the version was still `0.15.29`.
 {: .prompt-info }
 
-> **How this was tested:** All runs took place between 21:09 and 21:23 on 2026-10-21 (Taipei time). An operator ran them on my Mac (macOS 27.0, Claude Code 2.1.306) with Claude Code's non-interactive mode, `claude -p`, not by hand in the interactive interface. pstack was the copy I had already installed in Claude Code myself (user scope, so it applies to every project on this machine). It was **not reinstalled** for this test. For safety, the runs used a deliberate permission allowlist: no writes to the global settings under `~/.claude/`, and no `git push`, `gh`, `curl`, or web access. **Nothing was tested in Cursor.**
+> **How this was tested:** I ran every test myself between 21:09 and 21:23 on 2026-10-21 (Taipei time), on my Mac (macOS 27.0, Claude Code 2.1.306), using Claude Code's non-interactive mode, `claude -p`, not by hand in the interactive interface. pstack was the copy I had already installed in Claude Code myself (user scope, so it applies to every project on this machine). It was **not reinstalled** for this test. For safety, the runs used a deliberate permission allowlist: no writes to the global settings under `~/.claude/`, and no `git push`, `gh`, `curl`, or web access. **Nothing was tested in Cursor.**
 {: .prompt-tip }
 
 ## What pstack Adds
@@ -215,7 +215,7 @@ $ python3 -m ledger summary samples/october.csv --month 2026-10 --json
 }
 ```
 
-The two commits in the practice project (`3c1ea12` and `579a745`) were made by the operator after each run, not by pstack. Both prompts told pstack not to commit, and it didn't.
+The two commits in the practice project (`3c1ea12` and `579a745`) were made by me after each run, not by pstack. Both prompts told pstack not to commit, and it didn't.
 
 ## Five Things Observed in This Environment
 
