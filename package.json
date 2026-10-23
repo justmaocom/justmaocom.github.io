@@ -11,7 +11,7 @@
     "glightbox": "3.3.1",
     "loading-attribute-polyfill": "2.1.1",
     "mathjax": "4.1.2",
-    "mermaid": "11.15.0",
+    "mermaid": "11.17.2",
     "simple-jekyll-search": "1.10.0",
     "tocbot": "4.36.8"
   }
