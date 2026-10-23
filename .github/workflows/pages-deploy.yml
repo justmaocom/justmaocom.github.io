@@ -9,6 +9,8 @@ on:
       - README.md
       - LICENSE
 
+  pull_request:
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -16,9 +18,8 @@ permissions:
   contents: read
   pages: read
 
-# Allow one concurrent deployment
 concurrency:
-  group: "pages"
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -61,6 +62,7 @@ jobs:
           path: "_site${{ steps.pages.outputs.base_path }}"
 
   deploy:
+    if: github.event_name != 'pull_request'
     permissions:
       pages: write
       id-token: write
