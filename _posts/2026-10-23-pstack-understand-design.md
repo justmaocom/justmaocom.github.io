@@ -1,7 +1,7 @@
 ---
 title: "pstack 系列（2）：改程式之前，先看懂再設計"
 description: "用 pstack 改程式前，怎麼讓 AI 先看懂現有程式、再比較幾種設計？本文用 Claude Code 實測 /how、/why、/architect、/interrogate 與 /arena，逐項核對結果，並列出耗時與 API 等價成本。"
-date: 2026-10-23 21:00:00 +0800
+date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-understand-design/
@@ -20,7 +20,7 @@ image:
 - `/arena`：讓幾個 subagent 各做一次同一份任務，再挑一份當底，從其他份補進好的部分。
 - `/interrogate`：讓不同模型的審查者各自挑出設計或修改的問題。
 
-在 Claude Code 裡，指令前面要加外掛名稱，例如 `/pstack:how`。這次我在同一個練習專案上，把這五個 skill 各跑了一次。`/how` 的說明逐點核對都正確；`/why` 大致正確，只有一處行號差 1；設計三步各自抓到了真問題，但越往後越貴，`/architect` 一次就用掉 4.29 美元的 API 等價金額。
+在 Claude Code 裡，指令前面要加外掛名稱，例如 `/pstack:how`。這次我在同一個練習專案上，把這五個 skill 各跑了一次。`/how` 的說明逐點核對都正確；`/why` 大致正確，只有一處行號差 1；設計三步各自抓到了真問題，但都比看懂程式貴得多，`/architect` 一次就用掉 4.29 美元的 API 等價金額。
 
 > pstack 系列｜第 2 篇
 >
@@ -58,7 +58,7 @@ image:
 
 但它寫不進去。Claude Code 把 `~/.claude/rules/pstack-models.md` 當成敏感檔案，回覆「Claude requested permissions to edit … which is a sensitive file.」即使白名單明確允許這個檔案，也要在畫面上確認一次，而 `-p` 模式沒有確認畫面，寫入就被擋下了。第 1 篇的寫入是被我刻意設的規則擋下，這次則是 Claude Code 自己擋的。
 
-它建議兩種做法：在權限提示出現時按允許，或自己覆蓋檔案。我在 15:54 把它提議的內容逐字手動寫入。所以這份設定是 setup-pstack 提議、我手動寫入的，不是它自己寫的。之後每一次執行派出的模型和 effort，都和這份設定一致。這一步花了 25 秒，API 等價 0.208 美元。
+它建議兩種做法：在權限提示出現時按允許，或自己覆蓋檔案。我在 15:54 把它提議的內容逐字手動寫入。所以這份設定是 setup-pstack 提議、我手動寫入的，不是它自己寫的。之後每一次執行派出的模型和 effort，都和這份設定一致（`/how`、`/why` 在寫入前就跑完了，它們的角色新舊設定都是 opus high；arena 的 runner 數是我另外指定的 2 個）。這一步花了 25 秒，API 等價 0.208 美元。
 
 ## 看懂現有程式：/how 和 /why
 
@@ -194,7 +194,7 @@ Phase D 實作和 Phase E 重來都**未實測**，因為我刻意讓它停在 c
 
 我自己在 Python 上抽查了其中 3 點，都屬實：`Decimal('1E+30').quantize(Decimal('0.01'))` 會丟出 `InvalidOperation`，它屬於 `ArithmeticError`；`'２０２６-10'` 和 `'0000-10'` 都能通過草稿裡的月份 regex；`Decimal('150.000')` 明明等於 150.00，卻會被草稿的「小數超過兩位」規則誤拒。
 
-architect 的設計理由說，逐月列出「絕不漏掉任何一個月」。三位審查者都指出，沒有交易的月份其實會被跳過；範例裡也同時出現 housing 1200.00 和「2026-10 housing 0.00」的上下對照，而這正是 architect 拿來否決「取最新月份」的理由。主對話的建議是結論不一定要改，但第一個待決問題應該拿這些反例重新論證，再交給我決定。上一個 skill 寫下的設計理由，被下一個 skill 挑出了漏洞。
+architect 的設計理由說，逐月列出「絕不靜默漏掉任何一個月」。三位審查者都指出，沒有交易的月份其實會被跳過；範例裡也同時出現 housing 1200.00 和「2026-10 housing 0.00」的上下對照，而這正是 architect 拿來否決「取最新月份」的理由。主對話的建議是結論不一定要改，但第一個待決問題應該拿這些反例重新論證，再交給我決定。上一個 skill 寫下的設計理由，被下一個 skill 挑出了漏洞。
 
 不採納的 4 項裡，有一項是 haiku 提出的「ANSI 跳脫字元注入」。主對話的理由是預算檔是使用者自己的本機檔案，現有程式印交易分類時也是同樣做法。指南提醒[不採納的部分也要讀](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L71)，因為主對話不一定對，你可以推翻它。另一方面，haiku 也有兩項只有它提出、而且確認屬實的發現：`(-50)` 會被當成 +50，以及設計理由裡的 jq 範例沒有用。它只花了 0.026 美元。
 
@@ -204,7 +204,7 @@ architect 的設計理由說，逐月列出「絕不漏掉任何一個月」。�
 
 ### /arena：讓兩個 runner 做同一件事
 
-[arena 的 SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L11-L18) 分成六段：寫好給每份候選的同一份任務、定出評分表（rubric，3 到 6 條可以打分的標準）並選好 runner（Frame）；平行派出 runner（Fan out）；由另一個模型的唯讀評審打分（Cross-judge）；挑一份當底（Pick a base）；從其他候選補進好的部分（Graft）；最後驗證（Verify）。
+[arena 的 SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L9-L18) 分成六段：寫好給每份候選的同一份任務、定出評分表（rubric，3 到 6 條可以打分的標準）並選好 runner（Frame）；平行派出 runner（Fan out）；由另一個模型的唯讀評審打分（Cross-judge）；挑一份當底（Pick a base）；從其他候選補進好的部分（Graft）；最後驗證（Verify）。
 
 runner 的數量預設來自 `/setup-pstack` 的設定，[也可以每次調整](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51)。設定檔裡是 3 個，這次我刻意在提示裡只要 2 個（opus high、haiku high），把 N 降到最小：
 
@@ -222,7 +222,7 @@ runner 的數量預設來自 `/setup-pstack` 的設定，[也可以每次調整]
 
 **兩份候選寫出相同的規則。** opus 和 haiku 各自寫出的格式規則一模一樣：只接受 ASCII 數字 0–9；千分位逗號必須三位一組；小數點兩邊都要有數字；正負號和括號只能擇一；去掉前後空白後要整串符合。[SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) 說，候選收斂到同一個形狀就是強共識，直接採用即可。
 
-**挑底和補強。** 評審選的是 sonnet，理由是它不是任何一個 runner 用的模型。評審和主對話都選 opus 的 C1 當底。haiku 的 C2 被扣分，關鍵在它把 `(0.00)` 解析成 `-0.00`，原版是 `0.00`。不過 C1 也從 C2 補進了一處：括號金額改用 `value.copy_negate() if value else value` 轉負數。直接寫負號會照預設精度四捨五入到 28 位有效數字，`copy_negate` 不會；零也維持原本的 `0.00`。另外補進了幾個 C2 的測試。
+**挑底和補強。** 評審由 sonnet 擔任，因為它不是任何一個 runner 用的模型。評審和主對話都選 opus 的 C1 當底。haiku 的 C2 被扣分，關鍵在它把 `(0.00)` 解析成 `-0.00`，原版是 `0.00`。不過 C1 也從 C2 補進了一處：括號金額改用 `value.copy_negate() if value else value` 轉負數。直接寫負號會照預設精度四捨五入到 28 位有效數字，`copy_negate` 不會；零也維持原本的 `0.00`。另外補進了幾個 C2 的測試。
 
 **驗證。** 主對話把程式複製到 `.pstack-scratch/` 裡的 `verify/` 資料夾跑測試，17 個全部通過：13 個原有測試沒改，加上 4 個新測試，裡面共有 19 個接受、59 個拒絕的子測試。它也拿新測試去跑原版 parser 當對照，出現 30 項失敗，證明新測試真的測得出差別。我在 Mac 上重跑一次，同樣 17 個通過；`(-50)`、`(+50)`、`1e3`、`NaN`、`Infinity`、`$12` 都會丟出 `ParseError`，`1,234.50`、`-3.20`、`(12.00)`、`1.234` 照常接受。
 
@@ -255,7 +255,7 @@ pstack [刻意沒有寫計畫的 skill](https://github.com/cursor/plugins/blob/e
 | 已經有 diff，或寫到函式簽名的草稿，想讓不同模型找問題 | `/interrogate` | 22 分 35 秒（實際運算約 200 秒）、2.030 美元 |
 | 一件小而具體的修改，想比兩三種寫法 | `/arena` | 約 6 分鐘、2.288 美元 |
 
-[指南的提醒](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77)是：別因為「AI 反正會讀程式」就跳過 `/how`，先跑 `/how` 比修第二個 bug 便宜。不過第 1 篇加 `--json` 那次，它自己跳過了 `/how`、`/architect` 和 `/interrogate`，理由是改動只有兩個小檔案。改動很小時，不一定要把整套都跑一遍。
+[指南的提醒](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77)是：別因為「AI 反正會讀程式」就跳過 `/how`，先跑 `/how` 比修第二個 bug 便宜。不過第 1 篇加 `--json` 那次，它自己跳過了 `/how`、`/architect` 和 `/interrogate`：相關程式只有兩個小檔案、它已經讀完；開 4 個設計 subagent 比改動本身還貴；設計也沒有爭議。改動很小時，不一定要把整套都跑一遍。
 
 指南也建議，談不定的設計問題用 [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81) 做幾個拋棄式的試作來回答，而不是一直問你。這個 playbook 這次**未實測**。這次有兩處是 AI 停下來問我的：architect 的 5 個待決問題，以及 arena 發現規格自相矛盾時。這兩處都是要我決定需求，不是程式能回答的問題。
 
@@ -265,7 +265,7 @@ pstack [刻意沒有寫計畫的 skill](https://github.com/cursor/plugins/blob/e
 
 **1. setup-pstack 寫不進自己的設定檔。** Claude Code 把 `~/.claude/rules/pstack-models.md` 當成敏感檔案，白名單允許了也要互動確認，`-p` 模式沒有確認畫面，所以直接拒絕。
 
-**2. subagent 的 Bash 常被擋，主對話會自己補跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主對話都會自己補做驗證，並在報告裡寫明哪些沒實際執行。第 1 篇看到的是背景 subagent 一律不能跑 Bash；這次 `/why` 在背景執行的調查員能跑 git 指令，但仍有幾個指令被拒。被擋之後，它們改用 Read、Grep 或比較單純的指令，並在報告裡註明哪些沒有實際執行。
+**2. subagent 的 Bash 常被擋，主對話會自己補跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主對話都會自己補做驗證。第 1 篇看到的是背景 subagent 一律不能跑 Bash；這次 `/why` 在背景執行的調查員能跑 git 指令，但仍有幾個指令被拒。被擋之後，它們改用 Read、Grep 或比較單純的指令，並在報告裡註明哪些沒有實際執行。
 
 **3. effort 這次照設定。** 這次派出的 subagent 都是 effort high，和設定檔一致；第 1 篇修 bug 和加功能兩次都用了 low。
 

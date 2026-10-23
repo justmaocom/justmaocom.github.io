@@ -1,7 +1,7 @@
 ---
 title: "pstack, Part 2: Understand the Code, Then Design, Before You Change It"
 description: "How do you get AI to understand code and compare designs before changing it? I tested pstack's /how, /why, /architect, /interrogate, and /arena in Claude Code."
-date: 2026-10-23 21:00:00 +0800
+date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-understand-design/
@@ -20,7 +20,7 @@ A few terms first. pstack is a set of skills in Cursor's official plugin reposit
 - `/arena`: has several subagents each do the same task, then picks one result as the base and grafts in the good parts of the others.
 - `/interrogate`: has reviewers running on different models each look for problems in a design or a change.
 
-In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I ran each of these five skills once on the same practice project. Every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Each of the three design steps caught real problems, but each costs more than the last: one `/architect` run used USD 4.29 in API-equivalent cost.
+In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I ran each of these five skills once on the same practice project. Every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Each of the three design steps caught real problems, but each cost far more than understanding the code: one `/architect` run used USD 4.29 in API-equivalent cost.
 
 > pstack Series | Part 2
 >
@@ -58,7 +58,7 @@ It proposed these changes:
 
 But it couldn't save the file. Claude Code treats `~/.claude/rules/pstack-models.md` as a sensitive file and replied "Claude requested permissions to edit … which is a sensitive file." Even when the allowlist names this file, Claude Code wants a confirmation in the interface, and `-p` mode has no way to confirm, so the write was blocked. In Part 1, the write was stopped by a rule I set on purpose; this time Claude Code blocked it on its own.
 
-It suggested two ways forward: click Allow when the permission prompt appears, or overwrite the file myself. At 15:54 I wrote the proposed content into the file by hand, word for word. So setup-pstack proposed this configuration, and I wrote it in by hand; it didn't save it itself. In every run after that, the models and effort levels it dispatched matched this file. This step took 25 seconds and USD 0.208 in API-equivalent cost.
+It suggested two ways forward: click Allow when the permission prompt appears, or overwrite the file myself. At 15:54 I wrote the proposed content into the file by hand, word for word. So setup-pstack proposed this configuration, and I wrote it in by hand; it didn't save it itself. In every run after that, the models and effort levels it dispatched matched this file. (`/how` and `/why` had already finished before the write, and their roles are opus high in both the old and new settings; the arena runner count of 2 was my own override.) This step took 25 seconds and USD 0.208 in API-equivalent cost.
 
 ## Understanding the Code: /how and /why
 
@@ -194,7 +194,7 @@ The three reviewers reported 10, 9, and 17 findings, with haiku reporting the mo
 
 I spot-checked 3 of these in Python, and all three hold: `Decimal('1E+30').quantize(Decimal('0.01'))` raises `InvalidOperation`, which is an `ArithmeticError`; `'２０２６-10'` and `'0000-10'` both pass the sketch's month regex; and `Decimal('150.000')`, which equals 150.00, is wrongly rejected by the sketch's "more than two decimal places" rule.
 
-Architect's rationale said listing every month would "never miss a month." All three reviewers pointed out that months with no transactions are in fact skipped. The sample also shows housing 1200.00 next to "2026-10 housing 0.00," which is the very situation architect cited to reject the "latest month" option. The main conversation's advice was that the conclusion doesn't have to change, but the first open question should be argued again with these counterexamples before I decide. The rationale written by one skill had a hole found by the next.
+Architect's rationale said listing every month would "never silently miss a month." All three reviewers pointed out that months with no transactions are in fact skipped. The sample also shows housing 1200.00 next to "2026-10 housing 0.00," which is the very situation architect cited to reject the "latest month" option. The main conversation's advice was that the conclusion doesn't have to change, but the first open question should be argued again with these counterexamples before I decide. The rationale written by one skill had a hole found by the next.
 
 Among the 4 dismissed findings was haiku's "ANSI escape injection." The main conversation's reason: the budget file is the user's own local file, and the existing code prints transaction categories the same way. The guide reminds you to [read the dismissals too](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L71), because the main conversation isn't always right and you can overrule it. On the other hand, haiku also had two findings that only it raised and that turned out to be true: `(-50)` is treated as +50, and the jq example in the rationale doesn't work. It cost only USD 0.026.
 
@@ -204,7 +204,7 @@ One run isn't enough to say whether the guide's warning is right. This sketch al
 
 ### /arena: Two Runners Do the Same Job
 
-[Arena's SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L11-L18) has six phases. Frame: write one task brief shared by every candidate, set a rubric (3 to 6 criteria that can be scored), and pick the runners. Fan out: send the runners in parallel. Cross-judge: a read-only judge on a different model scores them. Pick a base: choose one candidate as the base. Graft: bring in the good parts of the others. Verify: check the result.
+[Arena's SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L9-L18) has six phases. Frame: write one task brief shared by every candidate, set a rubric (3 to 6 criteria that can be scored), and pick the runners. Fan out: send the runners in parallel. Cross-judge: a read-only judge on a different model scores them. Pick a base: choose one candidate as the base. Graft: bring in the good parts of the others. Verify: check the result.
 
 The number of runners comes from the `/setup-pstack` settings by default, but [you can change it per run](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51). The settings file says 3; this time I asked for only 2 in the prompt (opus high and haiku high) to bring N down to the minimum:
 
@@ -255,7 +255,7 @@ Based on this run, here's how to choose:
 | You have a diff, or a sketch down to function signatures, and want different models to find problems | `/interrogate` | 22 min 35 s (about 200 s of actual compute), USD 2.030 |
 | A small, concrete change where you want to compare two or three ways to write it | `/arena` | About 6 min, USD 2.288 |
 
-[The guide warns](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77) not to skip `/how` just because "the AI will read the code anyway"; running `/how` first is cheaper than fixing the second bug. But when Part 1 added `--json`, it skipped `/how`, `/architect`, and `/interrogate` on its own, because the change touched only two small files. For a very small change, you don't have to run the whole set.
+[The guide warns](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77) not to skip `/how` just because "the AI will read the code anyway"; running `/how` first is cheaper than fixing the second bug. But when Part 1 added `--json`, it skipped `/how`, `/architect`, and `/interrogate` on its own: the related code was only two small files it had already read, four design subagents would cost more than the change itself, and the design wasn't contested. For a very small change, you don't have to run the whole set.
 
 The guide also suggests answering design questions that can't be settled by building a few throwaway prototypes with the [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81), instead of asking you over and over. I did **not test** that playbook this time. The AI stopped to ask me twice in this run: architect's 5 open questions, and arena's discovery that my spec contradicted itself. Both were requirements for me to decide, not questions code could answer.
 
@@ -265,7 +265,7 @@ I observed all of the following in this run's environment (account, versions, `-
 
 **1. setup-pstack can't write its own settings file.** Claude Code treats `~/.claude/rules/pstack-models.md` as a sensitive file and wants an interactive confirmation even when the allowlist permits it. `-p` mode has no way to confirm, so the write is refused outright.
 
-**2. Subagents' Bash is often blocked, and the main conversation makes up for it.** In architect, interrogate, and arena alike, some subagent Bash calls were refused, and each time the main conversation did the checks itself and noted in its report what hadn't actually run. In Part 1, I saw background subagents unable to run Bash at all; this time the `/why` investigators running in the background could run git commands, though a few commands were still refused. When blocked, they switched to Read, Grep, or simpler commands and noted in their reports what they hadn't actually run.
+**2. Subagents' Bash is often blocked, and the main conversation makes up for it.** In architect, interrogate, and arena alike, some subagent Bash calls were refused, and each time the main conversation did the checks itself. In Part 1, I saw background subagents unable to run Bash at all; this time the `/why` investigators running in the background could run git commands, though a few commands were still refused. When blocked, they switched to Read, Grep, or simpler commands and noted in their reports what they hadn't actually run.
 
 **3. Effort followed the settings this time.** Every subagent dispatched this time ran at effort high, matching the settings file; in Part 1, both the bug fix and the feature used low.
 

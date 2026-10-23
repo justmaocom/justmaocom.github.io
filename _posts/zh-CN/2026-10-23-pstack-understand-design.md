@@ -1,7 +1,7 @@
 ---
 title: "pstack 系列（2）：改代码之前，先看懂再设计"
 description: "用 pstack 改代码前，怎么让 AI 先看懂现有代码、再比较几种设计？本文用 Claude Code 实测 /how、/why、/architect、/interrogate 与 /arena，逐项核对结果，并列出耗时与 API 等价成本。"
-date: 2026-10-23 21:00:00 +0800
+date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-understand-design/
@@ -20,7 +20,7 @@ image:
 - `/arena`：让几个 subagent 各做一次同一份任务，再挑一份当底，从其他份补进好的部分。
 - `/interrogate`：让不同模型的审查者各自挑出设计或修改的问题。
 
-在 Claude Code 里，命令前面要加插件名称，例如 `/pstack:how`。这次我在同一个练习项目上，把这五个 skill 各跑了一次。`/how` 的说明逐点核对都正确；`/why` 大致正确，只有一处行号差 1；设计三步各自抓到了真问题，但越往后越贵，`/architect` 一次就用掉 4.29 美元的 API 等价金额。
+在 Claude Code 里，命令前面要加插件名称，例如 `/pstack:how`。这次我在同一个练习项目上，把这五个 skill 各跑了一次。`/how` 的说明逐点核对都正确；`/why` 大致正确，只有一处行号差 1；设计三步各自抓到了真问题，但都比看懂代码贵得多，`/architect` 一次就用掉 4.29 美元的 API 等价金额。
 
 > pstack 系列｜第 2 篇
 >
@@ -40,7 +40,7 @@ image:
 > `0.15.29` 到 `0.15.30` 只新增了 `statechart` 这个 skill。本篇用到的 how、why、teach、architect、interrogate、arena、swarm、setup-pstack、poteto-mode，以及 Claude Code 对照说明都没有改。我在 2026-10-23 21:28（台北时间）查证时，`cursor/plugins` 的 main 在 `eb4db2b` 之后又有两个 pstack commit（`7698375`、`4ec7ffa`），都只改 `statechart`，版本仍是 `0.15.30`。
 {: .prompt-warning }
 
-> **这次怎么测的**：所有实测都是我在 2026-10-23 15:41–21:20（台北时间），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非交互模式 `claude -p`（输出格式 stream-json）运行的，不是在交互界面操作。权限白名单和第 1 篇相同，只多允许只读的 `git blame`：禁止写入 `~/.claude/` 底下的全局配置，禁止 `git push`、`gh`、`curl` 和上网，也没有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，练习项目的 HEAD 从头到尾都是 `579a745`，草稿只写在没有纳入版本控制的 `.pstack-scratch/` 文件夹。**Cursor 上的任何操作都没有实测**。
+> **这次怎么测的**：所有实测都是我在 2026-10-23 15:41–21:20（台北时间），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非交互模式 `claude -p`（输出格式 stream-json）运行的，不是在交互界面操作。权限白名单和第 1 篇相同，只多允许只读的 `git blame`：禁止写入 `~/.claude/` 底下的全局配置，禁止 `git push`、`gh`、`curl` 和上网，也没有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，练习项目的 HEAD 从头到尾都是 `579a745`，草稿只写在没有纳入版本控制的 `.pstack-scratch/` 文件夹。下面的提示原本是用繁体中文写的，这里转成了简体并做了本地化。**Cursor 上的任何操作都没有实测**。
 {: .prompt-tip }
 
 ## 先把模型配置改好
@@ -58,7 +58,7 @@ image:
 
 但它写不进去。Claude Code 把 `~/.claude/rules/pstack-models.md` 当成敏感文件，回复“Claude requested permissions to edit … which is a sensitive file.”即使白名单明确允许这个文件，也要在界面上确认一次，而 `-p` 模式没有确认界面，写入就被挡下了。第 1 篇的写入是被我刻意设的规则挡下，这次则是 Claude Code 自己挡的。
 
-它建议两种做法：在权限提示出现时点允许，或自己覆盖文件。我在 15:54 把它提议的内容逐字手动写入。所以这份配置是 setup-pstack 提议、我手动写入的，不是它自己写的。之后每一次运行派出的模型和 effort，都和这份配置一致。这一步花了 25 秒，API 等价 0.208 美元。
+它建议两种做法：在权限提示出现时点允许，或自己覆盖文件。我在 15:54 把它提议的内容逐字手动写入。所以这份配置是 setup-pstack 提议、我手动写入的，不是它自己写的。之后每一次运行派出的模型和 effort，都和这份配置一致（`/how`、`/why` 在写入前就跑完了，它们的角色新旧配置都是 opus high；arena 的 runner 数是我另外指定的 2 个）。这一步花了 25 秒，API 等价 0.208 美元。
 
 ## 看懂现有代码：/how 和 /why
 
@@ -194,7 +194,7 @@ Phase D 实现和 Phase E 重来都**未实测**，因为我刻意让它停在 c
 
 我自己在 Python 上抽查了其中 3 点，都属实：`Decimal('1E+30').quantize(Decimal('0.01'))` 会抛出 `InvalidOperation`，它属于 `ArithmeticError`；`'２０２６-10'` 和 `'0000-10'` 都能通过草稿里的月份 regex；`Decimal('150.000')` 明明等于 150.00，却会被草稿的“小数超过两位”规则误拒。
 
-architect 的设计理由说，逐月列出“绝不漏掉任何一个月”。三位审查者都指出，没有交易的月份其实会被跳过；示例里也同时出现 housing 1200.00 和“2026-10 housing 0.00”的上下对照，而这正是 architect 拿来否决“取最新月份”的理由。主对话的建议是结论不一定要改，但第一个待决问题应该拿这些反例重新论证，再交给我决定。上一个 skill 写下的设计理由，被下一个 skill 挑出了漏洞。
+architect 的设计理由说，逐月列出“绝不静默漏掉任何一个月”。三位审查者都指出，没有交易的月份其实会被跳过；示例里也同时出现 housing 1200.00 和“2026-10 housing 0.00”的上下对照，而这正是 architect 拿来否决“取最新月份”的理由。主对话的建议是结论不一定要改，但第一个待决问题应该拿这些反例重新论证，再交给我决定。上一个 skill 写下的设计理由，被下一个 skill 挑出了漏洞。
 
 不采纳的 4 项里，有一项是 haiku 提出的“ANSI 转义字符注入”。主对话的理由是预算文件是用户自己的本地文件，现有代码打印交易分类时也是同样做法。指南提醒[不采纳的部分也要读](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L71)，因为主对话不一定对，你可以推翻它。另一方面，haiku 也有两项只有它提出、而且确认属实的发现：`(-50)` 会被当成 +50，以及设计理由里的 jq 示例没有用。它只花了 0.026 美元。
 
@@ -204,7 +204,7 @@ architect 的设计理由说，逐月列出“绝不漏掉任何一个月”。�
 
 ### /arena：让两个 runner 做同一件事
 
-[arena 的 SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L11-L18) 分成六段：写好给每份候选的同一份任务、定出评分表（rubric，3 到 6 条可以打分的标准）并选好 runner（Frame）；并行派出 runner（Fan out）；由另一个模型的只读评审打分（Cross-judge）；挑一份当底（Pick a base）；从其他候选补进好的部分（Graft）；最后验证（Verify）。
+[arena 的 SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L9-L18) 分成六段：写好给每份候选的同一份任务、定出评分表（rubric，3 到 6 条可以打分的标准）并选好 runner（Frame）；并行派出 runner（Fan out）；由另一个模型的只读评审打分（Cross-judge）；挑一份当底（Pick a base）；从其他候选补进好的部分（Graft）；最后验证（Verify）。
 
 runner 的数量默认来自 `/setup-pstack` 的配置，[也可以每次调整](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51)。配置文件里是 3 个，这次我刻意在提示里只要 2 个（opus high、haiku high），把 N 降到最小：
 
@@ -222,7 +222,7 @@ runner 的数量默认来自 `/setup-pstack` 的配置，[也可以每次调整]
 
 **两份候选写出相同的规则。** opus 和 haiku 各自写出的格式规则一模一样：只接受 ASCII 数字 0–9；千分位逗号必须三位一组；小数点两边都要有数字；正负号和括号只能择一；去掉前后空白后要整串符合。[SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) 说，候选收敛到同一个形状就是强共识，直接采用即可。
 
-**挑底和补强。** 评审选的是 sonnet，理由是它不是任何一个 runner 用的模型。评审和主对话都选 opus 的 C1 当底。haiku 的 C2 被扣分，关键在它把 `(0.00)` 解析成 `-0.00`，原版是 `0.00`。不过 C1 也从 C2 补进了一处：括号金额改用 `value.copy_negate() if value else value` 转负数。直接写负号会照默认精度四舍五入到 28 位有效数字，`copy_negate` 不会；零也维持原本的 `0.00`。另外补进了几个 C2 的测试。
+**挑底和补强。** 评审由 sonnet 担任，因为它不是任何一个 runner 用的模型。评审和主对话都选 opus 的 C1 当底。haiku 的 C2 被扣分，关键在它把 `(0.00)` 解析成 `-0.00`，原版是 `0.00`。不过 C1 也从 C2 补进了一处：括号金额改用 `value.copy_negate() if value else value` 转负数。直接写负号会照默认精度四舍五入到 28 位有效数字，`copy_negate` 不会；零也维持原本的 `0.00`。另外补进了几个 C2 的测试。
 
 **验证。** 主对话把代码复制到 `.pstack-scratch/` 里的 `verify/` 文件夹跑测试，17 个全部通过：13 个原有测试没改，加上 4 个新测试，里面共有 19 个接受、59 个拒绝的子测试。它也拿新测试去跑原版 parser 当对照，出现 30 项失败，证明新测试真的测得出差别。我在 Mac 上重跑一次，同样 17 个通过；`(-50)`、`(+50)`、`1e3`、`NaN`、`Infinity`、`$12` 都会抛出 `ParseError`，`1,234.50`、`-3.20`、`(12.00)`、`1.234` 照常接受。
 
@@ -255,7 +255,7 @@ pstack [刻意没有写计划的 skill](https://github.com/cursor/plugins/blob/e
 | 已经有 diff，或写到函数签名的草稿，想让不同模型找问题 | `/interrogate` | 22 分 35 秒（实际计算约 200 秒）、2.030 美元 |
 | 一件小而具体的修改，想比两三种写法 | `/arena` | 约 6 分钟、2.288 美元 |
 
-[指南的提醒](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77)是：别因为“AI 反正会读代码”就跳过 `/how`，先跑 `/how` 比修第二个 bug 便宜。不过第 1 篇加 `--json` 那次，它自己跳过了 `/how`、`/architect` 和 `/interrogate`，理由是改动只有两个小文件。改动很小时，不一定要把整套都跑一遍。
+[指南的提醒](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77)是：别因为“AI 反正会读代码”就跳过 `/how`，先跑 `/how` 比修第二个 bug 便宜。不过第 1 篇加 `--json` 那次，它自己跳过了 `/how`、`/architect` 和 `/interrogate`：相关代码只有两个小文件、它已经读完；开 4 个设计 subagent 比改动本身还贵；设计也没有争议。改动很小时，不一定要把整套都跑一遍。
 
 指南也建议，谈不定的设计问题用 [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81) 做几个一次性的原型来回答，而不是一直问你。这个 playbook 这次**未实测**。这次有两处是 AI 停下来问我的：architect 的 5 个待决问题，以及 arena 发现规格自相矛盾时。这两处都是要我决定需求，不是代码能回答的问题。
 
@@ -265,7 +265,7 @@ pstack [刻意没有写计划的 skill](https://github.com/cursor/plugins/blob/e
 
 **1. setup-pstack 写不进自己的配置文件。** Claude Code 把 `~/.claude/rules/pstack-models.md` 当成敏感文件，白名单允许了也要交互确认，`-p` 模式没有确认界面，所以直接拒绝。
 
-**2. subagent 的 Bash 常被挡，主对话会自己补跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主对话都会自己补做验证，并在报告里写明哪些没实际运行。第 1 篇看到的是背景 subagent 一律不能跑 Bash；这次 `/why` 在后台运行的调查员能跑 git 命令，但仍有几个命令被拒。被挡之后，它们改用 Read、Grep 或比较单纯的命令，并在报告里注明哪些没有实际运行。
+**2. subagent 的 Bash 常被挡，主对话会自己补跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主对话都会自己补做验证。第 1 篇看到的是后台 subagent 一律不能跑 Bash；这次 `/why` 在后台运行的调查员能跑 git 命令，但仍有几个命令被拒。被挡之后，它们改用 Read、Grep 或比较单纯的命令，并在报告里注明哪些没有实际运行。
 
 **3. effort 这次照配置。** 这次派出的 subagent 都是 effort high，和配置文件一致；第 1 篇修 bug 和加功能两次都用了 low。
 
