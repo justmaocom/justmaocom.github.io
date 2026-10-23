@@ -20,7 +20,7 @@ A few terms first. pstack is a set of skills in Cursor's official plugin reposit
 - `/arena`: has several subagents each do the same task, then picks one result as the base and grafts in the good parts of the others.
 - `/interrogate`: has reviewers running on different models each look for problems in a design or a change.
 
-In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I ran each of these five skills once on the same practice project. Every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Each of the three design steps caught real problems, but each cost far more than understanding the code: one `/architect` run used USD 4.29 in API-equivalent cost.
+In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I ran each of these five skills once on the same practice project. Every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Of the three design steps, `/architect` was the most expensive: one run used USD 4.29 in API-equivalent cost.
 
 > pstack Series | Part 2
 >
