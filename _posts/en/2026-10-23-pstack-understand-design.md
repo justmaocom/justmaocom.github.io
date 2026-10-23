@@ -10,17 +10,9 @@ image:
   alt: "Understand first with /how and /why, then compare designs with /architect and /arena, and let /interrogate find the flaws."
 ---
 
-Ask an AI coding assistant to add a feature to a small project, and it usually starts editing at the first place that looks reasonable, using the first approach it thinks of. But does it really understand how this code works today, and why it looks the way it does? And is that first approach the best one? Before you use pstack to change code, how do you get the AI to understand it first and compare designs second?
+Ask an AI coding assistant to "add a feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. The problem this post tackles is how to get the AI to understand the existing code first, and then compare a few designs, before anything changes. My practice program is the same one as in [Part 1](/posts/pstack-install-routing/): `ledger`, a small expense-ledger CLI written in Python (a CLI is a program you use by typing commands in a terminal) that totals a bank's CSV export into income, spending, net, and spending per category. I ran each of five pstack skills on it once; below I show what each one actually produced, then explain in plain terms how it helped me.
 
-A few terms first. pstack is a set of skills in Cursor's official plugin repository, and a skill is a set of instructions that tells the AI how to do one kind of job. A subagent is a separate AI that the main conversation sends off to do one piece of the work. This post uses five skills:
-
-- `/how`: explains how the code works now.
-- `/why`: digs through git history and other records to find out why the code looks the way it does.
-- `/architect`: settles the types and interfaces before any implementation.
-- `/arena`: has several subagents each do the same task, then picks one result as the base and grafts in the good parts of the others.
-- `/interrogate`: has reviewers running on different models each look for problems in a design or a change.
-
-In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I ran each of these five skills once on the same practice project. Every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Of the three design steps, `/architect` was the most expensive: one run used USD 4.29 in API-equivalent cost.
+The short version: every point in the `/how` explanation checked out. `/why` was mostly right, with one line number off by one. Of the three design steps, `/architect` was the most expensive: one run used USD 4.29 in API-equivalent cost. API-equivalent cost is what the run would cost at API list prices; I used my subscription's quota, so nothing was actually charged.
 
 > pstack Series | Part 2
 >
@@ -40,246 +32,253 @@ In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I 
 > The only change from `0.15.29` to `0.15.30` is a new skill, `statechart`. None of the parts this post uses changed: how, why, teach, architect, interrogate, arena, swarm, poteto-mode, and the Claude Code adapter notes. When I checked at 21:28 on 2026-10-23 (Taipei time), `main` in `cursor/plugins` had two more pstack commits after `eb4db2b` (`7698375` and `4ec7ffa`). Both only touch `statechart`, and the version is still `0.15.30`.
 {: .prompt-warning }
 
-> **How this was tested:** I ran every test myself between 15:42 and 21:20 on 2026-10-23 (Taipei time), on my Mac (macOS 27.0, Claude Code 2.1.309), using Claude Code's non-interactive mode, `claude -p` (with stream-json output), not by hand in the interactive interface. The permission allowlist was the same as in Part 1, plus read-only `git blame`: no writes to the global settings under `~/.claude/`, no `git push`, `gh`, `curl`, or web access, and no `--dangerously-skip-permissions`. Every prompt said not to commit. The practice project's HEAD stayed at `579a745` the whole time, and drafts went only into `.pstack-scratch/`, a folder outside version control. I wrote the prompts in Chinese; the ones below are translations. **Nothing was tested in Cursor.**
+> **How this was tested:** I ran every test myself between 15:42 and 21:20 on 2026-10-23 (Taipei time), on my Mac (macOS 27.0, Claude Code 2.1.309). I used Claude Code's non-interactive mode, `claude -p`, which takes the whole instruction at once instead of a back-and-forth chat. The permission allowlist (the list of what the AI is allowed to do) was the same as in Part 1, plus read-only `git blame`: no writes to the global settings under `~/.claude/`, no `git push`, `gh`, `curl`, or web access, and no `--dangerously-skip-permissions`. Every prompt said not to commit (a commit is one recorded change in git). The practice project stayed at version `579a745` the whole time, and drafts went only into `.pstack-scratch/`, a folder outside version control. The full prompts are in the appendix at the end. **Nothing was tested in Cursor.**
 {: .prompt-tip }
+
+## The Five Skills
+
+pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. Claude Code is an AI coding assistant you use in a terminal; in Claude Code, commands carry the plugin name in front, as in `/pstack:how`. This post uses five skills:
+
+- `/how`: explains how the code works now.
+- `/why`: digs through the change history to find out why the code looks the way it does.
+- `/architect`: drafts the design before any implementation.
+- `/interrogate`: has several different AI models each look for problems in a design.
+- `/arena`: has several AIs each do the same task, then picks the best result and grafts in the good parts of the others.
+
+Each skill below follows the same order: what I asked it to do, what it actually produced (quoted from the test records), what that means, and what it cost.
+
+Most of the skills answered me in Chinese, because I wrote the prompts in Chinese. Where an excerpt below is labeled as a translation, I translated it from the Chinese original; code, sample output, and the English arena report are quoted as they are.
 
 ## Understanding the Code: /how and /why
 
-The practice project is the same as in Part 1: `pstack-lab`, a Python bookkeeping CLI called `ledger`. After Part 1's bug fix and the new `--json` option, it has 13 tests.
+![Diagram: on the left, /how answers how the code works now, delivering the full path, a flowchart, and 10 gotchas, all of which I checked and found correct; on the right, /why answers why the code looks this way, searching git history and past conversation logs and separating direct evidence from inference, mostly right with one line number off by one; at the bottom, /teach and /recall are marked as not tested](understand-how-why.en.png){: width="800" height="450" }
+_/how asks "how does it work now?" and /why asks "why does it look like this?"_
 
-![Diagram: on the left, /how sends a single explainer and returns an 8-step path, a flowchart, a role table, and 10 caveats, all of which I verified; on the right, /why sends 3 investigators and 1 synthesizer through git history, MCP, and local session logs, mostly right with one line number off by one; below, /teach and /recall are marked not tested](understand-how-why.en.png){: width="800" height="450" }
-_/how asks "how does it work now"; /why asks "why does it look like this."_
+### /how: How This Code Works Now
 
-### /how: How It Works Now
+**What I asked:** explain which code a CSV file passes through, from being read in, to the numbers being calculated, to the result being printed.
+
+**What it produced:** an explanation with an overview, the full path, a flowchart, and 10 gotchas. Here are 4 of the gotchas, translated from the Chinese original:
+
+```text
+4. **Parenthesis edge cases**: `(-12)` becomes **+12**; `1e3` is accepted as 1000; `$12` fails. None of these are tested.
+5. **A BOM at the start of the file makes every row fail**: CSVs exported from Excel often carry a BOM, but this code uses `utf-8` rather than `utf-8-sig`, so the header is read as `\ufeffdate` and the error message is `error: line 2: 'date'`.
+6. **Line numbers can be off**: line numbers count data rows, so they drift when there are blank lines or line breaks inside quotes. Using `reader.line_num` would be accurate.
+7. **`--month` doesn't check the format**: passing `2026-1` quietly returns all zeros. And because filtering happens after parsing, one bad row in September also makes a query for October fail.
+```
+
+**What it means:** these are details that are hard to spot by reading the code but really do cause errors. For example, an accounting-style `(-12)` is treated as positive 12; CSVs exported from Excel often start with an invisible BOM marker, which makes every row fail to load; and a mistyped `--month 2026-1` doesn't raise an error, it just returns a pile of zeros. I checked all 10 points against the code and by running it, and every one was correct. This helps me because, before I change anything, I know where the code is fragile and what the tests are missing.
+
+How it worked is worth noting too. It judged this a small question and sent only 1 subagent to read the code. A subagent is a separate AI that the main conversation sends off to do one piece of the work. After the subagent reported back, the main conversation checked the line numbers it cited before giving me the answer.
+
+**Cost:** about USD 0.73, in under 3 minutes.
+
+### /why: Why It Looks Like This
+
+**What I asked:** find out why "turning parenthesized amounts into negatives" lives in the parser (the module that reads and parses the file) rather than in the modules that do the calculations or the output.
+
+**What it produced:** a layered report. Here are its opening conclusion and the first item under "Reasonable inferences," translated from the Chinese original:
+
+```text
+Putting the conversion in `parse_amount` was decided by the AI agent that made fix commit `3c1ea12` (run c2), and it wrote down its reasons. You only specified the behavior; you didn't specify which file to change.
+```
+
+```text
+## Reasonable inferences
+- **[Inferred]** The original author appears to have treated "interpreting the CSV amount format" as the parser's job from the start, based on the docstring and README both being in the first commit. But nobody wrote down the reason for splitting the work this way.
+```
+
+**What it means:** it splits the answer into two layers. The first has direct evidence: putting the conversion in the parser was decided by the AI agent (an AI that reads files and runs commands on its own) that fixed the bug in [Part 1](/posts/pstack-install-routing/), following a "fix the root cause" rule, and that agent wrote down its reasons at the time. The second layer is inference: nobody recorded why the original author had the parser handle parentheses in the first place, so it could only guess from the comments in the code and the README, and it clearly labeled that as an inference. This helps me because I know which statements I can trust directly and which are guesses.
+
+It searched git history (the record of every change), and it also decided on its own to read my local past Claude Code conversation logs as a stand-in for team chat. I checked the original text it cited, and all of it was there, except one line number that was off by one.
+
+**Cost:** about USD 1.98, in under 4 minutes.
+
+> `/why` reads your past Claude Code conversation logs. This time the allowlist only blocked writes to `~/.claude/`, not reads, so it could read them. If those logs contain anything you don't want handed to a model again, tighten the permissions first. For what an agent can read, see [the gaps that open up after you install third-party skills and MCP servers](/posts/coding-agent-supply-chain-permission-risks/).
+{: .prompt-warning }
+
+## Comparing Designs: /architect, /interrogate, and /arena
+
+Once the code is understood, the next step is design. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L5) names the two most common mistakes: going with the AI's first design, and polishing a plan that no code has tested. pstack [deliberately has no planning skill](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L103), and its author says in the [README](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/README.md#L266-L268) that the best spec is code. So all three steps below produce code: a sketch, a runnable sample, or code that has been tested.
+
+![Diagram: three cards in order: /architect, where 3 models each draft a sketch, the best one becomes the base with good parts of the others added, and it stops to list 5 questions for me to decide; /interrogate, where 3 models each look for problems and conclude the design is implementable after fixes, with 5 must-fix items; /arena, where two AIs each write a version, it catches a contradiction in my spec before starting, and all tests pass at the end; at the bottom, implementing from the sketch, /swarm, and applying results to the project are marked as not tested](design-three-steps.en.png){: width="800" height="450" }
+_All three steps wrote only to the .pstack-scratch/ folder and left the project itself untouched._
+
+### /architect: Draft the Design First
+
+**What I asked:** design "monthly budgets per category with over-budget warnings" for `ledger`, deliver only a sketch, and stop to show me the design without implementing it.
+
+I added `with checkpoint` after the command. [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/architect/SKILL.md#L41-L45) says that without it, the skill goes straight on to implementation after the design, with no pause for anyone to confirm.
+
+**What it produced:** function names with their inputs and outputs (no function bodies yet), a sample output, and 5 questions for me to decide. Here are the sample output and the first question. The sample output is verbatim except for its first line, which I translated; the question is translated from the Chinese original:
+
+```text
+...the original 8 lines...
+budget 2026-09:      spent      limit  remaining
+  housing          1200.00    1200.00       0.00
+  ...
+budget 2026-10:      spent      limit  remaining
+  food              153.45     150.00      -3.45  <-- OVER BUDGET by 3.45
+  ...
+WARNING: over budget: food (2026-10)
+```
+
+```text
+1. **What should happen when `--month` isn't given?** My design lists every month; the other two options are to show only the latest month, or to require `--month`. This one matters most, and the three models disagreed on it.
+```
+
+**What it means:** the sample output was produced by actually running the design on the existing data, not worked out by hand. Food in October came to 153.45 against a budget of 150, so it flags 3.45 over. I checked it against the sample data, and the numbers are right.
+
+Here's how it got there. Three Claude models (opus, sonnet, and haiku) each drew a sketch with a different structure, another model scored them as a judge, and then it took the opus sketch as the base and folded in good parts from the other two. Then it stopped and listed 5 questions for me. The first, "what to do when no month is given," matters most, and the three models disagreed on it. This helps me because, before any real code is written, I can already see what the result will look like and which requirements I haven't spelled out.
+
+**Cost:** about USD 4.29, about 13 minutes; the most expensive of the five skills this time.
+
+### /interrogate: Three Models Look for Problems in the Sketch
+
+First, one place where I departed from the guide. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L89) says `/interrogate` should be used on a diff. A diff is the difference between code before and after a change. Use it on a plan with no code, and the reviewers will dream up theoretical risks that never happen. This time I used it on the architect's sketch, not a diff. Still, the sketch had function names with their inputs and outputs, steps written out in words, a test list, and a runnable sample script, so it wasn't a plain prose plan.
+
+**What I asked:** find problems in the architect's sketch, review only, and change no files.
+
+**What it produced:** a review verdict. Here is its final summary, translated from the Chinese original:
+
+```text
+The verdict is **implementable after fixes**. Fix these 5 things before starting:
+1. A huge amount (e.g. `1E+30`) passes budget-file validation, then goes straight to a traceback.
+2. A budget file that isn't UTF-8 causes a traceback.
+3. `test_json_sample_exact` compares against a compressed JSON example, so as written it is certain to fail.
+4. `--month` validation accepts full-width digits and `0000`, and it also opens a second error exit.
+5. The test list misses behavior the design itself adds, including 0-byte files, `-0`, multi-month JSON, and so on.
+```
+
+**What it means:** it had three different models act as reviewers, each looking for problems on its own. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69) explains that each model has different blind spots, and a problem two models raise independently is the most credible. The main conversation then sorted every point into "must fix," "worth considering," "note only," and "rejected"; the 5 above are the must-fix items. In plain terms: if a budget is set to an astronomical number, or the budget file isn't UTF-8, the program crashes and prints a traceback (the error trail Python prints when it crashes); and one test in the sketch would fail as written. I spot-checked 3 key claims myself in Python, and all were true.
+
+It also found a hole in the architect's own reasoning. The architect said listing every month "never silently drops a month," but all three reviewers pointed out that months with no transactions are in fact skipped. A reason one skill wrote down was challenged by the next. This helps me because, before implementing anything, I can fix several problems that would otherwise show users an error screen.
+
+This single run can't tell you whether the guide's warning is right. This sketch already went down to function inputs, outputs, and steps, and the problems I spot-checked were real; but 4 items were also rejected, and [the guide says to read the rejected ones too](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L71). If all you have is a prose plan, it's safer to follow the guide and write code first, then review it.
+
+**Cost:** about USD 2.03. The whole run took about 23 minutes, but the actual computing was only about 3 minutes; see the observations below.
+
+### /arena: Two AIs Each Write a Version
+
+**What I asked:** have two AIs each rewrite the function that parses amounts so that it accepts only ordinary amount formats, rejects inputs such as `1e3`, `NaN`, and `$12`, and keeps every existing test passing.
+
+In arena, each AI that does its own copy of the task is called a runner. The number of runners comes from the `/setup-pstack` settings by default, but [you can change it per run](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51). The settings file says 3; this time I deliberately asked for only 2 in the prompt (opus and haiku).
+
+**What it produced:** a synthesis report, written in English. Here are two of its sections, verbatim:
+
+```text
+## Contract change during framing
+
+The original ask also rejected `'1.234'` (3 decimals), but `tests/test_cli.py` parses `-5.555` through `load -> parse_amount`, so that conflicts with "all existing tests unchanged". The user chose option 1: no limit on decimal places, and the other rejections stay.
+```
+
+```text
+## Convergence
+
+The two candidates independently wrote the **same grammar**: `[0-9]` only, comma groups of exactly 3, a decimal point that needs digits on both sides, sign XOR parentheses, `fullmatch` on `text.strip()`. Their edge-case decisions were the same too: reject `12,34`, `.5`, `5.`, `( 12 )`, non-ASCII digits and empty input; accept a trailing newline. That is strong agreement, so the consensus shape ships.
+```
+
+**What it means:** the first section is about what happened before any work was handed out. I had asked it to reject `'1.234'`, with three decimal places, but an existing test has a `-5.555` that must load, so the two requirements can't both hold. Instead of forcing it, it ran the existing tests, found the contradiction, and stopped to ask me with 3 options. It recommended option 2 (changing only that test data, in a copy), and I chose option 1: no limit on decimal places, with the other rejections unchanged.
+
+The second section is the result: the two runners independently wrote exactly the same rule. It accepts only the digits 0–9, comma groups of exactly three, a decimal point with digits on both sides, and either a sign or parentheses but not both. [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) says that two results converging on the same shape is strong agreement. Next, sonnet scored them as the judge; it wasn't the model of either runner. The judge and the main conversation both picked the opus version as the base, and the main conversation then folded in one piece of code and a few tests from the haiku version. The merged version passed all its tests in the scratch folder, and I got the same result when I reran them on my own Mac.
+
+One caution: the new version rejects some forms the old one accepted, such as `.5`, `5.`, `( 12 )`, and `12,34`, so check your data before applying it. This helps me because it caught a contradiction in my own spec before sending any AI off to do the work.
+
+**Cost:** about USD 2.29 for the two parts together, about 6 minutes.
+
+## What I Didn't Test
+
+- Anything in Cursor.
+- `/teach` and `/recall`. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L5) says `/teach` runs `/how` and `/why` again and turns them into a plain-language explanation, and `/recall` pulls together the current state of a topic from recent conversations and shared records.
+- The [read-only investigation](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17) for when the cause is unclear (the `/poteto-mode` description says "don't change any code yet"). I didn't rerun it this time; [Part 1](/posts/pstack-install-routing/) ran it once.
+- The architect's implementation from the sketch, and the step where it starts over if the architecture proves wrong. I deliberately stopped it at the checkpoint, so "does the implementation follow the sketch?" has no answer this time.
+- Applying the arena result back to the project. The result stayed only in `.pstack-scratch/` on purpose.
+- A standalone arena with the configured 3 runners. Three runners appeared only in the round inside architect.
+- `/swarm`, which splits work across several AIs working in parallel.
+- The [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81) the guide recommends for answering design questions: building a few throwaway prototypes.
+
+## What I Observed in This Environment
+
+These were all observed in this particular environment (account, versions, `-p` mode, permission allowlist). They won't necessarily happen with other accounts or in the interactive interface.
+
+**1. Subagents were often blocked from running commands, and the main conversation ran them itself.** In architect, interrogate, and arena, subagents had terminal commands (Bash) denied, and each time the main conversation did the verification itself. In Part 1, subagents running in the background couldn't run commands at all; this time `/why`'s background subagents could run git commands, though a few commands were still denied. When blocked, they switched to reading files, searching, or simpler commands, and noted in their reports what they hadn't actually run.
+
+**2. Effort followed the settings this time.** Effort is how hard the AI is asked to think. Every subagent dispatched this time used high, matching the settings file; in Part 1, both the bug fix and the feature run used low.
+
+**3. `/interrogate` sat idle in `-p` mode.** After dispatching the reviewers, the main conversation set a backup timer to wake itself up after 20 minutes. The computing time of its replies added up to about 200 seconds, yet the whole run took 22 minutes 35 seconds. It looks like the reviewers had reported back long before, but it still waited until the 20-minute timer went off before finishing. This is inferred from the timing; no per-event timestamps confirm it.
+
+**4. Architect didn't dispatch `/how`.** [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/architect/SKILL.md#L21-L23) says to run `/how` before designing. This time the main conversation read the code itself and wrote a `grounding.md` for the later runners to share, without dispatching a `/how` subagent.
+
+**5. The plugin updated itself between the two posts.** See the version note at the top.
+
+## When to Use Which
+
+To learn how a piece of code works now, use `/how`: it's the cheapest, and its gotchas are the most practical output. To learn why the code looks the way it does, when there's git history or past records to search, use `/why`, and keep its "direct evidence" and "inference" apart. When a feature will touch several modules, start with `/architect with checkpoint` to see the sketch and the open questions, then decide whether to implement; it's the most expensive, so skip it for small changes. Once you have an actual code change, or a sketch that goes down to function inputs and outputs, use `/interrogate` to have different models look for problems. For a small, concrete change where you want to compare two ways of writing it, use `/arena`. Whichever you use, spot-check a few of its conclusions yourself. The next post picks up from here: once the code is written, how do you prove it really works before merging?
+
+## Test Record
+
+![Chart: horizontal bars showing the API-equivalent USD for each step: /how 0.732, /why 1.979, /architect 4.293, /interrogate 2.030, and /arena 2.288 for its two parts together; the footer reads 7 calls, about USD 11.40 in total](cost-per-step.en.png){: width="800" height="450" }
+_Architect cost the most, followed by interrogate and arena._
+
+| Run | Command | Time (Taipei) | Duration | Models and their API-equivalent cost (USD) | 5-hour quota | Details | API-equivalent (USD) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| a1 | `/pstack:how` | 15:42–15:45 | 2 min 37 s | opus (main conversation + 1 subagent) | 21% → 24% | 8-step path, flowchart, responsibility table, 10 gotchas; every point checked out | 0.732 |
+| a2 | `/pstack:why` | 15:45–15:48 | 3 min 35 s | opus (3 investigators + 1 synthesizer) | 25% → 35% | Every citation was found; it said README lines 13–15 were there from the first commit, but at that commit they were lines 12–14 | 1.979 |
+| b1 | `/pstack:architect with checkpoint` | 15:55–16:08 | 12 min 42 s | opus 3.484, sonnet 0.728, haiku 0.080 | 42% → 87% | 3 sketches; the judge scored C1 (opus) 26, C3 (haiku) 25, C2 (sonnet) 24; C1 as the base; 5 open questions | 4.293 |
+| q0 | Quota check | 20:39 | 2 s | opus | 26% → 26% | Replied only "ok," to read the quota | 0.078 |
+| b2 | `/pstack:interrogate` | 20:39–21:02 | 22 min 35 s (about 200 s of actual computing) | opus 1.790, sonnet 0.213, haiku 0.026 | 26% → 71% | The three reviewers reported 10, 9, and 17 items; 5 must fix, 6 worth considering, 6 note only, 4 rejected; I spot-checked 3, all true | 2.030 |
+| b3 | `/pstack:arena` | 21:13 | 42 s | opus | 74% → 75% | Ran the existing 13 tests, found that `-5.555` in `tests/test_cli.py:14` contradicts the spec, and stopped to ask | 0.242 |
+| b3b | Arena continued (`--resume`) | 21:14–21:19 | 5 min 38 s | opus 1.889, sonnet 0.134, haiku 0.023 | 75% → 84% | 17 tests passed (13 existing + 4 new, with 19 accept and 59 reject subtests); the new tests fail on 30 items against the original version | 2.046 |
+
+The 7 calls came to about USD 11.40 in total. This is the `total_cost_usd` that Claude Code reports, which is an **API-equivalent amount at API prices**; this time I used my subscription's quota, and nothing was actually charged.
+
+The "5-hour quota" is the subscription's usage limit within a 5-hour window; the table shows the percentage read at the start and end of each run. The quota reset once at 19:50, so after b1 the numbers start again from 26%. Nothing was ever refused during the tests. The 7-day quota rose from 67% to 91%, but the rise from 76% to 83% between 16:08 and 20:39 was my own everyday use of Claude Code, not these tests.
+
+## Appendix: Full Prompts
+
+These are the full prompts I gave Claude Code for each run. I wrote them in Chinese; these are translations.
+
+**`/how`**
 
 ```text
 /pstack:how How are this project's parser and summary connected? Explain the whole path from the CLI reading the CSV, parsing it into Transactions, summarize computing the numbers, to the text or --json output, and how the modules divide the work. This is a read-only question: don't modify, add, or delete any file, and don't commit.
 ```
 
-`/how` has two paths. [Its SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/how/SKILL.md#L13-L20) says that for a large subsystem it first sends 2 to 4 explorers to look around in parallel and then hands their findings to an explainer. For a narrow question it skips the explorers and sends one explainer that reads and explains as it goes; when unsure, it takes the smaller path. An explorer is a subagent that reads code and reports what it finds; the explainer turns the findings into an explanation.
-
-This time it took the smaller path and sent a single explainer (opus, effort high). After the explainer reported back, the main conversation checked the line numbers it cited with `cat -n` and grep before giving me the answer. The answer had an overview, key concepts, an 8-step path from `__main__.py` to the output, a mermaid flowchart, a table of each module's role, and 10 caveats.
-
-I checked all 10 caveats against the code and ran the cases myself. All of them were correct. For example:
-
-- `(-12)` is parsed as +12, `1e3` is accepted, and `$12` fails.
-- If the CSV starts with a BOM, the error message becomes `line 2: 'date'`.
-- `--month 2026-1` raises no error; it quietly returns all zeros.
-- The JSON output doesn't set `ensure_ascii=False`, so Chinese category names come out as `\uXXXX`.
-
-This took 2 minutes 37 seconds and USD 0.732 in API-equivalent cost.
-
-### /why: Why It Looks Like This
+**`/why`**
 
 ```text
 /pstack:why Why are accounting-style parenthesized amounts (for example `(12.00)` meaning -12.00) turned negative in parse_amount in ledger/parser.py, instead of being handled in report.py or cli.py? This is a read-only question: don't modify, add, or delete any file, and don't commit.
 ```
 
-The [guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L33) says `/why` checks version control first. Then, depending on which MCP servers you have connected (MCP is the interface that lets AI reach outside tools), it searches tickets, docs, team chat, monitoring, error tracking, and analytics in parallel. The report keeps direct evidence apart from inference, and it says so when it finds nothing, because "nobody wrote down why" is an answer too.
-
-This practice project has no tickets and no chat history. It started by finding the relevant code with `git log -p` and `git blame`, then sent 3 investigators in parallel, followed by 1 synthesizer, all opus with effort high:
-
-- **Version control:** read 3 commits, the blame, and the reflog.
-- **Session logs:** a category it added itself. It treated my local Claude Code conversation logs under `~/.claude/projects/`, plus the test records in the project's `.runs/` folder, as a stand-in for "team chat."
-- **Claude Docs:** it treated a connected MCP server as "long-form docs" to search, but permissions blocked the tool. The synthesis recorded this source as "couldn't search," not as "searched, found nothing."
-
-The version-control investigator reported first and mentioned that `.runs/` held the record of Part 1's bug fix. The main conversation used `SendMessage` to pass that lead to the session-log investigator, which was still running, instead of sending a new one.
-
-The findings came in three levels: Direct, Supported, and Inferred. The direct evidence: the conversion sits in `parse_amount` because the agent that fixed the bug in Part 1 decided so, following a "fix the root cause" principle, and it wrote down why:
-
-> `report.summarize` separates income and spending by sign. That part was correct; it was just receiving the wrong sign.
-
-As for why the original author had the parser handle parentheses in the first place, it found no record and could only infer from the docstring and README. It also pointed out that the alternative of handling this in report or cli was never actually weighed in any record.
-
-I checked its citations, and every quote can be found in the source. The only mistake was a line number: it said README "lines 13-15" existed in the first commit. The content was indeed there from the start, but at lines 12-14; lines 13-15 is where it sits now.
-
-This took 3 minutes 35 seconds and USD 1.979 in API-equivalent cost, 2.7 times `/how`. Cache reads (re-reading content that was already cached) came to about 1.6 million tokens, and my subscription's 5-hour usage rose 11% in this one run.
-
-> `/why` reads your past Claude Code conversations. This run's allowlist only blocked writes to `~/.claude/`, not reads, so it could read them. If those logs hold anything you don't want to hand a model again, tighten the permissions first. For what an agent can read, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
-{: .prompt-warning }
-
-### Not Tested: /teach, /recall, and the Investigation Playbook
-
-The [guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L5) lists four ways in for understanding code. Besides `/how` and `/why`, `/teach` runs `/how` and `/why` and turns the results into a plain-language explanation, and `/recall` pulls together where a topic stands from your recent conversations and shared records. I did **not test** either of them this time.
-
-If the cause still isn't clear, the guide suggests a [read-only investigation](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17) first: put "don't change any code yet" in your `/poteto-mode` description and it follows the Investigation playbook. I didn't rerun it this time. In [Part 1](/posts/pstack-install-routing/), the read-only investigation took 5 minutes 5 seconds and listed 8 risks, the first of which was the planted bug.
-
-## Comparing Designs: /architect, /interrogate, and /arena
-
-Once the code is understood, the next step is design. The [guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L5) names the two most common mistakes: taking the AI's first design, and polishing a plan that no code has tested. Its answer is to plan in code. I ran each of the three commands once:
-
-![Diagram: three cards in order; /architect with checkpoint, where 3 models each sketch a draft, a judge scores them, C1 becomes the base, and the run stops at the checkpoint; /interrogate, where 3 models look for flaws and the verdict is fix then implement, with 5 must-fix items; /arena, with 2 runners, which caught my contradictory spec before dispatching and ended with 17 passing tests; below, implementing the sketch, /swarm, and applying the result to ledger/ are marked not tested](design-three-steps.en.png){: width="800" height="450" }
-_All three steps wrote only to .pstack-scratch/ and never touched the project itself._
-
-### /architect: Sketch the Types and Interfaces First
-
-`/architect` has five phases: understand the relevant code (Phase A), sketch several designs with an arena (Phase B), get a human sign-off (Phase C), implement from the sketch (Phase D), and scrap everything and start over if the architecture turns out wrong (Phase E). [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/architect/SKILL.md#L41-L45) says that by default it goes straight from design to implementation with no human check in between; to see the design first, you have to say "with checkpoint."
+**`/architect`**
 
 ```text
 /pstack:architect with checkpoint: stop and show me the design; don't implement. Feature: monthly budgets per category with overspending warnings. The user provides a budget file (for example budgets.csv, columns category,monthly_limit). When `ledger summary` gets `--budget <file>`, after the existing output it lists, for each budgeted category, that month's spending, budget, and remaining amount, with a clear warning for categories over budget; `--json` should include this too. Without `--budget`, the text and JSON output must stay byte-for-byte identical to today. Produce type and interface sketches (function bodies say not implemented) and a design rationale. The sketches and all intermediate files go only under ~/pstack-lab/.pstack-scratch/; don't modify existing files in ledger/ or tests/, and don't commit.
 ```
 
-**Phase A: it read the code itself and didn't send `/how`.** [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/architect/SKILL.md#L21-L23) calls for `/how` in this phase. This time the main conversation read `/how`'s SKILL.md but didn't send an explainer. It read all the code and ran the CLI itself, and wrote a shared `grounding.md` for the runners that came next.
-
-**Phase B: really an arena.** It sent 3 runners (opus, sonnet, haiku, all effort high), each sketching a draft, and then a read-only sonnet judge to score them. A runner is a subagent in an arena that does the same task as the others. The three drafts really were built differently:
-
-| Draft | Model | Structure | Without `--month` |
-| --- | --- | --- | --- |
-| C1 | opus | Budgets folded into `report.summarize` | Lists every month |
-| C2 | sonnet | A separate `budget.py` module | Uses the latest month in the data |
-| C3 | haiku | Split across `parser`, `report`, and `cli` | Uses the latest month in the data |
-
-The judge gave C1 26 points, C3 25, and C2 24. The main conversation also scored them itself and also chose C1. Its reason: only C1 doesn't have to guess which month "that month" means. With the latest month, the summary at the top shows housing 1200.00 while the budget section below shows 0.00, which is misleading.
-
-With the base chosen, it grafted in a few pieces from the other drafts:
-
-- Pull the budget calculation out of `summarize` into a separate `evaluate_budget`, so there aren't two different ways of filtering by month.
-- Check the `--month` format strictly when `--budget` is given (from C3). Otherwise `--month 2026-1` would show 0.00 for every category with no warning.
-- Validate the budget file more carefully (from C3).
-- Show how far over budget a category is (from C2).
-
-The final interface sketch looks like this, with every function body still raising `NotImplementedError`:
-
-```python
-parser.parse_budget_rows(lines) -> dict[str, Decimal]
-parser.load_budget(path) -> dict[str, Decimal]
-report.BudgetLine          # TypedDict: spent, limit, remaining, over
-report.BudgetReport = dict[str, dict[str, BudgetLine]]
-report.evaluate_budget(txns, limits, month=None) -> BudgetReport
-cli.format_budget(budget) -> str   # cli.main also gets --budget
-```
-
-The sample output wasn't worked out by hand: it came from running `verify_sample.py` on the existing data. I checked it against the sample CSV. October food is 4.50 + 86.20 + 62.75 = 153.45; with a budget of 150 the remainder is −3.45, flagged "<-- OVER BUDGET by 3.45". September housing at 1200.00 uses the budget exactly and isn't flagged.
-
-**Phase C: it stopped at the checkpoint.** Instead of implementing, it listed 5 questions for me to decide: what to do without `--month`, the exit code when over budget, whether refunds offset spending, whether to warn about budget categories that never appear in the transactions, and whether an empty budget file is an error. The first question matters most, and the three models disagreed on it.
-
-This took 12 minutes 42 seconds and USD 4.293 in API-equivalent cost (opus 3.484, sonnet 0.728, haiku 0.080), 5.9 times `/how`. The 5-hour usage went from 42% to 87%. The haiku runner wrote the most, about 69,500 output tokens, for only USD 0.08, and scored just 1 point below opus.
-
-Phase D (implementation) and Phase E (starting over) were **not tested**, because I deliberately had it stop at the checkpoint. So this run can't say whether the implementation would have followed the sketch.
-
-### /interrogate: Three Models Look for Flaws in the Sketch
-
-First, one way this run differs from the guide. The [guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L89) says `/interrogate` belongs on a diff (an actual change to the code); point it at a plan with no code, and the reviewers will invent theoretical risks that would never happen. This time I pointed it at architect's sketch, not a diff. Still, the sketch had function signatures, TODO pseudocode, a test list, and a runnable `verify_sample.py`; it wasn't a plan in prose.
+**`/interrogate`**
 
 ```text
 /pstack:interrogate Do an adversarial review of the design sketch in ~/pstack-lab/.pstack-scratch/architect-budget/synthesis/ (parser.py.sketch.py, report.py.sketch.py, cli.py.sketch.py, test_sketch.py, rationale.md, verify_sample.py), against the existing ledger/ and tests/. Intent: add `--budget <file>` to `ledger summary` (budgets.csv, columns category,monthly_limit); after the existing output, list each budgeted category's spending, budget, and remainder for that month, with a clear warning when over budget, and include this in --json too; without --budget, text and JSON output must stay byte-for-byte identical. This is a not-implemented sketch; review the design itself (interfaces, edge cases, correctness, whether the tests are enough). Only review and give a verdict: don't modify or add any file, don't apply changes, and don't commit.
 ```
 
-It sent 3 reviewers, opus, sonnet, and haiku, all with effort high. Per SKILL.md, all three get the same intent and content. The [guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69) says the point is the different models: each has different blind spots, and an issue that two models raise independently is the most credible. SKILL.md says to send `generalPurpose` with `readonly: true`; on Claude Code, it used read-only `Explore` subagents instead.
-
-The three reviewers reported 10, 9, and 17 findings, with haiku reporting the most. The main conversation didn't just merge them. It reproduced the edge cases itself with python3, then sorted every finding into four groups: Act on, Consider, Noted, and Dismissed. The verdict was "fix, then implement": 5 to act on, 6 to consider, 6 noted, and 4 dismissed. The 5 to act on:
-
-1. A very large budget amount (such as `1E+30`) passes validation and later raises `InvalidOperation` during rounding. That exception isn't a `ValueError`, so cli doesn't catch it and the user sees a traceback.
-2. A budget file that isn't UTF-8 causes a traceback, and Excel on Traditional Chinese Windows often exports CP950.
-3. `test_json_sample_exact` in the test sketch is bound to fail as written.
-4. The `--month` check accepts full-width digits and `0000`.
-5. The test list misses cases such as a 0-byte file, `-0`, and JSON across months.
-
-I spot-checked 3 of these in Python, and all three hold: `Decimal('1E+30').quantize(Decimal('0.01'))` raises `InvalidOperation`, which is an `ArithmeticError`; `'２０２６-10'` and `'0000-10'` both pass the sketch's month regex; and `Decimal('150.000')`, which equals 150.00, is wrongly rejected by the sketch's "more than two decimal places" rule.
-
-Architect's rationale said listing every month would "never silently miss a month." All three reviewers pointed out that months with no transactions are in fact skipped. The sample also shows housing 1200.00 next to "2026-10 housing 0.00," which is the very situation architect cited to reject the "latest month" option. The main conversation's advice was that the conclusion doesn't have to change, but the first open question should be argued again with these counterexamples before I decide. The rationale written by one skill had a hole found by the next.
-
-Among the 4 dismissed findings was haiku's "ANSI escape injection." The main conversation's reason: the budget file is the user's own local file, and the existing code prints transaction categories the same way. The guide reminds you to [read the dismissals too](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L71), because the main conversation isn't always right and you can overrule it. On the other hand, haiku also had two findings that only it raised and that turned out to be true: `(-50)` is treated as +50, and the jq example in the rationale doesn't work. It cost only USD 0.026.
-
-This run cost USD 2.030 in API-equivalent cost, and the 5-hour usage went from 26% to 71%. The whole run took 22 minutes 35 seconds, but actual compute was only about 200 seconds; the reason is under "What I Observed in This Environment" below.
-
-One run isn't enough to say whether the guide's warning is right. This sketch already had function signatures and pseudocode, and the issues I spot-checked were real, but 4 findings were still dismissed. If all you have is a plan in prose, it's safer to follow the guide and write the code before reviewing it.
-
-### /arena: Two Runners Do the Same Job
-
-[Arena's SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L9-L18) has six phases. Frame: write one task brief shared by every candidate, set a rubric (3 to 6 criteria that can be scored), and pick the runners. Fan out: send the runners in parallel. Cross-judge: a read-only judge on a different model scores them. Pick a base: choose one candidate as the base. Graft: bring in the good parts of the others. Verify: check the result.
-
-The number of runners comes from the `/setup-pstack` settings by default, but [you can change it per run](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51). The settings file says 3; this time I asked for only 2 in the prompt (opus high and haiku high) to bring N down to the minimum:
+**`/arena`**
 
 ```text
 /pstack:arena Use only 2 runners: opus high and haiku high. This deliberately overrides the 3 arena runners (opus, sonnet, haiku) in the pstack-models settings to bring N to the minimum; pick a cross-judge from the configured pool. Task (small and concrete): harden parse_amount in ~/pstack-lab/ledger/parser.py to accept only ordinary amounts: an optional sign or accounting parentheses, digits with optional thousands commas, at most two decimal places. These must be rejected with ParseError: '(-50)', '(+50)', '1e3', 'NaN', 'Infinity', '$12', '1.234' (three decimal places). Current behavior such as '1,234.50', '-3.20', '(12.00)', and all existing tests must stay unchanged. Each candidate may only write under ~/pstack-lab/.pstack-scratch/arena-amount/candidate-<n>/: a full modified copy of parser.py, new tests, and a short rationale. Put the synthesis in ~/pstack-lab/.pstack-scratch/arena-amount/synthesis/ and verify inside .pstack-scratch (for example, copy ledger/ and tests/ to .pstack-scratch/arena-amount/verify/ and run python3 -m unittest). Don't modify ~/pstack-lab/ledger/ or tests/, don't use git worktree or /tmp, don't create branches, and don't commit.
 ```
 
-**The Frame phase stopped my spec first.** Before sending any runner, it ran the existing 13 tests and found that the test data in `tests/test_cli.py:14` contains `-5.555`, which goes through the parser. In other words, "reject three decimal places" and "keep the existing tests unchanged" can't both hold. It offered 3 options, recommended option 2, and stopped to ask me. This part took 42 seconds and USD 0.242 in API-equivalent cost.
-
-I chose option 1: keep the existing tests unchanged and drop `'1.234'` from the reject list. I continued the same conversation with `claude -p --resume` and replied:
+After `/arena` stopped to ask me, I replied with `--resume`:
 
 ```text
 Option 1: no limit on decimal places; drop '1.234' from the reject list. The other reject examples stay ('(-50)', '(+50)', '1e3', 'NaN', 'Infinity', '$12'), and all existing tests stay unchanged and must pass. Everything else is as before: only 2 runners (opus high and haiku high, deliberately overriding the configured 3), output only under ~/pstack-lab/.pstack-scratch/arena-amount/, don't modify ledger/ or tests/, don't use git worktree or /tmp, don't create branches, and don't commit. Please continue through every arena phase.
 ```
 
-**Both candidates wrote the same rules.** Opus and haiku independently arrived at exactly the same format rules: only ASCII digits 0–9; thousands commas must group by three; a decimal point needs digits on both sides; use a sign or parentheses, not both; and after trimming surrounding spaces, the whole string must match. [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) says that when candidates converge on the same shape, that's strong consensus and you can take it as is.
-
-**Picking a base and grafting.** The judge was sonnet, chosen because neither runner used that model. Both the judge and the main conversation chose opus's C1 as the base. Haiku's C2 lost points mainly because it parsed `(0.00)` as `-0.00`, where the original gives `0.00`. Still, C1 took one thing from C2: parenthesized amounts are now negated with `value.copy_negate() if value else value`. A plain minus sign rounds to the default precision of 28 significant digits; `copy_negate` doesn't, and zero stays the original `0.00`. A few of C2's tests were grafted in as well.
-
-**Verification.** The main conversation copied the code into a `verify/` folder inside `.pstack-scratch/` and ran the tests. All 17 passed: the 13 original tests, unchanged, plus 4 new ones containing 19 accept and 59 reject subtests. It also ran the new tests against the original parser as a control and got 30 failures, which shows the new tests really do tell the two apart. I reran them on my Mac and got the same 17 passes. `(-50)`, `(+50)`, `1e3`, `NaN`, `Infinity`, and `$12` all raise `ParseError`, while `1,234.50`, `-3.20`, `(12.00)`, and `1.234` are accepted as before.
-
-Its report also listed a few things to watch for:
-
-- Values the old version accepted but the new one rejects: `.5`, `5.`, `( 12 )`, `12,34`, and non-ASCII digits. Check your data before applying the change.
-- It admitted one slip of its own: the rubric file `rubric.md` sat in a shared folder that both candidates could read, and the opus runner read it. SKILL.md says the rubric is only for whoever picks. The judge checked and found no sign of playing to the rubric.
-- Running `python3 -m unittest` from the project root finds 0 tests, because `tests/` has no `__init__.py`. Use this instead:
+The command I used to rerun the tests on my own Mac:
 
 ```bash
 python3 -m unittest discover -s tests
 ```
-
-This part took 5 minutes 38 seconds and USD 2.046 in API-equivalent cost (opus 1.889, sonnet 0.134, haiku 0.023). The two parts together took about 6 minutes and USD 2.288.
-
-**Not tested** this time: applying the result to `ledger/` (it was deliberately kept in `.pstack-scratch/`), a standalone arena with the configured 3 runners (N=3 only happened in the arena inside architect), and `/swarm`, which splits work across several workers in parallel.
-
-## When to Use Which
-
-pstack [deliberately has no planning skill](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L103). In the [README](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/README.md#L266-L268), the author writes that they don't believe in planning first; the best spec is the code. The three design steps in this run worked the same way: architect produced types and function signatures, interrogate reviewed those signatures and pseudocode, and arena wrote the code outright and ran the tests.
-
-Based on this run, here's how to choose:
-
-| Your situation | Use | Cost this time (API equivalent) |
-| --- | --- | --- |
-| You want to know how some code works now | `/how` | 2 min 37 s, USD 0.732 |
-| You want to know why the code looks this way, and there's git history or other records | `/why` | 3 min 35 s, USD 1.979 |
-| The cause is unclear and you want to investigate before deciding whether to fix | `/poteto-mode` with "don't change any code yet" | See Part 1 |
-| A new feature touches several modules and you want the types and interfaces settled first | `/architect with checkpoint` | 12 min 42 s, USD 4.293 |
-| You have a diff, or a sketch down to function signatures, and want different models to find problems | `/interrogate` | 22 min 35 s (about 200 s of actual compute), USD 2.030 |
-| A small, concrete change where you want to compare two or three ways to write it | `/arena` | About 6 min, USD 2.288 |
-
-[The guide warns](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L77) not to skip `/how` just because "the AI will read the code anyway"; running `/how` first is cheaper than fixing the second bug. But when Part 1 added `--json`, it skipped `/how`, `/architect`, and `/interrogate` on its own: the related code was only two small files it had already read, four design subagents would cost more than the change itself, and the design wasn't contested. For a very small change, you don't have to run the whole set.
-
-The guide also suggests answering design questions that can't be settled by building a few throwaway prototypes with the [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81), instead of asking you over and over. I did **not test** that playbook this time. The AI stopped to ask me twice in this run: architect's 5 open questions, and arena's discovery that my spec contradicted itself. Both were requirements for me to decide, not questions code could answer.
-
-## What I Observed in This Environment
-
-I observed all of the following in this run's environment (account, versions, `-p` mode, permission allowlist). They won't necessarily happen with another account or in the interactive interface.
-
-**1. Subagents' Bash is often blocked, and the main conversation makes up for it.** In architect, interrogate, and arena alike, some subagent Bash calls were refused, and each time the main conversation did the checks itself. In Part 1, I saw background subagents unable to run Bash at all; this time the `/why` investigators running in the background could run git commands, though a few commands were still refused. When blocked, they switched to Read, Grep, or simpler commands and noted in their reports what they hadn't actually run.
-
-**2. Effort followed the settings this time.** Every subagent dispatched this time ran at effort high, matching the settings file; in Part 1, both the bug fix and the feature used low.
-
-**3. `/interrogate` sat idle in `-p` mode.** After sending the reviewers, the main conversation used `ScheduleWakeup` to set a 1,200-second wake-up as a fallback. The compute time of all its reply turns adds up to about 200 seconds, yet the whole run took 22 minutes 35 seconds. It looks as if the reviewers had reported long before, and it still waited for the 20-minute wake-up to finish. This is inferred from the timing; no per-event timestamps confirm it.
-
-**4. Architect didn't send `/how`.** SKILL.md calls for `/how` in Phase A; this time the main conversation read the code and wrote `grounding.md` itself, without sending an explainer.
-
-**5. The plugin updated itself between the two posts.** See the version note at the top.
-
-## Usage and Cost
-
-![Bar chart of API-equivalent dollars per step: /how 0.732, /why 1.979, /architect 4.293, /interrogate 2.030, and /arena's two parts 2.288, with 5-hour quota changes on the right and a total of about USD 11.40 for 7 calls at the bottom](cost-per-step.en.png){: width="800" height="450" }
-_Architect cost the most; interrogate and architect each took 45% of the 5-hour quota._
-
-| Run | Command | Time (Taipei) | Result | API equivalent (USD) |
-| --- | --- | --- | --- | --- |
-| a1 | `/pstack:how` | 15:42–15:45 | All correct | 0.732 |
-| a2 | `/pstack:why` | 15:45–15:48 | Mostly right; one line number off by one | 1.979 |
-| b1 | `/pstack:architect with checkpoint` | 15:55–16:08 | 3 runners plus a sonnet judge; chose C1; stopped at the checkpoint | 4.293 |
-| q0 | Quota check | 20:39 | Replied only "ok," used to read the quota | 0.078 |
-| b2 | `/pstack:interrogate` | 20:39–21:02 | Fix, then implement; 5 to act on; all 3 I spot-checked hold | 2.030 |
-| b3 | `/pstack:arena` | 21:13 | Frame found my spec contradicted itself and stopped to ask | 0.242 |
-| b3b | Arena continued (`--resume`) | 21:14–21:19 | I chose option 1; both candidates converged; 17 tests passed | 2.046 |
-
-The 7 calls total about USD 11.40. That's the `total_cost_usd` Claude Code reports, an **amount converted at API prices**. This run used my subscription quota, and nothing extra was charged.
-
-As for quota, the 5-hour usage was 20% before testing began, rose to 87% by the end of architect, and reset at 19:50. After that, interrogate took it from 26% to 71%, and arena's two parts from 74% to 84%; nothing was ever refused. The 7-day usage went from 67% before testing to 91%, but the rise from 76% to 83% between 16:08 and 20:39 came from my own everyday use of Claude Code, not from these tests.
-
-## Before You Change Code, Get Evidence You Can See
-
-The answer from this run is concrete: have the AI hand over something you can check, and only then let it compare designs. `/how` gave a path with line numbers plus caveats I could check one by one against the code; `/why` kept direct evidence apart from inference and said plainly what it couldn't find. In design, `/architect` had three models sketch drafts with genuinely different structures, then stopped and listed what was mine to decide; `/interrogate` had three more reviewers find holes in the sketch, including in architect's own reasoning; and `/arena` ran the tests before dispatching anyone and caught the contradiction in the spec I wrote.
-
-The price is time and quota. From `/how` to `/arena`, including one quota check, this run came to about USD 11.40 in API-equivalent cost, and architect alone used nearly half the 5-hour quota. For a small change, `/how` alone may be enough; save `/architect with checkpoint` for features that touch several modules. Whichever you run, spot-check a few of its conclusions yourself at the end. The next post picks up from there: after the code is written, how to prove it works before merging.
 
 ## Further Reading
 
