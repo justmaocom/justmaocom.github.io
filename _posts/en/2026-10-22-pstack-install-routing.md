@@ -21,7 +21,7 @@ One catch showed up in this test environment, though: the model it says it used 
 > pstack Series | Part 1
 >
 > - Series guide: What pstack is and how to read the four parts (not yet published)
-> - Next (Part 2): Understand the code, then design, before you change it (not yet published)
+> - Next (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
 >
 > This post is based on pstack [version `0.15.29`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `88d4751` (2026-10-20). When I checked at 21:31 on 2026-10-21 (Taipei time), `main` in `cursor/plugins` had moved on, but the last change to the pstack folder was still this commit, and the version was still `0.15.29`.
 {: .prompt-info }
