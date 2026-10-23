@@ -8,7 +8,7 @@
 
 - Ruby 3.4、Jekyll 與 `jekyll-theme-chirpy ~> 7.6`
 - GitHub Pages 自動部署與 `html-proofer` 站內連結檢查
-- `assets/lib` submodule 提供自架的字型與前端套件
+- `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
 - Giscus 留言
 - 自訂網域 `justmao.com`
@@ -20,17 +20,13 @@ Chirpy 主題本身由 gem 提供。這個 repository 只保留站台設定、�
 請先安裝 Git、Ruby 3.4、Bundler 與 Bash。macOS 內建的 Ruby 2.6 無法執行此專案。
 
 ```bash
-git clone --recurse-submodules https://github.com/justmaocom/justmaocom.github.io.git
+git clone https://github.com/justmaocom/justmaocom.github.io.git
 cd justmaocom.github.io
 bundle install
 bash tools/run.sh
 ```
 
-網站預設位於 [http://127.0.0.1:4000](http://127.0.0.1:4000)。若 clone 時沒有下載 submodule，請補執行：
-
-```bash
-git submodule update --init
-```
+網站預設位於 [http://127.0.0.1:4000](http://127.0.0.1:4000)。`assets/lib` 的檔案已提交在 repository 內，建置與預覽網站不需要 Node.js。要更新這些前端套件，請見[本機執行指南](docs/local-development.md#更新-assetslib)。
 
 本專案使用 Git 歷史計算文章最後更新時間，請勿使用 shallow clone。完整的環境設定、草稿預覽方式與常見問題請見[本機執行指南](docs/local-development.md)。
 
@@ -50,7 +46,7 @@ _tabs/           側邊欄頁面
 _plugins/        自訂 Jekyll plugin
 _data/           聯絡方式與分享選單設定
 assets/img/      網站與文章圖片
-assets/lib/      Chirpy 前端資源 submodule
+assets/lib/      Chirpy 前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
 docs/            開發與文章撰寫文件
 tools/           本機啟動與驗證腳本
 _config.yml      網站與主題設定
