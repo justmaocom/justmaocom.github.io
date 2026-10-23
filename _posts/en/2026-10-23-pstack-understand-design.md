@@ -37,28 +37,11 @@ In Claude Code, commands carry the plugin name in front, as in `/pstack:how`. I 
 > | Skills | 56 | 57 |
 > | Claude Code | 2.1.306 | 2.1.309 |
 >
-> The only change from `0.15.29` to `0.15.30` is a new skill, `statechart`. None of the parts this post uses changed: how, why, teach, architect, interrogate, arena, swarm, setup-pstack, poteto-mode, and the Claude Code adapter notes. When I checked at 21:28 on 2026-10-23 (Taipei time), `main` in `cursor/plugins` had two more pstack commits after `eb4db2b` (`7698375` and `4ec7ffa`). Both only touch `statechart`, and the version is still `0.15.30`.
+> The only change from `0.15.29` to `0.15.30` is a new skill, `statechart`. None of the parts this post uses changed: how, why, teach, architect, interrogate, arena, swarm, poteto-mode, and the Claude Code adapter notes. When I checked at 21:28 on 2026-10-23 (Taipei time), `main` in `cursor/plugins` had two more pstack commits after `eb4db2b` (`7698375` and `4ec7ffa`). Both only touch `statechart`, and the version is still `0.15.30`.
 {: .prompt-warning }
 
-> **How this was tested:** I ran every test myself between 15:41 and 21:20 on 2026-10-23 (Taipei time), on my Mac (macOS 27.0, Claude Code 2.1.309), using Claude Code's non-interactive mode, `claude -p` (with stream-json output), not by hand in the interactive interface. The permission allowlist was the same as in Part 1, plus read-only `git blame`: no writes to the global settings under `~/.claude/`, no `git push`, `gh`, `curl`, or web access, and no `--dangerously-skip-permissions`. Every prompt said not to commit. The practice project's HEAD stayed at `579a745` the whole time, and drafts went only into `.pstack-scratch/`, a folder outside version control. I wrote the prompts in Chinese; the ones below are translations. **Nothing was tested in Cursor.**
+> **How this was tested:** I ran every test myself between 15:42 and 21:20 on 2026-10-23 (Taipei time), on my Mac (macOS 27.0, Claude Code 2.1.309), using Claude Code's non-interactive mode, `claude -p` (with stream-json output), not by hand in the interactive interface. The permission allowlist was the same as in Part 1, plus read-only `git blame`: no writes to the global settings under `~/.claude/`, no `git push`, `gh`, `curl`, or web access, and no `--dangerously-skip-permissions`. Every prompt said not to commit. The practice project's HEAD stayed at `579a745` the whole time, and drafts went only into `.pstack-scratch/`, a folder outside version control. I wrote the prompts in Chinese; the ones below are translations. **Nothing was tested in Cursor.**
 {: .prompt-tip }
-
-## First, Fix the Model Settings
-
-[Part 1](/posts/pstack-install-routing/) found that this account can't use the fable model named in the settings file: any subagent sent to it got an HTTP 429 error right away. So I started by running `/setup-pstack` again:
-
-```text
-/pstack:setup-pstack Background: this account can't use fable. Subagents sent to fable immediately got HTTP 429 "Fable 5.1 requires usage credits. Switch to another model to continue." So please redo the setup with no role using fable, keeping the budget at medium. You decide what replaces fable, and explain why. This time you may only write ~/.claude/rules/pstack-models.md; don't change any other file.
-```
-
-It proposed these changes:
-
-- The four single roles that had used fable (bug fixing, performance, hillclimb, and the hardest tasks) move to `opus high`.
-- The panels, where several models work together (the arena runners and judge pool, the architect runners, and the interrogate reviewers), simply drop fable without a replacement, going from 4 models to 3 (opus, sonnet, haiku). Its reasoning: a panel is valuable because different models check one another, and an extra opus would only cost more. To keep 4, you could add an `opus high` to each.
-
-But it couldn't save the file. Claude Code treats `~/.claude/rules/pstack-models.md` as a sensitive file and replied "Claude requested permissions to edit … which is a sensitive file." Even when the allowlist names this file, Claude Code wants a confirmation in the interface, and `-p` mode has no way to confirm, so the write was blocked. In Part 1, the write was stopped by a rule I set on purpose; this time Claude Code blocked it on its own.
-
-It suggested two ways forward: click Allow when the permission prompt appears, or overwrite the file myself. At 15:54 I wrote the proposed content into the file by hand, word for word. So setup-pstack proposed this configuration, and I wrote it in by hand; it didn't save it itself. In every run after that, the models and effort levels it dispatched matched this file. (`/how` and `/why` had already finished before the write, and their roles are opus high in both the old and new settings; the arena runner count of 2 was my own override.) This step took 25 seconds and USD 0.208 in API-equivalent cost.
 
 ## Understanding the Code: /how and /why
 
@@ -263,26 +246,23 @@ The guide also suggests answering design questions that can't be settled by buil
 
 I observed all of the following in this run's environment (account, versions, `-p` mode, permission allowlist). They won't necessarily happen with another account or in the interactive interface.
 
-**1. setup-pstack can't write its own settings file.** Claude Code treats `~/.claude/rules/pstack-models.md` as a sensitive file and wants an interactive confirmation even when the allowlist permits it. `-p` mode has no way to confirm, so the write is refused outright.
+**1. Subagents' Bash is often blocked, and the main conversation makes up for it.** In architect, interrogate, and arena alike, some subagent Bash calls were refused, and each time the main conversation did the checks itself. In Part 1, I saw background subagents unable to run Bash at all; this time the `/why` investigators running in the background could run git commands, though a few commands were still refused. When blocked, they switched to Read, Grep, or simpler commands and noted in their reports what they hadn't actually run.
 
-**2. Subagents' Bash is often blocked, and the main conversation makes up for it.** In architect, interrogate, and arena alike, some subagent Bash calls were refused, and each time the main conversation did the checks itself. In Part 1, I saw background subagents unable to run Bash at all; this time the `/why` investigators running in the background could run git commands, though a few commands were still refused. When blocked, they switched to Read, Grep, or simpler commands and noted in their reports what they hadn't actually run.
+**2. Effort followed the settings this time.** Every subagent dispatched this time ran at effort high, matching the settings file; in Part 1, both the bug fix and the feature used low.
 
-**3. Effort followed the settings this time.** Every subagent dispatched this time ran at effort high, matching the settings file; in Part 1, both the bug fix and the feature used low.
+**3. `/interrogate` sat idle in `-p` mode.** After sending the reviewers, the main conversation used `ScheduleWakeup` to set a 1,200-second wake-up as a fallback. The compute time of all its reply turns adds up to about 200 seconds, yet the whole run took 22 minutes 35 seconds. It looks as if the reviewers had reported long before, and it still waited for the 20-minute wake-up to finish. This is inferred from the timing; no per-event timestamps confirm it.
 
-**4. `/interrogate` sat idle in `-p` mode.** After sending the reviewers, the main conversation used `ScheduleWakeup` to set a 1,200-second wake-up as a fallback. The compute time of all its reply turns adds up to about 200 seconds, yet the whole run took 22 minutes 35 seconds. It looks as if the reviewers had reported long before, and it still waited for the 20-minute wake-up to finish. This is inferred from the timing; no per-event timestamps confirm it.
+**4. Architect didn't send `/how`.** SKILL.md calls for `/how` in Phase A; this time the main conversation read the code and wrote `grounding.md` itself, without sending an explainer.
 
-**5. Architect didn't send `/how`.** SKILL.md calls for `/how` in Phase A; this time the main conversation read the code and wrote `grounding.md` itself, without sending an explainer.
-
-**6. The plugin updated itself between the two posts.** See the version note at the top.
+**5. The plugin updated itself between the two posts.** See the version note at the top.
 
 ## Usage and Cost
 
-![Bar chart of API-equivalent dollars per step: /setup-pstack 0.208, /how 0.732, /why 1.979, /architect 4.293, /interrogate 2.030, and /arena's two parts 2.288, with 5-hour quota changes on the right and a total of about USD 11.61 for 8 calls at the bottom](cost-per-step.en.png){: width="800" height="450" }
+![Bar chart of API-equivalent dollars per step: /how 0.732, /why 1.979, /architect 4.293, /interrogate 2.030, and /arena's two parts 2.288, with 5-hour quota changes on the right and a total of about USD 11.40 for 7 calls at the bottom](cost-per-step.en.png){: width="800" height="450" }
 _Architect cost the most; interrogate and architect each took 45% of the 5-hour quota._
 
 | Run | Command | Time (Taipei) | Result | API equivalent (USD) |
 | --- | --- | --- | --- | --- |
-| s1 | `/pstack:setup-pstack` | 15:41 | Write blocked; I wrote it in by hand at 15:54 | 0.208 |
 | a1 | `/pstack:how` | 15:42–15:45 | All correct | 0.732 |
 | a2 | `/pstack:why` | 15:45–15:48 | Mostly right; one line number off by one | 1.979 |
 | b1 | `/pstack:architect with checkpoint` | 15:55–16:08 | 3 runners plus a sonnet judge; chose C1; stopped at the checkpoint | 4.293 |
@@ -291,15 +271,15 @@ _Architect cost the most; interrogate and architect each took 45% of the 5-hour 
 | b3 | `/pstack:arena` | 21:13 | Frame found my spec contradicted itself and stopped to ask | 0.242 |
 | b3b | Arena continued (`--resume`) | 21:14–21:19 | I chose option 1; both candidates converged; 17 tests passed | 2.046 |
 
-The 8 calls total about USD 11.61. That's the `total_cost_usd` Claude Code reports, an **amount converted at API prices**. This run used my subscription quota, and nothing extra was charged.
+The 7 calls total about USD 11.40. That's the `total_cost_usd` Claude Code reports, an **amount converted at API prices**. This run used my subscription quota, and nothing extra was charged.
 
-As for quota, the 5-hour usage rose from 20% to 87% over the first stretch (s1 to b1) and reset at 19:50. After that, interrogate took it from 26% to 71%, and arena's two parts from 74% to 84%; nothing was ever refused. The 7-day usage went from 67% to 91% over the day, but the rise from 76% to 83% between 16:08 and 20:39 came from my own everyday use of Claude Code, not from these tests.
+As for quota, the 5-hour usage was 20% before testing began, rose to 87% by the end of architect, and reset at 19:50. After that, interrogate took it from 26% to 71%, and arena's two parts from 74% to 84%; nothing was ever refused. The 7-day usage went from 67% before testing to 91%, but the rise from 76% to 83% between 16:08 and 20:39 came from my own everyday use of Claude Code, not from these tests.
 
 ## Before You Change Code, Get Evidence You Can See
 
 The answer from this run is concrete: have the AI hand over something you can check, and only then let it compare designs. `/how` gave a path with line numbers plus caveats I could check one by one against the code; `/why` kept direct evidence apart from inference and said plainly what it couldn't find. In design, `/architect` had three models sketch drafts with genuinely different structures, then stopped and listed what was mine to decide; `/interrogate` had three more reviewers find holes in the sketch, including in architect's own reasoning; and `/arena` ran the tests before dispatching anyone and caught the contradiction in the spec I wrote.
 
-The price is time and quota. From `/how` to `/arena`, this run came to about USD 11.61 in API-equivalent cost, and architect alone used nearly half the 5-hour quota. For a small change, `/how` alone may be enough; save `/architect with checkpoint` for features that touch several modules. Whichever you run, spot-check a few of its conclusions yourself at the end. The next post picks up from there: after the code is written, how to prove it works before merging.
+The price is time and quota. From `/how` to `/arena`, including one quota check, this run came to about USD 11.40 in API-equivalent cost, and architect alone used nearly half the 5-hour quota. For a small change, `/how` alone may be enough; save `/architect with checkpoint` for features that touch several modules. Whichever you run, spot-check a few of its conclusions yourself at the end. The next post picks up from there: after the code is written, how to prove it works before merging.
 
 ## Further Reading
 

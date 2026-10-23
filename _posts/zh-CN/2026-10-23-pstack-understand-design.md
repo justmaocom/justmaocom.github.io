@@ -37,28 +37,11 @@ image:
 > | skill 数量 | 56 | 57 |
 > | Claude Code | 2.1.306 | 2.1.309 |
 >
-> `0.15.29` 到 `0.15.30` 只新增了 `statechart` 这个 skill。本篇用到的 how、why、teach、architect、interrogate、arena、swarm、setup-pstack、poteto-mode，以及 Claude Code 对照说明都没有改。我在 2026-10-23 21:28（台北时间）查证时，`cursor/plugins` 的 main 在 `eb4db2b` 之后又有两个 pstack commit（`7698375`、`4ec7ffa`），都只改 `statechart`，版本仍是 `0.15.30`。
+> `0.15.29` 到 `0.15.30` 只新增了 `statechart` 这个 skill。本篇用到的 how、why、teach、architect、interrogate、arena、swarm、poteto-mode，以及 Claude Code 对照说明都没有改。我在 2026-10-23 21:28（台北时间）查证时，`cursor/plugins` 的 main 在 `eb4db2b` 之后又有两个 pstack commit（`7698375`、`4ec7ffa`），都只改 `statechart`，版本仍是 `0.15.30`。
 {: .prompt-warning }
 
-> **这次怎么测的**：所有实测都是我在 2026-10-23 15:41–21:20（台北时间），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非交互模式 `claude -p`（输出格式 stream-json）运行的，不是在交互界面操作。权限白名单和第 1 篇相同，只多允许只读的 `git blame`：禁止写入 `~/.claude/` 底下的全局配置，禁止 `git push`、`gh`、`curl` 和上网，也没有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，练习项目的 HEAD 从头到尾都是 `579a745`，草稿只写在没有纳入版本控制的 `.pstack-scratch/` 文件夹。下面的提示原本是用繁体中文写的，这里转成了简体并做了本地化。**Cursor 上的任何操作都没有实测**。
+> **这次怎么测的**：所有实测都是我在 2026-10-23 15:42–21:20（台北时间），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非交互模式 `claude -p`（输出格式 stream-json）运行的，不是在交互界面操作。权限白名单和第 1 篇相同，只多允许只读的 `git blame`：禁止写入 `~/.claude/` 底下的全局配置，禁止 `git push`、`gh`、`curl` 和上网，也没有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，练习项目的 HEAD 从头到尾都是 `579a745`，草稿只写在没有纳入版本控制的 `.pstack-scratch/` 文件夹。下面的提示原本是用繁体中文写的，这里转成了简体并做了本地化。**Cursor 上的任何操作都没有实测**。
 {: .prompt-tip }
-
-## 先把模型配置改好
-
-[第 1 篇](/posts/pstack-install-routing/)发现，这个账号不能用配置文件里的 fable 模型，subagent 一派出去就收到 HTTP 429 错误。所以这次先重跑 `/setup-pstack`：
-
-```text
-/pstack:setup-pstack 背景：这个账号不能用 fable。之前派给 fable 的 subagent 立刻收到 HTTP 429“Fable 5.1 requires usage credits. Switch to another model to continue.”所以请重新配置，所有角色都不要用 fable，预算维持 medium。fable 的替代模型由你决定，并说明理由。这次只能写 ~/.claude/rules/pstack-models.md，不要改其他任何文件。
-```
-
-它提议这样改：
-
-- 原本用 fable 的四个单一角色（修 bug、性能问题、hillclimb、最难的任务）改成 `opus high`。
-- 要多个模型一起工作的 panel，也就是 arena 的 runner 和评审名单、architect 的 runner、interrogate 的审查者，直接拿掉 fable，不补别的模型，从 4 个变成 3 个（opus、sonnet、haiku）。它的理由是 panel 的价值在于不同模型互相比较，多放一个 opus 只会多花钱；想维持 4 个的话，可以各加一个 `opus high`。
-
-但它写不进去。Claude Code 把 `~/.claude/rules/pstack-models.md` 当成敏感文件，回复“Claude requested permissions to edit … which is a sensitive file.”即使白名单明确允许这个文件，也要在界面上确认一次，而 `-p` 模式没有确认界面，写入就被挡下了。第 1 篇的写入是被我刻意设的规则挡下，这次则是 Claude Code 自己挡的。
-
-它建议两种做法：在权限提示出现时点允许，或自己覆盖文件。我在 15:54 把它提议的内容逐字手动写入。所以这份配置是 setup-pstack 提议、我手动写入的，不是它自己写的。之后每一次运行派出的模型和 effort，都和这份配置一致（`/how`、`/why` 在写入前就跑完了，它们的角色新旧配置都是 opus high；arena 的 runner 数是我另外指定的 2 个）。这一步花了 25 秒，API 等价 0.208 美元。
 
 ## 看懂现有代码：/how 和 /why
 
@@ -263,26 +246,23 @@ pstack [刻意没有写计划的 skill](https://github.com/cursor/plugins/blob/e
 
 以下几点都是在这次的环境（账号、版本、`-p` 模式、权限白名单）观察到的，不代表在其他账号或交互界面也一定会发生。
 
-**1. setup-pstack 写不进自己的配置文件。** Claude Code 把 `~/.claude/rules/pstack-models.md` 当成敏感文件，白名单允许了也要交互确认，`-p` 模式没有确认界面，所以直接拒绝。
+**1. subagent 的 Bash 常被挡，主对话会自己补跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主对话都会自己补做验证。第 1 篇看到的是后台 subagent 一律不能跑 Bash；这次 `/why` 在后台运行的调查员能跑 git 命令，但仍有几个命令被拒。被挡之后，它们改用 Read、Grep 或比较单纯的命令，并在报告里注明哪些没有实际运行。
 
-**2. subagent 的 Bash 常被挡，主对话会自己补跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主对话都会自己补做验证。第 1 篇看到的是后台 subagent 一律不能跑 Bash；这次 `/why` 在后台运行的调查员能跑 git 命令，但仍有几个命令被拒。被挡之后，它们改用 Read、Grep 或比较单纯的命令，并在报告里注明哪些没有实际运行。
+**2. effort 这次照配置。** 这次派出的 subagent 都是 effort high，和配置文件一致；第 1 篇修 bug 和加功能两次都用了 low。
 
-**3. effort 这次照配置。** 这次派出的 subagent 都是 effort high，和配置文件一致；第 1 篇修 bug 和加功能两次都用了 low。
+**3. `/interrogate` 在 `-p` 模式下空等。** 主对话派完审查者后，用 `ScheduleWakeup` 设了一个 1200 秒的唤醒当作后备。每一段回复的计算时间加起来约 200 秒，整个运行却跑了 22 分 35 秒。看起来审查者早就回报了，它还是等到 20 分钟的唤醒才结束。这是从时间推论的，没有逐笔时间戳证实。
 
-**4. `/interrogate` 在 `-p` 模式下空等。** 主对话派完审查者后，用 `ScheduleWakeup` 设了一个 1200 秒的唤醒当作后备。每一段回复的计算时间加起来约 200 秒，整个运行却跑了 22 分 35 秒。看起来审查者早就回报了，它还是等到 20 分钟的唤醒才结束。这是从时间推论的，没有逐笔时间戳证实。
+**4. architect 没有派 `/how`。** SKILL.md 要求 Phase A 跑 `/how`，这次主对话自己读代码、写 `grounding.md`，没有派 explainer。
 
-**5. architect 没有派 `/how`。** SKILL.md 要求 Phase A 跑 `/how`，这次主对话自己读代码、写 `grounding.md`，没有派 explainer。
-
-**6. 插件在两篇之间自动更新了。** 见文章开头的版本提醒。
+**5. 插件在两篇之间自动更新了。** 见文章开头的版本提醒。
 
 ## 用量与费用
 
-![说明图：横条图列出每一步的 API 等价美元，/setup-pstack 0.208、/how 0.732、/why 1.979、/architect 4.293、/interrogate 2.030、/arena 两段合计 2.288，右侧标出 5 小时额度的变化，底部写 8 次调用合计约 11.61 美元](cost-per-step.zh-CN.png){: width="800" height="450" }
+![说明图：横条图列出每一步的 API 等价美元，/how 0.732、/why 1.979、/architect 4.293、/interrogate 2.030、/arena 两段合计 2.288，右侧标出 5 小时额度的变化，底部写 7 次调用合计约 11.40 美元](cost-per-step.zh-CN.png){: width="800" height="450" }
 _architect 最贵；interrogate 和 architect 各吃掉 45% 的 5 小时额度。_
 
 | 运行 | 命令 | 时间（台北） | 结果 | API 等价（美元） |
 | --- | --- | --- | --- | --- |
-| s1 | `/pstack:setup-pstack` | 15:41 | 写入被挡，我在 15:54 手动写入 | 0.208 |
 | a1 | `/pstack:how` | 15:42–15:45 | 全部正确 | 0.732 |
 | a2 | `/pstack:why` | 15:45–15:48 | 大致正确，一处行号差 1 | 1.979 |
 | b1 | `/pstack:architect with checkpoint` | 15:55–16:08 | 3 个 runner 加 sonnet 评审，选 C1，停在 checkpoint | 4.293 |
@@ -291,15 +271,15 @@ _architect 最贵；interrogate 和 architect 各吃掉 45% 的 5 小时额度�
 | b3 | `/pstack:arena` | 21:13 | Frame 阶段发现规格自相矛盾，停下来问 | 0.242 |
 | b3b | arena 接续（`--resume`） | 21:14–21:19 | 我选了选项 1；两份候选收敛，17 个测试通过 | 2.046 |
 
-8 次调用合计约 11.61 美元。这是 Claude Code 回报的 `total_cost_usd`，也就是**照 API 价格换算的等价金额**；这次用的是订阅方案的额度，实际没有另外扣费。
+7 次调用合计约 11.40 美元。这是 Claude Code 回报的 `total_cost_usd`，也就是**照 API 价格换算的等价金额**；这次用的是订阅方案的额度，实际没有另外扣费。
 
-额度方面，5 小时用量在第一段（s1 到 b1）从 20% 升到 87%，19:50 重置；之后 interrogate 让它从 26% 升到 71%，arena 两段从 74% 升到 84%，一直没有被拒绝。7 天用量全天从 67% 升到 91%，但其中 16:08 到 20:39 从 76% 升到 83% 那段，是我自己平常使用 Claude Code，不是这些实测造成的。
+额度方面，5 小时用量在开始实测前是 20%，architect 结束时升到 87%，19:50 重置；之后 interrogate 让它从 26% 升到 71%，arena 两段从 74% 升到 84%，一直没有被拒绝。7 天用量从开始实测前的 67% 升到 91%，但其中 16:08 到 20:39 从 76% 升到 83% 那段，是我自己平常使用 Claude Code，不是这些实测造成的。
 
 ## 改代码之前，先要一份看得到的证据
 
 这次的答案很具体：先让 AI 交出可以核对的东西，再让它比较设计。`/how` 交出带行号的路径和注意事项，我能逐点对照代码；`/why` 把直接证据和推论分开，也老实写出哪些查不到。设计阶段，`/architect` 让三个模型画出结构不同的草稿，再停下来把该由我决定的事列出来；`/interrogate` 让另外三个审查者挑出草稿里的漏洞，连 architect 自己的理由也被挑出问题；`/arena` 在派活前先跑测试，抓出我写的规格自相矛盾。
 
-代价是时间和额度。这次从 `/how` 到 `/arena`，API 等价合计约 11.61 美元，architect 一次就吃掉将近一半的 5 小时额度。小改动可以只跑 `/how`；会碰到好几个模块的功能，再用 `/architect with checkpoint`。不管跑哪一个，最后都要自己抽查几项结论。下一篇会接着谈，写完代码之后，怎么证明它真的能用再合并。
+代价是时间和额度。这次从 `/how` 到 `/arena`，连同一次额度检查，API 等价合计约 11.40 美元，architect 一次就吃掉将近一半的 5 小时额度。小改动可以只跑 `/how`；会碰到好几个模块的功能，再用 `/architect with checkpoint`。不管跑哪一个，最后都要自己抽查几项结论。下一篇会接着谈，写完代码之后，怎么证明它真的能用再合并。
 
 ## 延伸阅读
 

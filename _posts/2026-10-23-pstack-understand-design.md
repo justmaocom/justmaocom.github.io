@@ -37,28 +37,11 @@ image:
 > | skill 數量 | 56 | 57 |
 > | Claude Code | 2.1.306 | 2.1.309 |
 >
-> `0.15.29` 到 `0.15.30` 只新增了 `statechart` 這個 skill。本篇用到的 how、why、teach、architect、interrogate、arena、swarm、setup-pstack、poteto-mode，以及 Claude Code 對照說明都沒有改。我在 2026-10-23 21:28（台北時間）查證時，`cursor/plugins` 的 main 在 `eb4db2b` 之後又有兩個 pstack commit（`7698375`、`4ec7ffa`），都只改 `statechart`，版本仍是 `0.15.30`。
+> `0.15.29` 到 `0.15.30` 只新增了 `statechart` 這個 skill。本篇用到的 how、why、teach、architect、interrogate、arena、swarm、poteto-mode，以及 Claude Code 對照說明都沒有改。我在 2026-10-23 21:28（台北時間）查證時，`cursor/plugins` 的 main 在 `eb4db2b` 之後又有兩個 pstack commit（`7698375`、`4ec7ffa`），都只改 `statechart`，版本仍是 `0.15.30`。
 {: .prompt-warning }
 
-> **這次怎麼測的**：所有實測都是我在 2026-10-23 15:41–21:20（台北時間），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非互動模式 `claude -p`（輸出格式 stream-json）執行的，不是在互動介面操作。權限白名單和第 1 篇相同，只多允許唯讀的 `git blame`：禁止寫入 `~/.claude/` 底下的全域設定，禁止 `git push`、`gh`、`curl` 和上網，也沒有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，練習專案的 HEAD 從頭到尾都是 `579a745`，草稿只寫在沒有納入版本控制的 `.pstack-scratch/` 資料夾。**Cursor 上的任何操作都沒有實測**。
+> **這次怎麼測的**：所有實測都是我在 2026-10-23 15:42–21:20（台北時間），在自己的 Mac（macOS 27.0、Claude Code 2.1.309）上用 Claude Code 的非互動模式 `claude -p`（輸出格式 stream-json）執行的，不是在互動介面操作。權限白名單和第 1 篇相同，只多允許唯讀的 `git blame`：禁止寫入 `~/.claude/` 底下的全域設定，禁止 `git push`、`gh`、`curl` 和上網，也沒有用 `--dangerously-skip-permissions`。每次提示都要求不要 commit，練習專案的 HEAD 從頭到尾都是 `579a745`，草稿只寫在沒有納入版本控制的 `.pstack-scratch/` 資料夾。**Cursor 上的任何操作都沒有實測**。
 {: .prompt-tip }
-
-## 先把模型設定改好
-
-[第 1 篇](/posts/pstack-install-routing/)發現，這個帳號不能用設定檔裡的 fable 模型，subagent 一派出去就收到 HTTP 429 錯誤。所以這次先重跑 `/setup-pstack`：
-
-```text
-/pstack:setup-pstack 背景：這個帳號不能用 fable。之前派給 fable 的 subagent 立刻收到 HTTP 429「Fable 5.1 requires usage credits. Switch to another model to continue.」所以請重新設定，所有角色都不要用 fable，預算維持 medium。fable 的替代模型由你決定，並說明理由。這次只能寫 ~/.claude/rules/pstack-models.md，不要改其他任何檔案。
-```
-
-它提議這樣改：
-
-- 原本用 fable 的四個單一角色（修 bug、效能問題、hillclimb、最難的任務）改成 `opus high`。
-- 要多個模型一起工作的 panel，也就是 arena 的 runner 和評審名單、architect 的 runner、interrogate 的審查者，直接拿掉 fable，不補別的模型，從 4 個變成 3 個（opus、sonnet、haiku）。它的理由是 panel 的價值在於不同模型互相比較，多放一個 opus 只會多花錢；想維持 4 個的話，可以各加一個 `opus high`。
-
-但它寫不進去。Claude Code 把 `~/.claude/rules/pstack-models.md` 當成敏感檔案，回覆「Claude requested permissions to edit … which is a sensitive file.」即使白名單明確允許這個檔案，也要在畫面上確認一次，而 `-p` 模式沒有確認畫面，寫入就被擋下了。第 1 篇的寫入是被我刻意設的規則擋下，這次則是 Claude Code 自己擋的。
-
-它建議兩種做法：在權限提示出現時按允許，或自己覆蓋檔案。我在 15:54 把它提議的內容逐字手動寫入。所以這份設定是 setup-pstack 提議、我手動寫入的，不是它自己寫的。之後每一次執行派出的模型和 effort，都和這份設定一致（`/how`、`/why` 在寫入前就跑完了，它們的角色新舊設定都是 opus high；arena 的 runner 數是我另外指定的 2 個）。這一步花了 25 秒，API 等價 0.208 美元。
 
 ## 看懂現有程式：/how 和 /why
 
@@ -263,26 +246,23 @@ pstack [刻意沒有寫計畫的 skill](https://github.com/cursor/plugins/blob/e
 
 以下幾點都是在這次的環境（帳號、版本、`-p` 模式、權限白名單）觀察到的，不代表在其他帳號或互動介面也一定會發生。
 
-**1. setup-pstack 寫不進自己的設定檔。** Claude Code 把 `~/.claude/rules/pstack-models.md` 當成敏感檔案，白名單允許了也要互動確認，`-p` 模式沒有確認畫面，所以直接拒絕。
+**1. subagent 的 Bash 常被擋，主對話會自己補跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主對話都會自己補做驗證。第 1 篇看到的是背景 subagent 一律不能跑 Bash；這次 `/why` 在背景執行的調查員能跑 git 指令，但仍有幾個指令被拒。被擋之後，它們改用 Read、Grep 或比較單純的指令，並在報告裡註明哪些沒有實際執行。
 
-**2. subagent 的 Bash 常被擋，主對話會自己補跑。** architect、interrogate、arena 三次都有 subagent 的 Bash 被拒，主對話都會自己補做驗證。第 1 篇看到的是背景 subagent 一律不能跑 Bash；這次 `/why` 在背景執行的調查員能跑 git 指令，但仍有幾個指令被拒。被擋之後，它們改用 Read、Grep 或比較單純的指令，並在報告裡註明哪些沒有實際執行。
+**2. effort 這次照設定。** 這次派出的 subagent 都是 effort high，和設定檔一致；第 1 篇修 bug 和加功能兩次都用了 low。
 
-**3. effort 這次照設定。** 這次派出的 subagent 都是 effort high，和設定檔一致；第 1 篇修 bug 和加功能兩次都用了 low。
+**3. `/interrogate` 在 `-p` 模式下空等。** 主對話派完審查者後，用 `ScheduleWakeup` 設了一個 1200 秒的喚醒當作備援。每一段回覆的運算時間加起來約 200 秒，整個執行卻跑了 22 分 35 秒。看起來審查者早就回報了，它還是等到 20 分鐘的喚醒才結束。這是從時間推論的，沒有逐筆時間戳證實。
 
-**4. `/interrogate` 在 `-p` 模式下空等。** 主對話派完審查者後，用 `ScheduleWakeup` 設了一個 1200 秒的喚醒當作備援。每一段回覆的運算時間加起來約 200 秒，整個執行卻跑了 22 分 35 秒。看起來審查者早就回報了，它還是等到 20 分鐘的喚醒才結束。這是從時間推論的，沒有逐筆時間戳證實。
+**4. architect 沒有派 `/how`。** SKILL.md 要求 Phase A 跑 `/how`，這次主對話自己讀程式、寫 `grounding.md`，沒有派 explainer。
 
-**5. architect 沒有派 `/how`。** SKILL.md 要求 Phase A 跑 `/how`，這次主對話自己讀程式、寫 `grounding.md`，沒有派 explainer。
-
-**6. 外掛在兩篇之間自動更新了。** 見文章開頭的版本提醒。
+**5. 外掛在兩篇之間自動更新了。** 見文章開頭的版本提醒。
 
 ## 用量與費用
 
-![說明圖：橫條圖列出每一步的 API 等價美元，/setup-pstack 0.208、/how 0.732、/why 1.979、/architect 4.293、/interrogate 2.030、/arena 兩段合計 2.288，右側標出 5 小時額度的變化，底部寫 8 次呼叫合計約 11.61 美元](cost-per-step.png){: width="800" height="450" }
+![說明圖：橫條圖列出每一步的 API 等價美元，/how 0.732、/why 1.979、/architect 4.293、/interrogate 2.030、/arena 兩段合計 2.288，右側標出 5 小時額度的變化，底部寫 7 次呼叫合計約 11.40 美元](cost-per-step.png){: width="800" height="450" }
 _architect 最貴；interrogate 和 architect 各吃掉 45% 的 5 小時額度。_
 
 | 執行 | 指令 | 時間（台北） | 結果 | API 等價（美元） |
 | --- | --- | --- | --- | --- |
-| s1 | `/pstack:setup-pstack` | 15:41 | 寫入被擋，我在 15:54 手動寫入 | 0.208 |
 | a1 | `/pstack:how` | 15:42–15:45 | 全部正確 | 0.732 |
 | a2 | `/pstack:why` | 15:45–15:48 | 大致正確，一處行號差 1 | 1.979 |
 | b1 | `/pstack:architect with checkpoint` | 15:55–16:08 | 3 個 runner 加 sonnet 評審，選 C1，停在 checkpoint | 4.293 |
@@ -291,15 +271,15 @@ _architect 最貴；interrogate 和 architect 各吃掉 45% 的 5 小時額度�
 | b3 | `/pstack:arena` | 21:13 | Frame 階段發現規格自相矛盾，停下來問 | 0.242 |
 | b3b | arena 接續（`--resume`） | 21:14–21:19 | 我選了選項 1；兩份候選收斂，17 個測試通過 | 2.046 |
 
-8 次呼叫合計約 11.61 美元。這是 Claude Code 回報的 `total_cost_usd`，也就是**照 API 價格換算的等價金額**；這次用的是訂閱方案的額度，實際沒有另外扣款。
+7 次呼叫合計約 11.40 美元。這是 Claude Code 回報的 `total_cost_usd`，也就是**照 API 價格換算的等價金額**；這次用的是訂閱方案的額度，實際沒有另外扣款。
 
-額度方面，5 小時用量在第一段（s1 到 b1）從 20% 升到 87%，19:50 重置；之後 interrogate 讓它從 26% 升到 71%，arena 兩段從 74% 升到 84%，一直沒有被拒絕。7 天用量全天從 67% 升到 91%，但其中 16:08 到 20:39 從 76% 升到 83% 那段，是我自己平常使用 Claude Code，不是這些實測造成的。
+額度方面，5 小時用量在開始實測前是 20%，architect 結束時升到 87%，19:50 重置；之後 interrogate 讓它從 26% 升到 71%，arena 兩段從 74% 升到 84%，一直沒有被拒絕。7 天用量從開始實測前的 67% 升到 91%，但其中 16:08 到 20:39 從 76% 升到 83% 那段，是我自己平常使用 Claude Code，不是這些實測造成的。
 
 ## 改程式之前，先要一份看得到的證據
 
 這次的答案很具體：先讓 AI 交出可以核對的東西，再讓它比較設計。`/how` 交出帶行號的路徑和注意事項，我能逐點對照程式；`/why` 把直接證據和推論分開，也老實寫出哪些查不到。設計階段，`/architect` 讓三個模型畫出結構不同的草稿，再停下來把該由我決定的事列出來；`/interrogate` 讓另外三個審查者挑出草稿裡的漏洞，連 architect 自己的理由也被挑出問題；`/arena` 在派工前先跑測試，抓出我寫的規格自相矛盾。
 
-代價是時間和額度。這次從 `/how` 到 `/arena`，API 等價合計約 11.61 美元，architect 一次就吃掉將近一半的 5 小時額度。小改動可以只跑 `/how`；會碰到好幾個模組的功能，再用 `/architect with checkpoint`。不管跑哪一個，最後都要自己抽查幾項結論。下一篇會接著談，寫完程式之後，怎麼證明它真的能用再合併。
+代價是時間和額度。這次從 `/how` 到 `/arena`，連同一次額度檢查，API 等價合計約 11.40 美元，architect 一次就吃掉將近一半的 5 小時額度。小改動可以只跑 `/how`；會碰到好幾個模組的功能，再用 `/architect with checkpoint`。不管跑哪一個，最後都要自己抽查幾項結論。下一篇會接著談，寫完程式之後，怎麼證明它真的能用再合併。
 
 ## 延伸閱讀
 
