@@ -19,6 +19,7 @@ lang_vars: [lang]
 exclude_from_localization:
   - assets/lib
   - assets/img
+  - assets/projects
   - assets/js/mermaid-zoom.js
   - assets/js/i18n.js
   - assets/robots.txt
@@ -272,8 +273,6 @@ exclude:
   - LICENSE
   - CLAUDE.md
   - AGENTS.md
-  - purgecss.js
-  - "*.config.js"
   - "package*.json"
 
 jekyll-archives:
