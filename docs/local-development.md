@@ -22,22 +22,15 @@ bundle -v
 
 ## 首次設定
 
-從 GitHub 重新取得專案時，一併下載 submodule：
+從 GitHub 取得專案，再安裝 Ruby gems：
 
 ```bash
-git clone --recurse-submodules https://github.com/tabaco/7a6ac0.github.io.git
-cd 7a6ac0.github.io
+git clone https://github.com/justmaocom/justmaocom.github.io.git
+cd justmaocom.github.io
 bundle install
 ```
 
-若已經 clone 過專案，請在 repository 根目錄補齊 `assets/lib`，再安裝 Ruby gems：
-
-```bash
-git submodule update --init
-bundle install
-```
-
-`assets/lib` 存放 Chirpy 使用的前端套件。少了這個 submodule，網站仍可能啟動，但字型、圖示與互動功能會不完整。
+`assets/lib` 存放 Chirpy 使用的字型與前端套件。這些檔案已提交在 repository 內，建置與預覽網站不需要 Node.js。更新方式見[更新 assets/lib](#更新-assetslib)。
 
 專案也需要完整的 Git 歷史來計算文章最後更新時間。一般 clone 不需額外處理。若曾使用 `--depth` 建立淺層 clone，可先檢查：
 
@@ -110,6 +103,23 @@ JEKYLL_ENV=production bundle exec jekyll build -d _site
 bundle exec htmlproofer _site/posts --disable-external
 ```
 
+## 更新 assets/lib
+
+`assets/lib` 的版本由 `package.json` 的固定版本與 `package-lock.json` 的 sha512 integrity 決定。`tools/sync-lib.mjs` 從 `node_modules` 把主題需要的檔案複製到 `assets/lib/`。`fonts/` 與 `LICENSE` 不受腳本管理，維持原樣。
+
+更新需要 Node.js 與 npm。先改版本，再重新產生 `assets/lib`：
+
+```bash
+npm install <套件>@<版本>
+npm run sync-lib
+```
+
+接著把 `package.json`、`package-lock.json` 與 `assets/lib/` 一起提交。CI 的 `lib` job 會執行 `npm ci && npm run sync-lib`，產生的檔案與提交的 `assets/lib` 不同時就失敗。
+
+Dependabot 每週檢查 npm 套件，minor 與 patch 合成一個 PR，major 各自一個 PR。這些 PR 只會修改 `package.json` 與 `package-lock.json`，所以要在 PR 分支上執行 `npm ci && npm run sync-lib`，提交 `assets/lib/` 後推回，`lib` 檢查才會通過。
+
+mermaid 等套件的 dist 檔已把自己的相依套件打包進去。`package-lock.json` 裡的間接相依套件（例如 dompurify）升版時，站上的檔案不會改變。要修正這類漏洞，必須升級直接相依的套件，讓新版的 dist 檔帶入修正。
+
 ## 常見問題
 
 ### `bundle exec` 無法執行
@@ -118,13 +128,13 @@ bundle exec htmlproofer _site/posts --disable-external
 
 ### 頁面沒有樣式、圖示或互動功能
 
-檢查 submodule：
+檢查 `assets/lib` 是否與提交的內容一致：
 
 ```bash
-git submodule status
+git status -- assets/lib
 ```
 
-若 `assets/lib` 前方出現 `-`，代表尚未初始化。執行 `git submodule update --init` 後重啟伺服器。
+若有檔案被修改或刪除，執行 `git restore assets/lib` 後重啟伺服器。
 
 ### 連接埠 4000 已被占用
 
