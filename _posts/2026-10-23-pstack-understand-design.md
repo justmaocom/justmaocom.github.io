@@ -47,6 +47,8 @@ pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 A
 
 下面每個 skill 都照同樣的順序寫：我請它做什麼、它實際交出什麼（從實測紀錄原文照錄）、這代表什麼，以及花了多少。
 
+pstack 有一份模型設定（Claude Code 上是 `~/.claude/rules/pstack-models.md`），寫明每個角色用哪個模型、effort（要 AI 花多少力氣思考）多高；[第 1 篇](/posts/pstack-install-routing/)介紹的 `/setup-pstack` 就是用來產生這份設定的。這次實測時，需要幾個模型一起做的角色（architect 和 arena 的 runner、interrogate 的審查者），設定裡都是 opus、sonnet、haiku 各一個，effort 都是 high。
+
 ## 看懂現有程式：/how 和 /why
 
 ![說明圖：左邊是 /how，回答現在怎麼運作，交出整條路徑、流程圖和 10 點注意事項，我逐點核對全部正確；右邊是 /why，回答為什麼長這樣，查 git 歷史和過去的對話紀錄，把直接證據和推論分開，大致正確，有 1 處行號差 1；下方標示 /teach 和 /recall 未實測](understand-how-why.png){: width="800" height="450" }
@@ -65,7 +67,7 @@ _/how 問「現在怎麼運作」，/why 問「為什麼長這樣」。_
 7. **`--month` 不檢查格式**：傳 `2026-1` 會靜靜地回傳全部是 0 的結果。而且因為過濾在解析之後，9 月的一個壞列也會讓查詢 10 月的指令失敗。
 ```
 
-**這代表什麼**：這幾點都是光看程式不容易發現、但真的會出錯的細節。例如會計格式的 `(-12)` 會被當成正 12；Excel 匯出的 CSV 常在檔案開頭帶一個看不見的 BOM 標記，會讓每一列都讀取失敗；`--month 2026-1` 打錯格式也不會報錯，只會回傳一堆 0。我把 10 點逐一對照程式，也實際執行確認，全部正確。對我的用處是：動手改之前，就知道哪些地方容易出錯，也知道測試還缺什麼。
+**這代表什麼**：這幾點都是光看程式不容易發現、但真的會出錯的細節。例如括號裡又帶負號的 `(-12)` 會被當成正 12；Excel 匯出的 CSV 常在檔案開頭帶一個看不見的 BOM 標記，會讓每一列都讀取失敗；`--month 2026-1` 打錯格式也不會報錯，只會回傳一堆 0。我把 10 點逐一對照程式，也實際執行確認，全部正確。對我的用處是：動手改之前，就知道哪些地方容易出錯，也知道測試還缺什麼。
 
 它的做法也值得一提。它判斷這是範圍小的問題，只派了 1 個 subagent 去讀程式。subagent 是主對話另外派出去、專門做一小段工作的 AI。subagent 回報之後，主對話又自己核對了一次它引用的行號，才把答案交給我。
 
@@ -127,7 +129,7 @@ WARNING: over budget: food (2026-10)
 
 **這代表什麼**：範例輸出是它套上現有資料實際跑出來的，不是手算。10 月 food 花了 153.45，預算 150，所以標出超支 3.45。我對照範例資料核對過，數字正確。
 
-它是這樣做出來的：先讓三種 Claude 模型（opus、sonnet、haiku）各畫一份結構不同的草稿，再由另一個模型當評審打分，最後以 opus 那份為底，從另外兩份補進好的部分。然後它停下來，列出 5 個要我決定的問題。第一題「沒指定月份時怎麼辦」影響最大，三個模型的意見也不一致。對我的用處是：還沒寫任何正式程式，我就先看到結果長什麼樣，也知道哪些需求我還沒講清楚。
+它是這樣做出來的：先讓三種 Claude 模型（opus、sonnet、haiku）各畫一份結構不同的草稿，再由其中的 sonnet 當評審打分，最後以 opus 那份為底，從另外兩份補進好的部分。然後它停下來，列出 5 個要我決定的問題。第一題「沒指定月份時怎麼辦」影響最大，三個模型的意見也不一致。對我的用處是：還沒寫任何正式程式，我就先看到結果長什麼樣，也知道哪些需求我還沒講清楚。
 
 **花費**：約 4.29 美元，約 13 分鐘，是這次五個 skill 裡最貴的一個。
 
@@ -148,7 +150,7 @@ WARNING: over budget: food (2026-10)
 5. 測試清單漏掉設計自己新增的行為，包括 0 位元組檔案、`-0`、跨月的 JSON 等。
 ```
 
-**這代表什麼**：它找了三個不同的模型當審查者，各自挑毛病。[指南](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69)說，每個模型的盲點不一樣，兩個模型各自提出同一個問題時最可信。主對話再把所有意見分成「必須處理」「值得考慮」「記下即可」「不採納」四類，上面就是必須處理的 5 項。白話說：預算寫成天文數字、或預算檔不是 UTF-8 編碼時，程式會直接當掉，印出 traceback（Python 當掉時的錯誤追蹤）；草稿裡有一個測試照寫一定會失敗。我自己在 Python 上抽查了其中 3 個關鍵說法，都屬實。
+**這代表什麼**：它找了三個不同的模型當審查者，各自挑毛病。[指南](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69)說，每個模型的盲點不一樣，兩個模型各自提出同一個問題時，可信度很高。主對話再把所有意見分成「必須處理」「值得考慮」「記下即可」「不採納」四類，上面就是必須處理的 5 項。白話說：預算寫成天文數字、或預算檔不是 UTF-8 編碼時，程式會直接當掉，印出 traceback（Python 當掉時的錯誤追蹤）；草稿裡有一個測試照寫一定會失敗。我自己在 Python 上抽查了其中 3 個關鍵說法，都屬實。
 
 它也挑出 architect 自己的理由有漏洞。architect 說逐月列出「絕不靜默漏掉任何一個月」，三位審查者都指出，沒有交易的月份其實會被跳過。上一個 skill 寫下的理由，被下一個 skill 挑出了問題。對我的用處是：動手實作之前，就先修掉幾個會讓使用者看到錯誤畫面的問題。
 
@@ -160,7 +162,7 @@ WARNING: over budget: food (2026-10)
 
 **我請它做什麼**：讓兩個 AI 各自改寫一次解析金額的函式，只接受一般的金額格式，拒絕 `1e3`、`NaN`、`$12` 這類輸入，而且現有的測試都不能壞。
 
-arena 裡各自完成同一份任務的 AI 叫 runner。runner 的數量預設來自 `/setup-pstack` 的設定，[也可以每次調整](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51)。設定檔裡是 3 個，這次我刻意在提示裡只要 2 個（opus 和 haiku）。
+arena 裡各自完成同一份任務的 AI 叫 runner。runner 的數量預設來自 `/setup-pstack` 產生的模型設定，[也可以每次調整](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51)。模型設定裡是 3 個，這次我刻意在提示裡只要 2 個（opus 和 haiku）。
 
 **它實際交出什麼**：一份綜合報告。報告是英文的，下面是其中兩節，原文照錄：
 
@@ -176,7 +178,7 @@ The original ask also rejected `'1.234'` (3 decimals), but `tests/test_cli.py` p
 The two candidates independently wrote the **same grammar**: `[0-9]` only, comma groups of exactly 3, a decimal point that needs digits on both sides, sign XOR parentheses, `fullmatch` on `text.strip()`. Their edge-case decisions were the same too: reject `12,34`, `.5`, `5.`, `( 12 )`, non-ASCII digits and empty input; accept a trailing newline. That is strong agreement, so the consensus shape ships.
 ```
 
-**這代表什麼**：第一節說的是派工前發生的事。我原本要求拒絕三位小數的 `'1.234'`，可是現有測試裡有一筆 `-5.555` 必須能讀進來，兩個要求不可能同時成立。它沒有硬做，先跑了現有測試、發現矛盾，停下來列出 3 個選項問我。它建議選項 2（只在複本裡改那筆測試資料），我選了選項 1：不限制小數位數，其他要拒絕的照舊。
+**這代表什麼**：第一節說的是派工前發生的事。我原本要求拒絕三位小數的 `'1.234'`，可是現有測試裡有一筆 `-5.555` 必須能讀進來，兩個要求不可能同時成立。它沒有硬做，先跑了現有測試、發現矛盾，停下來列出 3 個選項問我。它建議選項 2：維持嚴格的兩位小數，只在驗證用的複本裡把那筆 `-5.555` 改成像 `-5.56` 這樣的兩位小數；它也提醒，這等於改了我原本禁止改的現有測試。我選了選項 1：不限制小數位數，其他要拒絕的照舊。
 
 第二節是結果：兩個 runner 各自寫出一模一樣的規則，只接受 0–9 的數字、千分位逗號三位一組、小數點兩邊都要有數字、正負號和括號只能擇一。[SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) 說，兩份收斂到同一個形狀就是強共識。接著由 sonnet 當評審打分，它不是任何一個 runner 用的模型。評審和主對話都選 opus 那份當底，主對話再從 haiku 那份補進一處寫法和幾個測試。合併後的版本在暫存資料夾裡跑測試，全部通過；我在自己的 Mac 上重跑，結果一樣。
 
@@ -188,10 +190,10 @@ The two candidates independently wrote the **same grammar**: `[0-9]` only, comma
 
 - Cursor 上的任何操作。
 - `/teach` 和 `/recall`。[指南](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L5)說，`/teach` 會再跑一次 `/how` 和 `/why`，整理成白話說明；`/recall` 會從最近的對話和共用紀錄，整理某個主題目前的狀況。
-- 原因不清楚時的[唯讀調查](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17)（在 `/poteto-mode` 的描述裡寫「don't change any code yet」）。這次沒有重跑，[第 1 篇](/posts/pstack-install-routing/)跑過一次。
+- 原因不清楚時的[唯讀調查](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17)（在交給 `/poteto-mode` 的指令裡寫上「don't change any code yet」）。這次沒有重跑，[第 1 篇](/posts/pstack-install-routing/)跑過一次。
 - architect 照草稿實作，以及發現架構錯了就整個重來的那兩段。我刻意讓它停在 checkpoint，所以「實作時有沒有照草稿走」這次沒有答案。
 - 把 arena 的結果套用回專案。結果刻意只放在 `.pstack-scratch/`。
-- 照設定用 3 個 runner 的單獨 arena。3 個 runner 只在 architect 內部那一場出現過。
+- 照模型設定用 3 個 runner 的單獨 arena。3 個 runner 只在 architect 內部那一場出現過。
 - `/swarm`：把工作切給多個 AI 平行處理。
 - 指南建議用來回答設計問題的 [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81)，也就是做幾個用完就丟的試作。
 
@@ -201,7 +203,7 @@ The two candidates independently wrote the **same grammar**: `[0-9]` only, comma
 
 **1. subagent 執行指令常被擋，主對話會自己補跑。** architect、interrogate、arena 三次都有 subagent 執行終端機指令（Bash）被拒，主對話都會自己補做驗證。第 1 篇看到的是在背景執行的 subagent 一律不能跑指令；這次 `/why` 的背景 subagent 能跑 git 指令，但仍有幾個指令被拒。被擋之後，它們改用讀檔、搜尋或比較單純的指令，並在報告裡註明哪些沒有實際執行。
 
-**2. effort 這次照設定。** effort 是要 AI 花多少力氣思考。這次派出的 subagent 都是 high，和設定檔一致；第 1 篇修 bug 和加功能兩次都用了 low。
+**2. effort 這次照模型設定。** effort 是要 AI 花多少力氣思考。這次派出的 subagent 都是 high，和模型設定一致；第 1 篇修 bug 和加功能兩次都用了 low。
 
 **3. `/interrogate` 在 `-p` 模式下空等。** 主對話派完審查者後，設了一個 20 分鐘後叫醒自己的備援計時。每一段回覆的運算時間加起來約 200 秒，整個執行卻跑了 22 分 35 秒。看起來審查者早就回報了，它還是等到 20 分鐘的計時到了才結束。這是從時間推論的，沒有逐筆時間戳證實。
 
@@ -216,7 +218,7 @@ The two candidates independently wrote the **same grammar**: `[0-9]` only, comma
 ## 實測紀錄
 
 ![說明圖：橫條圖列出每一步的 API 等價美元，/how 0.732、/why 1.979、/architect 4.293、/interrogate 2.030、/arena 兩段合計 2.288，底部寫 7 次呼叫合計約 11.40 美元](cost-per-step.png){: width="800" height="450" }
-_architect 最貴，interrogate 和 arena 次之。_
+_architect 最貴，arena 和 interrogate 次之。_
 
 | 執行 | 指令 | 時間（台北） | 耗時 | 模型與各自的 API 等價（美元） | 5 小時額度 | 細節 | API 等價（美元） |
 | --- | --- | --- | --- | --- | --- | --- | --- |

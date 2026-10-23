@@ -49,6 +49,8 @@ Each skill below follows the same order: what I asked it to do, what it actually
 
 Most of the skills answered me in Chinese, because I wrote the prompts in Chinese. Where an excerpt below is labeled as a translation, I translated it from the Chinese original; code, sample output, and the English arena report are quoted as they are.
 
+pstack keeps a model settings file (`~/.claude/rules/pstack-models.md` in Claude Code) that says which model each role uses and at what effort (how hard the AI is asked to think); `/setup-pstack`, covered in [Part 1](/posts/pstack-install-routing/), is what generates it. During these tests, every role that uses several models at once (the architect and arena runners, and the interrogate reviewers) was set to one each of opus, sonnet, and haiku, all at high effort.
+
 ## Understanding the Code: /how and /why
 
 ![Diagram: on the left, /how answers how the code works now, delivering the full path, a flowchart, and 10 gotchas, all of which I checked and found correct; on the right, /why answers why the code looks this way, searching git history and past conversation logs and separating direct evidence from inference, mostly right with one line number off by one; at the bottom, /teach and /recall are marked as not tested](understand-how-why.en.png){: width="800" height="450" }
@@ -67,7 +69,7 @@ _/how asks "how does it work now?" and /why asks "why does it look like this?"_
 7. **`--month` doesn't check the format**: passing `2026-1` quietly returns all zeros. And because filtering happens after parsing, one bad row in September also makes a query for October fail.
 ```
 
-**What it means:** these are details that are hard to spot by reading the code but really do cause errors. For example, an accounting-style `(-12)` is treated as positive 12; CSVs exported from Excel often start with an invisible BOM marker, which makes every row fail to load; and a mistyped `--month 2026-1` doesn't raise an error, it just returns a pile of zeros. I checked all 10 points against the code and by running it, and every one was correct. This helps me because, before I change anything, I know where the code is fragile and what the tests are missing.
+**What it means:** these are details that are hard to spot by reading the code but really do cause errors. For example, a parenthesized negative such as `(-12)` is treated as positive 12; CSVs exported from Excel often start with an invisible BOM marker, which makes every row fail to load; and a mistyped `--month 2026-1` doesn't raise an error, it just returns a pile of zeros. I checked all 10 points against the code and by running it, and every one was correct. This helps me because, before I change anything, I know where the code is fragile and what the tests are missing.
 
 How it worked is worth noting too. It judged this a small question and sent only 1 subagent to read the code. A subagent is a separate AI that the main conversation sends off to do one piece of the work. After the subagent reported back, the main conversation checked the line numbers it cited before giving me the answer.
 
@@ -129,7 +131,7 @@ WARNING: over budget: food (2026-10)
 
 **What it means:** the sample output was produced by actually running the design on the existing data, not worked out by hand. Food in October came to 153.45 against a budget of 150, so it flags 3.45 over. I checked it against the sample data, and the numbers are right.
 
-Here's how it got there. Three Claude models (opus, sonnet, and haiku) each drew a sketch with a different structure, another model scored them as a judge, and then it took the opus sketch as the base and folded in good parts from the other two. Then it stopped and listed 5 questions for me. The first, "what to do when no month is given," matters most, and the three models disagreed on it. This helps me because, before any real code is written, I can already see what the result will look like and which requirements I haven't spelled out.
+Here's how it got there. Three Claude models (opus, sonnet, and haiku) each drew a sketch with a different structure, then sonnet, one of the three, scored them as the judge, and then it took the opus sketch as the base and folded in good parts from the other two. Then it stopped and listed 5 questions for me. The first, "what to do when no month is given," matters most, and the three models disagreed on it. This helps me because, before any real code is written, I can already see what the result will look like and which requirements I haven't spelled out.
 
 **Cost:** about USD 4.29, about 13 minutes; the most expensive of the five skills this time.
 
@@ -150,7 +152,7 @@ The verdict is **implementable after fixes**. Fix these 5 things before starting
 5. The test list misses behavior the design itself adds, including 0-byte files, `-0`, multi-month JSON, and so on.
 ```
 
-**What it means:** it had three different models act as reviewers, each looking for problems on its own. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69) explains that each model has different blind spots, and a problem two models raise independently is the most credible. The main conversation then sorted every point into "must fix," "worth considering," "note only," and "rejected"; the 5 above are the must-fix items. In plain terms: if a budget is set to an astronomical number, or the budget file isn't UTF-8, the program crashes and prints a traceback (the error trail Python prints when it crashes); and one test in the sketch would fail as written. I spot-checked 3 key claims myself in Python, and all were true.
+**What it means:** it had three different models act as reviewers, each looking for problems on its own. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L69) explains that each model has different blind spots, and a problem two models raise independently is a high-confidence signal. The main conversation then sorted every point into "must fix," "worth considering," "note only," and "rejected"; the 5 above are the must-fix items. In plain terms: if a budget is set to an astronomical number, or the budget file isn't UTF-8, the program crashes and prints a traceback (the error trail Python prints when it crashes); and one test in the sketch would fail as written. I spot-checked 3 key claims myself in Python, and all were true.
 
 It also found a hole in the architect's own reasoning. The architect said listing every month "never silently drops a month," but all three reviewers pointed out that months with no transactions are in fact skipped. A reason one skill wrote down was challenged by the next. This helps me because, before implementing anything, I can fix several problems that would otherwise show users an error screen.
 
@@ -162,7 +164,7 @@ This single run can't tell you whether the guide's warning is right. This sketch
 
 **What I asked:** have two AIs each rewrite the function that parses amounts so that it accepts only ordinary amount formats, rejects inputs such as `1e3`, `NaN`, and `$12`, and keeps every existing test passing.
 
-In arena, each AI that does its own copy of the task is called a runner. The number of runners comes from the `/setup-pstack` settings by default, but [you can change it per run](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51). The settings file says 3; this time I deliberately asked for only 2 in the prompt (opus and haiku).
+In arena, each AI that does its own copy of the task is called a runner. The number of runners comes by default from the model settings that `/setup-pstack` generates, but [you can change it per run](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L47-L51). The model settings say 3; this time I deliberately asked for only 2 in the prompt (opus and haiku).
 
 **What it produced:** a synthesis report, written in English. Here are two of its sections, verbatim:
 
@@ -178,7 +180,7 @@ The original ask also rejected `'1.234'` (3 decimals), but `tests/test_cli.py` p
 The two candidates independently wrote the **same grammar**: `[0-9]` only, comma groups of exactly 3, a decimal point that needs digits on both sides, sign XOR parentheses, `fullmatch` on `text.strip()`. Their edge-case decisions were the same too: reject `12,34`, `.5`, `5.`, `( 12 )`, non-ASCII digits and empty input; accept a trailing newline. That is strong agreement, so the consensus shape ships.
 ```
 
-**What it means:** the first section is about what happened before any work was handed out. I had asked it to reject `'1.234'`, with three decimal places, but an existing test has a `-5.555` that must load, so the two requirements can't both hold. Instead of forcing it, it ran the existing tests, found the contradiction, and stopped to ask me with 3 options. It recommended option 2 (changing only that test data, in a copy), and I chose option 1: no limit on decimal places, with the other rejections unchanged.
+**What it means:** the first section is about what happened before any work was handed out. I had asked it to reject `'1.234'`, with three decimal places, but an existing test has a `-5.555` that must load, so the two requirements can't both hold. Instead of forcing it, it ran the existing tests, found the contradiction, and stopped to ask me with 3 options. It recommended option 2: keep the strict two-decimal rule and, only in the verification copy, change that `-5.555` to a two-decimal value such as `-5.56`; it also pointed out that this amounts to changing an existing test, which I had ruled out. I chose option 1: no limit on decimal places, with the other rejections unchanged.
 
 The second section is the result: the two runners independently wrote exactly the same rule. It accepts only the digits 0–9, comma groups of exactly three, a decimal point with digits on both sides, and either a sign or parentheses but not both. [SKILL.md](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md#L40) says that two results converging on the same shape is strong agreement. Next, sonnet scored them as the judge; it wasn't the model of either runner. The judge and the main conversation both picked the opus version as the base, and the main conversation then folded in one piece of code and a few tests from the haiku version. The merged version passed all its tests in the scratch folder, and I got the same result when I reran them on my own Mac.
 
@@ -190,10 +192,10 @@ One caution: the new version rejects some forms the old one accepted, such as `.
 
 - Anything in Cursor.
 - `/teach` and `/recall`. [The guide](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L5) says `/teach` runs `/how` and `/why` again and turns them into a plain-language explanation, and `/recall` pulls together the current state of a topic from recent conversations and shared records.
-- The [read-only investigation](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17) for when the cause is unclear (the `/poteto-mode` description says "don't change any code yet"). I didn't rerun it this time; [Part 1](/posts/pstack-install-routing/) ran it once.
+- The [read-only investigation](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md#L11-L17) for when the cause is unclear (you add "don't change any code yet" to your `/poteto-mode` request). I didn't rerun it this time; [Part 1](/posts/pstack-install-routing/) ran it once.
 - The architect's implementation from the sketch, and the step where it starts over if the architecture proves wrong. I deliberately stopped it at the checkpoint, so "does the implementation follow the sketch?" has no answer this time.
 - Applying the arena result back to the project. The result stayed only in `.pstack-scratch/` on purpose.
-- A standalone arena with the configured 3 runners. Three runners appeared only in the round inside architect.
+- A standalone arena with the 3 runners in the model settings. Three runners appeared only in the round inside architect.
 - `/swarm`, which splits work across several AIs working in parallel.
 - The [Prototype playbook](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md#L73-L81) the guide recommends for answering design questions: building a few throwaway prototypes.
 
@@ -203,7 +205,7 @@ These were all observed in this particular environment (account, versions, `-p` 
 
 **1. Subagents were often blocked from running commands, and the main conversation ran them itself.** In architect, interrogate, and arena, subagents had terminal commands (Bash) denied, and each time the main conversation did the verification itself. In Part 1, subagents running in the background couldn't run commands at all; this time `/why`'s background subagents could run git commands, though a few commands were still denied. When blocked, they switched to reading files, searching, or simpler commands, and noted in their reports what they hadn't actually run.
 
-**2. Effort followed the settings this time.** Effort is how hard the AI is asked to think. Every subagent dispatched this time used high, matching the settings file; in Part 1, both the bug fix and the feature run used low.
+**2. Effort followed the model settings this time.** Effort is how hard the AI is asked to think. Every subagent dispatched this time used high, matching the model settings; in Part 1, both the bug fix and the feature run used low.
 
 **3. `/interrogate` sat idle in `-p` mode.** After dispatching the reviewers, the main conversation set a backup timer to wake itself up after 20 minutes. The computing time of its replies added up to about 200 seconds, yet the whole run took 22 minutes 35 seconds. It looks like the reviewers had reported back long before, but it still waited until the 20-minute timer went off before finishing. This is inferred from the timing; no per-event timestamps confirm it.
 
@@ -218,7 +220,7 @@ To learn how a piece of code works now, use `/how`: it's the cheapest, and its g
 ## Test Record
 
 ![Chart: horizontal bars showing the API-equivalent USD for each step: /how 0.732, /why 1.979, /architect 4.293, /interrogate 2.030, and /arena 2.288 for its two parts together; the footer reads 7 calls, about USD 11.40 in total](cost-per-step.en.png){: width="800" height="450" }
-_Architect cost the most, followed by interrogate and arena._
+_Architect cost the most, followed by arena and interrogate._
 
 | Run | Command | Time (Taipei) | Duration | Models and their API-equivalent cost (USD) | 5-hour quota | Details | API-equivalent (USD) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
