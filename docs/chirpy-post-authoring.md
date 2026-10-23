@@ -10,9 +10,9 @@
 gem "jekyll-theme-chirpy", "~> 7.6"
 ```
 
-RubyGems 的 `~> 7.6` 代表 `>= 7.6` 且 `< 8.0`，不是只允許 7.6.x。專案也沒有提交 `Gemfile.lock`，所以每次解析依賴時可能取得不同的 7.x 版本。這個邊界已用 RubyGems 的 `Gem::Requirement` 在本機驗算；規則也見 [RubyGems 的 pessimistic version constraint](https://guides.rubygems.org/patterns/#pessimistic-version-constraint)。若要限制在 7.6.x，約束應寫成 `~> 7.6.0`。
+RubyGems 的 `~> 7.6` 代表 `>= 7.6` 且 `< 8.0`，不是只允許 7.6.x。實際安裝的版本以已提交的 `Gemfile.lock` 為準，Dependabot 會在有新版時送 PR 更新它。這個邊界已用 RubyGems 的 `Gem::Requirement` 在本機驗算；規則也見 [RubyGems 的 pessimistic version constraint](https://guides.rubygems.org/patterns/#pessimistic-version-constraint)。若要限制在 7.6.x，約束應寫成 `~> 7.6.0`。
 
-`chirpy.cotes.page` 的教學網址沒有版本段，內容會隨目前版本更新，不能單獨當成 7.6 的固定規格。7.6 的最低基準應以 [v7.6.0 tag](https://github.com/cotes2020/jekyll-theme-chirpy/tree/v7.6.0) 與該 tag 的 [Writing a New Post 原始檔](https://github.com/cotes2020/jekyll-theme-chirpy/blob/v7.6.0/_posts/2019-08-08-write-a-new-post.md) 為準。若 Bundler 之後解析到較新的 7.x，仍須再比對該版本的 release notes。
+`chirpy.cotes.page` 的教學網址沒有版本段，內容會隨目前版本更新，不能單獨當成 7.6 的固定規格。7.6 的最低基準應以 [v7.6.0 tag](https://github.com/cotes2020/jekyll-theme-chirpy/tree/v7.6.0) 與該 tag 的 [Writing a New Post 原始檔](https://github.com/cotes2020/jekyll-theme-chirpy/blob/v7.6.0/_posts/2019-08-08-write-a-new-post.md) 為準。若 `Gemfile.lock` 之後更新到較新的 7.x，仍須再比對該版本的 release notes。
 
 ## 最小可用 front matter
 
