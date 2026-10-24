@@ -19,7 +19,7 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 > - Next (Part 3): After the code is written, prove it works before merging (not yet published)
 {: .prompt-info }
 
-> **Version note:** This post is based on pstack [version `0.15.30`](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `eb4db2b` (14:08 on 2026-10-22, Taipei time), with Claude Code 2.1.309. Later versions may behave differently. After Part 1 was written, Claude Code updated itself and the plugin automatically, so the two posts use different versions:
+> **Version note:** This post is based on pstack [version `0.15.30`](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `eb4db2b` (14:08 on 2026-10-22, Taipei time), with Claude Code 2.1.309. Later versions may behave differently. After Part 1 was written, both Claude Code and pstack were updated to newer releases, so the two posts use different versions:
 >
 > | | Part 1 | This post |
 > | --- | --- | --- |
@@ -27,7 +27,7 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 > | Skills | 56 | 57 |
 > | Claude Code | 2.1.306 | 2.1.309 |
 >
-> The only change from `0.15.29` to `0.15.30` is a new skill, `statechart`. None of the parts this post uses changed: how, why, architect, interrogate, arena, poteto-mode, and the Claude Code adapter notes. When I checked at 21:28 on 2026-10-23 (Taipei time), `main` in `cursor/plugins` had two more pstack commits after `eb4db2b` (`7698375` and `4ec7ffa`). Both only touch `statechart`, and the version is still `0.15.30`.
+> The only change from `0.15.29` to `0.15.30` is a new skill, `statechart`. None of the parts this post uses changed: how, why, architect, interrogate, arena, poteto-mode, and the Claude Code adapter notes. When I checked at 10:31 on 2026-10-24 (Taipei time), `main` in `cursor/plugins` was at `0.15.32` (`6dbc3ff`). None of the pstack changes after `eb4db2b` touch the five skills in this post, the `poteto-mode` skill file, or the guide sections cited here.
 {: .prompt-warning }
 
 ## Before You Start
@@ -70,7 +70,7 @@ For example:
 **What you get:** an architectural explanation written for a senior engineer, enough to build a working mental model without reading like annotated source code. Sections that don't apply are dropped:
 
 - **Overview:** what it is, what it does, and why it exists.
-- **Key Concepts:** the types, services, or abstractions you need to follow the rest.
+- **Key Concepts:** the types (the kinds and shapes of data, such as which fields an order has), services, or abstractions you need to follow the rest.
 - **How It Works:** the longest section. What triggers it, what happens step by step, and where data goes. It names specific files and functions, and includes a diagram when several components are involved.
 - **Where Things Live:** the files and folders you need to start working.
 - **Gotchas:** the non-obvious parts that tend to trip people up.
@@ -109,7 +109,7 @@ If you said you're asking because you plan to change the code, the report ends w
 
 **What's next:** take that Preserve / Change / Avoid / Risk list to `/architect` as constraints for the design.
 
-> `/why` uses the MCP servers you've connected to read issues, docs, and chat history, and it uses `gh` to read PR discussions. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+> `/why` uses the MCP servers you've connected to read issues, docs, and chat history, and it uses `gh` (GitHub's command-line tool) to read PR discussions. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
 ## /architect: Sketch the Design Before Writing Code
@@ -138,7 +138,7 @@ For example:
 
 **What you get:** the caller's usage, written first, with the type sketch derived from it. A small change gets one file with the new types and function signatures; larger work gets a module map plus type definitions. Alongside it comes a one-page rationale: the problem, the caller's usage, the recommended shape, which sketch became the base and why, the tradeoffs accepted, the alternatives considered, the open questions and risks for you to weigh in on, and the first thing to implement.
 
-**What's next:** when it stops at the checkpoint, answer the open questions in the rationale, then let it go on to implement. If the design matters and a mistake would be expensive, you can run `/interrogate` on the sketch before implementation; otherwise, run `/interrogate` on the change once it's built.
+**What's next:** when it stops at the checkpoint, answer the open questions in the rationale, then let it go on to implement. If the design matters and a mistake would be expensive, you can run `/interrogate` on the sketch before implementation (the sketch already has concrete types and signatures, so it isn't an abstract plan); otherwise, run `/interrogate` on the change once it's built.
 
 ## /interrogate: Have Several Models Look for Problems
 
@@ -200,9 +200,9 @@ For example:
 
 **What it does:** it opens a to-do list with six phases.
 
-1. **Frame:** every candidate gets exactly the same prompt, so the prompt is the contract. It states what each candidate should produce, then writes 3 to 6 concrete criteria that can be scored. The criteria are only for judging; the candidates see only the task. Each candidate gets its own place to work (a git worktree where possible, meaning a separate working copy of the same project) so they don't overwrite each other.
+1. **Frame:** every candidate gets exactly the same prompt, so the prompt is the contract. It states what each candidate should produce, then writes 3 to 6 concrete criteria that can be scored. The judge scores against these criteria, and it uses them itself to pick the base in step 4; the candidates see only the task. Each candidate gets its own place to work (a git worktree where possible, meaning a separate working copy of the same project) so they don't overwrite each other.
 2. **Fan out:** it sends N subagents at the same time. Each does the task and adds a short note on the alternatives it considered and why it rejected them. If one produces nothing, it carries on with the remaining N-1 and notes the dropout.
-3. **Cross-judge:** once every candidate is done, it sends one read-only judge, preferably from a different model family than the main conversation. The judge scores each candidate against each criterion and recommends one as the base.
+3. **Cross-judge:** once every candidate is done, it sends one read-only judge, preferably from a different model family than the main conversation (for example, Claude and Grok are different families). The judge scores each candidate against each criterion and recommends one as the base.
 4. **Pick:** it reads every candidate end to end itself, scores each one criterion by criterion, and compares the result with the judge's. If they agree, the pick is confirmed. If not, one of them is biased or the criteria were unclear, so it reads both rationales before deciding. It picks the version a future maintainer can extend most easily without breaking its rules.
 5. **Graft:** it goes over the losing candidates once more, usually taking one or two things worth porting from each, and folds them into the base by hand instead of pasting. If the candidates converge on the same approach, it ships that shared approach with no grafting. If they differ wildly, the task in phase 1 wasn't clear enough, so it reframes and runs again instead of averaging the differences.
 6. **Verify:** it checks the merged result like any other output. If it finds a problem, it works out whether phase 1 was wrong (start over) or a candidate had caught it and the graft was missed (back to phase 5).
@@ -211,7 +211,7 @@ For example:
 
 **What's next:** if the result is code, you can run `/interrogate` before merging. If what you actually need is **coverage**, such as checking every package once, rather than comparing approaches, that's the job of another skill, `/swarm`. Don't use `/arena` for it.
 
-![The six phases of /arena: frame, fan out, cross-judge, pick a base, graft, verify](arena-phases.en.png){: w="800" h="450" }
+![/arena's six phases: frame (set the rules), fan out, cross-judge (scoring), pick the base, graft (mix in strengths), verify (final check)](arena-phases.en.png){: w="800" h="450" }
 _More candidates means more subagents: N candidates plus one judge._
 
 ## A Complete Example (Made Up)
@@ -302,4 +302,4 @@ Before you change code with pstack, the order is: use `/how` to learn how the co
 - [pstack, Part 1: Install, Pick Models, Start With /poteto-mode](/posts/pstack-install-routing/): how to install, and how `/poteto-mode` sequences a task.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): SKILL.md structure and testing from the skill author's side.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what files an agent can read, and how to tighten permissions.
-- Another skill set's approach: [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/), [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/), [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/), and [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/).
+- Another skill set's approach: [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/), [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/), [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/), [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/), and [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/).
