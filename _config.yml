@@ -44,7 +44,7 @@ timezone: Asia/Taipei
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: 只是一根毛 # the main title
+title: 只是一根毛 | JustMao # the main title
 
 tagline: 從問題開始，把答案寫下來 # it will display as the subtitle
 
@@ -90,7 +90,7 @@ webmaster_verifications:
 # Web Analytics Settings
 analytics:
   google:
-    id: G-TGFH9WRBKN # fill in your Google Analytics ID
+    id: G-LNZMJLP1HD # fill in your Google Analytics ID
   goatcounter:
     id: # fill in your GoatCounter ID
   umami:
