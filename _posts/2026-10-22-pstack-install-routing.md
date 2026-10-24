@@ -21,7 +21,7 @@ pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill
 > pstack 系列｜第 1 篇
 >
 > - 系列導讀：這套 skill 是什麼、四篇該怎麼讀（尚未發布）
-> - 下一篇（第 2 篇）：改程式之前，先看懂再設計（尚未發布）
+> - 下一篇（第 2 篇）：[改程式之前，先看懂再設計](/posts/pstack-understand-design/)
 >
 > **版本提醒**：本文以 pstack [`0.15.32` 版](https://github.com/cursor/plugins/blob/e853501d1a466d9cfcda381a677b09b0d17f758f/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` main 的 commit `e853501`（2026-10-24 10:32，台北時間）；pstack 資料夾最後一次變動是 `e73df47`（2026-10-24 06:56）。Claude Code 的指令和選單，依 2026-10-24 查閱的[官方文件](https://code.claude.com/docs/en/plugins/install)。之後的版本，指令和行為可能會改變。
 >
