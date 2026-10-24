@@ -21,7 +21,7 @@ image:
 > pstack 系列｜第 1 篇
 >
 > - 系列导读：这套 skill 是什么、四篇该怎么读（尚未发布）
-> - 下一篇（第 2 篇）：改代码之前，先看懂再设计（尚未发布）
+> - 下一篇（第 2 篇）：[改代码之前，先看懂再设计](/posts/pstack-understand-design/)
 >
 > 本文以 pstack [`0.15.29` 版](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `88d4751`（2026-10-20）。2026-10-21 21:31（台北时间）核实时，`cursor/plugins` 的 main 已经往前走，但 pstack 文件夹最后一次变动仍是这个 commit，版本也还是 `0.15.29`。
 {: .prompt-info }
