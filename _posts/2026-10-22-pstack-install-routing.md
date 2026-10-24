@@ -25,7 +25,7 @@ pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill
 >
 > **版本提醒**：本文以 pstack [`0.15.29` 版](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `88d4751`，也就是本文 2026-10-22 首次發布時的版本；2026-10-24 改寫成教學文時，內容仍以這一版為準。Claude Code 的指令和選單，依 2026-10-24 查閱的[官方文件](https://code.claude.com/docs/en/plugins/install)。之後的版本，指令和行為可能會改變。
 >
-> 2026-10-24 10:51（台北時間）查證時，`cursor/plugins` main 的最新版本是 `0.15.32`（commit `e853501`），skill 增加到 58 個，新增的是 `statechart` 和 `ketchup-video`。和 `0.15.29` 相比，`setup-pstack`、安裝指南和 Claude Code 對照說明都沒有改；`poteto-mode` 的說明檔和 playbook 沒有改，只更新了內部腳本；`poteto-help` 只在對照表裡加了這兩個新 skill 的兩行。
+> 2026-10-24 10:51（台北時間）查證時，`cursor/plugins` main 的最新版本是 `0.15.32`（commit `e853501`），skill 增加到 58 個，新增的是 `statechart` 和 `ketchup-video`。和 `0.15.29` 相比，`setup-pstack`、設定指南（01-setup）和 Claude Code 對照說明都沒有改；README 在安裝段落後新增了一段自動更新與手動更新的說明（和本文第 2 步一致），skill 表也加了兩個新 skill；`poteto-mode` 的說明檔和 playbook 沒有改，只更新了內部腳本；`poteto-help` 只在對照表裡加了這兩個新 skill 的兩行。
 {: .prompt-info }
 
 ## pstack 裝了什麼
@@ -54,7 +54,7 @@ _第一次使用的流程：安裝、核對版本、選模型，再從 /poteto-m
 
 第二行的 `pstack@cursor-plugins` 意思是「從 cursor-plugins 這個目錄安裝 pstack」。依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#install-a-plugin)，在對話裡輸入 `/plugin install` 不會馬上安裝，而是先打開外掛的說明頁，讓你看它會裝哪些東西，再選安裝範圍：選「Install for you」（user scope）就是這台電腦上的所有專案都能用。
 
-> 上面的指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支上的內容。裝別人的外掛之前該檢查什麼，見[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+> 上面的指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支（branch，repo 裡平常開發用的主線，通常叫 main）上的內容。裝別人的外掛之前該檢查什麼，見[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 {: .prompt-tip }
 
 網路上也有第三方整理的 pstack 鏡像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方維護的版本。要用的話，請先看完內容、鎖定版本，理由同樣見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
@@ -89,9 +89,9 @@ Cursor 這邊的更新方式，本文不討論。
 
 ### 固定在某個 commit
 
-commit 是 git 裡的一個版本紀錄，每個 commit 都有一串編號（SHA）。想讓 pstack 一直停在你看過的那個 commit，可以用本機資料夾當 marketplace。
+commit 是 git（最常用的版本控制工具）裡的一個版本紀錄，每個 commit 都有一串編號（SHA）。想讓 pstack 一直停在你看過的那個 commit，可以用本機資料夾當 marketplace。
 
-先說明為什麼要這樣做。Claude Code 官方的[指令參考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)裡，`/plugin install` 沒有指定版本或 commit 的選項。`/plugin marketplace add` 可以在 repo 後面加 `#ref`，[固定在某個分支或 tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace)；但 2026-10-24 查證時，`cursor/plugins` 沒有任何 tag。能固定到 commit 的 `sha` 欄位，是寫在目錄的 `marketplace.json` 裡、由目錄維護者設定的（見 [marketplace 參考文件](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 條目沒有設定。
+先說明為什麼要這樣做。Claude Code 官方的[指令參考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)裡，`/plugin install` 沒有指定版本或 commit 的選項。`/plugin marketplace add` 可以在 repo 後面加 `#ref`，[固定在某個分支或 tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace)（tag 是替某個 commit 取的固定名稱，例如 v1.0）；但 2026-10-24 查證時，`cursor/plugins` 沒有任何 tag。能固定到 commit 的 `sha` 欄位，是寫在目錄的 `marketplace.json` 裡、由目錄維護者設定的（見 [marketplace 參考文件](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 條目沒有設定。
 
 官方文件支援把本機資料夾加成 marketplace，所以可以先把 repo 下載（clone）到自己電腦，切到你審過的 commit，再把這個資料夾加成 marketplace。以下以本文的 commit 為例，在終端機執行：
 
@@ -125,7 +125,7 @@ pstack 會把工作分給不同角色，例如寫程式的、做判斷的、組�
 3. **列出每個角色配哪個模型**，問你要照單全收，還是改掉某幾個角色。
 4. **檢查**你選的模型都在偵測到的清單裡；不在的話，會停下來再問一次。
 5. **寫進設定檔。**
-6. **詢問要不要替專案產生驗證用的 skill。** 一個是讓 AI 能像使用者一樣實際操作你的程式、自己檢查結果（`/create-verification-skill`）；另一個是形式驗證的 skill（`/create-formal-verification-skill`）。兩個都只會問一次，可以拒絕。
+6. **詢問要不要替專案產生驗證用的 skill。** 一個是讓 AI 能像使用者一樣實際操作你的程式、自己檢查結果（`/create-verification-skill`）；另一個是形式驗證的 skill（`/create-formal-verification-skill`），用來證明程式的某個關鍵性質在範圍內的所有情況都成立，而不只是測試寫到的情況。兩個都只會問一次，可以拒絕；專案已經有這類 skill 的話就不會問。
 
 預算有四種：
 
@@ -235,11 +235,11 @@ _/poteto-mode 先判斷任務類型，再照 playbook 的步驟走。_
 /pstack:poteto-mode new task. 查清楚為什麼登出後快取還在。先不要改任何程式。
 ```
 
-- **每個新任務都重新叫一次**：Cursor 可以從 `/` 選單用 Option+Enter（Mac）或 Alt+Enter（Windows）選 `/poteto-mode`，把它變成 Custom Mode，也就是在整段對話持續生效的模式。依 [`poteto-help` 的說明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文件只在 Agents 視窗和 CLI 列出 Custom Mode；其他環境，包括 Claude Code，每個新任務都用 `/pstack:poteto-mode` 開頭。
+- **每個新任務都重新叫一次**：Cursor 可以從 `/` 選單用 Option+Enter（Mac）或 Alt+Enter（Windows）選 `/poteto-mode`，把它變成 Custom Mode，也就是在整段對話持續生效的模式。依 [`poteto-help` 的說明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文件只在 Agents 視窗和 CLI（在終端機裡用指令操作的程式）列出 Custom Mode；其他環境，包括 Claude Code，每個新任務都用 `/pstack:poteto-mode` 開頭。
 
 ## cursor-team-kit 要不要一起裝
 
-[README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L255-L263) 寫明，`/poteto-mode` 會用到的三樣東西不在 pstack 裡，而是在另一個外掛 `cursor-team-kit`：清理程式碼的 `/deslop`，以及操作 CLI（在終端機裡用指令操作的程式）和瀏覽器畫面的 `control-cli`、`control-ui`。README 的建議是：想要完整功能，就把 `cursor-team-kit` 一起裝。[指南第 5 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59)另外說明，開 PR 前的流程會跑 `/deslop`；沒有它的話，就用白話要求同樣的清理，例如刪掉旁白式註解、沒有根據的防禦程式碼，以及和這次無關的修改。
+[README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L255-L263) 寫明，`/poteto-mode` 會用到的三樣東西不在 pstack 裡，而是在另一個外掛 `cursor-team-kit`：清理程式碼的 `/deslop`，以及操作 CLI 和瀏覽器畫面的 `control-cli`、`control-ui`。README 的建議是：想要完整功能，就把 `cursor-team-kit` 一起裝。[指南第 5 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59)另外說明，開 PR 前的流程會跑 `/deslop`；沒有它的話，就用白話要求同樣的清理，例如刪掉旁白式註解、沒有根據的防禦程式碼，以及和這次無關的修改。
 
 ## 什麼時候用哪個
 

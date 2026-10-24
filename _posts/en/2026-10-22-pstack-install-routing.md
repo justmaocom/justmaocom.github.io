@@ -25,7 +25,7 @@ The example prompts in this post are generic. Copy them and swap in details from
 >
 > **Version note**: This post is based on pstack [version `0.15.29`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `88d4751`, the version when this post first went out on 2026-10-22. When it was rewritten as a tutorial on 2026-10-24, it stayed on this version. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
 >
-> When checked on 2026-10-24 at 10:51 Taipei time, the latest version on `cursor/plugins` main was `0.15.32` (commit `e853501`), and the skill count had risen to 58 with the addition of `statechart` and `ketchup-video`. Compared with `0.15.29`, `setup-pstack`, the install guide, and the Claude Code notes haven't changed; `poteto-mode`'s SKILL.md and playbooks haven't changed, and only its internal scripts were updated; `poteto-help` only added two rows for those two new skills to its lookup table.
+> When checked on 2026-10-24 at 10:51 Taipei time, the latest version on `cursor/plugins` main was `0.15.32` (commit `e853501`), and the skill count had risen to 58 with the addition of `statechart` and `ketchup-video`. Compared with `0.15.29`, `setup-pstack`, the setup guide (01-setup), and the Claude Code notes haven't changed. The README added a paragraph on automatic and manual updates after its install steps (it matches Step 2 here), plus rows for the two new skills. `poteto-mode`'s SKILL.md and playbooks haven't changed, and only its internal scripts were updated; `poteto-help` only added two rows for those two new skills to its lookup table.
 {: .prompt-info }
 
 ## What pstack Installs
@@ -45,7 +45,7 @@ The [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff
 /add-plugin pstack
 ```
 
-In Claude Code, first add the `cursor/plugins` GitHub repo (a repository, the project that holds the code) as a marketplace (a plugin catalog), then install pstack from that catalog:
+In Claude Code, first add the `cursor/plugins` GitHub repo (repository: the project folder that holds the code) as a marketplace (a plugin catalog), then install pstack from that catalog:
 
 ```text
 /plugin marketplace add cursor/plugins
@@ -54,7 +54,7 @@ In Claude Code, first add the `cursor/plugins` GitHub repo (a repository, the pr
 
 `pstack@cursor-plugins` on the second line means "install pstack from the cursor-plugins catalog." According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#install-a-plugin), typing `/plugin install` in a chat doesn't install right away. It first opens the plugin's details pane so you can see what it adds, and then asks you to pick a scope. "Install for you" (user scope) makes it available in every project on this machine.
 
-> None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment. For what to check before installing someone else's plugin, see [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
+> None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment (the default branch is the main line of work in a repo, usually called main). For what to check before installing someone else's plugin, see [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
 There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, read through it and pin a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
@@ -89,9 +89,9 @@ This post doesn't cover how updates work on the Cursor side.
 
 ### Pin a Specific Commit
 
-A commit is one saved version in git, and each commit has an ID (its SHA). To keep pstack on a commit you've reviewed, you can use a local folder as the marketplace.
+A commit is one saved version in git (the most widely used version-control tool), and each commit has an ID (its SHA). To keep pstack on a commit you've reviewed, you can use a local folder as the marketplace.
 
-Here's why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace), but when I checked on 2026-10-24, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
+Here's why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) (a tag is a fixed name given to one commit, such as v1.0), but when I checked on 2026-10-24, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
 
 The official docs support adding a local folder as a marketplace. So you can download (clone) the repo to your computer, check out the commit you reviewed, and add that folder as a marketplace. Using this post's commit as the example, run in your terminal:
 
@@ -125,7 +125,7 @@ pstack splits work across roles, such as the one that writes code, the one that 
 3. **Shows which model each role gets**, and asks whether to accept them all or change a few roles.
 4. **Checks** that every model you chose is in the detected list. If one isn't, it stops and asks again.
 5. **Writes the settings file.**
-6. **Asks whether to generate verification skills for your project.** One lets the AI drive your app the way a user does and check the result itself (`/create-verification-skill`); the other is a formal verification skill (`/create-formal-verification-skill`). Each offer comes up once, and you can say no.
+6. **Asks whether to generate verification skills for your project.** One lets the AI drive your app the way a user does and check the result itself (`/create-verification-skill`); the other is a formal verification skill (`/create-formal-verification-skill`), which proves a key property of your code holds in every case in scope, not only the cases tests reach. Each offer comes up once, you can say no, and it is skipped if the project already has that kind of skill.
 
 There are four budgets:
 
@@ -235,11 +235,11 @@ _/poteto-mode first identifies the task type, then follows that playbook's steps
 /pstack:poteto-mode new task. figure out why the cache entry survives logout. don't change any code yet.
 ```
 
-- **Call it again for each new task**: in Cursor, you can pick `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) to make it a Custom Mode, a mode that stays on for the whole chat. According to the [`poteto-help` notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58), Cursor's docs list Custom Modes only in the Agents Window and the CLI. Everywhere else, Claude Code included, start each new task with `/pstack:poteto-mode`.
+- **Call it again for each new task**: in Cursor, you can pick `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) to make it a Custom Mode, a mode that stays on for the whole chat. According to the [`poteto-help` notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58), Cursor's docs list Custom Modes only in the Agents Window and the CLI (a program you run with typed commands in a terminal). Everywhere else, Claude Code included, start each new task with `/pstack:poteto-mode`.
 
 ## Should You Install cursor-team-kit Too?
 
-The [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L255-L263) says three things `/poteto-mode` uses aren't in pstack but in another plugin, `cursor-team-kit`: `/deslop`, which cleans up code, and `control-cli` and `control-ui`, which drive a CLI (a program you run with typed commands in a terminal) and a browser UI. The README's advice is to install `cursor-team-kit` alongside pstack for the full set. [Guide chapter 5](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59) adds that the steps before opening a PR run `/deslop`. If you don't have it, ask for the same cleanup in plain words, such as removing narrating comments, defensive code with no reason behind it, and changes unrelated to the task.
+The [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L255-L263) says three things `/poteto-mode` uses aren't in pstack but in another plugin, `cursor-team-kit`: `/deslop`, which cleans up code, and `control-cli` and `control-ui`, which drive a CLI and a browser UI. The README's advice is to install `cursor-team-kit` alongside pstack for the full set. [Guide chapter 5](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59) adds that the steps before opening a PR run `/deslop`. If you don't have it, ask for the same cleanup in plain words, such as removing narrating comments, defensive code with no reason behind it, and changes unrelated to the task.
 
 ## When to Use Which
 
