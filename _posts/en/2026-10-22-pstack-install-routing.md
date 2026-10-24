@@ -125,7 +125,7 @@ pstack splits work across roles, such as the one that writes code, the one that 
 3. **Shows which model each role gets**, and asks whether to accept them all or change a few roles.
 4. **Checks** that every model you chose is in the detected list. If one isn't, it stops and asks again.
 5. **Writes the settings file.**
-6. **Asks whether to generate verification skills for your project.** One lets the AI drive your app the way a user does and check the result itself (`/create-verification-skill`); the other is a formal verification skill (`/create-formal-verification-skill`), which proves a key property of your code holds in every case in scope, not only the cases tests reach. Each offer comes up once, you can say no, and it is skipped if the project already has that kind of skill.
+6. **Asks whether to generate verification skills for your project.** One lets the AI drive your app the way a user does and check the result itself (`/create-verification-skill`); the other is a formal verification skill (`/create-formal-verification-skill`), which proves a key property of your code holds in every case in scope, not only the cases tests reach. Each offer comes up once, and you can say no. The first is skipped if the project already has a way to drive the app for proof (a `verify-*` skill or an existing harness, meaning tooling that already runs the app); the second is skipped if it already has a formal verification skill.
 
 There are four budgets:
 
