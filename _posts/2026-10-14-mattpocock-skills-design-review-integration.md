@@ -40,7 +40,7 @@ image:
 | --- | --- |
 | 模組 | 一塊有名字、可以單獨拿來用的程式，小到一個函式，大到一整個套件都算 |
 | 介面 | 別人使用這個模組時要知道的東西，就像家電上的按鈕和說明書 |
-| 接點 | 程式裡可以把零件換掉的位置，就像插座。上一篇的「測試接點」就是它 |
+| 接點 | 程式裡可以把零件換掉的位置，就像插座，模組的介面就在這裡。上一篇的「測試接點」是同一個詞，從測試的角度看：測試從這個位置進去觀察行為 |
 
 ## 四個 skill 各管什麼
 
@@ -53,7 +53,7 @@ image:
 
 這四個在 `ask-matt` 的路線圖裡位置都不同：[`codebase-design` 是底層詞彙](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L59)，[`improve-codebase-architecture` 是平時保養](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)，[`code-review` 是主流程的最後一步](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L26)，[`resolving-merge-conflicts` 不在任何流程裡](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L79)，卡住了才用。
 
-`improve-codebase-architecture` 是唯一[設定成 AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一個，Codex 那邊的設定檔[也關掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它會把整個專案掃過一遍，相當花時間，所以由你決定什麼時候跑。
+`improve-codebase-architecture` 是這四個裡唯一[設定成 AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一個，Codex 那邊的設定檔[也關掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它會先圈出範圍，再派小幫手把那一帶的程式讀過一遍，相當花時間，所以由你決定什麼時候跑。
 
 ## `codebase-design`：先統一大家講話的用詞
 
@@ -89,7 +89,7 @@ _同樣的席次功能，左邊要記五顆按鈕，右邊只要三顆。_
 3. **測試和使用者按同一組按鈕。** 如果你想繞過按鈕直接去測裡面，代表這個模組切得不對。
 4. **只有一種零件可以插的插座，不算插座。** 「以後可能要換」不是理由，至少要真的有兩種東西會插進來（例如正式版和測試用的假版本），才值得在這裡留一個接點。
 
-第 4 條很常見。很多人為了「以後可能要換資料庫」先多包一層，結果專案從頭到尾只用過一種。依這條原則，那一層只是讓程式多繞了一圈。
+第 4 條說的情況很常見。很多人為了「以後可能要換資料庫」先多包一層，結果專案從頭到尾只用過一種。依這條原則，那一層只是讓程式多繞了一圈。
 
 ### 兩份附錄
 
@@ -167,7 +167,7 @@ _同樣的席次功能，左邊要記五顆按鈕，右邊只要三顆。_
 ![左側「照規矩寫了嗎」報告列出兩個可能的壞味道，標明只是提醒；右側「照需求做了嗎」報告引用規格原文，列出計費已收到新席次數，以及停用沒有席次的成員可能做錯；底部寫著「寫得漂亮卻做錯需求，一邊的好成績蓋不掉另一邊的問題」](code-review-two-axes.png){: width="800" height="450" }
 _兩份報告分開放，不合成一份排名。_
 
-上一篇提過，[`tdd` 把整理寫法的工作留到審查階段](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38)。「照規矩寫了嗎」這一邊，就是測試通過之後，回頭整理寫法的那個時間點。
+上一篇提過，[`tdd` 把整理寫法的工作留到審查階段](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38)。「照規矩寫了嗎」這一邊，就是測試通過之後，回頭整理寫法的那一步。
 
 ## `resolving-merge-conflicts`：先搞懂兩邊想做什麼，再合併
 
@@ -225,7 +225,7 @@ $code-review main
 ```
 {: .nolineno }
 
-意思是「檢查從 `main` 分出來之後的所有修改」。AI 從 commit 訊息裡找到工作單編號，專案也沒有寫規範，所以「照規矩寫了嗎」這一邊只用基本檢查表。
+意思是「檢查從 `main` 分出來之後的所有修改」。AI 從 commit 訊息裡找到工作單編號；專案沒有寫規範，所以「照規矩寫了嗎」這一邊只用基本檢查表。
 
 兩份報告可能長這樣（推演）：
 
@@ -305,7 +305,7 @@ export function deactivateMember(workspace, memberId, billing) {
 
 順序也有講究：先檢查成員在不在，不在就直接結束，計費系統就不會收到一次沒有變化的通知。這一點兩邊的 commit 都沒提到，是 AI 合併時自己做的判斷，所以要寫進合併的 commit 訊息，讓你審查時看得到。
 
-接著照第 4 步跑測試。上一篇寫的 `node --test seats.test.js`，呼叫 `deactivateMember()` 時沒有傳入計費系統。我把合併後的程式放回上一篇的測試，用 Node.js v20.19.2 實際跑過，結果是 `fail 1`（一個測試失敗），錯誤類型為 `TypeError`，意思是程式拿到了不能用的東西：這裡是計費系統沒有傳進來。
+接著照第 4 步跑測試。上一篇用 `node --test seats.test.js` 跑的測試，呼叫 `deactivateMember()` 時沒有傳入計費系統。我把合併後的程式放回上一篇的測試，用 Node.js v20.19.2 實際跑過，結果是 `fail 1`（一個測試失敗），錯誤類型為 `TypeError`，意思是程式拿到了不能用的東西：這裡是計費系統沒有傳進來。
 
 這正是「把合併弄壞的地方修好」要處理的情況：要在測試裡補一個假的計費系統，而不是把通知計費那一行刪掉。全部通過之後，AI 才會 commit。
 
@@ -327,7 +327,7 @@ export function deactivateMember(workspace, memberId, billing) {
 - 結構的問題，交給 `improve-codebase-architecture` 定期健康檢查，再用 `codebase-design` 的詞彙討論怎麼改。
 - 兩條分支撞在一起時，先讀兩邊的 commit 和工作單，搞懂各自想做什麼，再決定怎麼合。
 
-回到按席次計費，下一步是在第三張工作單的分支上跑一次 `$code-review main`。先處理「照需求做了嗎」那一項，再決定規矩那一項要不要排進下次健康檢查。
+換到你自己的專案，下一步是在一條做完、準備合併的分支上跑一次 `$code-review main`。先處理「照需求做了嗎」那一邊的問題，再決定「照規矩寫了嗎」的壞味道要不要排進下次健康檢查。
 
 ## 延伸閱讀
 

@@ -15,11 +15,11 @@ image:
 
 你准备替现有的订阅服务加入按席位计费，却不确定该先厘清需求、写规格、补测试，还是直接动手写代码。你听说 mattpocock/skills 能让 AI 编程助手把这类工作做得更有条理，打开清单却看到 25 个 skill 名称。难道要先把每一个都搞懂才能开始？
 
-先说明几个名词。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、替你写代码的 AI 工具。skill 则可以理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明，例如怎么访谈需求，或怎么把规格拆成一项项工作。`mattpocock/skills` 是 Matt Pocock 公开的一整组 skill。
-
 答案是不必全部看懂。第一次使用只需要两步：先用 `setup-matt-pocock-skills` 把项目的工作规则记下来，再用 `ask-matt` 依你遇到的问题，建议下一个该用的 skill。
 
 不过，`ask-matt` 比较像服务台，不是会自动跑完整套流程的总管。它只会告诉你下一步该用哪个 skill，实际启动仍要由你来做。
+
+先说明几个名词。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、替你写代码的 AI 工具。skill 则可以理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明，例如怎么访谈需求，或怎么把规格拆成一项项工作。`mattpocock/skills` 是 Matt Pocock 公开的一整组 skill。
 
 > mattpocock/skills 系列｜第 1 篇
 >
@@ -55,7 +55,7 @@ claude plugins install mattpocock-skills
 
 也可以在 Claude Code 里直接输入 `/plugin install mattpocock-skills`。
 
-Codex 或其他工具则使用 skills.sh 这个安装工具：
+想自行修改内容，或使用 Codex 等其他工具时，则使用 skills.sh 这个安装工具：
 
 ```bash
 npx skills@latest add mattpocock/skills
@@ -91,7 +91,7 @@ npx skills@latest update <name>
 
 在 Codex 中，可以先输入 `$` 再从清单选择 skill，也可以直接输入 `$skill-name`。这项语法可在 [OpenAI 的 Codex skills 文档](https://developers.openai.com/codex/skills/)核对。其他 AI 编程助手请依各自的 skill 菜单或输入方式操作。
 
-这项限制也说明了为什么 `ask-matt` 只能提出建议：它推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
+这项限制也说明了为什么 `ask-matt` 只能提出建议：例如它常推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
 
 ## setup 会替项目留下哪些设置
 
@@ -101,7 +101,7 @@ npx skills@latest update <name>
 
 查看完毕后，它会依次确认三件事：
 
-- **工作记录在哪里。** 原文称为 issue tracker，本系列称为“工作跟踪工具”，也就是团队记录待办事项的地方。代码放在 GitHub 时，默认建议 GitHub Issues；放在 GitLab 时，则建议 GitLab。你也可以直接用项目文件夹里的 Markdown 文件记录。若使用 Jira、Linear 等其他工具，则由你用一段文字说明操作方式。
+- **工作记录在哪里。** 原文称为 issue tracker，本系列称为“工作跟踪工具”，也就是团队记录待办事项的地方。代码放在 GitHub 时，默认建议 GitHub Issues；放在 GitLab 时，则建议 GitLab Issues。你也可以直接用项目文件夹里的 Markdown 文件记录。若使用 Jira、Linear 等其他工具，则由你用一段文字说明操作方式。
 - **是否沿用默认的分类标签。** 这些标签是给整理外部反馈的 `triage` 使用的，所以只有安装了 `triage` 才会询问。
 - **词汇表与决策记录放在哪里。** 一般项目集中放一份即可；只有发现项目由多个子项目组成时，才会询问是否每个子项目各放一份。
 

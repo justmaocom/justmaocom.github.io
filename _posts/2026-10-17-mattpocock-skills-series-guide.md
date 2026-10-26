@@ -10,7 +10,7 @@ image:
   alt: "六篇照開發順序排，合起來涵蓋官方外掛的 25 個 skill；先找出你卡在哪一步，再從那一篇讀起。"
 ---
 
-> **版本提醒（2026-10-19 查證）**：本系列六篇都以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從下文說的 25 個 skill 變成 27 個：[第 5 篇](/posts/mattpocock-skills-design-review-integration/)介紹的 `resolving-merge-conflicts` 已移除；新增的 `implement-spec`、`pr`、`retro` 系列還沒介紹；[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的詞彙表 `CONTEXT.md` 也改名為 `GLOSSARY.md`。其餘 24 個 skill 都還在。本系列之後會依新版全面更新。
+> **版本提醒（2026-10-19 查證）**：本系列六篇都以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從下文說的 25 個 skill 變成 27 個：[第 5 篇](/posts/mattpocock-skills-design-review-integration/)介紹的 `resolving-merge-conflicts` 已移除；新增的 `implement-spec`、`pr`、`retro` 本系列還沒介紹；[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的詞彙表 `CONTEXT.md` 也改名為 `GLOSSARY.md`。其餘 24 個 skill 都還在。本系列之後會依新版全面更新。
 {: .prompt-warning }
 
 你可能是聽人提過 `mattpocock/skills`，打開 repo 卻看到一長串 skill 名稱；也可能是從搜尋點進其中一篇，想知道前後還有什麼。這個系列寫了六篇，每篇處理開發流程裡的一段。這篇導讀不重講細節，只回答三件事：這套 skill 是什麼、六篇怎麼串起來，以及你該從哪一篇開始。
@@ -19,7 +19,7 @@ image:
 >
 > - 從頭開始（第 1 篇）：[先設定專案規則，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準，第 5、6 篇另外註明了之後的版本變動。
+> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準，各篇開頭另外註明了之後的版本變動。
 {: .prompt-info }
 
 ## mattpocock/skills 是什麼
@@ -117,11 +117,11 @@ _先找到自己卡住的地方，再從對應的那一篇讀起。_
 | 要交接工作、查資料，或學一個新主題 | 第 6 篇 |
 | 想看一項功能從頭到尾怎麼走 | 第 1 篇依序讀到第 6 篇 |
 
-如果你已經裝好了，也可以直接問 `ask-matt`：描述現在卡在哪一步，它會建議下一個該用的 skill，再回來讀介紹那個 skill 的那一篇。
+如果你已經裝好了，也可以直接問 `ask-matt`：描述現在卡在哪一步，它會建議下一個該用的 skill，你再回來讀介紹那個 skill 的那一篇。
 
 ## 版本說明
 
-六篇在 2026 年 9 月 21 日到 10 月 14 日之間發布，內容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。系列寫作期間 repo 仍在更新，[第 5 篇](/posts/mattpocock-skills-design-review-integration/)和[第 6 篇](/posts/mattpocock-skills-research-handoff/)開頭的提示框，另外註明了之後的版本變動。實際使用前，建議對照 repo 目前的版本。
+六篇在 2026 年 9 月 21 日到 10 月 14 日之間發布，內容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。系列寫作期間 repo 仍在更新，各篇開頭的提示框另外註明了之後的版本變動。實際使用前，建議對照 repo 目前的版本。
 
 ## 延伸閱讀
 

@@ -40,7 +40,7 @@ image:
 | --- | --- |
 | 模块 | 一块有名字、可以单独拿来用的代码，小到一个函数，大到一整个包都算 |
 | 接口 | 别人使用这个模块时要知道的东西，就像家电上的按钮和说明书 |
-| 接缝 | 代码里可以把零件换掉的位置，就像插座。上一篇的“测试接缝”就是它 |
+| 接缝 | 代码里可以把零件换掉的位置，就像插座，模块的接口就在这里。上一篇的“测试接缝”是同一个词，从测试的角度看：测试从这个位置进去观察行为 |
 
 ## 四个 skill 各管什么
 
@@ -53,7 +53,7 @@ image:
 
 这四个在 `ask-matt` 的路线图里位置都不同：[`codebase-design` 是底层词汇](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L59)，[`improve-codebase-architecture` 是平时保养](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)，[`code-review` 是主流程的最后一步](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L26)，[`resolving-merge-conflicts` 不在任何流程里](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L79)，卡住了才用。
 
-`improve-codebase-architecture` 是唯一[设置成 AI 不能自己启动](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一个，Codex 那边的配置文件[也关掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它会把整个项目扫过一遍，相当花时间，所以由你决定什么时候跑。
+`improve-codebase-architecture` 是这四个里唯一[设置成 AI 不能自己启动](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4)的一个，Codex 那边的配置文件[也关掉了](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5)。它会先圈出范围，再派小帮手把那一带的代码读过一遍，相当花时间，所以由你决定什么时候跑。
 
 ## `codebase-design`：先统一大家讲话的用词
 
@@ -89,7 +89,7 @@ _同样的席位功能，左边要记五颗按钮，右边只要三颗。_
 3. **测试和用户按同一组按钮。** 如果你想绕过按钮直接去测里面，代表这个模块切得不对。
 4. **只有一种零件可以插的插座，不算插座。** “以后可能要换”不是理由，至少要真的有两种东西会插进来（例如正式版和测试用的假版本），才值得在这里留一个接缝。
 
-第 4 条很常见。很多人为了“以后可能要换数据库”先多包一层，结果项目从头到尾只用过一种。按这条原则，那一层只是让代码多绕了一圈。
+第 4 条说的情况很常见。很多人为了“以后可能要换数据库”先多包一层，结果项目从头到尾只用过一种。按这条原则，那一层只是让代码多绕了一圈。
 
 ### 两份附录
 
@@ -167,7 +167,7 @@ _同样的席位功能，左边要记五颗按钮，右边只要三颗。_
 ![左侧“照规矩写了吗”报告列出两个可能的坏味道，标明只是提醒；右侧“照需求做了吗”报告引用规格原文，列出计费已收到新席位数，以及停用没有席位的成员可能做错；底部写着“写得漂亮却做错需求，一边的好成绩盖不掉另一边的问题”](code-review-two-axes.png){: width="800" height="450" }
 _两份报告分开放，不合成一份排名。_
 
-上一篇提过，[`tdd` 把整理写法的工作留到审查阶段](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38)。“照规矩写了吗”这一边，就是测试通过之后，回头整理写法的那个时间点。
+上一篇提过，[`tdd` 把整理写法的工作留到审查阶段](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38)。“照规矩写了吗”这一边，就是测试通过之后，回头整理写法的那一步。
 
 ## `resolving-merge-conflicts`：先搞懂两边想做什么，再合并
 
@@ -225,7 +225,7 @@ $code-review main
 ```
 {: .nolineno }
 
-意思是“检查从 `main` 分出来之后的所有修改”。AI 从 commit 消息里找到工作单编号，项目也没有写规范，所以“照规矩写了吗”这一边只用基本检查表。
+意思是“检查从 `main` 分出来之后的所有修改”。AI 从 commit 消息里找到工作单编号；项目没有写规范，所以“照规矩写了吗”这一边只用基本检查表。
 
 两份报告可能长这样（推演）：
 
@@ -305,7 +305,7 @@ export function deactivateMember(workspace, memberId, billing) {
 
 顺序也有讲究：先检查成员在不在，不在就直接结束，计费系统就不会收到一次没有变化的通知。这一点两边的 commit 都没提到，是 AI 合并时自己做的判断，所以要写进合并的 commit 消息，让你审查时看得到。
 
-接着照第 4 步跑测试。上一篇写的 `node --test seats.test.js`，调用 `deactivateMember()` 时没有传入计费系统。我把合并后的代码放回上一篇的测试，用 Node.js v20.19.2 实际跑过，结果是 `fail 1`（一个测试失败），错误类型为 `TypeError`，意思是程序拿到了不能用的东西：这里是计费系统没有传进来。
+接着照第 4 步跑测试。上一篇用 `node --test seats.test.js` 跑的测试，调用 `deactivateMember()` 时没有传入计费系统。我把合并后的代码放回上一篇的测试，用 Node.js v20.19.2 实际跑过，结果是 `fail 1`（一个测试失败），错误类型为 `TypeError`，意思是程序拿到了不能用的东西：这里是计费系统没有传进来。
 
 这正是“把合并弄坏的地方修好”要处理的情况：要在测试里补一个假的计费系统，而不是把通知计费那一行删掉。全部通过之后，AI 才会 commit。
 
@@ -327,7 +327,7 @@ export function deactivateMember(workspace, memberId, billing) {
 - 结构的问题，交给 `improve-codebase-architecture` 定期体检，再用 `codebase-design` 的词汇讨论怎么改。
 - 两条分支撞在一起时，先读两边的 commit 和工作单，搞懂各自想做什么，再决定怎么合。
 
-回到按席位计费，下一步是在第三张工作单的分支上跑一次 `$code-review main`。先处理“照需求做了吗”那一项，再决定规矩那一项要不要排进下次体检。
+换到你自己的项目，下一步是在一条做完、准备合并的分支上跑一次 `$code-review main`。先处理“照需求做了吗”那一边的问题，再决定“照规矩写了吗”的坏味道要不要排进下次体检。
 
 ## 延伸阅读
 

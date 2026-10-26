@@ -164,7 +164,7 @@ For self-hosted Discourse, you can work through the following in order:
 4. Confirm that the host kernel supports the isolation mechanism, and check the read/write and network restrictions on the image-processing process.
 5. Inventory the products available to OpenAI SSO accounts and the external resources Codex is connected to.
 
-Every step needs a result you can sign off on: the full package revision must match the distro advisory, the runtime environment must demonstrably be running the patched image, the image process's file and network restrictions must be observable in practice, and every connector must have an owner, a scope, and a way to revoke it.
+Every step needs a result you can sign off on: the release line you are on must map to a patched version listed in the advisory, the full package revision must match the distro advisory, the runtime environment must demonstrably be running the patched image, the image process's file and network restrictions must be observable in practice, and every connector must have an owner, a scope, and a way to revoke it.
 
 The rebuild command given in the [Discourse advisory](https://github.com/discourse/discourse/security/advisories/GHSA-vhm9-85gw-x335) is:
 
@@ -189,9 +189,9 @@ Hacktron also says that HEIF Heist, the research effort covering multiple target
 
 The more practical change is to fold agent permissions into every identity review. Record the resource scope when a connector is added, re-confirm it when someone changes roles, and be able to revoke it all at once when an incident happens. None of this depends on the undisclosed details of OpenAI SSO, and it can also shrink the consequences of other account takeover incidents.
 
-## Start by Checking What the Image Process Can Touch
+## Start by Checking What Your Logins and Image Process Can Touch
 
-How does an image upload bug on a forum end up touching an internal code repository? According to Hacktron's account, the first vulnerability gained execution on the forum, a second SSO problem carried the forum identity into ChatGPT and Codex, and an existing GitHub connection then extended the impact to an internal repository. The first half has public fixes you can verify; the second half lacks reproducible configuration data.
+How does an image upload bug on a forum end up touching an internal code repository? According to Hacktron's account, the first vulnerability gained execution on the forum, a second SSO problem extended control of the forum to employees' ChatGPT accounts and Codex, and an existing GitHub connection then extended the impact to an internal repository. The first half has public fixes you can verify; the second half lacks reproducible configuration data.
 
 The smallest first step is to open your current access review sheet. Find one service that you can log in to via SSO and that supports agent connectors, and add a column for "external resources operable after login." On the technical side, start with the package revision of your image-processing process and its file and network permissions.
 

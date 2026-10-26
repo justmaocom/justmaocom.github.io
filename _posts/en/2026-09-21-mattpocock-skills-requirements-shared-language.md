@@ -15,7 +15,7 @@ image:
 
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.
 
-A skill, as used in this post, can be thought of as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks this kind of work into interviewing, vocabulary curation, and re-explaining. This post lays out how five related skills divide the work and what stays in the project once the interview is over.
+A skill, as used in this post, can be thought of as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks the work of clarifying requirements into interviewing, vocabulary curation, and re-explaining. This post lays out how five related skills divide the work and what stays in the project once the interview is over.
 
 > mattpocock/skills Series | Part 2
 >
@@ -105,7 +105,7 @@ The two starting points don't have their own question banks; both hand the inter
 
 How long the interview takes depends on how much is still undecided, not on which skill you used. Rather than counting how many questions the AI asked, check three things: which questions already have answers, which are still waiting on earlier answers, and whether terms and ADRs were written to the right place.
 
-Because `grill-with-docs` modifies project documentation, the team still needs to review whether newly added terms are ones the team should adopt, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
+Because `grill-with-docs` modifies project documentation, the team still needs to review whether newly added terms are worth adopting, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
 
 ## Check Whether You Have a Project First, Then Pick a Starting Point
 

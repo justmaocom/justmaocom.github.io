@@ -133,7 +133,7 @@ A description can be up to 1024 characters, but the usable space is usually smal
 | Claude Code | The whole listing gets 1% of the context window; each skill's `description` plus `when_to_use` is cut at 1,536 characters ([docs](https://code.claude.com/docs/en/skills)) | Descriptions are dropped, starting with the skills you invoke least |
 | Codex | The initial list uses at most 2% of the context window, or 8,000 characters when the window size is unknown ([docs](https://learn.chatgpt.com/docs/build-skills)) | Descriptions are shortened first; with many skills, some may be left out with a warning |
 
-Both say to **put the key use case first**, so the most important words survive a cut. A's description is 444 characters and B's is 464, and in both the three parts are ordered with that in mind.
+Both say to **put the key use case first**, so the most important words survive a cut. A's description is 444 characters and B's is 464, and in both the three sentences are ordered with that in mind.
 
 ## One Skill, One Job
 
@@ -158,7 +158,7 @@ The Claude Code docs suggest manual-only for workflows with side effects or timi
 
 A sits right on that line, since a commit is a side effect. My approach is to have A only write and check the message, and **run `git commit` only when the user asked for a commit in the conversation** (step 5). Note that this is an agreement written into the instructions, not a technical guard. If what you want is "invoke it and it commits", make it manual-only.
 
-There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code and Cursor, but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only. Neither example sets either switch.
+There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code (Cursor supports only `disable-model-invocation`), but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only. Neither example sets either switch.
 
 ## Move Details Into References and Scripts
 
@@ -496,7 +496,7 @@ The culprit is `type(scope): summary` inside the description. YAML reads "colon 
 
 Claude Code wouldn't warn you about this one: as mentioned earlier, when the YAML doesn't parse, it still loads the skill with every field empty. My inference is that with an empty description, the skill would rarely get picked automatically; I haven't tested that.
 
-With the quotes in place, both pass with a single line each and exit with 0:
+With the quotes in place, both pass with a single line of output each and exit with 0:
 
 ```console
 $ skills-ref validate writing-commit-messages
@@ -557,7 +557,7 @@ Once picked, the skill still has to do the job right. agentskills.io's [guide to
 | 2. The staged change is `mixed-changes.diff`, mixing README text and a new logout function | Suggests two commits, and both messages pass the check |
 | 3. The user says "I think I staged everything", but nothing is staged | Says nothing is staged and doesn't run `git add` itself |
 
-Both `.diff` files were exported from the temporary repo above with `git show` and `git diff --cached`; they aren't hand-written.
+Both `.diff` files were exported from the temporary repo above with `git show` and `git diff --cached`; they aren't hand-written. For `mixed-changes.diff`, I added a logout feature to the same repo after the commit above, staged it together with the README change, and then exported it.
 
 Each case runs twice, once with the skill and once without it (or with the previous version when you're revising), and every run starts from a clean context. Assertions should be objectively checkable: "the output file is valid JSON" beats "the output is good". The guide also notes that mechanical checks are more reliable as scripts than as LLM judgment. For A, "the message passes the check" is decided by A's own script, and "no `git commit` was run" by comparing `git log -1` before and after, with no AI grading needed.
 

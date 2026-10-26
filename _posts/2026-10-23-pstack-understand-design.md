@@ -19,7 +19,7 @@ AI 程式助理接到「改一下這個功能」，常常直接從第一個看�
 > - 下一篇（第 3 篇）：寫完程式之後，怎麼證明它真的能用再合併（尚未發布）
 {: .prompt-info }
 
-> **版本提醒**：本文以 pstack [`0.15.30` 版](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `eb4db2b`（2026-10-22 14:08，台北時間），搭配 Claude Code 2.1.309。之後的版本，行為可能會改變。第 1 篇寫完後，Claude Code 和 pstack 都已更新到新版，所以兩篇的版本不同：
+> **版本提醒**：本文以 pstack [`0.15.30` 版](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `eb4db2b`（2026-10-22 14:08，台北時間），搭配 Claude Code 2.1.309。之後的版本，行為可能會改變。兩篇查證時用的版本不同，列在下表（第 1 篇正文沒有寫 Claude Code 的版本號）：
 >
 > | | 第 1 篇 | 本篇 |
 > | --- | --- | --- |
@@ -275,7 +275,7 @@ pstack 指南先講了一句很重要的話：**大部分的改動，這些都�
 | 一個已經改完的小改動，但你不放心 | 只用 `/interrogate` |
 | 改動會跨過函式的邊界，或改變某段程式歸誰負責 | `/architect`（它會帶上 `/arena`） |
 | 一個單獨的決定，例如命名、資料格式、演算法 | 直接用 `/arena` |
-| 有爭議、改錯代價很高的設計 | 先 `/architect`，上線前再 `/interrogate` |
+| 有爭議、改錯代價很高的設計 | 先 `/architect`，合併前再 `/interrogate` |
 | 要做覆蓋，例如每個套件都檢查一遍 | 不是這五個，用 `/swarm` |
 | 想交給 AI 自己判斷 | `/poteto-mode`，它已經內建這套分法 |
 

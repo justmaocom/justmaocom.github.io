@@ -19,7 +19,7 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 >
 > - Start here (Part 1): [Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> The series is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Parts 5 and 6 also note changes in later versions.
+> The series is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Each part also notes changes in later versions at the top.
 {: .prompt-info }
 
 ## What Is mattpocock/skills?
@@ -121,7 +121,7 @@ If you already have the skills installed, you can also just ask `ask-matt`. Desc
 
 ## About Versions
 
-The six parts were published between September 21 and October 14, 2026, and all of them are based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The repo kept changing while the series was being written, and the info boxes at the top of [Part 5](/posts/mattpocock-skills-design-review-integration/) and [Part 6](/posts/mattpocock-skills-research-handoff/) note changes in later versions. Before you rely on any detail, check it against the repo's current version.
+The six parts were published between September 21 and October 14, 2026, and all of them are based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The repo kept changing while the series was being written, and the boxes at the top of each part note changes in later versions. Before you rely on any detail, check it against the repo's current version.
 
 ## Further Reading
 

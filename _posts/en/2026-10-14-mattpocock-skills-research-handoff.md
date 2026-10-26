@@ -1,6 +1,6 @@
 ---
 title: "mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning"
-description: "Not everything that slows a project down is code. Five skills (research, wizard, handoff, teach, and writing-for-agents), shown with a per-seat billing example."
+description: "Not everything that slows a project down is code. Five skills (research, handoff, wizard, teach, and writing-for-agents), shown with a per-seat billing example."
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
@@ -185,7 +185,7 @@ The skill invocations below were not actually run; the flow is inferred from the
 
 ### First, Pin Down the Proration Rules
 
-In part 3, `to-questionnaire` asked the finance lead whether a seat added mid-month should be charged in proportion to the days left. Suppose finance chose prorated charging; the next thing to confirm is how the payment service actually calculates it. You decide to read the official docs first:
+Part 3 showed how to use `to-questionnaire` to prepare a questionnaire asking the finance lead whether a seat added mid-month should be charged in proportion to the days left. Suppose finance chose prorated charging; the next thing to confirm is how the payment service actually calculates it. You decide to read the official docs first:
 
 ```text
 $research How does the payment service prorate charges when quantity increases mid-subscription? Use only official docs and the API reference.
@@ -259,7 +259,7 @@ This section is my own view; the source material doesn't say it directly.
 
 Of the five skills, the easiest to underrate is `handoff`, with just five rules. But I think rule 3, "don't copy what's already written elsewhere; just link it," applies far beyond handoff sheets.
 
-`research` notes cite their sources, `wizard` saves values to `.env` instead of leaving them in the conversation, and `writing-for-agents` asks that each thing be written in only one place. They share one idea: give everything a single original copy, and have everything else point to it. The specs, tickets, and `CONTEXT.md` from the first five parts are those originals.
+`research` notes cite their sources, `wizard` saves values to `.env` instead of leaving them in the conversation, and `writing-for-agents` [asks that each thing be written in only one place](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L78). They share one idea: give everything a single original copy, and have everything else point to it. The specs, tickets, and `CONTEXT.md` from the first five parts are those originals.
 
 So I'd start practicing with the handoff sheet: before handing off, ask whether this content already lives in some document. If it does, just link it.
 

@@ -1,13 +1,13 @@
 ---
 title: "mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法"
-description: "写代码之外，还有很多事会拖慢进度：查资料、交接给下一个人、设置只有你能动手的账号、学一个新主题。本文介绍 research、wizard、handoff、teach 与 writing-for-agents 五个 skill，并沿用按席位计费的例子走一遍。"
+description: "写代码之外，还有很多事会拖慢进度：查资料、交接给下一个人、设置只有你能动手的账号、学一个新主题。本文介绍 research、handoff、wizard、teach 与 writing-for-agents 五个 skill，并沿用按席位计费的例子走一遍。"
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.zh-CN.png
-  alt: "查资料、交接、配置密钥到写给 AI 的文档，背后是同一个原则：每件事只保留一份正本，其他地方附链接。"
+  alt: "从查资料、交接、配置密钥到写给 AI 的文档，背后是同一个原则：每件事只保留一份正本，其他地方附链接。"
 ---
 
 前五篇谈的都是“把功能做出来”：问清楚需求、写规格、拆工作单、写代码、审查与合并。但实际做按席位计费时，还会遇到另一类事情：
@@ -185,7 +185,7 @@ _AI 写好步骤，你只要照着屏幕提示操作、粘贴数值。_
 
 ### 先查清楚按比例收费的规则
 
-第 3 篇用 `to-questionnaire` 问过财务负责人：月中添加席位后，要不要按剩余天数比例收费？假设财务选了按比例收费，接下来就要确认支付服务实际怎么算。你决定先查官方文档：
+第 3 篇演示过用 `to-questionnaire` 准备问财务负责人的问卷：月中添加席位后，要不要按剩余天数比例收费？假设财务选了按比例收费，接下来就要确认支付服务实际怎么算。你决定先查官方文档：
 
 ```text
 $research 支付服务在订阅中途增加数量时，怎么按比例计算费用？只用官方文档与 API 参考。
@@ -259,7 +259,7 @@ bash -n setup-billing.sh
 
 五个 skill 里，最容易被小看的是 `handoff`，它只有五条规则。但我觉得第 3 条“已经写在别处的东西不要重抄，只附链接”，不只适用于交接单。
 
-`research` 的笔记附出处、`wizard` 把值存进 `.env` 而不是写在对话里、`writing-for-agents` 要求同一件事只写在一个地方，背后都是同一个想法：让每件事只有一份正本，其他地方都指向它。前五篇留下的规格、工作单和 `CONTEXT.md`，就是这些正本。
+`research` 的笔记附出处、`wizard` 把值存进 `.env` 而不是写在对话里、`writing-for-agents` [要求同一件事只写在一个地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L78)，背后都是同一个想法：让每件事只有一份正本，其他地方都指向它。前五篇留下的规格、工作单和 `CONTEXT.md`，就是这些正本。
 
 所以我会先从交接单开始练习：交接前先问自己，这段内容是不是已经写在某份文档里了？如果是，就只附链接。
 

@@ -72,7 +72,7 @@ From [9:50 to 11:12](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=590s), Bai la
 | Exists | Don't have one and don't plan to build one | Hold off on expanding, or custom work turns into separately maintained projects |
 | Doesn't exist | Not applicable | Technical buyers can be supported by a developer relations (DevRel) team; configurable products can use the normal sales and onboarding process |
 
-AI doesn't remove these two gates. From [11:28 to 12:35](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=688s), Bai explicitly flags one part of the talk as his personal hypothesis. He believes AI has made writing code and building custom software easier, and has made more platforms customizable. The talk doesn't provide cross-industry data showing that "almost every platform" will head in the same direction. In this post I treat AI only as a reason to re-check the two gates, not as sufficient grounds for building an FDE team.
+AI doesn't remove these two gates. From [11:28 to 12:35](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=688s), Bai explicitly flags one part of the talk as his personal hypothesis. He believes AI has made writing code and building custom software easier, and has made more platforms customizable. The talk doesn't provide cross-industry data showing that this trend will extend to almost every platform. In this post I treat AI only as a reason to re-check the two gates, not as sufficient grounds for building an FDE team.
 
 ## Run an FDE Decision Through One Table
 
@@ -97,7 +97,7 @@ To apply this to your own company, take your most recent enterprise sales opport
 | Shared capabilities | Which of the data model, permissions, actions, and deployment approach are centrally maintained by the platform |
 | Long-term ownership | Where customer-specific behavior lives, and which product team takes over shareable capabilities |
 
-Only move into a small FDE pilot when the product requires building, the customer lacks engineering capacity, and the shared capabilities already exist. If the first two hold but the platform field is still blank, define the platform investment and maintenance ownership first. If there's no capability gap between the product and the buyer, sticking with your existing GTM approach is more direct.
+Only move into a small FDE pilot when the product requires building, the customer lacks engineering capacity, and the shared capabilities already exist. If the first two hold but the Shared capabilities field is still blank, define the platform investment and maintenance ownership first. If there's no capability gap between the product and the buyer, sticking with your existing GTM approach is more direct.
 
 ## My Take
 
@@ -113,7 +113,7 @@ When a customer can afford the platform but lacks the engineering capacity to tu
 
 FDE can extend delivery all the way to customer outcomes, but the custom code has to be built on a shared platform. Differences that serve only one customer stay in that customer's implementation, while reusable capabilities go back to the platform team. That boundary determines whether the company delivers maintainable solutions or a pile of projects that each evolve on their own.
 
-Pick a recent enterprise sales opportunity and fill in the five fields from the previous section. Only when there's a real capability gap between the product and the buyer, and a shared platform can absorb the repeated work, is FDE the next step worth validating.
+Pick a recent enterprise sales opportunity and fill in the five fields listed earlier. Only when there's a real capability gap between the product and the buyer, and a shared platform can absorb the repeated work, is FDE the next step worth validating.
 
 ## Further Reading
 

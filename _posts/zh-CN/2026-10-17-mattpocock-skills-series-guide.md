@@ -19,7 +19,7 @@ image:
 >
 > - 从头开始（第 1 篇）：[先设置项目规则，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准，第 5、6 篇另外注明了之后的版本变动。
+> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准，各篇开头另外注明了之后的版本变动。
 {: .prompt-info }
 
 ## mattpocock/skills 是什么
@@ -117,11 +117,11 @@ _先找到自己卡住的地方，再从对应的那一篇读起。_
 | 要交接工作、查资料，或者学一个新主题 | 第 6 篇 |
 | 想看一个功能从头到尾怎么走 | 从第 1 篇按顺序读到第 6 篇 |
 
-如果你已经装好了，也可以直接问 `ask-matt`：描述现在卡在哪一步，它会建议下一个该用的 skill，再回来读介绍那个 skill 的那一篇。
+如果你已经装好了，也可以直接问 `ask-matt`：描述现在卡在哪一步，它会建议下一个该用的 skill，你再回来读介绍那个 skill 的那一篇。
 
 ## 版本说明
 
-六篇在 2026 年 9 月 21 日到 10 月 14 日之间发布，内容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。系列写作期间仓库还在更新，[第 5 篇](/posts/mattpocock-skills-design-review-integration/)和[第 6 篇](/posts/mattpocock-skills-research-handoff/)开头的提示框另外注明了之后的版本变动。实际使用前，建议对照仓库当前的版本。
+六篇在 2026 年 9 月 21 日到 10 月 14 日之间发布，内容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。系列写作期间仓库还在更新，各篇开头的提示框另外注明了之后的版本变动。实际使用前，建议对照仓库当前的版本。
 
 ## 延伸阅读
 

@@ -133,7 +133,7 @@ description 的上限是 1024 个字符，但实际能用的空间通常更小�
 | Claude Code | 整个列表占 context window 的 1%；每个 skill 的 `description` 加 `when_to_use` 在列表里截断在 1,536 个字符（[文档](https://code.claude.com/docs/en/skills)） | 从最少用到的 skill 开始去掉 description |
 | Codex | 初始列表最多占 context window 的 2%，不知道 context window 大小时是 8,000 个字符（[文档](https://learn.chatgpt.com/docs/build-skills)） | 先缩短 description；skill 很多时可能整个略过，并显示警告 |
 
-两家都建议**把关键用途放在最前面**，被截断时还能保住最重要的那几个词。A 的 description 是 444 个字符，B 是 464 个字符，三段的顺序都是按这个原则排的。
+两家都建议**把关键用途放在最前面**，被截断时还能保住最重要的那几个词。A 的 description 是 444 个字符，B 是 464 个字符，三句的顺序都是按这个原则排的。
 
 ## 一个 Skill 只做一件事
 
@@ -158,7 +158,7 @@ Claude Code 的文档建议，有副作用或者你想自己控制时机的流�
 
 A 正好站在这条线上，因为 commit 就是有副作用的操作。我的处理是让 A 只写信息、检查格式，**只有用户在对话里要求 commit 时才运行 `git commit`**（写在第 5 步）。要注意，这是写在指示里的约定，不是技术上拦得住的限制。如果你想要的是“一调用就直接 commit”，那就该设成只能手动。
 
-这里还有一个取舍：`disable-model-invocation` 和 `user-invocable` 都不在规范的六个字段里。写进 `SKILL.md`，在 Claude Code 和 Cursor 里有效，但 claude.ai 上传和 Skills API 会拒收，后面的 `skills-ref` 检查也会报错。Codex 把同样的配置放在另一个文件 `agents/openai.yaml` 里，`SKILL.md` 本身就能保持只有规范字段。两个示例都没有设这两种开关。
+这里还有一个取舍：`disable-model-invocation` 和 `user-invocable` 都不在规范的六个字段里。写进 `SKILL.md`，在 Claude Code 里有效（Cursor 只支持 `disable-model-invocation`），但 claude.ai 上传和 Skills API 会拒收，后面的 `skills-ref` 检查也会报错。Codex 把同样的配置放在另一个文件 `agents/openai.yaml` 里，`SKILL.md` 本身就能保持只有规范字段。两个示例都没有设这两种开关。
 
 ## 把细节拆到参考文件和脚本
 
@@ -280,7 +280,7 @@ fits, or when the change removes or renames something other code depends on.
 
 Gotchas 是 agentskills.io 认为很多 skill 里[最有价值的部分](https://agentskills.io/skill-creation/best-practices#gotchas-sections)：不是泛泛的建议，而是“不说 AI 就容易做错”的具体事实。比如 `git commit -a`：[git 文档](https://git-scm.com/docs/git-commit)写明它会自动把已修改和已删除的文件加进暂存区，等于把用户没挑的改动也一起提交。
 
-参考文件 `references/conventional-commits.md` 列了 11 种类型和 7 条检查规则。规范本身只定义了 `feat` 和 `fix`，其他 9 种来自 [commitlint 的 config-conventional](https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/src/index.ts)。第一行最多 72 个字符是我自己定的：[git 文档](https://git-scm.com/docs/git-commit#_discussion)建议标题不超过 50 个字符，commitlint 默认允许 100，我取中间。参考文件里每条规则都标了出处，哪些是规范、哪些是我自己的选择，一看就知道。
+参考文件 `references/conventional-commits.md` 列了 11 种类型和 7 条检查规则。规范本身只定义了 `feat` 和 `fix`，其他 9 种来自 [commitlint 的 config-conventional](https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/src/index.ts)。第一行最多 72 个字符是我自己定的：[git 文档](https://git-scm.com/docs/git-commit#_discussion)建议标题不超过 50 个字符，commitlint 默认允许 100，我取两者之间。参考文件里每条规则都标了出处，哪些是规范、哪些是我自己的选择，一看就知道。
 
 ### 跑一次
 
@@ -496,7 +496,7 @@ Validation failed for writing-commit-messages:
 
 这个错在 Claude Code 里没人会提醒你：前面说过，它在 YAML 解析失败时照样加载 skill，只是所有字段都是空的。我的推断是，description 变成空的，skill 就很难被自动调出来；这一点我没有实测。
 
-加上引号后，两个都通过，各只有一行，exit code 都是 0：
+加上引号后，两个都通过，输出各只有一行，exit code 都是 0：
 
 ```console
 $ skills-ref validate writing-commit-messages
@@ -557,7 +557,7 @@ Claude Code 的文档用的是[同一个思路](https://code.claude.com/docs/en/
 | 2. 暂存区是 `mixed-changes.diff`，里面混了 README 文字和新的登出功能 | 建议拆成两个 commit，两条信息都通过检查 |
 | 3. 用户说“我应该都加进暂存区了”，其实暂存区是空的 | 说明暂存区是空的，不自己运行 `git add` |
 
-两个 `.diff` 文件都是从前面那个临时仓库实际用 `git show` 和 `git diff --cached` 导出的，不是手写的。
+两个 `.diff` 文件都是从前面那个临时仓库实际用 `git show` 和 `git diff --cached` 导出的，不是手写的。其中 `mixed-changes.diff` 是在前面那次 commit 之后，又在同一个仓库加了登出功能，连同 README 的改动一起加进暂存区后导出的。
 
 每道题要跑两次：一次有 skill，一次没有（改版时则用旧版做对照），每次都要从干净的 context 开始。assertion 要能客观判断，像“输出是合法的 JSON”就比“输出很好”有用。指南也提到，机械性的检查用脚本做，比让 LLM 判断更可靠。拿 A 来说，“信息通过检查”直接用 A 自己的脚本判断；“没有运行 `git commit`”对比前后的 `git log -1` 就知道，不必让 AI 打分。
 

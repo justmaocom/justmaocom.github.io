@@ -1,13 +1,13 @@
 ---
 title: "mattpocock/skills 系列（6）：查資料、做交接、學新東西，都有固定做法"
-description: "寫程式之外，還有很多事會拖慢進度：查資料、交接給下一個人、設定只有你能動手的帳號、學一個新主題。本文介紹 research、wizard、handoff、teach 與 writing-for-agents 五個 skill，並沿用按席次計費的例子走一遍。"
+description: "寫程式之外，還有很多事會拖慢進度：查資料、交接給下一個人、設定只有你能動手的帳號、學一個新主題。本文介紹 research、handoff、wizard、teach 與 writing-for-agents 五個 skill，並沿用按席次計費的例子走一遍。"
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.png
-  alt: "查資料、交接、設定金鑰到寫給 AI 的文件，背後是同一個原則：每件事只留一份正本，其他地方附連結。"
+  alt: "從查資料、交接、設定金鑰到寫給 AI 的文件，背後是同一個原則：每件事只留一份正本，其他地方附連結。"
 ---
 
 前五篇談的都是「把功能做出來」：問清楚需求、寫規格、拆工作單、寫程式、審查與合併。但實際做按席次計費時，還會遇到另一類事情：
@@ -185,7 +185,7 @@ _AI 寫好步驟，你只要照著畫面操作、貼上數值。_
 
 ### 先查清楚按比例收費的規則
 
-第 3 篇用 `to-questionnaire` 問過財務負責人：月中新增席次後，要不要按剩餘天數比例收費？假設財務選了按比例收費，接下來就要確認付款服務實際怎麼算。你決定先查官方文件：
+第 3 篇示範過用 `to-questionnaire` 準備問財務負責人的問卷：月中新增席次後，要不要按剩餘天數比例收費？假設財務選了按比例收費，接下來就要確認付款服務實際怎麼算。你決定先查官方文件：
 
 ```text
 $research 付款服務在訂閱中途增加數量時，怎麼按比例計算費用？只用官方文件與 API 參考。
@@ -259,7 +259,7 @@ bash -n setup-billing.sh
 
 五個 skill 裡，最容易被小看的是 `handoff`，它只有五條規則。但我覺得第 3 條「已經寫在別處的東西不要重抄，只附連結」，不只適用於交接單。
 
-`research` 的筆記附出處、`wizard` 把值存進 `.env` 而不是寫在對話裡、`writing-for-agents` 要求同一件事只寫在一個地方，背後都是同一個想法：讓每件事只有一份正本，其他地方都指向它。前五篇留下的規格、工作單和 `CONTEXT.md`，就是這些正本。
+`research` 的筆記附出處、`wizard` 把值存進 `.env` 而不是寫在對話裡、`writing-for-agents` [要求同一件事只寫在一個地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L78)，背後都是同一個想法：讓每件事只有一份正本，其他地方都指向它。前五篇留下的規格、工作單和 `CONTEXT.md`，就是這些正本。
 
 所以我會先從交接單開始練習：交接前先問自己，這段內容是不是已經寫在某份文件裡了？如果是，就只附連結。
 

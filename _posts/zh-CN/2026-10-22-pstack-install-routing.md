@@ -14,7 +14,7 @@ pstack 能让 AI 编程助手做事更有条理，但打开一看，光是 skill
 
 先说明几个名词。AI 编程助手指的是 Cursor、Claude Code 这类能读写项目文件、替你写代码的工具。skill 是一份“告诉 AI 怎么完成某类工作”的操作说明，用斜线命令调用，例如 `/poteto-mode`。pstack 是 Lauren Tan 在 Cursor 官方插件库 [`cursor/plugins`](https://github.com/cursor/plugins/tree/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack) 里维护的一整组 skill。playbook 是针对一种任务写好的固定步骤，例如“修 bug”要先重现、再找原因、修完再验证。subagent 是主对话另外派出去、专门做一小段工作的 AI。token 是 AI 计算用量的单位，读和写的内容越多，用掉的 token 越多。
 
-整个流程只有三步：安装一次、用 `/setup-pstack` 选一次模型，之后每个新任务都用 `/poteto-mode` 开头，写清楚目标和“怎样算完成”，它会自己挑 playbook。不知道该用哪个时，先问 `/poteto-help`。
+整个流程只有四步：安装一次、核对版本、用 `/setup-pstack` 选一次模型，之后每个新任务都用 `/poteto-mode` 开头，写清楚目标和“怎样算完成”，它会自己挑 playbook。不知道该用哪个时，先问 `/poteto-help`。
 
 文中的示例提示都是通用写法，你可以直接拷贝，再换成自己项目的内容。
 
@@ -219,7 +219,7 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 2. **把 playbook 的步骤原样抄进待办清单**，排在其他待办前面。
 3. **决定不做的步骤不会消失**，而是留在清单上，注明 `skip: <理由>`。你可以从这里看出它选择不做什么。
 4. **照步骤做**，步骤里用到的其他 skill 会由它自己调用。
-5. **验证并回报。** 其他 playbook 结束时，会接到“开 PR”的 playbook。PR（pull request）是请别人审查、合并修改的请求。
+5. **验证并回报。** “开 PR”以外的 playbook 结束时，都会接到“开 PR”的 playbook。PR（pull request）是请别人审查、合并修改的请求。
 
 ### 你会拿到
 
@@ -235,7 +235,7 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 /pstack:poteto-mode new task. 查清楚为什么退出登录后缓存还在。先不要改任何代码。
 ```
 
-- **每个新任务都重新叫一次**：Cursor 可以从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，把它变成 Custom Mode，也就是在整段对话持续生效的模式。依 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文档只在 Agents 窗口和 CLI（在终端里用命令操作的程序）列出 Custom Mode；其他环境，包括 Claude Code，每个新任务都用 `/pstack:poteto-mode` 开头。
+- **每个新任务都重新叫一次**：包括 Claude Code 在内，每个新任务都用 `/pstack:poteto-mode` 开头。例外是 Cursor 的 Custom Mode：可以从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，把它变成 Custom Mode，也就是在整段对话持续生效的模式。不过依 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文档只在 Agents 窗口和 CLI（在终端里用命令操作的程序）列出 Custom Mode。
 
 ## cursor-team-kit 要不要一起装
 
@@ -292,7 +292,7 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 
 ## 结论
 
-第一次用 pstack，不需要先把所有 skill 记熟。照官方说明装一次，用 `claude plugin list` 核对版本，按更新前先看看改了什么；用 `/setup-pstack` 选一次模型，而且只选账号能用的；之后每个新任务都从 `/poteto-mode` 开始，在 Claude Code 里写成 `/pstack:poteto-mode`，写清楚目标和完成条件，剩下的交给它挑 playbook。不确定时，问 `/poteto-help`。下一篇会接着谈，改代码之前怎么用 pstack 先看懂代码、再做设计。
+第一次用 pstack，不需要先把所有 skill 记熟。照官方说明装一次，用 `claude plugin list` 核对版本，更新前先看看改了什么；用 `/setup-pstack` 选一次模型，而且只选账号能用的；之后每个新任务都从 `/poteto-mode` 开始，在 Claude Code 里写成 `/pstack:poteto-mode`，写清楚目标和完成条件，剩下的交给它挑 playbook。不确定时，问 `/poteto-help`。下一篇会接着谈，改代码之前怎么用 pstack 先看懂代码、再做设计。
 
 ## 延伸阅读
 
