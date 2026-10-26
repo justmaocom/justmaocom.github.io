@@ -103,7 +103,7 @@ agent 啟動時，不會把每個 skill 都讀完。依[規範的漸進式揭露
 description: "Writes a git commit message for the currently staged changes, in Conventional Commits format (type(scope): summary, optional body and footers). Use this skill when the user asks for a commit message, asks you to commit what they staged, or asks how to describe their changes, even if they don't say 'Conventional Commits'. Do not use it to explain git commands, to edit commits that were already pushed, or to write changelogs or release notes."
 ```
 
-整段用雙引號包起來不是習慣問題，原因在後面的「格式檢查」會看到。最後那句「Do not use it to...」也有出處：最佳化指南建議，如果不該觸發的查詢一直誤觸發，就補上 skill **不**做什麼，把它和相鄰的能力分開。
+整段用雙引號包起來不是習慣問題，原因在後面的「格式檢查」裡會看到。最後那句「Do not use it to...」也有出處：最佳化指南建議，如果不該觸發的查詢一直誤觸發，就補上 skill **不**做什麼，把它和相鄰的能力分開。
 
 ### 用 B 看怎麼避免誤觸發
 
@@ -133,7 +133,7 @@ description 上限是 1024 字元，但實際能用的空間通常更小，因�
 | Claude Code | 整份清單佔 context window 的 1%；每個 skill 的 `description` 加 `when_to_use` 在清單裡截在 1,536 字元（[文件](https://code.claude.com/docs/en/skills)） | 從最少用到的 skill 開始拿掉 description |
 | Codex | 初始清單最多佔 context window 的 2%，不知道 context window 大小時是 8,000 字元（[文件](https://learn.chatgpt.com/docs/build-skills)） | 先縮短 description；skill 很多時可能整個略過，並顯示警告 |
 
-兩家都建議**把關鍵用途放在最前面**，被截斷時還留得住最重要的那幾個字。A 的 description 是 444 字元，B 是 464 字元，三段的順序都是照這個原則排的。
+兩家都建議**把關鍵用途放在最前面**，被截斷時還留得住最重要的那幾個字。A 的 description 是 444 字元，B 是 464 字元，三句的順序都是照這個原則排的。
 
 ## 一個 Skill 只做一件事
 
@@ -158,7 +158,7 @@ Claude Code 的文件建議，有副作用或你想自己控制時機的流程�
 
 A 剛好站在這條線上，因為 commit 就是有副作用的動作。我的處理是讓 A 只寫訊息、檢查格式，**只有使用者在對話裡要求 commit 時才執行 `git commit`**（寫在步驟 5）。要注意，這是寫在指示裡的約定，不是技術上擋得住的限制。如果你想要的是「一叫它就直接 commit」，那就該設成只能手動。
 
-這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 和 Cursor 有效，但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。兩個範例都沒有設這兩種開關。
+這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 有效（Cursor 只支援 `disable-model-invocation`），但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。兩個範例都沒有設這兩種開關。
 
 ## 把細節拆到參考檔與腳本
 
@@ -280,7 +280,7 @@ fits, or when the change removes or renames something other code depends on.
 
 Gotchas 是 agentskills.io 認為很多 skill 裡[最有價值的部分](https://agentskills.io/skill-creation/best-practices#gotchas-sections)：不是一般建議，而是「不講 AI 就容易做錯」的具體事實。例如 `git commit -a`：[git 文件](https://git-scm.com/docs/git-commit)寫明它會自動把已修改和已刪除的檔案加進暫存區，等於把使用者沒挑的改動也一起提交。
 
-參考檔 `references/conventional-commits.md` 列了 11 種類型和 7 條檢查規則。規範本身只定義 `feat` 和 `fix`，其他 9 種來自 [commitlint 的 config-conventional](https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/src/index.ts)。第一行最多 72 字元是我自己定的：[git 文件](https://git-scm.com/docs/git-commit#_discussion)建議標題不超過 50 字元，commitlint 預設允許 100，我取中間。參考檔裡每條規則都標了出處，哪些是規範、哪些是我自己的選擇，一看就知道。
+參考檔 `references/conventional-commits.md` 列了 11 種類型和 7 條檢查規則。規範本身只定義 `feat` 和 `fix`，其他 9 種來自 [commitlint 的 config-conventional](https://github.com/conventional-changelog/commitlint/blob/master/%40commitlint/config-conventional/src/index.ts)。第一行最多 72 字元是我自己定的：[git 文件](https://git-scm.com/docs/git-commit#_discussion)建議標題不超過 50 字元，commitlint 預設允許 100，我取兩者之間。參考檔裡每條規則都標了出處，哪些是規範、哪些是我自己的選擇，一看就知道。
 
 ### 跑一次
 
@@ -496,7 +496,7 @@ Validation failed for writing-commit-messages:
 
 這個錯在 Claude Code 裡不會有人提醒你：前面說過，它在 YAML 解析失敗時仍會載入 skill，只是所有欄位都是空的。我的推論是，description 變成空的，skill 就很難被自動叫出來；這一點我沒有實測。
 
-加上引號後，兩個都通過，各只有一行，exit code 都是 0：
+加上引號後，兩個都通過，輸出各只有一行，exit code 都是 0：
 
 ```console
 $ skills-ref validate writing-commit-messages
@@ -557,7 +557,7 @@ Claude Code 的文件用的是[同一個思路](https://code.claude.com/docs/en/
 | 2. 暫存區是 `mixed-changes.diff`，裡面混了 README 文字和新的登出功能 | 建議拆成兩個 commit，兩則訊息都通過檢查 |
 | 3. 使用者說「我應該都加進暫存區了」，其實暫存區是空的 | 說明暫存區是空的，不自己執行 `git add` |
 
-兩個 `.diff` 檔都是從前面那個暫時 repo 實際用 `git show` 和 `git diff --cached` 匯出的，不是手寫的。
+兩個 `.diff` 檔都是從前面那個暫時 repo 實際用 `git show` 和 `git diff --cached` 匯出的，不是手寫的。其中 `mixed-changes.diff` 是在前面那次 commit 之後，又在同一個 repo 加了登出功能，連同 README 的改動一起加進暫存區後匯出的。
 
 每題要跑兩次：一次有 skill，一次沒有（改版時則用舊版當對照），每次都要從乾淨的 context 開始。assertion 要能客觀判斷，像「輸出是合法的 JSON」就比「輸出很好」有用。指南也提到，機械性的檢查用腳本做，比讓 LLM 判斷可靠。以 A 來說，「訊息通過檢查」直接用 A 自己的腳本判斷；「沒有執行 `git commit`」比對前後的 `git log -1` 就知道，不必請 AI 打分數。
 

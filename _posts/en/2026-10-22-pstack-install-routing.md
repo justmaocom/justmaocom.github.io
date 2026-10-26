@@ -14,7 +14,7 @@ pstack helps an AI coding assistant work in a more orderly way, but open it up a
 
 A few terms first. An AI coding assistant is a tool such as Cursor or Claude Code that can read and write the files in your project and write code for you. A skill is a set of instructions that tells the AI how to do one kind of work, and you call it with a slash command such as `/poteto-mode`. pstack is a set of skills that Lauren Tan maintains in Cursor's official plugin repository, [`cursor/plugins`](https://github.com/cursor/plugins/tree/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack). A playbook is a fixed list of steps for one type of task; for example, "fix a bug" means reproduce it, find the cause, fix it, and then verify. A subagent is a separate AI that the main chat sends off to do one small piece of work. A token is the unit an AI's usage is counted in; the more it reads and writes, the more tokens it uses.
 
-The whole flow has three steps: install once, pick models once with `/setup-pstack`, and start every new task with `/poteto-mode`. Say what you want and what "done" looks like, and it picks the playbook. When you're not sure what to use, ask `/poteto-help`.
+The whole flow has four steps: install once, check the version, pick models once with `/setup-pstack`, and start every new task with `/poteto-mode`. Say what you want and what "done" looks like, and it picks the playbook. When you're not sure what to use, ask `/poteto-help`.
 
 The example prompts in this post are generic. Copy them and swap in details from your own project.
 
@@ -235,7 +235,7 @@ _/poteto-mode first identifies the task type, then follows that playbook's steps
 /pstack:poteto-mode new task. figure out why the cache entry survives logout. don't change any code yet.
 ```
 
-- **Call it again for each new task**: in Cursor, you can pick `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) to make it a Custom Mode, a mode that stays on for the whole chat. According to the [`poteto-help` notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58), Cursor's docs list Custom Modes only in the Agents Window and the CLI (a program you run with typed commands in a terminal). Everywhere else, Claude Code included, start each new task with `/pstack:poteto-mode`.
+- **Call it again for each new task**: Claude Code included, start each new task with `/pstack:poteto-mode`. The exception is Cursor's Custom Mode: you can pick `/poteto-mode` from the `/` menu with Option+Enter (Mac) or Alt+Enter (Windows) to make it a Custom Mode, a mode that stays on for the whole chat. However, according to the [`poteto-help` notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58), Cursor's docs list Custom Modes only in the Agents Window and the CLI (a program you run with typed commands in a terminal).
 
 ## Should You Install cursor-team-kit Too?
 

@@ -40,7 +40,7 @@ You only need three terms for this post:
 | --- | --- |
 | module | A named chunk of code you can use on its own, anything from a single function to a whole package |
 | interface | What someone needs to know to use the module, like the buttons and the manual on an appliance |
-| seam | A spot in the code where a part can be swapped out, like a power socket. The "test seam" from the previous post is one of these |
+| seam | A spot in the code where a part can be swapped out, like a power socket; it's where a module's interface sits. The "test seam" from the previous post is the same term, seen from the test's side: tests go in at this spot to observe behavior |
 
 ## What Each Skill Does
 
@@ -53,7 +53,7 @@ You only need three terms for this post:
 
 Each one sits in a different place on the `ask-matt` roadmap: [`codebase-design` is vocabulary underneath everything](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L59), [`improve-codebase-architecture` is routine upkeep](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52), [`code-review` is the last step of the main flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L26), and [`resolving-merge-conflicts` is outside every flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L79), used only when you're stuck.
 
-`improve-codebase-architecture` is the only one [set so the AI can't start it on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4), and the Codex config [turns that off too](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5). It scans the whole project, which takes quite a while, so you decide when it runs.
+`improve-codebase-architecture` is the only one of these four [set so the AI can't start it on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L4), and the Codex config [turns that off too](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/agents/openai.yaml#L4-L5). It first narrows down the scope, then sends a helper to read through the code in that area, which takes quite a while, so you decide when it runs.
 
 ## `codebase-design`: Agree on the Words First
 
@@ -89,7 +89,7 @@ _The same seat feature: five buttons to remember on the left, three on the right
 3. **Tests press the same buttons as users.** If you want to reach past the buttons to test the insides, the module is cut the wrong way.
 4. **A socket only one plug ever fits isn't really a socket.** "We might swap it someday" isn't a reason. Only leave a seam when at least two things actually plug in, such as the real version and a fake one for tests.
 
-Rule 4 comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
+The situation rule 4 describes comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
 
 ### Two Appendices
 
@@ -167,7 +167,7 @@ Reporting them separately keeps a good grade on one side from hiding a problem o
 ![On the left, the "Written by the rules?" report lists two possible code smells, marked as heads-ups only; on the right, the "Built what was asked?" report quotes the spec, showing billing receives the new seat count and that deactivating a member with no seat may be handled wrong; the bottom reads "Nicely written but built the wrong thing: a good grade on one side can't hide a problem on the other"](code-review-two-axes.png){: width="800" height="450" }
 _The two reports stay separate and are never merged into one ranking._
 
-As the previous post mentioned, [`tdd` leaves tidying up the code to the review stage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38). The "written by the rules?" side is that moment after the tests pass when you go back and tidy up.
+As the previous post mentioned, [`tdd` leaves tidying up the code to the review stage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38). The "written by the rules?" side is the step after the tests pass where you go back and tidy up.
 
 ## `resolving-merge-conflicts`: Understand What Each Side Wanted, Then Merge
 
@@ -305,7 +305,7 @@ export function deactivateMember(workspace, memberId, billing) {
 
 The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging, so it belongs in the merge commit message where you'll see it during review.
 
-Then, per step 4, run the tests. The `node --test seats.test.js` from the previous post calls `deactivateMember()` without passing in a billing system. I put the merged code back under that test and actually ran it on Node.js v20.19.2: the result was `fail 1` (one test failed), with a `TypeError`, meaning the code received something it couldn't use: here, the billing system was never passed in.
+Then, per step 4, run the tests. The test from the previous post, run with `node --test seats.test.js`, calls `deactivateMember()` without passing in a billing system. I put the merged code back under that test and actually ran it on Node.js v20.19.2: the result was `fail 1` (one test failed), with a `TypeError`, meaning the code received something it couldn't use: here, the billing system was never passed in.
 
 This is exactly the "fix whatever the merge broke" case: add a fake billing system to the test, rather than deleting the line that notifies billing. Only after everything passes does the AI commit.
 
@@ -327,7 +327,7 @@ Most of what needs judging after the code is written isn't something tests can a
 - For structure, run `improve-codebase-architecture` as a regular health check, and use `codebase-design`'s vocabulary to discuss changes.
 - When two branches collide, read both sides' commits and tickets, understand what each wanted, then decide how to merge.
 
-Back to per-seat billing: the next step is to run `$code-review main` on the third ticket's branch. Deal with the "built what was asked?" item first, then decide whether the rules item goes into the next health check.
+In your own project, the next step is to run `$code-review main` on a branch that's finished and ready to merge. Deal with the problems on the "built what was asked?" side first, then decide whether the code smells from "written by the rules?" go into the next health check.
 
 ## Further Reading
 

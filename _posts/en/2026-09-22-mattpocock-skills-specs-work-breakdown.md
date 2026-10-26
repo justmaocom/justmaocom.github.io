@@ -28,7 +28,7 @@ All five skills produce documents, but each fills a different gap. Pick the wron
 
 ## A Few Terms First
 
-All five skills revolve around the team's issue tracker. The following terms come up again and again:
+Most of these five skills revolve around the team's issue tracker. The following terms come up again and again:
 
 | Term used in this post | Original | Meaning |
 | --- | --- | --- |
@@ -113,7 +113,7 @@ There's one exception: mechanical changes that ripple across the whole project, 
 
 ### `to-tickets` Example
 
-The same seat spec won't be split into three tickets for "change the data," "change the code," and "change the UI." One of the tickets could read:
+The same seat spec won't be split into four tickets for "change the data," "change the rules," "change the UI," and "write the tests." One of the tickets could read:
 
 ```markdown
 # Admins can assign an available seat to a member
@@ -163,7 +163,7 @@ Suppose a user sends in a report that says only, "After deactivating a member, t
 | Comparison with existing rules | The seat spec requires the seat to be freed immediately on deactivation, and the project has no decision record overriding that rule |
 | Handoff note | Find and fix the step that fails to reclaim the seat when a member is deactivated; once fixed, deactivating one member should increase available seats by one |
 
-If verification shows the system actually does free the seat and only the UI isn't updating, the handoff note should narrow the scope to the display. If the report doesn't say which plan was used or what actions were taken, the status should first be set to `needs-info`, asking the reporter for more details, rather than guessing at the cause.
+If verification shows the system actually does free the seat and only the UI isn't updating, the handoff note should narrow the scope to the display. If the problem can't be reproduced from the report's description, and it's unclear which plan the reporter used or what actions they took, the status should first be set to `needs-info`, asking the reporter for more details, rather than guessing at the cause.
 
 ## `wayfinder` Handles the Decisions You Can't Fully List Yet
 

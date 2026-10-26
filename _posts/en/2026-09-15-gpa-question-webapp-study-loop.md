@@ -78,7 +78,7 @@ Cross-session identity currently relies on `gpa_anonymous_id` in the browser's `
 
 If your question bank comes from a fixed source, your users are a well-defined group, and what you need is shuffled question order plus a view of the categories you keep getting wrong, this project already wires the necessary pieces together. When the question bank changes, [`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) can update, keep, or soft-delete existing questions, so you don't have to wipe the database every time.
 
-If you want to make it publicly available to many users, you'll first need to handle accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, you'll also want failure reports and tests for new formats in the parser. The current code is suited to a personal practice tool and shouldn't be treated as an official exam platform as-is.
+If you want to make it publicly available to many users, you'll first need to handle accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, you'll also want failure reports and tests for new formats in the parser. The current code is suited for use as a personal practice tool and shouldn't be treated as an official exam platform as-is.
 
 ## Run the Tests First, Then Plug In Your Own Question Bank
 
@@ -97,7 +97,7 @@ The result was `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. 
 
 ## What Really Matters Is a Practice Record You Can Look Back On
 
-Everything above confirms only that these features exist. I still believe this project's value lies in closing a review loop, though nothing in this post can prove it will raise exam scores.
+Everything above confirms only that these features exist; it can't prove the project will raise exam scores. I still believe this project's value lies in closing a review loop.
 
 A fixed PDF gives you questions and answers; the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For this household need, the tech choices are just a means to an end. The real product is being able to keep repeating the loop of "answer, find weak areas, practice again."
 

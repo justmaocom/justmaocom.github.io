@@ -195,7 +195,7 @@ _If the expected value is recomputed with the code's own algorithm, the test wil
 
 ## Where Your Time Goes
 
-With these four skills, you no longer have to go by gut feeling to decide whether the work is done; you can look at tests or commands that can be rerun. Still, a person has to step in at each of these points:
+With these four skills, you no longer have to go by gut feeling to decide whether the work is done; the first three let you look at tests or commands that can be rerun, and `prototype` looks at how people react after actually trying it. Still, each of these steps takes someone's effort, and most of it falls on you:
 
 | Step | Who puts in the effort | What they put in |
 | --- | --- | --- |
@@ -323,7 +323,7 @@ Run the same command again, and the result turns green:
 ℹ duration_ms 43.76225
 ```
 
-That's only one cycle. The ticket's acceptance criteria also include "the billing system receives the new seat count," so the AI moves on to the next cycle, working through the confirmed list of seams one test per cycle. When everything is done, `implement` runs the full test suite, calls `code-review`, and commits to the current branch. What you need to check are the review results, and whether each test's expected value can be traced back to the spec.
+That's only one cycle. The ticket's acceptance criteria also include "the billing system receives the new seat count," which isn't on the list of seams you just confirmed, so the AI first adds the billing system as a seam and asks you to confirm it, then moves on to the next cycle, one test per cycle. When everything is done, `implement` runs the full test suite, calls `code-review`, and commits to the current branch. What you need to check are the review results, and whether each test's expected value can be traced back to the spec.
 
 If you later get a report that "available seats didn't go up after deactivating a member," the `node --test` command above is exactly the loop that phase 1 of `diagnosing-bugs` wants. It has already gone red for this symptom, and judging by the `duration_ms` above, it finishes in under 50 milliseconds, meeting the "finishes within a few seconds" criterion.
 
@@ -341,9 +341,9 @@ This view only applies to projects that follow this workflow of writing a spec f
 
 When the AI writes both the code and the tests, judging whether it got things right means looking at what the AI can't change on its own. For new features, check whether the tests are written at seams you confirmed and whether the expected values come from the spec. For bug fixes, check whether there's a command that has gone red for this symptom. When the design isn't settled yet, click through the prototype yourself, or have someone who knows the business do it, before going further.
 
-This post only covers the stage of turning tickets into code. The next post turns to reviewing code structure and this round's changes, covering `codebase-design`, `improve-codebase-architecture`, and `code-review`.
+This post only covers the stage of turning tickets into code. The next post turns to reviewing code structure and this round's changes, and to resolving merge conflicts, covering `codebase-design`, `improve-codebase-architecture`, `code-review`, and `resolving-merge-conflicts`.
 
-Back to per-seat billing: the next step is to open a new conversation and run `$implement` on the first ticket, the one with no prerequisites. When the AI lists test seams, confirm them one by one; once it has written the tests, check that every expected value can be found in the spec.
+In your own project, the next step is to open a new conversation and run `$implement` on a ticket that's labeled `ready-for-agent` and has no prerequisites. When the AI lists test seams, confirm them one by one; once it has written the tests, check that every expected value can be found in the spec.
 
 ## Further Reading
 

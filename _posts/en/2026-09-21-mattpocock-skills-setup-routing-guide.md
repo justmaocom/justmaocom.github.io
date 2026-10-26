@@ -15,11 +15,11 @@ image:
 
 You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that mattpocock/skills can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?
 
-First, a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. A skill can be thought of as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
-
 The answer is no, you don't need to understand them all. Your first time through takes just two steps: use `setup-matt-pocock-skills` to record your project's working rules, then let `ask-matt` suggest the next skill based on the problem in front of you.
 
 That said, `ask-matt` is more like a help desk than a manager that automatically runs the whole pipeline. It only tells you which skill to use next; you still have to start that skill yourself.
+
+First, a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. A skill can be thought of as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
 
 > mattpocock/skills Series | Part 1
 >
@@ -55,7 +55,7 @@ claude plugins install mattpocock-skills
 
 You can also type `/plugin install mattpocock-skills` directly inside Claude Code.
 
-For Codex or other tools, use the skills.sh installer:
+If you want to modify the skills, or you use Codex or another tool, use the skills.sh installer:
 
 ```bash
 npx skills@latest add mattpocock/skills
@@ -91,7 +91,7 @@ Both `setup-matt-pocock-skills` and `ask-matt` are user-invoked, so you have to 
 
 In Codex, you can type `$` and then pick a skill from the list, or type `$skill-name` directly. You can verify this syntax in [OpenAI's Codex skills documentation](https://developers.openai.com/codex/skills/). For other AI coding assistants, use their own skill menu or input syntax.
 
-This constraint also explains why `ask-matt` can only make suggestions: the `grill-with-docs` skill it recommends is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
+This constraint also explains why `ask-matt` can only make suggestions: `grill-with-docs`, for example, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
 
 ## What Setup Leaves Behind in Your Project
 
@@ -101,7 +101,7 @@ It starts by looking at the current state of the project: which platform hosts t
 
 Once it's done looking, it confirms three things with you, in order:
 
-- **Where work gets tracked.** The repo calls this the issue tracker: the place where your team records to-do items. If your code is on GitHub, it suggests GitHub Issues by default; if it's on GitLab, it suggests GitLab. You can also track work in Markdown files inside the project folder. If you use another tool such as Jira or Linear, you describe how to work with it in a short paragraph.
+- **Where work gets tracked.** The repo calls this the issue tracker: the place where your team records to-do items. If your code is on GitHub, it suggests GitHub Issues by default; if it's on GitLab, it suggests GitLab Issues. You can also track work in Markdown files inside the project folder. If you use another tool such as Jira or Linear, you describe how to work with it in a short paragraph.
 - **Whether to keep the default triage labels.** These labels are used by `triage`, which sorts incoming external reports, so it only asks about them if `triage` is installed.
 - **Where the glossary and decision records live.** For a typical project, a single shared copy is enough. Only when it detects that the project is made up of multiple subprojects does it ask whether each subproject should have its own.
 

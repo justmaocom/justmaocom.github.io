@@ -12,7 +12,7 @@ image:
 
 Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Harmless enough.
 
-From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. This post answers two questions: what new exposure did that create, and which risks are worth fixing versus merely scary-sounding?
+From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. This post answers two questions: what new exposure did that create, and which gaps are most worth fixing first?
 
 > I label three kinds of statements: **Fact** (stated by a linked public source), **Inference** (my conclusion from the facts), and **Opinion** (my judgment—feel free to disagree). All sources were rechecked on October 16, 2026.
 {: .prompt-info }
@@ -83,7 +83,7 @@ To stop being asked "may I run this?", many people turn on auto-approve or switc
 
 ## Five Cases With Primary Sources
 
-Each comes with the original advisory or research report. I've separated research demos from real-world incidents because they carry different weight.
+Each comes with the original advisory or research report. I've labeled each one as a research demo, a patched vulnerability, or a real-world incident, because they carry different weight.
 
 ### Case 1: Poisoned MCP Tool Descriptions (Research Demo, April 2025)
 

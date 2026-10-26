@@ -19,7 +19,7 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 > - Next (Part 3): After the code is written, prove it works before merging (not yet published)
 {: .prompt-info }
 
-> **Version note:** This post is based on pstack [version `0.15.30`](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `eb4db2b` (14:08 on 2026-10-22, Taipei time), with Claude Code 2.1.309. Later versions may behave differently. After Part 1 was written, both Claude Code and pstack were updated to newer releases, so the two posts use different versions:
+> **Version note:** This post is based on pstack [version `0.15.30`](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `eb4db2b` (14:08 on 2026-10-22, Taipei time), with Claude Code 2.1.309. Later versions may behave differently. The two posts were checked against different versions, listed below (Part 1 itself doesn't state a Claude Code version):
 >
 > | | Part 1 | This post |
 > | --- | --- | --- |
@@ -275,7 +275,7 @@ The pstack guide starts with an important point: **most changes need none of the
 | A small, finished change you're unsure about | `/interrogate` alone |
 | A change that crosses function boundaries or moves which code owns what | `/architect` (it brings `/arena` with it) |
 | A standalone decision, such as naming, a data format, or an algorithm | `/arena` directly |
-| A contested design that's expensive to reverse | `/architect`, then `/interrogate` before shipping |
+| A contested design that's expensive to reverse | `/architect`, then `/interrogate` before merging |
 | Coverage, such as checking every package once | Not one of these five; use `/swarm` |
 | You want the AI to decide | `/poteto-mode`, which already applies this ladder |
 

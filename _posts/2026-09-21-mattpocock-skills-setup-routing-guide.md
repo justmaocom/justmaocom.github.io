@@ -15,11 +15,11 @@ image:
 
 你準備替既有的訂閱服務加入按席次計費，卻不確定該先釐清需求、寫規格、補測試，還是直接動手寫程式。你聽說 mattpocock/skills 能讓 AI 程式助理把這類工作做得更有條理，打開清單卻看到 25 個 skill 名稱。難道要先把每一個都搞懂才能開始？
 
-先說明幾個名詞。AI 程式助理指的是 Claude Code、Codex 這類能讀寫專案檔案、替你寫程式的 AI 工具。skill 則可以理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明，例如怎麼訪談需求，或怎麼把規格拆成一項項工作。`mattpocock/skills` 是 Matt Pocock 公開的一整組 skill。
-
 答案是不必全部看懂。第一次使用只需要兩步：先用 `setup-matt-pocock-skills` 把專案的工作規則記下來，再用 `ask-matt` 依你遇到的問題，建議下一個該用的 skill。
 
 不過，`ask-matt` 比較像服務台，不是會自動跑完整套流程的總管。它只會告訴你下一步該用哪個 skill，實際啟動仍要由你來做。
+
+先說明幾個名詞。AI 程式助理指的是 Claude Code、Codex 這類能讀寫專案檔案、替你寫程式的 AI 工具。skill 則可以理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明，例如怎麼訪談需求，或怎麼把規格拆成一項項工作。`mattpocock/skills` 是 Matt Pocock 公開的一整組 skill。
 
 > mattpocock/skills 系列｜第 1 篇
 >
@@ -55,7 +55,7 @@ claude plugins install mattpocock-skills
 
 也可以在 Claude Code 裡直接輸入 `/plugin install mattpocock-skills`。
 
-Codex 或其他工具則使用 skills.sh 這個安裝工具：
+想自行修改內容，或使用 Codex 等其他工具時，則使用 skills.sh 這個安裝工具：
 
 ```bash
 npx skills@latest add mattpocock/skills
@@ -91,7 +91,7 @@ npx skills@latest update <name>
 
 在 Codex 中，可以先輸入 `$` 再從清單選取 skill，也可以直接輸入 `$skill-name`。這項語法可在 [OpenAI 的 Codex skills 文件](https://developers.openai.com/codex/skills/)核對。其他 AI 程式助理請依各自的 skill 選單或輸入方式操作。
 
-這項限制也說明了為什麼 `ask-matt` 只能提出建議：它推薦的 `grill-with-docs` 同樣只能由人啟動，所以你得自己輸入。它也不會自動一路往下執行 `to-spec`、`to-tickets` 和 `implement`。
+這項限制也說明了為什麼 `ask-matt` 只能提出建議：例如它常推薦的 `grill-with-docs` 同樣只能由人啟動，所以你得自己輸入。它也不會自動一路往下執行 `to-spec`、`to-tickets` 和 `implement`。
 
 ## setup 會替專案留下哪些設定
 
@@ -101,7 +101,7 @@ npx skills@latest update <name>
 
 查看完畢後，它會依序確認三件事：
 
-- **工作記錄在哪裡。** 原文稱為 issue tracker，本系列稱為「工作追蹤工具」，也就是團隊記錄待辦事項的地方。程式碼放在 GitHub 時，預設建議 GitHub Issues；放在 GitLab 時，則建議 GitLab。你也可以直接用專案資料夾裡的 Markdown 檔案記錄。若使用 Jira、Linear 等其他工具，則由你用一段文字說明操作方式。
+- **工作記錄在哪裡。** 原文稱為 issue tracker，本系列稱為「工作追蹤工具」，也就是團隊記錄待辦事項的地方。程式碼放在 GitHub 時，預設建議 GitHub Issues；放在 GitLab 時，則建議 GitLab Issues。你也可以直接用專案資料夾裡的 Markdown 檔案記錄。若使用 Jira、Linear 等其他工具，則由你用一段文字說明操作方式。
 - **是否沿用預設的分類標籤。** 這些標籤是給整理外部回報的 `triage` 使用的，所以只有安裝了 `triage` 才會詢問。
 - **詞彙表與決策紀錄放在哪裡。** 一般專案集中放一份即可；只有發現專案由多個子專案組成時，才會詢問是否每個子專案各放一份。
 
