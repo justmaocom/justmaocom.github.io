@@ -16,7 +16,7 @@ AI 编程助手接到“改一下这个功能”，常常直接从第一个看�
 >
 > - 系列导读：这套 skill 是什么、四篇该怎么读（尚未发布）
 > - 上一篇（第 1 篇）：[安装、选模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)
-> - 下一篇（第 3 篇）：写完代码之后，怎么证明它真的能用再合并（尚未发布）
+> - 下一篇（第 3 篇）：[写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
 > **版本提醒**：本文以 pstack [`0.15.30` 版](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `eb4db2b`（2026-10-22 14:08，台北时间），搭配 Claude Code 2.1.309。之后的版本，行为可能会改变。两篇查证时用的版本不同，列在下表（第 1 篇正文没有写 Claude Code 的版本号）：
