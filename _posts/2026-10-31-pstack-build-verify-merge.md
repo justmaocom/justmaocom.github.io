@@ -27,7 +27,7 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 > | skill 數量 | 56 | 57 | 58 |
 > | Claude Code | 2.1.306 | 2.1.309 | 2.1.316 |
 >
-> 和本篇有關的差異有兩個。第一，`/poteto-mode` 接到任務後的第一則回覆，會先用自己的話說出你的目標、要解決的問題，以及它預計的最小改動，然後直接開始，不等你確認（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L19)）。它理解錯了，你馬上就看得出來。第二，代替主對話開 PR 的子代理，不再跑 `/interrogate`，只跑 `/deslop` 和 `/no-comments`（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L34)）。其他差異和本篇無關：新增了 `ketchup-video` 這個 skill，babysit 用的 PR 監看腳本也修了一些細節。Claude Code 對第三方外掛預設不自動更新（[README](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L28)），所以照第 1 篇裝好的 pstack 會停在當時的版本；怎麼更新或固定版本，見[第 1 篇](/posts/pstack-install-routing/)。我在 2026-10-31 15:59（台北時間）開始寫之前查了一次，開 PR 前在 16:13 又查了一次，兩次 `cursor/plugins` 的 main 都還是 `0.15.36`，`c742dd6` 之後沒有任何 pstack 的改動。
+> 和本篇有關的差異有兩個。第一，`/poteto-mode` 接到任務後的第一則回覆，會先用自己的話說出你的目標、要解決的問題，以及它預計的最小改動，然後直接開始，不等你確認（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L19)）。它理解錯了，你馬上就看得出來。第二，代替主對話開 PR 的子代理，不再跑 `/interrogate`，只跑 `/deslop` 和 `/no-comments`（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L34)）。另外，第 2 篇介紹的 `/interrogate` 和 `/arena`，在新版的輸出或規則跟第 2 篇寫的不同。`/interrogate` 現在要每位挑戰者實際執行程式來證明問題，只留下被執行結果證明的發現；報告只列出意圖、驗證過的發現，以及每位挑戰者被捨棄的發現數量和理由，不再分成 Act on、Consider、Noted、Dismissed 四類（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/interrogate/SKILL.md#L9)、[輸出格式](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/interrogate/SKILL.md#L27-L31)）。`/arena` 的評審一定要用和主對話不同家族的模型，找不到就略過評審，由主對話自己選底稿（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/arena/SKILL.md#L28)）。用 0.15.36 讀第 2 篇這兩段時，要記得這些差異。其他差異和本系列無關：新增了 `ketchup-video` 這個 skill，babysit 用的 PR 監看腳本也修了一些細節。Claude Code 對第三方外掛市集預設不自動更新（[README](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L28)），所以照第 1 篇裝好的 pstack 會停在當時的版本；怎麼更新或固定版本，見[第 1 篇](/posts/pstack-install-routing/)。我在 2026-10-31 15:59（台北時間）開始寫之前查了一次，開 PR 前在 16:13 又查了一次，兩次 `cursor/plugins` 的 main 都還是 `0.15.36`，`c742dd6` 之後沒有任何 pstack 的改動。
 {: .prompt-warning }
 
 ## 開始之前
@@ -78,7 +78,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 2. **用二分法找原因。** 先列出幾個可能的原因，用 `/how` 看懂相關的程式、用 `/why` 查這段程式的修改歷史，再一個一個排除。每一輪挑最能縮小範圍的切法，拿執行時的證據來排除，不用猜的。
 3. **規劃修法。** 修法會跨過函式的邊界，就先跑 `/architect`。實作交給子代理（skill 執行時另外派出、分頭做事的 AI）。
 4. **在同一個介面驗證。** 原本的重現步驟，現在要通過。「無法判斷」或在不同的介面驗證，都不算通過。單元測試只能證明某個分支怎麼跑，不能證明 bug 不見了。
-5. **排好 commit 的順序。** commit 是 git 裡的一次修改紀錄。會失敗的重現（例如一個測試）先進 git 歷史，修正排在它後面。bug 有便宜的本機測試路徑時，照 `/tdd` 的節奏做；測試很貴、要動用一大堆環境，或不清楚怎麼測時，就跳過。
+5. **排好 commit 的順序。** commit 是 git 裡的一次修改紀錄。會失敗的重現（例如一個測試）先進 git 歷史，修正排在它後面。bug 有低成本的本機測試路徑時，照 `/tdd` 的節奏做；測試很貴、要動用一大堆環境，或不清楚怎麼測時，就跳過。
 6. **開 PR**（見下面的「上線」）。
 
 整個過程有一條規則：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下；證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
@@ -120,7 +120,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ### /tdd：先寫一個會失敗的測試
 
-**什麼時候用**：你明確想要 TDD（先寫測試再寫程式）、一個會失敗的測試或回歸測試；或是 bug 有明顯又便宜的本機測試可以寫（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
+**什麼時候用**：你明確想要 TDD（先寫測試再寫程式）、一個會失敗的測試或回歸測試；或是 bug 有明顯又低成本的本機測試可以寫（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
 
 **指令怎麼寫**：對話裡已經有 bug 的前後文時，兩個字就夠（[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L43-L51)）：
 
@@ -197,7 +197,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 2. **檢查它的報告。** 它越界改了程式、或理由寫錯的標記，會被退回。
 3. **修掉接受的標記。** 小的直接修，例如刪掉死掉的路徑、拿掉沒用的參數；需要重新設計形狀的，先跑一次 `/architect` 畫草稿。
 4. **從根本原因修**，範圍只在這次的改動裡；超出範圍的會列成待辦，不會順手修。
-5. **處理「宣告限制」的註解**，例如「不要刪」「改之前先找某某人」。它會提議用最便宜的方式把這個限制寫進程式：型別、執行時檢查、測試或 lint 規則，**等你同意**才做。不管同不同意，註解本身都會拿掉；不同意時，這個限制會列在報告裡，標成還沒強制執行。
+5. **處理「宣告限制」的註解**，例如「不要刪」「改之前先找某某人」。它會提議用成本最低的方式把這個限制寫進程式：型別、執行時檢查、測試或 lint 規則（自動檢查程式寫法的規則），**等你同意**才做。不管同不同意，註解本身都會拿掉；不同意時，這個限制會列在報告裡，標成還沒強制執行。
 
 **你會拿到**：一份報告，包括刪了幾則註解、恢復了哪些、修了什麼、`/architect` 的草稿、提議的強制方式和你同意的部分，以及還沒處理的事。
 
@@ -232,7 +232,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 它會說明每個事實證明到哪個程度：只是說說、指出程式行號、一步步推演出壞情況不會發生、寫程式跑過、在執行中的程式重現過（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L19-L27)）。
 
-**你會拿到**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L40-L46)）：它做了什麼、它之所以安全的那一個事實（附證明；證明不了就寫 unproven）、風險（怎麼壞、在哪一行、機率和代價、怎麼檢查）、已排除的項目，以及「合併之前」最便宜、能抓到真正 bug 的測試或重現方式。
+**你會拿到**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L40-L46)）：它做了什麼、它之所以安全的那一個事實（附證明；證明不了就寫 unproven）、風險（怎麼壞、在哪一行、機率和代價、怎麼檢查）、已排除的項目，以及「合併之前」成本最低、能抓到真正 bug 的測試或重現方式。
 
 **下一步**：如果事實被標成 unproven，或列出了確認的風險，先處理再開 PR；「合併之前」那段的測試，可以直接加進這次的改動。
 
@@ -272,7 +272,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 **它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/create-verification-skill/SKILL.md)）：
 
-1. **訪談的是專案，不是你。** 它從程式碼回答這些問題：使用者實際碰到的是什麼（網頁、指令列、桌面程式、API……）、程式在本機怎麼啟動、AI 可以用什麼方式操作它（優先用專案現成的測試工具，沒有才用瀏覽器、終端機或 HTTP 這類通用做法）、可以留下什麼證據、能不能同時開兩份互不干擾。只有程式碼回答不了的，才問你。專案本身無法建置或啟動時，它會先修好或明確回報，再往下做。
+1. **訪談的是專案，不是你。** 它從程式碼回答這些問題：使用者實際碰到的是什麼（網頁、指令列、桌面程式、API……）、程式在本機怎麼啟動、AI 可以用什麼方式操作它（優先用專案裡能實際操作程式的現成工具，例如 Playwright／Cypress 腳本、終端機輔助腳本、可以用 curl 呼叫的端點、除錯埠，沒有才用瀏覽器、終端機或 HTTP 這類通用做法）、可以留下什麼證據、能不能同時開兩份互不干擾。只有程式碼回答不了的，才問你。專案本身無法建置或啟動時，它會先修好或明確回報，再往下做。
 2. **產生 skill。** 在 Claude Code 裡，它寫進 `.claude/skills/verify-<app>/`（pstack 的說明寫的是 Cursor 的 `.cursor/skills/`，[Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L48-L52)把它換成 `.claude/skills/`）。內容是給 AI 看的操作說明，分成幾段：怎麼啟動（Launch）、這份執行中的程式值不值得操作的健康檢查（Doctor）、用專案裡真實的選擇器或指令操作（Drive）、要留什麼證據和放在哪（Evidence）、怎麼收拾自己開的東西（Cleanup），以及附帶的腳本怎麼用（Helpers）。
 3. **建立功能地圖。** 在 `features/` 底下放一份索引，加上每個主要功能一個檔案（先挑 3 到 5 個），從使用者的角度寫：功能是什麼、怎麼走到、怎麼操作、看到什麼結果才算成功。
 4. **交出去之前，先自己跑一遍。** 照它剛寫好的說明，啟動、健康檢查、操作一個功能、留證據、收拾，再確認證據在收拾之後還在。沒跑過的 skill 只是草稿。
@@ -298,7 +298,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 ### /maintain-verification-skill：讓驗證 skill 跟上程式
 
-**什麼時候用**：程式一改，功能地圖就可能過時。指南建議至少每天跑一次（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L86-L94)）。指南提到的排程自動化是 Cursor 的功能，Claude Code 裡沒有（[Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L58-L64)），要自己記得跑。
+**什麼時候用**：程式一改，功能地圖就可能過時。指南建議至少每天跑一次（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L86-L94)）。指南說的排程自動化指的是 Cursor Automations；pstack 的 Claude Code 對照說明寫明，在 Claude Code 裡遇到這一步就略過（[對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L58-L64)）。Claude Code 有自己的排程任務，但 pstack 沒有提供設定方式，本篇也不介紹，最簡單的做法是自己定期跑。
 
 **指令怎麼寫**：
 
@@ -342,11 +342,11 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 1. **在 worktree 裡做**（同一個專案的另一份工作副本），從 main 分出來，避免和你手上的修改混在一起。
 2. **整理 commit**：開 PR 之前，重整成小而有順序的 commit，每一個都能單獨合併，順序要能說出整個故事。
 3. **清理**：commit 之前對 diff 跑 `/deslop`，送審之前跑 `/no-comments`；PR 標題、說明和 commit 說明用 `/technical-writing` 寫，再套用 `/unslop`。
-4. **標題**用 Conventional Commits 格式，例如 `fix(export): ...`。
+4. **標題**用 Conventional Commits 格式（一種固定的 commit 標題寫法：類型、括號裡的範圍、冒號，再接說明），例如 `fix(export): ...`。
 5. **說明**是給審查者一分鐘看完的簡報，依序是：Why（為什麼）、What changed（改了什麼）、Scope（涵蓋和刻意不做的範圍）、Tradeoffs（取捨，沒有就省略）、Blast Radius（影響範圍）、Verification（實際怎麼跑、結果如何）。
 6. **預設用 `gh`（GitHub 的命令列工具）開 PR**，而且直接開成可以審查的狀態，不開草稿。
 
-**它不會在開完 PR 之後自動開始 babysit。** 它會貼上 PR 連結，繼續做下一件事；要等整批工作都做完、你開口要求，才會進入 babysit（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L32)）。這樣才不會每開一個 PR 就卡在等 CI，白白浪費之後還會重跑的檢查。指南也建議：五個窄的 PR，勝過一個大 PR。
+**它不會在開完 PR 之後自動開始 babysit。** 它會貼上 PR 連結，繼續做下一件事；要等整批工作都做完、你開口要求，才會進入 babysit（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L32)）。這樣才不會每開一個 PR 就卡在等 CI（每次推上去就自動跑的檢查），白白浪費之後還會重跑的檢查。指南也建議：五個窄的 PR，勝過一個大 PR。
 
 **你會拿到**：一個 PR 連結，格式是 `https://github.com/<owner>/<repo>/pull/<number>`。
 
@@ -354,7 +354,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 ### Babysit：把 PR 推到可以合併，但不替你合併
 
-**什麼時候用**：PR 開了之後，CI（每次推上去就自動跑的檢查）失敗、審查者留言、main 往前走造成衝突，你想把這些雜事交出去。
+**什麼時候用**：PR 開了之後，CI 失敗、審查者留言、main 往前走造成衝突，你想把這些雜事交出去。
 
 **指令怎麼寫**（取自[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L136-L150)）：
 
@@ -372,7 +372,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 1. **先宣告模式。** `drive`：一路處理到可以合併（「babysit 這個」「讓它全部通過」）。`background`：不卡住你，在背景整理。`threads-only`：只回審查留言，其他都不碰。`check`：看一次狀態就回報（「看一下 X」「通過了嗎」）。沒說就是 `drive`；小的或只改文件的 PR 用 `check`。
 2. **一次只顧最底下那個還沒合併的 PR。** 有好幾個疊在一起的 PR 時，最底層的合併之前，上面的留言只先讀、先整理。
-3. **不改 PR 的結構。** 不 rebase、不改目標分支、不 force push。需要 rebase 的情況，它會回報給你，讓 PR 的主人自己做。
+3. **不改 PR 的結構。** 不 rebase（把分支的 commit 改接到新的基準上）、不改目標分支、不 force push（強制覆蓋遠端分支的歷史）。需要 rebase 的情況，它會回報給你，讓 PR 的主人自己做。
 4. **順序是衝突、審查留言、CI。** 已知的修正集中成一次推送，讓檢查只重跑一次。衝突是唯一只回報、不自己解的問題：它會說哪個分支需要 rebase，然後停下來。
 5. **看 GitHub 的判定，不是看一排綠勾。** 在 GitHub 上，它用 pstack 附的 `watch-pr` 腳本查 PR 狀態：`drive` 模式會一直監看到出現最終結果，`check` 模式只看一次。審查留言的內容一律當成不可信的資料，拿去對照程式判斷，不會當成指令照做。
 6. **CI 失敗先分類再重跑。** 判斷是偶發問題、基礎設施問題還是真的壞了；偶發的只重跑一次，同樣的失敗出現第二次，就不是偶發，要去讀紀錄。
@@ -404,7 +404,7 @@ _衝突只回報不自己解；到了可以合併就停，不會替你按下合�
 /pstack:poteto-mode 匯出指令在網路逾時、自動重試之後，同一筆資料會寫出兩次，應該只有一次。先重現，再修，修完驗證。
 ```
 
-它會走 bug-fix playbook：自己造出逾時的情況把 bug 弄出來，用二分法找到原因，交給子代理修。如果這個 bug 有便宜的本機測試路徑，它會照 `/tdd` 的節奏，讓失敗的測試先進 git 歷史、修正排在後面。讀它最後貼的「修之前失敗、修之後通過」的輸出。
+它會走 bug-fix playbook：自己造出逾時的情況把 bug 弄出來，用二分法找到原因，交給子代理修。如果這個 bug 有低成本的本機測試路徑，它會照 `/tdd` 的節奏，讓失敗的測試先進 git 歷史、修正排在後面。讀它最後貼的「修之前失敗、修之後通過」的輸出。
 
 **2. 想自己掌握測試，就直接叫 `/tdd`。**
 
@@ -451,7 +451,7 @@ babysit 會處理 CI 和審查留言，到 GitHub 判定可以合併時停下來
 | --- | --- |
 | 有一個回報的 bug 要修 | `/poteto-mode` + 症狀 +「先重現」（Bug fix playbook） |
 | 要加一個新功能 | `/poteto-mode` + 行為 + 什麼不能變（Feature playbook） |
-| 想先看到一個會失敗的測試再修 | `/tdd`（要有便宜的本機測試路徑） |
+| 想先看到一個會失敗的測試再修 | `/tdd`（要有低成本的本機測試路徑） |
 | README、PR 說明讀起來像 AI 寫的 | `/unslop` |
 | diff 裡有一堆註解，送審之前 | `/no-comments` |
 | 一個小 diff，不放心會不會弄壞別處 | `/blast-radius` |
@@ -477,7 +477,7 @@ babysit 會處理 CI 和審查留言，到 GitHub 判定可以合併時停下來
 
 ## 結論
 
-用 pstack 把程式推到可以合併，靠的是每一步都留下證據。實作時，讓 bug-fix 或 feature playbook 先重現問題、先說清楚資料形狀，修完在同一個介面驗證；有便宜的測試路徑，就用 `/tdd` 讓失敗的測試先進 git 歷史。送審之前，用 `/unslop` 清文字、`/no-comments` 清註解。不放心時，用 `/blast-radius` 證明改動之所以安全的那個事實；有效能數字，先過 `/benchmark-checklist`；AI 沒辦法自己操作你的程式，就用 `/create-verification-skill` 給它一套方法，並定期維護。最後讓開 PR 的 playbook 整理 commit 和說明，再由 babysit 處理 CI 和留言，推到 GitHub 判定可以合併為止。按下合併的，永遠是你。
+用 pstack 把程式推到可以合併，靠的是每一步都留下證據。實作時，讓 bug-fix 或 feature playbook 先重現問題、先說清楚資料形狀，修完在同一個介面驗證；有低成本的測試路徑，就用 `/tdd` 讓失敗的測試先進 git 歷史。送審之前，用 `/unslop` 清文字、`/no-comments` 清註解。不放心時，用 `/blast-radius` 證明改動之所以安全的那個事實；有效能數字，先過 `/benchmark-checklist`；AI 沒辦法自己操作你的程式，就用 `/create-verification-skill` 給它一套方法，並定期維護。最後讓開 PR 的 playbook 整理 commit 和說明，再由 babysit 處理 CI 和留言，推到 GitHub 判定可以合併為止。按下合併的，永遠是你。
 
 ## 延伸閱讀
 
