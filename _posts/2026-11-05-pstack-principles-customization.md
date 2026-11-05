@@ -348,7 +348,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 /pstack:poteto-mode autopilot these five changes. 可以 push 和開 PR，不要合併，我早上自己合併。
 ```
 
-如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，在允許清單加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，並在禁止清單加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。這些規則只比對指令的寫法，擋不住所有變形，所以真正的牆要放在 GitHub：替 main 開分支保護，要求一定要經過 PR，並禁止 force push。也因為規則只比對字面，分支名稱裡不要出現「-f」或「main」（例如 `feat/fix-login`），不然連正常的 push 也會被擋下。另外，如果你沿用前面的六段範本，這次「不可以做」那一行要拿掉「連網」，push 和開 PR 本來就需要連網。
+如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，在允許清單加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，並在禁止清單加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。這些規則只比對指令的寫法，擋不住所有變形，所以真正的牆要放在 GitHub：替 main 開分支保護，要求一定要經過 PR、禁止 force push，並勾選「Do not allow bypassing the above settings」，因為分支保護預設不擋 repo 管理員，而 AI 用的就是你的帳號。也因為規則只比對字面，分支名稱裡不要出現「-f」或「main」（例如 `feat/add-format`、`feat/domain-check` 都會被擋），不然連正常的 push 也會被擋下。預設分支叫 master 的 repo，禁止規則裡的 main 要換成 master。另外，如果你沿用前面的六段範本，這次「不可以做」那一行要拿掉「連網」，push 和開 PR 本來就需要連網。
 
 ## 早上：用 /show-me-your-work 檢查決策紀錄
 
