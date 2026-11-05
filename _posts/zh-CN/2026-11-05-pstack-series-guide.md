@@ -45,7 +45,7 @@ image:
 
 - **很小、很明显的修改**：直接跟 AI 说就好，不用 pstack（第 1、2 篇都提过；第 2 篇更直接说，大部分改动其实用不到那些工具）。
 - **不愿意为严谨流程多花用量**：pstack 会派出子代理、组评审，读写的内容越多，花掉的用量就越多（见第 1、2 篇的注意事项）。
-- **无人值守却想关光所有检查**，或在没有隔离的环境里用 `bypassPermissions`：第 4 篇明确反对这么做。合并、force push、删数据、对客户发消息这类不可逆的操作，还是要由人来决定。
+- **无人值守却想关掉所有检查**，或在没有隔离的环境里用 `bypassPermissions`：第 4 篇明确反对这么做。合并、force push、删数据、对客户发消息这类不可逆的操作，还是要由人来决定。
 
 ## 四篇怎么串起来
 
@@ -117,7 +117,7 @@ pstack 是 Cursor 官方插件库里的一套 skill，在本导读钉的版本�
 ## 延伸阅读
 
 - [官方 pstack（本导读钉选的 commit）](https://github.com/cursor/plugins/tree/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack)：README、指南与各个 skill。
-- [指南目录](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/)：从安装、overnight、原则到做出自己的 mode。
+- [指南目录](https://github.com/cursor/plugins/tree/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/)：从安装、overnight、原则到做出自己的 mode。
 - [第 1 篇](/posts/pstack-install-routing/)｜[第 2 篇](/posts/pstack-understand-design/)｜[第 3 篇](/posts/pstack-build-verify-merge/)｜[第 4 篇](/posts/pstack-principles-customization/)
 - [mattpocock/skills 系列导读](/posts/mattpocock-skills-series-guide/)和[系列（1）](/posts/mattpocock-skills-setup-routing-guide/)：另一套 skill 的系列文章。
 - [自己写 Agent Skill：从 SKILL.md 结构到触发测试与维护](/posts/agent-skill-authoring-guide/)：skill 放哪里、`SKILL.md` 怎么写。
