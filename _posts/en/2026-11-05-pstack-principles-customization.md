@@ -283,7 +283,7 @@ What each line does:
 - **"im going to bed"** tells `/poteto-mode` to keep the authorized work moving for the rest of this session and check in less often. It still has to respect your prohibitions, though, and it still stops for actions that need confirmation or when it's genuinely stuck ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)).
 - **"done means"** has to be a condition every iteration can actually check, such as "all tests pass" or "nothing calls the old function." The guide warns that **a duration is not a finish condition**: "work on this for 4 hours" gives the agent nothing to check, and you'll wake up to four hours of busywork instead of a result ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)).
 - **"task branch"** keeps the commits separate, but it doesn't isolate uncommitted changes in the same working directory. If you don't want it getting in the way of your other work, follow the guide's advice and use a fresh worktree; Claude Code's `-w` (`--worktree`) option starts a session directly in its own worktree ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
-- **"don't ask me"** answers ahead of time the questions it would otherwise stop to ask. It only clears committing on a new local branch; pushing, opening a PR, merging, and other irreversible actions still need a human to confirm.
+- **"don't ask me"** answers ahead of time the questions it would otherwise stop to ask. This template only clears committing on a new local branch. Pushing and opening a PR need your explicit go-ahead in both the prompt and the permission settings (see Autopilot-stack below); merging and other irreversible actions still need a human to confirm.
 - **"never"** draws the line. Writing it in the prompt isn't enough; you also need to block it with permission settings, which I'll cover next.
 - **"if you're truly stuck"** is the escape hatch. Rather than spending the night creatively reinterpreting the goal, it should stop when it hits a genuine dead end and write up what happened.
 
@@ -296,7 +296,7 @@ The guide's template ends with `/loop`, Cursor's built-in command for waking the
 3. **Makes the smallest change each iteration** and checks it against the finish condition; it commits progress and discards what didn't help, keeping nothing that only "might help."
 4. **Handles mid-run discoveries that support the goal** without stopping to ask; it leaves only irreversible actions, product or preference calls no experiment can settle, and genuine dead ends for you.
 5. **Logs one row per iteration** in the decision log.
-6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, runs into a permission or spending limit, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)).
+6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)). If the run hits the `--max-budget-usd` cap, Claude Code stops it outright and it may not get to write anything, so in the morning go by the last log row and the commits.
 
 **What you get**: a reply with the finish condition, the number of iterations, what it kept, what it discarded, and the final state of the finish condition, plus a decision log.
 
@@ -332,7 +332,7 @@ If `claude -p` runs with no permission mode set, actions that need approval are 
 
 ### Stopping on Purpose, or Picking Up Tomorrow
 
-When you want the AI to stop, explicitly tell it to pause. If you only say you're going offline, it may take that as a cue to keep working unattended. The Pause safely playbook finishes or backs out of the current step, saves progress as a `wip:` commit, and writes a resume note. Pausing only saves progress locally; it doesn't open a PR or push on its own. Just saying "keep going" won't trigger a pause ([pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)).
+To stop it, tell it to pause, or say you're about to go offline; both trigger a pause ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L40)). If you also tell it to keep going, as in "going to bed, keep going," it won't pause. The Pause safely playbook finishes or backs out of the current step, saves progress as a `wip:` commit, and writes a resume note. Pausing only saves progress locally; it doesn't open a PR or push on its own. Just saying "keep going" won't trigger a pause ([pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)).
 
 ```text
 /pstack:poteto-mode pause, i'm going offline.
@@ -345,8 +345,10 @@ Later, a new conversation can pick up from that note through the Session pickup 
 If you have several unrelated changes for one night, the guide offers two playbooks ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)): Autopilot-full carries each PR all the way to merged; Autopilot-stack verifies the same way but **doesn't merge**, so you review and land them yourself in the morning. If you want the AI to get the PRs ready so you can review them and decide whether to merge in the morning, go with Autopilot-stack. Note that unlike the earlier local-only template, you have to explicitly give it permission to push and open PRs:
 
 ```text
-/pstack:poteto-mode autopilot these five changes, but don't merge. i'll land them in the morning.
+/pstack:poteto-mode autopilot these five changes. you may push branches and open PRs; don't merge. i'll land them in the morning.
 ```
+
+With the earlier `claude -p` setup, remove `Bash(git push *)` from the denylist and add `Bash(git push *)` and `Bash(gh pr create *)` to the allowlist. Still never allow `gh pr merge`.
 
 ## In the Morning: Audit the Decision Log With /show-me-your-work
 
@@ -393,7 +395,7 @@ Personally, I draw the line a bit more conservatively:
 
 | Let it run | Always ask first, or block outright |
 | --- | --- |
-| Changing code and committing on a new branch | Pushing, opening a PR, merging |
+| Changing code and committing on a new branch | Merging; pushing and opening a PR only when you explicitly allow it |
 | Running tests and the project's own commands | Installing packages, downloading from the internet |
 | Writing the decision log and resume notes | Deleting files or data, rewriting git history |
 | Drafts in a scratch folder | Changing CI config or the AI's settings (`.claude/`, `CLAUDE.md`) |
@@ -471,7 +473,7 @@ if you're truly stuck: stop and write down where you're stuck, what you tried, a
 
 Following the earlier steps, I create the `feat/export-csv` branch and a separate worktree, copy the prompt file over, and set up the dependencies. Then I kick it off with the `claude -p` command, along with the allowlist, denylist, and spending cap.
 
-**Morning: audit.** I use `claude --resume <session ID>` to reopen the overnight conversation interactively, then enter:
+**Morning: audit.** I use `claude --resume <session ID>` to reopen the overnight conversation interactively. Sessions started with `claude -p` don't appear in the `--resume` picker, so pass the ID directly: it's the `.jsonl` file name for that run under `~/.claude/projects/<worktree path>/`, or pass the file's full path to `--resume`. Then I enter:
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night

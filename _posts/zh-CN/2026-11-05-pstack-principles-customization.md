@@ -283,7 +283,7 @@ _一份无人值守提示的六个部分。时间长度不是完成条件。_
 - **“我要去睡了”** 是告诉 `/poteto-mode`：这次对话里已授权的工作就一路做下去，少停下来确认；但它还是得遵守你列的禁止事项，碰到必须确认的动作或真的卡住时，也要停下来（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)）。
 - **“怎样算完成”** 要写成每一轮都能实际检查的条件，例如“所有测试通过”“旧的函数没有人调用”。指南特别提醒：**时间长度不是完成条件**。“做四个小时”根本没有东西可以检查，你醒来只会看到它忙了四个小时，而不是一个结果（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)）。
 - **“工作分支”** 可以把提交记录分开，但同一个工作目录里还没提交的变更并不会被隔开。如果不想干扰手上的工作，最好按指南的建议开一个新的 worktree；Claude Code 的 `-w`（`--worktree`）选项就能直接在独立的 worktree 里启动（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
-- **“不用问我”** 是先替它回答那些它原本会停下来问的事。这里只放行在本地新分支上 commit；push、开 PR、合并和其他不可逆的动作，还是要由人来确认。
+- **“不用问我”** 是先替它回答那些它原本会停下来问的事。这个模板只放行在本地新分支上 commit；push 和开 PR 要你在提示和权限设置里明确放行才可以（见下面的 Autopilot-stack），合并和其他不可逆的动作，还是要由人来确认。
 - **“不可以做”** 是界线。光写在提示里还不够，还要用权限设置挡住，下一段会讲。
 - **“如果真的卡住”** 是出口。与其让它一整晚自己重新解读目标，不如在真的走进死胡同时停下来，把情况写清楚。
 
@@ -296,7 +296,7 @@ _一份无人值守提示的六个部分。时间长度不是完成条件。_
 3. **每一轮做最小的改动**，再拿完成条件检查；有进展就 commit，没帮助就丢掉，不留“也许有帮助”的东西。
 4. **自行处理途中发现、且有助于目标的问题**，不会停下来问你；只有不可逆的动作、无法用实验回答的产品或偏好决定，以及真正的死路，才会留给你。
 5. **每一轮在决策记录记一行。**
-6. **达到完成条件才算成功。** 卡在原地就换个方法；如果碰到必须由你决定的事、权限限制、费用上限，或真的没法再往前，就把未完成的状态和原因留下来，而不是放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。
+6. **达到完成条件才算成功。** 卡在原地就换个方法；如果碰到必须由你决定的事，或真的没法再往前，就把未完成的状态和原因留下来，而不是放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。费用到了 `--max-budget-usd` 的上限时，Claude Code 会直接停掉这次运行，它不一定来得及留下说明，所以早上以决策记录最后一行和 commit 为准。
 
 **你会拿到**：一条回复，写出完成条件、跑了几轮、留下了什么、丢掉了什么、完成条件最后的状态，以及一份决策记录。
 
@@ -332,7 +332,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 ### 想让它停下来，或明天接着做
 
-想让 AI 停下来，要明确说“暂停”，不要只说你要离线了；只说要离线，它也可能理解成要继续无人值守地做下去。Pause safely playbook 会把目前这一步做完或退回去，用一个 `wip:` commit 存下进度，再写一份接手说明（resume note）。暂停只会在本地保存进度，不会自动开 PR 或推送。如果你只是说“继续”，就不会触发暂停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
+想让 AI 停下来，直接说“暂停”，或说你要离线了，都会走暂停流程（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L40)）；但如果你同时说要它继续，例如“我要去睡了，继续做”，它就不会暂停。Pause safely playbook 会把目前这一步做完或退回去，用一个 `wip:` commit 存下进度，再写一份接手说明（resume note）。暂停只会在本地保存进度，不会自动开 PR 或推送。如果你只是说“继续”，就不会触发暂停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
 
 ```text
 /pstack:poteto-mode 先暂停，我要离线了。
@@ -345,8 +345,10 @@ claude -p "$(cat overnight-prompt.txt)" \
 如果一晚有好几个互不相干的改动，指南提供了两个 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 会把每个 PR 一路做到合并；Autopilot-stack 一样会验证，但**不合并**，早上由你自己看、自己合并。如果你希望 AI 先把 PR 准备好，早上再由你审查、决定要不要合并，就选 Autopilot-stack。要注意，这跟前面只在本地做事的模板不同，你必须另外明确授权它 push 和开 PR：
 
 ```text
-/pstack:poteto-mode autopilot these five changes, but don't merge. i'll land them in the morning.
+/pstack:poteto-mode autopilot these five changes. 可以 push 和开 PR，不要合并，我早上自己合并。
 ```
+
+如果用前面的 `claude -p` 设置，要把 `Bash(git push *)` 从禁止清单移掉，并在允许清单加上 `Bash(git push *)` 和 `Bash(gh pr create *)`；仍然不要放行 `gh pr merge`。
 
 ## 早上：用 /show-me-your-work 检查决策记录
 
@@ -393,7 +395,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 | 放手让它做 | 一定要先问，或直接禁止 |
 | --- | --- |
-| 在新分支上改代码、commit | push、开 PR、合并 |
+| 在新分支上改代码、commit | 合并；push、开 PR 要你明确放行 |
 | 跑测试、跑项目自己的命令 | 安装软件包、联网下载 |
 | 写决策记录、接手说明 | 删除文件或数据、改 git 历史 |
 | 在 scratch 文件夹放草稿 | 改 CI 设置、AI 的配置文件（`.claude/`、`CLAUDE.md`） |
@@ -471,7 +473,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 我按前面的步骤，先创建 `feat/export-csv` 分支和独立的 worktree，复制提示文件、准备好依赖，再用 `claude -p` 命令启动，搭配允许清单、禁止清单和费用上限。
 
-**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话，然后输入：
+**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话。`claude -p` 的对话不会出现在 `claude --resume` 的选单里，所以要直接给 ID：它就是 `~/.claude/projects/<worktree 路径>/` 下面那次对话的 `.jsonl` 文件名，也可以直接把那个 `.jsonl` 的完整路径传给 `--resume`。接上之后输入：
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night
