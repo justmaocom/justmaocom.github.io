@@ -16,7 +16,7 @@ When an AI coding assistant finishes a change, it often says "Done, this should 
 >
 > - Series guide: What pstack is and how to read the four parts (not yet published)
 > - Previous (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
-> - Next (Part 4): Not yet published
+> - Next (Part 4): [Steer with principles, build your own mode, and let it run unattended](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
 > **Version note:** This post is based on pstack [version `0.15.36`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `c742dd6` (07:12 on 2026-10-28, Taipei time), with Claude Code 2.1.316. That is newer than the first two parts used: upstream shipped several releases while I wrote this one, so I checked against the latest, and the instructions here refer to that version. The three parts used these versions:
