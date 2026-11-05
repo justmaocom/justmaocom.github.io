@@ -14,7 +14,7 @@ AI 编程助手接到“改一下这个功能”，常常直接从第一个看�
 
 > pstack 系列｜第 2 篇
 >
-> - 系列导读：这套 skill 是什么、四篇该怎么读（尚未发布）
+> - 系列导读：[这套 skill 是什么、四篇该怎么读](/posts/pstack-series-guide/)
 > - 上一篇（第 1 篇）：[安装、选模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)
 > - 下一篇（第 3 篇）：[写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)
 {: .prompt-info }

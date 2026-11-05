@@ -14,7 +14,7 @@ AI 编程助手改完代码，常常回一句“改好了，应该没问题”�
 
 > pstack 系列｜第 3 篇
 >
-> - 系列导读：这套 skill 是什么、四篇该怎么读（尚未发布）
+> - 系列导读：[这套 skill 是什么、四篇该怎么读](/posts/pstack-series-guide/)
 > - 上一篇（第 2 篇）：[改代码之前，先看懂再设计](/posts/pstack-understand-design/)
 > - 下一篇（第 4 篇）：[用原则指挥 AI、做出自己的 mode，再放心让它自己跑](/posts/pstack-principles-customization/)
 {: .prompt-info }

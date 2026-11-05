@@ -14,7 +14,7 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 
 > pstack Series | Part 2
 >
-> - Series guide: What pstack is and how to read the four parts (not yet published)
+> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
 > - Previous (Part 1): [Install, pick models, start with /poteto-mode](/posts/pstack-install-routing/)
 > - Next (Part 3): [After the code is written, prove it works before merging](/posts/pstack-build-verify-merge/)
 {: .prompt-info }

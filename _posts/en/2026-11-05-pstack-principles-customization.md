@@ -16,7 +16,7 @@ This is the last part of the series, and it covers three things: how to steer th
 
 > pstack series | Part 4 (final part)
 >
-> - Series guide: what this skill set is and how to read the four parts (not yet published)
+> - Series guide: [What this skill set is and how to read the four parts](/posts/pstack-series-guide/)
 > - Previous (Part 3): [After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/)
 > - Next: this is the last part of the series
 {: .prompt-info }

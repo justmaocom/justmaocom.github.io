@@ -14,7 +14,7 @@ When an AI coding assistant finishes a change, it often says "Done, this should 
 
 > pstack Series | Part 3
 >
-> - Series guide: What pstack is and how to read the four parts (not yet published)
+> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
 > - Previous (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
 > - Next (Part 4): [Steer with principles, build your own mode, and let it run unattended](/posts/pstack-principles-customization/)
 {: .prompt-info }

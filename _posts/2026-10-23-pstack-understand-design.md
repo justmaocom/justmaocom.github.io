@@ -14,7 +14,7 @@ AI 程式助理接到「改一下這個功能」，常常直接從第一個看�
 
 > pstack 系列｜第 2 篇
 >
-> - 系列導讀：這套 skill 是什麼、四篇該怎麼讀（尚未發布）
+> - 系列導讀：[這套 skill 是什麼、四篇該怎麼讀](/posts/pstack-series-guide/)
 > - 上一篇（第 1 篇）：[安裝、選模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)
 > - 下一篇（第 3 篇）：[寫完程式之後，先證明它能用再合併](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
