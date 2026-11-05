@@ -10,9 +10,9 @@ image:
   alt: "用原则名称中途指挥 AI，把习惯做成自己的 mode，写好完成条件和界线后让它自己跑，早上看决策记录。"
 ---
 
-AI 编程助手做得不对时，我以前会打一大段话解释我要什么。pstack 提供了一个更简短的办法：用原则名称指出你要它调整的方向，再检查它是否确实照做。
+以前 AI 编程助手做得不对，我会打一大段话解释我到底要什么。pstack 给了一个省事得多的办法：直接说出一条原则的名称，告诉它该往哪个方向调整，再确认它有没有真的照做。
 
-这篇是系列的最后一篇，教你三件事：怎么在对话中途用原则名称指挥 AI；怎么把你自己的习惯变成一个 mode，让 AI 照你的方式工作；以及想让它在你睡觉时自己跑，提示要怎么写、权限和费用要怎么设，早上又要怎么检查它做了什么。
+这是系列的最后一篇，主要讲三件事：怎么在对话中途用原则名称指挥 AI；怎么把自己的习惯做成一个 mode，让 AI 照你的方式做事；还有，如果想让它在你睡觉时自己跑，提示该怎么写、权限和费用该怎么设，早上起来又该怎么检查它做了什么。
 
 > pstack 系列｜第 4 篇（最后一篇）
 >
@@ -26,7 +26,7 @@ AI 编程助手做得不对时，我以前会打一大段话解释我要什么�
 
 ## 开始之前
 
-pstack 是 Cursor 官方插件库里的一整组 skill。skill 是一份告诉 AI 怎么完成某类工作的操作说明。安装方法在[第 1 篇](/posts/pstack-install-routing/)。想装到和本文一样的版本，可以先把 repo 下载到自己电脑、切到本文的 commit，再把这个文件夹加入插件市场（marketplace，Claude Code 安装插件的来源目录）：
+pstack 是 Cursor 官方插件库里的一整组 skill；所谓 skill，就是一份告诉 AI 怎么完成某类工作的操作说明。安装方法我在[第 1 篇](/posts/pstack-install-routing/)写过了。如果想装跟本文一样的版本，可以先把 repo 下载到自己的电脑、切到本文用的 commit，再把这个文件夹加进插件市场（marketplace，Claude Code 安装插件的来源目录）：
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -35,13 +35,13 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-直接用 `/plugin marketplace add cursor/plugins` 安装的话，拿到的是安装当下的最新版，没有固定在你看过的版本。这样做的风险，可以参考[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+如果直接用 `/plugin marketplace add cursor/plugins` 安装，拿到的会是安装当下的最新版，而不是固定在你看过的那个版本。这样做有什么风险，可以参考[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 
 **命令要加前缀。** 在 Claude Code（在终端里使用的 AI 编程助手）里，插件的命令前面要加上插件名称，例如 `/pstack:correct`。下面的范例都用 Claude Code 的写法；在 Cursor 里，把 `pstack:` 拿掉就好。
 
-**这些 skill 都要由你主动调用。** pstack 的 58 个 skill 里，除了 `/setup-pstack`，其他都设置成不让 AI 自行启动（`disable-model-invocation: true`），原则也一样。这表示 AI 不能自行调用这些 skill；但 `/poteto-mode` 仍可按照自己的流程读取并应用相关原则，下面会再说明。
+**这些 skill 都要由你主动调用。** pstack 的 58 个 skill 里，除了 `/setup-pstack`，其他都设成不让 AI 自己启动（`disable-model-invocation: true`），原则也是。也就是说，AI 不能自己去调用这些 skill；不过 `/poteto-mode` 还是可以按它自己的流程读取并应用相关原则，后面会再说明。
 
-**官方指南是照 Cursor 写的。** 指南里的部分工具与命令是基于 Cursor 环境介绍的，例如 `/loop` 和 `create-skill`；Claude Code 虽然也有 `/loop`，用法却不同。pstack 附了一份 [Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md)，`/poteto-mode` 在 Claude Code 里会先读它，把 Cursor 的名称换成 Claude Code 的对应做法。下面遇到差异的地方，我会直接写 Claude Code 的做法。
+**官方指南是照 Cursor 写的。** 指南里有些工具和命令是以 Cursor 的环境来介绍的，例如 `/loop` 和 `create-skill`；Claude Code 虽然也有 `/loop`，用法却不一样。pstack 附了一份 [Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md)，`/poteto-mode` 在 Claude Code 里会先读它，把 Cursor 的名称对应到 Claude Code 的做法。下面遇到两边不一样的地方，我会直接写 Claude Code 的做法。
 
 ## 用原则名称指挥 AI
 
@@ -57,9 +57,9 @@ pstack 有 24 条原则，每一条都是一个独立的 skill，名称是 `prin
 | delegation | 2 | 并行分工时怎么明确职责 |
 | meta | 1 | 把重复的提醒变成结构 |
 
-你用 `/pstack:poteto-mode` 交代多步骤的工作时，它会在开始时读原则的索引，应用这个任务会触发的那几条，并在回复里写出每条原则**改变了哪个决定**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L15)）。
+当你用 `/pstack:poteto-mode` 交代多步骤的工作，它一开始会先读原则的索引，应用这个任务会触发的那几条，并在回复里写出每条原则**改变了哪个决定**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L15)）。
 
-指南的说法是：你不必一开始就逐条调用原则，而是可以在需要调整方向时，用名称指出该应用哪一条（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L5)）。一个名称背后是一整条规则，因此不必每次都重新解释整条规则。
+指南的意思是：你不用一开始就逐条调用原则，等到需要调整方向时，再用名称点出该应用哪一条就好（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L5)）。一个名称就代表一整条规则，所以不必每次都从头解释一遍。
 
 ### 在 Claude Code 里怎么说
 
@@ -69,7 +69,7 @@ pstack 有 24 条原则，每一条都是一个独立的 skill，名称是 `prin
 /pstack:principle-<名称> <你要它照这条原则做的事>
 ```
 
-用命令的写法，Claude Code 会把那条原则的完整说明读进来，而不只是看到一个名称。下面示范四条我最常用的。完整的 24 条，请看 [README 的原则表](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L223-L257)。
+用命令的写法，Claude Code 会把那条原则的完整说明读进来，而不只是看到一个名称。下面示范我最常用的四条，完整的 24 条可以看 [README 的原则表](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L223-L257)。
 
 ![四条原则各自适合的时机：计划太大、说做完却没证据、修了症状、连续修不好](principles-steer.zh-CN.png){: w="800" h="450" }
 _四条常用原则，以及什么时候该说出它们的名称。_
@@ -86,12 +86,12 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-laziness-protocol/SKILL.md#L9-L10)）：
 
-1. **把重复的判断集中到一处。** 同一个判断不在好几个地方各写一次，改成一个来源，其他地方只拿结果。
-2. **把 diff 缩到最小。** 用能解决问题的最小改动，少写几行，胜过“漂亮”的样板程序。
+1. **把重复的判断集中到一处。** 同一个判断不要在好几个地方各写一次，而是只留一个来源，其他地方直接拿结果来用。
+2. **把 diff 缩到最小。** 用最小的改动解决问题；少写几行，胜过写一堆“漂亮”的样板代码。
 
-**你会拿到**：一份缩小过的计划或改动，回复里会写出这条原则拿掉了什么。
+**你会拿到**：一份精简过的计划或改动，回复里会说明这条原则拿掉了什么。
 
-**下一步**：检查改动，确认它删掉的确实是多余的部分，必要行为仍然保留。
+**下一步**：看一下改动，确认它删掉的真的是多余的东西，该有的行为也都还在。
 
 ### prove-it-works：说做完了，却没有证据
 
@@ -105,17 +105,17 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-prove-it-works/SKILL.md#L9-L22)）：
 
-1. **直接看真正的东西。** 读实际的值、实际运行程序，不从文件修改时间、缓存或子代理的自我报告推论。
+1. **直接看真正的东西。** 读实际的值、真的把程序跑起来，而不是从文件修改时间、缓存或子代理的自我汇报去推测。
 2. **检查失败时，先怀疑检查方式。** 先确认是不是看错地方，再怀疑代码。
 3. **能写成脚本就写。** 最有力的证明，是一段可以重跑的脚本，而不是看一次就算了。
 
-**你会拿到**：实际运行的命令和输出。
+**你会拿到**：它实际跑过的命令和输出。
 
-**下一步**：自己看一次输出，确认它验证的是你在意的那件事。
+**下一步**：自己看一遍输出，确认它验证的真的是你在意的那件事。
 
 ### fix-root-causes：修了症状，没修到原因
 
-**什么时候用**：AI 只在出错的那一行加上判断，避开错误，却没有查明原因。
+**什么时候用**：AI 只在出错的那一行加个判断把错误绕过去，却没去查原因。
 
 **命令怎么写**：
 
@@ -127,17 +127,17 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 1. **先重现。**
 2. **一直问“为什么”**，直到答案是代码里的一个错误决定，而不是前一个错误造成的结果。
-3. **卡住就加记录**，看实际的错误消息和状态，不用猜的。
-4. **判断触发的状态合不合理。** 合理的话，处理不了它的代码就是原因；不该存在的话，就去找是谁产生了这个状态。
-5. **找同一种错误的其他地方**，一起修。
+3. **卡住就加记录**，看实际的错误信息和状态，不要靠猜。
+4. **判断触发的状态合不合理。** 如果合理，处理不了这个状态的代码就是原因；如果它根本不该出现，就去找是谁产生的。
+5. **找同一种错误的其他地方**，一并修掉。
 
-**你会拿到**：根本原因的说明、修正，以及其他位置是否也有同类问题的检查结果。
+**你会拿到**：根本原因的说明、修复，以及它检查其他地方有没有同类问题的结果。
 
-**下一步**：看它说的原因，是不是第一个出错的地方。
+**下一步**：确认它说的原因，真的是第一个出错的地方。
 
 ### attack-the-premise：连续修不好的时候
 
-**什么时候用**：已经试了两次以上的修法，都卡在同一个检查。
+**什么时候用**：已经试过两次以上的修法，却都卡在同一个检查。
 
 **命令怎么写**：
 
@@ -147,28 +147,28 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L19)）：
 
-1. **写下前提**：每次失败的修法共同依赖的假设。
-2. **先测试前提**：设计一项能区分前提真假的检查，实际运行并观察结果。
+1. **写下前提**：也就是每个失败的修法都依赖的那个假设。
+2. **先测试前提**：设计一个能分辨前提是真是假的检查，实际跑一次，看看结果。
 3. **跟着证据走**：证据推翻前提，就去别处找原因；证据支持前提，就照 fix-root-causes 再问下一个“为什么”。
 4. **前提写下来、测过之前，不开始下一个修法。**
 
-**你会拿到**：被写下来的前提、测试它的方法和结果，以及根据结果选的方向。
+**你会拿到**：写下来的前提、测试方法和结果，以及根据结果选定的方向。
 
-**下一步**：前提被推翻时，让它从新的方向重新规划。
+**下一步**：如果前提被推翻，就让它换个方向重新规划。
 
 ### 怎么判断它确实应用了原则
 
-原则被点名，不代表它真的照做。指南说，回复里要写出这条规则**改变了哪个决定**；只有名称、没有对应决定的引用，就是只说了名称却没有应用（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L27)）。指南也建议不要背清单：先浏览一次，下次看到 AI 做了某条原则可以避免的事，再回来找那个名称（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L70)）。
+点名了某条原则，不代表它真的照做。指南说，回复里要写出这条规则**改变了哪个决定**；如果只引用了名称、却说不出改了哪个决定，那就是嘴上提了、实际上没应用（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L27)）。指南也建议不用背清单：先大致看一遍，下次看到 AI 做了某条原则本来可以避免的事，再回来找那个名称（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L70)）。
 
 ## 做出自己的工作方式
 
-`/poteto-mode` 反映的是 pstack 作者的个人工作风格。指南第 9 章教你换成自己的：`/automate-me` 产生你的 mode，`/reflect` 从一次对话里学到教训，`/correct` 改项目本身，让同样的错不再发生（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L1-L5)）。
+`/poteto-mode` 反映的是 pstack 作者个人的工作风格。指南第 9 章教你怎么换成自己的：`/automate-me` 帮你生成自己的 mode，`/reflect` 把一次对话的教训整理出来，`/correct` 直接改项目本身，让同样的错不再发生（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L1-L5)）。
 
 ### /automate-me：把你的习惯做成一个 mode
 
-**什么时候用**：你常常对 AI 做同样的纠正，例如“回答短一点”“先跑测试再说做完”，想让它一开始就照你的方式做。mode 是一个 skill，写的是你的工作习惯，名称像 `<你的名字>-mode`。
+**什么时候用**：你常常对 AI 重复同样的纠正，例如“回答短一点”“先跑测试再说做完”，希望它一开始就照你的方式做。mode 其实也是一个 skill，里面写的是你的工作习惯，名称类似 `<你的名字>-mode`。
 
-**命令怎么写**：指南的写法只有 `/automate-me`，因为在 Cursor 里，它知道对话记录（transcript，AI 对话的完整日志）在哪里。Claude Code 的记录放在 `~/.claude/projects/<项目路径>/`，文件夹名称是把项目路径里的 `/` 和 `.` 换成 `-`（[Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L56)）。我建议在提示里写明只能读这个项目的记录：
+**命令怎么写**：指南里只写了 `/automate-me`，因为在 Cursor 里，它知道对话记录（transcript，AI 对话的完整日志）放在哪里。Claude Code 的记录放在 `~/.claude/projects/<项目路径>/`，文件夹名称就是把项目路径里的 `/` 和 `.` 换成 `-`（[Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L56)）。我建议在提示里写清楚，只能读这个项目的记录：
 
 ```text
 /pstack:automate-me 只读这个项目的对话记录（~/.claude/projects/<项目路径转成的文件夹名称>/），不要读其他项目。草稿先写到 .claude/skills/<我的名字>-mode/SKILL.md，写好给我看，不要 commit。
@@ -176,16 +176,16 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L13-L83)）：
 
-1. **找既有的 mode。** 已经有你的 mode，就问你要更新还是重做；默认是更新。
-2. **分析你的对话记录。** 只读这个项目的记录，把最近几周的记录按时间分成三段，派子代理（skill 运行时另外派出、分头做事的 AI）并行阅读，找回复风格、分工、验证、代码和文字、流程等方面的重复偏好。至少在两个时间段的记录里都出现过的偏好才算数。
-3. **直接问你。** 用一两题选择题确认哪些是你真正的习惯，再用一题开放问题补漏。在 `claude -p`（不开对话窗口、一次运行完的模式）里没有提问工具，它会改成用文字提问（[Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L10)）。
-4. **分组、起草。** 把结果整理成几节，例如回复风格、自主程度、验证、流程。只写你有特别规则的部分。默认加上 `disable-model-invocation: true`，所以你要输入命令它才会加载。
+1. **找既有的 mode。** 如果你已经有 mode，它会问你要更新还是重做；默认是更新。
+2. **分析你的对话记录。** 它只读这个项目的记录，把最近几周的记录按时间切成三段，派子代理（skill 运行时另外派出、分头做事的 AI）并行去读，找出你在回复风格、分工、验证、代码和文字、流程这些方面反复出现的偏好。至少在两段里都出现过的，才算数。
+3. **直接问你。** 它会用一两道选择题确认哪些真的是你的习惯，再用一道开放式问题补上遗漏的部分。在 `claude -p`（不开对话窗口、一次运行完的模式）里没有提问工具，它会改成直接用文字问你（[Claude Code 对照说明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L10)）。
+4. **分组、起草。** 把结果整理成几节，例如回复风格、自主程度、验证、流程，而且只写你有特别规则的部分。它默认会加上 `disable-model-invocation: true`，所以要等你输入命令，它才会加载。
 5. **润色文字。** 用 `/unslop` 把每一行改得直接、好懂。
-6. **按你的要求交付。** 指南的完整流程是在 worktree（同一个 repo 的另一份独立工作目录）里 commit 并开 PR，不直接推到 main；上面的提示则明确要求先交草稿、不 commit，因此这次应停在草稿，等你看过再决定是否送审。
+6. **按你的要求交付。** 指南的完整流程是在 worktree（同一个 repo 的另一份独立工作目录）里 commit 再开 PR，不会直接推到 main；不过上面的提示明确要求先交草稿、不要 commit，所以这次它应该停在草稿，等你看过再决定要不要送审。
 
-**你会拿到**：一份 `<你的名字>-mode/SKILL.md` 草稿。Claude Code 会保护项目的 `.claude/` 文件夹，AI 要写进去时会先问你，或直接被挡下（[权限模式说明](https://code.claude.com/docs/en/permission-modes#protected-paths)）。被挡下的话，让它先写到别的文件夹，你看过再自己搬进去。
+**你会拿到**：一份 `<你的名字>-mode/SKILL.md` 草稿。Claude Code 会保护项目里的 `.claude/` 文件夹，AI 要写进去时，不是先问你，就是直接被挡下（[权限模式说明](https://code.claude.com/docs/en/permission-modes#protected-paths)）。如果被挡下，就让它先写到别的文件夹，你看过之后再自己搬进去。
 
-**下一步**：读一遍，问自己“这像我吗？少了什么？”（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L94-L96)）。注意它分析的是**你在这个项目的对话**；如果这些对话大多是特殊用途（例如一次性的测试），写出来的就不会是你平常的样子。习惯变了，再跑一次更新：
+**下一步**：读一遍，问问自己“这像我吗？少了什么？”（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L94-L96)）。要注意，它分析的是**你在这个项目的对话**；如果这些对话大多是特殊用途（例如一次性的测试），写出来的就不会是你平常的样子。之后习惯变了，再跑一次更新就好：
 
 ```text
 /pstack:automate-me update my mode skill with everything since its last edit
@@ -193,7 +193,7 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 ### /reflect：一次对话学到的事，写回 skill
 
-**什么时候用**：一个任务刚做完，过程绕了远路，你不想下次再绕一次。
+**什么时候用**：刚做完一个任务，中间绕了不少远路，你不想下次再绕一次。
 
 **命令怎么写**（取自[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L23-L31)）：
 
@@ -204,12 +204,12 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/reflect/SKILL.md#L13-L60)）：
 
 1. **找到这次对话的记录。** 只读这个项目的记录。
-2. **派三个审查者并行审查。** 分别从判断、工具、不同观点三个角度找可以学的事。
+2. **派三个审查者并行审查。** 分别从判断、工具、不同观点三个角度，找出值得学的地方。
 3. **整理。** 再派一个代理汇总提议，分成 Accepted（建议采用）、Rejected（不采用）、Backlog（待办）。
-4. **把适合用代码强制执行的项目移到待办。** 如果用 lint 规则、脚本或运行时检查能更可靠地防止错误，就移到 Backlog，留待后续修改项目时处理。
-5. **等你批准。** 它列出全部结果，**你明确同意之前不改任何 skill**。它不会改插件缓存里的 skill，而是先复制到项目或个人的 skill 文件夹再改，也不会开 PR 或推送。
+4. **把适合用代码强制执行的项目移到待办。** 如果某个错误用 lint 规则、脚本或运行时检查来挡会更可靠，就移到 Backlog，等之后改项目时再处理。
+5. **等你批准。** 它会列出全部结果，**你明确同意之前不改任何 skill**。它也不会直接改插件缓存里的 skill，而是先复制到项目或个人的 skill 文件夹再改；它不会开 PR，也不会推送。
 
-**你会拿到**：Accepted、Rejected、Backlog 三份清单，以及各项建议要修改的 skill 或项目检查。Accepted 仍是待你批准的建议，不代表已经修改。
+**你会拿到**：Accepted、Rejected、Backlog 三份清单，以及每项建议要改哪个 skill 或哪个项目检查。Accepted 只是等你批准的建议，不代表已经改了。
 
 **下一步**：只批准会改变未来决定的项目。指南说得很直接：一次奇怪的对话只是个案，不是规则（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L31)）。
 
@@ -223,7 +223,7 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 /pstack:correct agents keep calling the database client directly instead of going through the repository layer
 ```
 
-不知道时，不加说明，它会自己从历史里找：
+如果说不出是哪种错，就什么都不加，让它自己从项目历史里找：
 
 ```text
 /pstack:correct
@@ -231,31 +231,31 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/correct/SKILL.md#L13-L32)）：
 
-1. **找出错误的类别。** 读最近的 commit、还原记录、审查留言、AI 的说明文件，以及解释暂时做法的注解。同一类错误发生过两次才算数。
+1. **找出错误的类别。** 它会读最近的 commit、还原记录、审查留言、AI 的说明文件，以及解释临时做法的注释。同一类错误至少出现过两次才算数。
 2. **用能挡住它的最高层级来修**，顺序是：
    1. 用架构让错误不可能发生，例如每个状态只有一个拥有者、只留一种正确做法；
-   2. 用类型挡住，或加一个 lint 规则（自动检查代码写法的规则）或 CI（每次推上去就自动跑的检查），错误消息直接写出该用什么；
+   2. 用类型挡住，或加一个 lint 规则（自动检查代码写法的规则）或 CI（每次推上去就自动跑的检查），并让错误信息直接写出应该改用什么；
    3. 用测试抓；
-   4. 最后才写成文档或 AI 规则，因为 AI 跳过规则时，什么都不会失败。
-3. **一类一个 commit，并证明检查有效。** 每个新检查都要在一个真实发生过的错误上失败一次。本机和 CI 跑同一个命令。
-4. **维护规则表。** 在 AI 的说明文件（Claude Code 是 `CLAUDE.md`）里放一张表，写明每条规则由哪个机制强制执行。没有检查机制的规则，仍有再次被忽略的风险。
+   4. 最后才写成文档或 AI 规则，因为 AI 就算跳过规则，也不会有任何检查失败。
+3. **一类一个 commit，并证明检查有效。** 每个新检查都要拿一个真实发生过的错误来试，确认它真的会失败。本地和 CI 跑的是同一个命令。
+4. **维护规则表。** 在 AI 的说明文件（Claude Code 是 `CLAUDE.md`）里放一张表，写明每条规则是靠哪个机制强制执行的。没有检查机制兜底的规则，还是有可能再被忽略。
 
-**你会拿到**：每一类错误的证据、选的层级，以及为什么更高的层级做不到；每一类一个 commit。
+**你会拿到**：每一类错误的证据、它选了哪个层级、为什么更高的层级做不到，以及每一类各一个 commit。
 
-**下一步**：逐个看 commit。它可能会改到 CI 设置或既有测试，这些改动都要你看过才推出去。所以 `/correct` 要在你看得到的对话里跑，不要放进无人值守的提示。
+**下一步**：一个一个看 commit。它可能会动到 CI 配置或已有的测试，这些改动都要你看过才能推出去。所以 `/correct` 要在你看得到的对话里跑，不要放进无人值守的提示。
 
-`/reflect` 和 `/correct` 的分工是：`/reflect` 从一次对话改进 skill，`/correct` 改项目，让一类错误回不来（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L50)）。还有一件事：**不要在任务做到一半时改 skill**，先记下要改进的地方，等任务结束后另外处理；如果需要提交，就另开 PR（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L98)）。
+`/reflect` 和 `/correct` 的区别在于：`/reflect` 是从一次对话改进 skill，`/correct` 则是改项目，让某一类错误不再回来（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L50)）。还有一点：**不要在任务做到一半时改 skill**，先把想改进的地方记下来，等任务结束再另外处理；如果需要提交，就另开一个 PR（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L98)）。
 
 ## 让它自己跑：无人值守的提示怎么写
 
 ### 先确认它值得被信任
 
-指南第 7 章列了四个条件，全部成立才让它自己跑；还没成立之前，就在旁边看着它跑（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L7-L16)）：
+指南第 7 章列了四个条件，要全部满足才让它自己跑；在那之前，就在旁边看着它跑（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L7-L16)）：
 
 - 这件事你自己做过一次，或看 AI 做过一次，知道做得好是什么样子。
-- AI 有你自己会用的工具和信号，例如验证 skill、性能剖析、日志。
+- AI 手上有你自己也会用的工具和信号，例如验证 skill、性能剖析、日志。
 - 每个阶段都会证明自己的成果，做不到标准时可以喊停。
-- 你读过几次对话记录，已经把重复的失败变成工具、skill 或检查。
+- 你已经读过几次对话记录，并把反复出现的失败变成了工具、skill 或检查。
 
 ### 提示的六个部分
 
@@ -280,23 +280,23 @@ _一份无人值守提示的六个部分。时间长度不是完成条件。_
 
 每一行的作用：
 
-- **“我要去睡了”** 会要求 `/poteto-mode` 在这次对话中持续推进已授权的工作，减少中途确认；它仍须遵守你列出的禁止事项，遇到必须确认的动作或真正卡住时也要停下（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)）。
-- **“怎样算完成”** 要写成每一轮都能实际检查的条件，例如“所有测试通过”“旧的函数没有人调用”。指南特别提醒：**时间长度不是完成条件**。“做四个小时”没有东西可以检查，你醒来只会看到四个小时的忙碌，而不是结果（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)）。
-- **“工作分支”** 用来分开提交记录，但不会隔离同一工作目录里尚未提交的变更。要避免干扰手上的工作，应按指南建议使用新的 worktree；Claude Code 的 `-w`（`--worktree`）选项可以在独立的 worktree 里启动（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
-- **“不用问我”** 先回答它原本会停下来问的事。这里只放行在本地新分支上 commit；push、开 PR、合并和其他不可逆的动作，仍然要由人确认。
-- **“不可以做”** 是界线。光写在提示里还不够，要用权限设置挡住，见下一段。
-- **“如果真的卡住”** 是出口。让它在真的死路时停下来写清楚，比一整晚自己重新解读目标好。
+- **“我要去睡了”** 是告诉 `/poteto-mode`：这次对话里已授权的工作就一路做下去，少停下来确认；但它还是得遵守你列的禁止事项，碰到必须确认的动作或真的卡住时，也要停下来（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)）。
+- **“怎样算完成”** 要写成每一轮都能实际检查的条件，例如“所有测试通过”“旧的函数没有人调用”。指南特别提醒：**时间长度不是完成条件**。“做四个小时”根本没有东西可以检查，你醒来只会看到它忙了四个小时，而不是一个结果（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)）。
+- **“工作分支”** 可以把提交记录分开，但同一个工作目录里还没提交的变更并不会被隔开。如果不想干扰手上的工作，最好按指南的建议开一个新的 worktree；Claude Code 的 `-w`（`--worktree`）选项就能直接在独立的 worktree 里启动（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
+- **“不用问我”** 是先替它回答那些它原本会停下来问的事。这里只放行在本地新分支上 commit；push、开 PR、合并和其他不可逆的动作，还是要由人来确认。
+- **“不可以做”** 是界线。光写在提示里还不够，还要用权限设置挡住，下一段会讲。
+- **“如果真的卡住”** 是出口。与其让它一整晚自己重新解读目标，不如在真的走进死胡同时停下来，把情况写清楚。
 
-指南的模板最后一行用 `/loop`，那是 Cursor 内置、用来定时或在事件发生时叫醒 AI 的命令，不是 pstack 的 skill（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L35)）。Claude Code 也有自己的 `/loop`，但用法不同，本篇不介绍；上面的模板不用它，直接在一个对话里做到完成。
+指南的模板最后一行用了 `/loop`，那是 Cursor 内置的命令，用来定时或在某个事件发生时唤醒 AI，不是 pstack 的 skill（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L35)）。Claude Code 也有自己的 `/loop`，但用法不一样，这篇就不介绍了；上面的模板没有用它，而是在同一个对话里直接做到完成。
 
 **它会怎么做**：
 
-1. **先设计流程。** 这类你离开后才要回来审的工作，`/poteto-mode` 会交给 [`/figure-it-out`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/figure-it-out/SKILL.md) 先把阶段设计好，并接上决策记录（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L38)）。
+1. **先设计流程。** 像这种你离开、回来后才要审的工作，`/poteto-mode` 会先交给 [`/figure-it-out`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/figure-it-out/SKILL.md) 把各个阶段设计好，并接上决策记录（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L38)）。
 2. **把完成条件写成可以检查的判断式**，在第一轮之前就定好（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L5)）。
-3. **每一轮做最小的改动**，拿完成条件检查；有进展就 commit，没帮助就丢掉，不留“也许有帮助”的东西。
-4. **自行处理途中发现、且有助于目标的问题**，不停下来问你；只有不可逆的动作、无法用实验回答的产品或偏好决定，以及真正的死路，才会留给你。
+3. **每一轮做最小的改动**，再拿完成条件检查；有进展就 commit，没帮助就丢掉，不留“也许有帮助”的东西。
+4. **自行处理途中发现、且有助于目标的问题**，不会停下来问你；只有不可逆的动作、无法用实验回答的产品或偏好决定，以及真正的死路，才会留给你。
 5. **每一轮在决策记录记一行。**
-6. **达到完成条件才算成功。** 卡在原地就换方法；如果遇到必须由你决定的事、权限限制、费用上限，或确实无法继续，就留下未完成状态与原因，不放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。
+6. **达到完成条件才算成功。** 卡在原地就换个方法；如果碰到必须由你决定的事、权限限制、费用上限，或真的没法再往前，就把未完成的状态和原因留下来，而不是放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。
 
 **你会拿到**：一条回复，写出完成条件、跑了几轮、留下了什么、丢掉了什么、完成条件最后的状态，以及一份决策记录。
 
@@ -304,7 +304,7 @@ _一份无人值守提示的六个部分。时间长度不是完成条件。_
 
 ### 在 Claude Code 里无人值守地跑
 
-你不在电脑前时，AI 每次要运行命令都停下来等你同意，就会卡一整晚。所以要事先设好它能做什么、不能做什么。我会先准备好独立的 worktree、工作分支、项目依赖和 `overnight-prompt.txt`，再从该 worktree 启动 `claude -p`，搭配权限模式、允许清单和费用上限。下面沿用后面完整示例的分支名称 `feat/export-csv`。先在终端里自行创建 worktree 和分支，并复制提示文件；使用前请将名称换成自己的任务名称：
+如果你不在电脑前，AI 却每次运行命令都停下来等你同意，它就会卡一整晚。所以要事先设好它能做什么、不能做什么。我的做法是先准备好独立的 worktree、工作分支、项目依赖和 `overnight-prompt.txt`，再从那个 worktree 启动 `claude -p`，搭配权限模式、允许清单和费用上限。下面沿用后面完整示例的分支名称 `feat/export-csv`。先在终端里自己创建 worktree 和分支，并把提示文件复制过去；实际用的时候，记得把名称换成你自己的任务名称：
 
 ```bash
 cd ~/my-project
@@ -312,7 +312,7 @@ git worktree add ../my-project-overnight -b feat/export-csv
 cp overnight-prompt.txt ../my-project-overnight/
 ```
 
-接着在新 worktree 准备好项目依赖，确认提示中的分支名称和实际分支一致，再启动：
+接着在新的 worktree 里准备好项目依赖，确认提示里写的分支名称跟实际的分支一致，再启动：
 
 ```bash
 cd ~/my-project-overnight
@@ -323,26 +323,26 @@ claude -p "$(cat overnight-prompt.txt)" \
   --max-budget-usd 10
 ```
 
-- `--permission-mode acceptEdits`：读文件、改文件和常见的文件命令不用问；其他命令则需要额外授权。在无人值守运行前，要先检查已有权限设置。
-- `--allowedTools`：允许清单，列出不用问就能运行的工具和命令。测试命令要换成你项目用的。这里没有放行创建或切换分支的命令，所以前面的 worktree 和分支准备步骤要先由你完成。
+- `--permission-mode acceptEdits`：读文件、改文件和常见的文件命令不用问；其他命令则要另外授权。开始无人值守运行之前，记得先检查一下已有的权限设置。
+- `--allowedTools`：允许清单，列出不用问就能运行的工具和命令。测试命令要换成你项目实际用的。这里没有放行创建或切换分支的命令，所以前面准备 worktree 和分支的步骤，要由你先做好。
 - `--disallowedTools`：禁止清单。禁止规则在每一种权限模式下都有效（[权限模式说明](https://code.claude.com/docs/en/permission-modes#available-modes)）。
-- `--max-budget-usd`：估计花费到这个金额就停止，只能用在 `claude -p`（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
+- `--max-budget-usd`：估计花费达到这个金额就停下来，只能搭配 `claude -p` 使用（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
 
-`claude -p` 没有设置权限模式时，需要批准的动作会直接被拒绝（[权限模式说明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。允许清单漏列必要命令，可能让任务无法完成；早上要根据记录判断是否需要调整。这份示例只封锁了部分工具与命令，不等于完全禁止联网、删文件或修改工作目录外的文件；允许运行的程序本身也可能做这些事。如果要强制限制网络和文件范围，还需要沙箱或容器等隔离设置。
+如果 `claude -p` 没设权限模式，需要批准的动作会直接被拒绝（[权限模式说明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。允许清单要是漏了必要的命令，任务可能就做不完；早上再根据记录判断要不要调整。另外，这份示例只封锁了部分工具和命令，并不等于完全禁止联网、删文件或修改工作目录以外的文件，因为被允许运行的程序本身也可能做这些事。如果要强制限制网络和文件范围，还需要沙箱或容器这类隔离设置。
 
 ### 想让它停下来，或明天接着做
 
-想让 AI 停下来时，要明确说“暂停”，不要只说你要离线；后者也可能被理解成请它继续无人值守工作。Pause safely playbook 会把目前这一步做完或退回去，用一个 `wip:` commit 存下进度，再写一份接手说明（resume note）。暂停流程只在本地保存进度，不会自动开 PR 或推送。单纯要求“继续”不会触发暂停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
+想让 AI 停下来，要明确说“暂停”，不要只说你要离线了；只说要离线，它也可能理解成要继续无人值守地做下去。Pause safely playbook 会把目前这一步做完或退回去，用一个 `wip:` commit 存下进度，再写一份接手说明（resume note）。暂停只会在本地保存进度，不会自动开 PR 或推送。如果你只是说“继续”，就不会触发暂停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
 
 ```text
 /pstack:poteto-mode 先暂停，我要离线了。
 ```
 
-新的对话可以从那份说明接手，走的是 Session pickup playbook：读前一次的记录、重建状态，并在真实的程序上重新验证前一次说“做完了”的事（[session-pickup playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/session-pickup.md)）。
+之后开新的对话，就能从那份说明接手，这时走的是 Session pickup playbook：读前一次的记录、重建状态，并在真实的程序上重新验证前一次说“做完了”的事（[session-pickup playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/session-pickup.md)）。
 
 ### 一整晚不只一件事
 
-一晚有好几个互不相干的改动时，指南有两个 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 会把每个 PR 一路做到合并；Autopilot-stack 一样会验证，但**不合并**，早上由你自己看、自己合并。如果你希望 AI 先准备 PR、早上再由你审查并决定是否合并，可以选 Autopilot-stack。这和前面只做本地工作的模板不同，必须另外明确授权 push 与开 PR：
+如果一晚有好几个互不相干的改动，指南提供了两个 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 会把每个 PR 一路做到合并；Autopilot-stack 一样会验证，但**不合并**，早上由你自己看、自己合并。如果你希望 AI 先把 PR 准备好，早上再由你审查、决定要不要合并，就选 Autopilot-stack。要注意，这跟前面只在本地做事的模板不同，你必须另外明确授权它 push 和开 PR：
 
 ```text
 /pstack:poteto-mode autopilot these five changes, but don't merge. i'll land them in the morning.
@@ -350,9 +350,9 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 ## 早上：用 /show-me-your-work 检查决策记录
 
-**什么时候用**：AI 自己跑了一段长时间的工作，你回来要知道它做了什么、为什么这样做。
+**什么时候用**：AI 自己跑了很长一段工作，你回来想知道它做了什么、为什么这样做。
 
-决策记录是一个 TSV 文件（用 Tab 分隔字段的纯文本表格），一个决定一行，字段是时间、阶段、决定、原因、证据、结果。证据字段要指向可查验的来源，例如 commit 编号或 `文件:行号`，不能只有文字说明（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L11-L22)）。它默认放在工作文件夹的 `decisions.tsv`，有好几个工作同时进行时放 `.audit/<任务名称>.tsv`，默认**不 commit**；只有工作大到审查者需要这份记录才能相信结果时，才 commit（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L44-L48)）。记录只能往后加：判断错了，就新增一行注明更正，不改也不删旧行。
+决策记录是一个 TSV 文件（用 Tab 分隔字段的纯文本表格），一个决定一行，字段是时间、阶段、决定、原因、证据、结果。证据字段要指向查得到的来源，例如 commit 编号或 `文件:行号`，不能只有一段文字说明（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L11-L22)）。它默认放在工作文件夹的 `decisions.tsv`，如果好几个工作同时进行，就放在 `.audit/<任务名称>.tsv`；默认**不 commit**，只有在工作大到审查者需要这份记录才能相信结果时，才会 commit（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L44-L48)）。记录只能往后加：判断错了，就新增一行注明更正，旧的行不改也不删。
 
 **命令怎么写**（取自[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L62-L66)），在跑工作的同一个对话里：
 
@@ -362,29 +362,29 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 **它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L55-L74)）：
 
-1. **对照对话记录检查决策记录。** 每一行都要对应到真的决定或动作，证据要能打开，而且真的证明那一行说的事。漏记的转折要补上。写错的行不改不删，新增一行更正。
-2. **找不同家族的模型来审。** 派一个和做事的模型不同家族的子代理，读记录和对话，找出证据薄弱的决定、没有证明就说做过的验证、事后看来有风险的选择。
+1. **对照对话记录检查决策记录。** 每一行都要对应到真实的决定或动作，证据要打得开，而且确实能证明那一行写的事。漏记的转折要补上；写错的行不改也不删，而是新增一行来更正。
+2. **找不同家族的模型来审。** 它会派一个跟做事的模型不同家族的子代理，去读记录和对话，挑出证据薄弱的决定、没拿出证明就说做过的验证，以及事后看来有风险的选择。
 3. **把它做了什么整理成摘要**，结尾加一个 Attention（注意事项）区。
 
-**你会拿到**：一份摘要，以及 Attention 区。Attention 的第一行写 `reviewed by <模型>`，接着是每一个要你注意的地方，指向记录的哪一行。
+**你会拿到**：一份摘要，以及 Attention 区。Attention 的第一行写 `reviewed by <模型>`，接着逐一列出需要你注意的地方，并指出对应的是记录的哪一行。
 
-**下一步**：先读 Attention，再顺着它指的那几行，打开证据抽查（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L68)）。你在审查决定，不是重看一整晚。也看一下 `reviewed by` 那一行：如果你的环境只有一个模型家族，这个审查就不是真正的跨家族审查。在终端里可以这样把 TSV 排成表格：
+**下一步**：先读 Attention，再顺着它指的那几行，打开证据抽查（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L68)）。你要审的是决定，不用把一整晚重看一遍。也记得看一下 `reviewed by` 那一行：如果你的环境只有一个模型家族，这就不算真正的跨家族审查。想在终端里把 TSV 排成表格，可以这样：
 
 ```bash
 column -s$'\t' -t decisions.tsv
 ```
 
-只想快速知道状态、不需要完整检查时，在同一个对话跑 `/pstack:ketchup`，它只读不改（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L70)）。
+如果只想快速看一下状态、不需要完整检查，就在同一个对话里跑 `/pstack:ketchup`，它只读不改（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L70)）。
 
 ## 风险：什么可以放手，什么一定要先问
 
 ### never-block-on-the-human 的界线
 
-让 AI 自己跑的核心原则是 [never-block-on-the-human](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-never-block-on-the-human/SKILL.md#L9-L15)：人可以稍后查看成果并介入，AI 不必为每个可恢复的小决定停下来等待。可以还原的事，例如写代码、改笔记、拆任务，先做再报告；不要问“要不要做 X”，做了再说明为什么。但**不可逆的动作仍然要先确认**，例如 force push（强制覆盖远端分支的历史）、删除正式环境的数据、对外发消息。产品方向由人决定。
+让 AI 自己跑，背后的核心原则是 [never-block-on-the-human](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-never-block-on-the-human/SKILL.md#L9-L15)：人可以晚点再看成果、再介入，AI 不必为了每个可以还原的小决定停下来等。可以还原的事，例如写代码、改笔记、拆任务，就先做再汇报；不要问“要不要做 X”，而是做了再说明为什么。但**不可逆的动作仍然要先确认**，例如 force push（强制覆盖远端分支的历史）、删除正式环境的数据、对外发消息。产品方向则由人来决定。
 
 `/poteto-mode` 也写明，就算你说了“我要去睡了”，下面这些仍然**一定会停下来**：force push 到共享分支、部署、删除数据、发消息给客户（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L86-L88)）。
 
-但要注意，同一份 SKILL.md 也写：可以恢复的事，以及团队聊天、更新 ticket、启动 eval 这类对外动作，都会直接做、不先问，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)）。因此，不能把“不可逆的动作要确认”理解成所有对外消息都会先问你；这份文件对团队内部消息和客户消息的处理就不同。不想让它对外发消息，就在“不可以做”写清楚，并用 `--disallowedTools` 把那些 MCP 工具挡掉。
+不过要注意，同一份 SKILL.md 也写到：可以还原的事，以及团队聊天、更新 ticket、启动 eval 这类对外动作，都会直接做、不先问，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)）。所以别把“不可逆的动作要确认”理解成所有对外消息都会先问你；这份文件对团队内部消息和客户消息的处理方式是不一样的。如果不想让它对外发消息，就在“不可以做”里写清楚，并用 `--disallowedTools` 把那些 MCP 工具挡掉。
 
 ![可逆的动作放手让它做，不可逆的动作一定先问；权限设置和费用上限是第二道防线](ask-line.zh-CN.png){: w="800" h="450" }
 _界线画在“能不能还原”。写在提示里是第一道防线，权限设置是第二道。_
@@ -400,7 +400,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 ### 权限：写在提示里还不够
 
-提示用来表达意图，权限规则用来限制工具调用；网络与文件的隔离范围则要另外设置。Claude Code 的权限模式各有不同的放手程度（[权限模式说明](https://code.claude.com/docs/en/permission-modes#available-modes)）：
+提示用来表达意图，权限规则用来限制工具调用；网络与文件的隔离范围则要另外设置。Claude Code 的每种权限模式，放手的程度都不一样（[权限模式说明](https://code.claude.com/docs/en/permission-modes#available-modes)）：
 
 | 模式 | 不用问就能做的事 | 适合 |
 | --- | --- | --- |
@@ -411,21 +411,21 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 | `dontAsk` | 读取和事先允许的工具，其他一律拒绝 | 锁死的 CI 和脚本 |
 | `bypassPermissions` | 全部 | 只能在隔离的容器或虚拟机里用 |
 
-几个要知道的事：
+有几件事要知道：
 
 - **禁止规则永远有效**，连 `bypassPermissions` 也挡得住；但在 `bypassPermissions` 下，允许清单没有作用。
-- **有些文件夹受保护。** 写入 `.git`、`.claude` 这类文件夹时，`default` 和 `acceptEdits` 会先问你，`dontAsk` 会直接拒绝（[受保护的路径](https://code.claude.com/docs/en/permission-modes#protected-paths)）。这是好事：AI 不能悄悄改掉自己的设置。所以让 `/automate-me` 或 `/reflect` 写 skill 时，要预期它会在这里停下。
+- **有些文件夹受保护。** 写入 `.git`、`.claude` 这类文件夹时，`default` 和 `acceptEdits` 会先问你，`dontAsk` 会直接拒绝（[受保护的路径](https://code.claude.com/docs/en/permission-modes#protected-paths)）。这其实是好事：AI 没办法偷偷改掉自己的设置。所以让 `/automate-me` 或 `/reflect` 写 skill 时，要有心理准备它会在这里停下来。
 - **不要为了不被打扰就关掉所有检查。** `bypassPermissions` 只适合放在隔离的容器或虚拟机里（[常见设置](https://code.claude.com/docs/en/permission-modes#common-setups)）。
 
 ### 费用：先设上限
 
-无人值守的工作可能派出多个子代理，花费也可能比预期高。
+无人值守的工作可能会派出好几个子代理，花费也可能比你预期的高。
 
-- `claude -p` 加上 `--max-budget-usd`。这是 Claude Code 自己的估计，可能和账单不同，也可能稍微超过，所以要留一点空间；子代理的花费也算在内；用 `--resume` 接续对话时，之前的花费不算进这次的上限（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
-- 用 Pro、Max 这类订阅方案，又开了额外用量（usage credits）时，在 claude.ai 的 Settings → Usage 设每月花费上限（[费用说明](https://code.claude.com/docs/en/costs)）。
-- 用 Cursor 时，也先看你的方案用量和上限设置，再让它自己跑。
+- `claude -p` 加上 `--max-budget-usd`。这个金额是 Claude Code 自己估的，可能跟实际账单有出入，也可能稍微超过，所以最好留一点余量；子代理的花费也会算进去；用 `--resume` 接续对话时，之前的花费不会算进这次的上限（[CLI 说明](https://code.claude.com/docs/en/cli-reference)）。
+- 如果你用的是 Pro、Max 这类订阅方案，又开了额外用量（usage credits），记得到 claude.ai 的 Settings → Usage 设置每月花费上限（[费用说明](https://code.claude.com/docs/en/costs)）。
+- 用 Cursor 的话，也先看一下你的方案用量和上限设置，再让它自己跑。
 
-更多权限和供应链的风险，以及权限怎么收，请看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+想多了解权限和供应链的风险，以及怎么把权限收紧，可以看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 完整范例：一天的流程
 
@@ -437,7 +437,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 /pstack:poteto-mode 帮 export 命令加一个 --since 日期选项。先告诉我你的计划，不要动手。
 ```
 
-计划用两个辅助函数重复判断同一个日期，三个测试也在检查相同场景。我请它先消除重复，保留必要的测试：
+它的计划用了两个辅助函数重复判断同一个日期，还有三个测试在检查同一种场景。我请它先把重复的部分去掉，但保留必要的测试：
 
 ```text
 /pstack:principle-laziness-protocol 用这条原则重看你的计划，再实现并 commit。
@@ -449,15 +449,15 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 /pstack:principle-prove-it-works 用真正的数据跑一次 export --since，把输出给我看，也试试看奇怪的日期。
 ```
 
-**傍晚：把重复的错误变成结构。** 这周已经是第二次纠正它“用户输入的值没有先整理就拿去比对”：
+**傍晚：把重复的错误变成结构。** 这周已经是我第二次纠正它“用户输入的值没有先整理就拿去比对”：
 
 ```text
 /pstack:correct 用户输入的过滤值，常常没有经过和数据相同的整理就拿去比对
 ```
 
-我逐个看它的 commit，确认新的检查会在旧的错误上失败，再自己推上去。
+我一个一个看过它的 commit，确认新的检查碰到旧的错误真的会失败，才自己推上去。
 
-**睡前：交代无人值守的工作。** 把六个部分写进 `overnight-prompt.txt`：
+**睡前：交代无人值守的工作。** 我把六个部分写进 `overnight-prompt.txt`：
 
 ```text
 /pstack:poteto-mode 我要去睡了，自己跑到完成为止。
@@ -469,9 +469,9 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 如果真的卡住：停下来，写清楚卡在哪里、试过什么、需要我决定什么。
 ```
 
-按前面的步骤先创建 `feat/export-csv` 分支和独立 worktree，复制提示文件并准备好依赖，再用 `claude -p` 命令启动，搭配允许清单、禁止清单和费用上限。
+我按前面的步骤，先创建 `feat/export-csv` 分支和独立的 worktree，复制提示文件、准备好依赖，再用 `claude -p` 命令启动，搭配允许清单、禁止清单和费用上限。
 
-**早上：检查。** 用 `claude --resume <对话 ID>` 以交互模式继续昨晚的对话，再输入：
+**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话，然后输入：
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night
@@ -507,23 +507,23 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 ## 常见陷阱
 
-- **时间长度不是完成条件**：写“做四个小时”，它没有东西可以检查。
+- **时间长度不是完成条件**：写“做四个小时”，它根本没东西可以检查。
 - **只写在提示里的界线**：“不要 push”要用禁止清单挡住。
 - **原则只被点名**：回复里要看到它改变了哪个决定。
 - **在任务中途改 skill**：另开一个 PR。
-- **一次对话就定规则**：`/reflect` 的结果只批准会改变未来决定的。
-- **让 AI 读所有项目的记录**：`/automate-me` 和 `/reflect` 只读这个项目的对话。
+- **一次对话就定规则**：`/reflect` 的结果，只批准会改变未来决定的项目。
+- **让 AI 读所有项目的记录**：只让 `/automate-me` 和 `/reflect` 读这个项目的对话。
 - **跨家族审查不是真的跨家族**：看 Attention 的 `reviewed by`。
 - **没设费用上限**：`claude -p` 加 `--max-budget-usd`，也设好方案的花费上限。
-- **版本**：以上依 pstack `0.15.36` 的说明文件整理，之后的版本可能会改变做法。
+- **版本**：以上是按 pstack `0.15.36` 的说明文件整理的，之后的版本做法可能会变。
 
 ## 结论
 
 想用一句话改变 AI 的做法，就在对话中途输入 `/pstack:principle-<名称>`，再看它的回复有没有写出这条原则改了哪个决定。
 
-想让 AI 照你的方式工作，`/automate-me` 从你的对话里整理出你自己的 mode，`/reflect` 把一次对话的教训写回 skill，`/correct` 则直接改项目，让同一种错不再发生。
+想让 AI 照你的方式工作，可以用 `/automate-me` 从你的对话里整理出自己的 mode，用 `/reflect` 把一次对话的教训写回 skill，`/correct` 则直接改项目，让同一种错不再发生。
 
-想让它在你不在时自己跑，先确认这类工作已经符合前述四个条件，再写好目标、可以检查的完成条件、决策记录、不用问的事、不可以做的事，以及卡住时怎么停；用权限规则与隔离设置落实操作边界，设好费用上限，早上用 `/show-me-your-work` 从 Attention 开始检查。在已授权的范围内，让它完成可以恢复的工作；不能恢复的决定，仍由你掌握。
+想让它在你不在时自己跑，先确认这类工作已经符合前面说的四个条件，再写好目标、可以检查的完成条件、决策记录、不用问的事、不可以做的事，以及卡住时怎么停；接着用权限规则和隔离设置把边界真正落实，设好费用上限，早上再用 `/show-me-your-work` 从 Attention 开始检查。在你授权的范围内，可以还原的工作就放手让它做完；不能还原的决定，还是留在你手上。
 
 ## 延伸阅读
 
