@@ -16,7 +16,7 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 >
 > - 系列導讀：這套 skill 是什麼、四篇該怎麼讀（尚未發布）
 > - 上一篇（第 2 篇）：[改程式之前，先看懂再設計](/posts/pstack-understand-design/)
-> - 下一篇（第 4 篇）：尚未發布
+> - 下一篇（第 4 篇）：[用原則指揮 AI、做出自己的 mode，再放心讓它自己跑](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
 > **版本提醒**：本文以 pstack [`0.15.36` 版](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `c742dd6`（2026-10-28 07:12，台北時間），搭配 Claude Code 2.1.316。這比前兩篇用的版本新：寫這篇時官方已經更新了好幾版，我改用最新版查證，本文的操作說明也以這個版本為準。三篇的版本如下：
