@@ -1,6 +1,6 @@
 ---
 title: "pstack 系列（4）：用原則指揮 AI、做出自己的 mode，再放心讓它自己跑"
-description: "怎麼用一句原則名稱改變 AI 的做法？怎麼把你的習慣做成自己的 mode？讓它無人值守跑之前要設好什麼？這篇教你在 Claude Code 用 pstack 的原則、/automate-me、/correct、/reflect 和 /show-me-your-work。"
+description: "怎麼用原則名稱調整 AI 的做法？怎麼把工作習慣整理成自己的 mode？讓 AI 無人值守執行前，要設好哪些界線？這篇介紹在 Claude Code 使用 pstack 原則、/automate-me、/reflect、/correct 和 /show-me-your-work 的方法。"
 date: 2026-11-05 10:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, cursor, claude-code]
@@ -10,7 +10,9 @@ image:
   alt: "用原則名稱中途指揮 AI，把習慣做成自己的 mode，寫好完成條件和界線後讓它自己跑，早上看決策紀錄。"
 ---
 
-AI 程式助理做得不對時，我以前會打一大段話解釋我要什麼。pstack 給了一個更短的辦法：說出一條原則的名稱，AI 就會照那條規則重新做。這篇是系列的最後一篇，教你三件事：怎麼在對話中途用原則名稱指揮 AI；怎麼把你自己的習慣變成一個 mode，讓 AI 照你的方式工作；以及想讓它在你睡覺時自己跑，提示要怎麼寫、權限和費用要怎麼設，早上又要怎麼檢查它做了什麼。
+AI 程式助理做得不對時，我以前會打一大段話解釋我要什麼。pstack 提供了一個更簡短的辦法：用原則名稱指出你要它調整的方向，再檢查它是否確實照做。
+
+這篇是系列的最後一篇，教你三件事：怎麼在對話中途用原則名稱指揮 AI；怎麼把你自己的習慣變成一個 mode，讓 AI 照你的方式工作；以及想讓它在你睡覺時自己跑，提示要怎麼寫、權限和費用要怎麼設，早上又要怎麼檢查它做了什麼。
 
 > pstack 系列｜第 4 篇（最後一篇）
 >
@@ -24,7 +26,7 @@ AI 程式助理做得不對時，我以前會打一大段話解釋我要什麼�
 
 ## 開始之前
 
-pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 AI 怎麼完成某類工作的操作說明。安裝方法在[第 1 篇](/posts/pstack-install-routing/)。想裝到和本文一樣的版本，可以先把 repo 下載到自己電腦、切到本文的 commit，再把這個資料夾加成外掛市集（marketplace，Claude Code 安裝外掛的來源目錄）：
+pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 AI 怎麼完成某類工作的操作說明。安裝方法在[第 1 篇](/posts/pstack-install-routing/)。想裝到和本文一樣的版本，可以先把 repo 下載到自己電腦、切到本文的 commit，再把這個資料夾加入外掛市集（marketplace，Claude Code 安裝外掛的來源目錄）：
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -37,9 +39,9 @@ claude plugin install pstack@cursor-plugins
 
 **指令要加前綴。** 在 Claude Code（在終端機裡使用的 AI 程式助理）裡，外掛的指令前面要加上外掛名稱，例如 `/pstack:correct`。下面的範例都用 Claude Code 的寫法；在 Cursor 裡，把 `pstack:` 拿掉就好。
 
-**這些 skill 都要你親自叫。** pstack 的 58 個 skill 裡，除了 `/setup-pstack`，其他都設定成不讓 AI 自行啟動（`disable-model-invocation: true`），原則也一樣。你輸入指令，它才會讀那份說明。
+**這些 skill 都要由你主動呼叫。** pstack 的 58 個 skill 裡，除了 `/setup-pstack`，其他都設定成不讓 AI 自行啟動（`disable-model-invocation: true`），原則也一樣。這表示 AI 不能自行呼叫這些 skill；但 `/poteto-mode` 仍可依照自己的流程讀取並套用相關原則，下面會再說明。
 
-**官方指南是照 Cursor 寫的。** 指南裡有些東西是 Cursor 才有的，例如 `/loop`（Claude Code 也有同名指令，但用法不同）和 `create-skill`。pstack 附了一份 [Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md)，`/poteto-mode` 在 Claude Code 裡會先讀它，把 Cursor 的名稱換成 Claude Code 的對應做法。下面遇到差異的地方，我會直接寫 Claude Code 的做法。
+**官方指南是照 Cursor 寫的。** 指南裡有些工具與指令是依 Cursor 的環境介紹的，例如 `/loop` 和 `create-skill`；Claude Code 雖然也有 `/loop`，用法卻不同。pstack 附了一份 [Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md)，`/poteto-mode` 在 Claude Code 裡會先讀它，把 Cursor 的名稱換成 Claude Code 的對應做法。下面遇到差異的地方，我會直接寫 Claude Code 的做法。
 
 ## 用原則名稱指揮 AI
 
@@ -49,15 +51,15 @@ pstack 有 24 條原則，每一條都是一個獨立的 skill，名稱是 `prin
 
 | 組別 | 條數 | 管什麼 |
 | --- | --- | --- |
-| core | 10 | 要做多少、什麼時候該重想設計 |
+| core | 10 | 要做多少、什麼時候該重新檢視設計 |
 | architecture | 6 | 狀態、檢查和相容性放在哪裡 |
 | verification | 5 | 什麼才算證據 |
-| delegation | 2 | 平行分工時怎麼保持清楚 |
+| delegation | 2 | 平行分工時怎麼釐清責任 |
 | meta | 1 | 把重複的提醒變成結構 |
 
 你用 `/pstack:poteto-mode` 交代多步驟的工作時，它會在開始時讀原則的索引，套用這個任務會觸發的那幾條，並在回覆裡寫出每條原則**改變了哪個決定**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L15)）。
 
-指南的說法是：你不必一條一條叫原則，你用它們的名稱來指揮（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L5)）。一個名稱背後是一整條規則，所以一句話就比一段說明更精準。
+指南的說法是：你不必一開始就逐條呼叫原則，而是可以在需要調整方向時，用名稱指出該套用哪一條（[指南第 8 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/08-principles.md#L5)）。一個名稱背後是一整條規則，因此不必每次都重新解釋整條規則。
 
 ### 在 Claude Code 裡怎麼說
 
@@ -84,12 +86,12 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 **它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-laziness-protocol/SKILL.md#L9-L10)）：
 
-1. **把重複的決定收成一處。** 同一個判斷不在好幾個地方各寫一次，改成一個來源，其他地方只拿結果。
+1. **把重複的判斷集中到一處。** 同一個判斷不在好幾個地方各寫一次，改成一個來源，其他地方只拿結果。
 2. **把 diff 縮到最小。** 用能解決問題的最小改動，少寫幾行，勝過「漂亮」的樣板程式。
 
 **你會拿到**：一份縮小過的計畫或改動，回覆裡會寫出這條原則拿掉了什麼。
 
-**下一步**：確認拿掉的東西真的用不到，再讓它繼續。
+**下一步**：檢查改動，確認它刪掉的確實是多餘的部分，必要行為仍然保留。
 
 ### prove-it-works：說做完了，卻沒有證據
 
@@ -113,7 +115,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 ### fix-root-causes：修了症狀，沒修到原因
 
-**什麼時候用**：有個 bug，而 AI 的修法是在出錯的那一行加一個判斷擋掉。
+**什麼時候用**：AI 只在出錯的那一行加上判斷，避開錯誤，卻沒有查明原因。
 
 **指令怎麼寫**：
 
@@ -129,7 +131,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 4. **判斷觸發的狀態合不合理。** 合理的話，處理不了它的程式就是原因；不該存在的話，就去找是誰產生了這個狀態。
 5. **找同一種錯誤的其他地方**，一起修。
 
-**你會拿到**：根本原因的說明、修正，以及同類問題有沒有其他地方。
+**你會拿到**：根本原因的說明、修正，以及其他位置是否也有同類問題的檢查結果。
 
 **下一步**：看它說的原因，是不是第一個出錯的地方。
 
@@ -145,8 +147,8 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 **它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L19)）：
 
-1. **寫下前提**：每一次失敗的修法都假設了的那一句話。
-2. **先測試前提**：找一個「前提錯了，結果就會不一樣」的觀察，實際做一次。
+1. **寫下前提**：每次失敗的修法共同依賴的假設。
+2. **先測試前提**：設計一項能區分前提真假的檢查，實際執行並觀察結果。
 3. **跟著證據走**：證據推翻前提，就去別處找原因；證據支持前提，就照 fix-root-causes 再問下一個「為什麼」。
 4. **前提寫下來、測過之前，不開始下一個修法。**
 
@@ -160,7 +162,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 ## 做出自己的工作方式
 
-`/poteto-mode` 是 pstack 作者一個人的工作風格。指南第 9 章教你換成自己的：`/automate-me` 產生你的 mode，`/reflect` 從一次對話裡學到教訓，`/correct` 改專案本身，讓同樣的錯不再發生（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L1-L5)）。
+`/poteto-mode` 反映的是 pstack 作者的個人工作風格。指南第 9 章教你換成自己的：`/automate-me` 產生你的 mode，`/reflect` 從一次對話裡學到教訓，`/correct` 改專案本身，讓同樣的錯不再發生（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L1-L5)）。
 
 ### /automate-me：把你的習慣做成一個 mode
 
@@ -175,15 +177,15 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 **它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L13-L83)）：
 
 1. **找既有的 mode。** 已經有你的 mode，就問你要更新還是重做；預設是更新。
-2. **挖你的對話紀錄。** 只讀這個專案的紀錄，把最近幾週切成三段，派子代理（skill 執行時另外派出、分頭做事的 AI）平行讀，找回覆風格、分工、驗證、程式和文字、流程等方面的重複偏好。至少在兩段裡都出現過的才算數。
+2. **分析你的對話紀錄。** 只讀這個專案的紀錄，把最近幾週的紀錄按時間分成三段，派子代理（skill 執行時另外派出、分頭做事的 AI）平行讀，找回覆風格、分工、驗證、程式和文字、流程等方面的重複偏好。至少在兩段裡都出現過的才算數。
 3. **直接問你。** 用一兩題選擇題確認哪些是你真正的習慣，再用一題開放問題補漏。在 `claude -p`（不開對話視窗、一次執行完的模式）裡沒有提問工具，它會改成用文字問（[Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L10)）。
 4. **分組、起草。** 把結果整理成幾節，例如回覆風格、自主程度、驗證、流程。只寫你有特別規則的部分。預設加上 `disable-model-invocation: true`，所以你要輸入指令它才會載入。
 5. **修文字。** 用 `/unslop` 把每一行改得直接、好懂。
-6. **送審。** 指南的做法是在 worktree（同一個 repo 的另一份獨立工作資料夾）裡 commit 並開 PR，不直接推到 main。
+6. **依你的要求交付。** 指南的完整流程是在 worktree（同一個 repo 的另一份獨立工作資料夾）裡 commit 並開 PR，不直接推到 main；上面的提示則明確要求先交草稿、不 commit，因此這次應停在草稿，等你看過再決定是否送審。
 
 **你會拿到**：一份 `<你的名字>-mode/SKILL.md` 草稿。Claude Code 會保護專案的 `.claude/` 資料夾，AI 要寫進去時會先問你，或直接被擋下（[權限模式說明](https://code.claude.com/docs/en/permission-modes#protected-paths)）。被擋下的話，讓它先寫到別的資料夾，你看過再自己搬進去。
 
-**下一步**：讀一遍，問自己「這像我嗎？少了什麼？」（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L94-L96)）。注意它挖到的是**你在這個專案的對話**；如果這些對話大多是特殊用途（例如一次性的測試），寫出來的就不會是你平常的樣子。習慣變了，再跑一次更新：
+**下一步**：讀一遍，問自己「這像我嗎？少了什麼？」（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L94-L96)）。注意它分析的是**你在這個專案的對話**；如果這些對話大多是特殊用途（例如一次性的測試），寫出來的就不會是你平常的樣子。習慣變了，再跑一次更新：
 
 ```text
 /pstack:automate-me update my mode skill with everything since its last edit
@@ -203,11 +205,11 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 1. **找到這次對話的紀錄。** 只讀這個專案的紀錄。
 2. **派三個審查者平行看。** 分別從判斷、工具、不同觀點三個角度找可以學的事。
-3. **整理。** 再派一個整合者，把提議分成 Accepted（採用）、Rejected（不採用）、Backlog（待辦）。
-4. **能用結構解決的移到待辦。** 可以用 lint 規則、腳本或執行時檢查來擋的，比寫進 skill 更可靠，就移到 Backlog。
+3. **整理。** 再派一個代理彙整提議，分成 Accepted（建議採用）、Rejected（不採用）、Backlog（待辦）。
+4. **把適合用程式強制執行的項目移到待辦。** 如果用 lint 規則、腳本或執行時檢查能更可靠地防止錯誤，就移到 Backlog，留待後續修改專案時處理。
 5. **等你核准。** 它列出全部結果，**你明確同意之前不改任何 skill**。它不會改外掛快取裡的 skill，而是先複製到專案或個人的 skill 資料夾再改，也不會開 PR 或推送。
 
-**你會拿到**：Accepted、Rejected、Backlog 三份清單，以及每一項要改哪個 skill。
+**你會拿到**：Accepted、Rejected、Backlog 三份清單，以及各項建議要修改的 skill 或專案檢查。Accepted 仍是待你核准的建議，不代表已經修改。
 
 **下一步**：只核准會改變未來決定的項目。指南說得很直接：一次奇怪的對話只是個案，不是規則（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L31)）。
 
@@ -236,13 +238,13 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
    3. 用測試抓；
    4. 最後才寫成文件或 AI 規則，因為 AI 跳過規則時，什麼都不會失敗。
 3. **一類一個 commit，並證明檢查有效。** 每個新檢查都要在一個真實發生過的錯誤上失敗一次。本機和 CI 跑同一個指令。
-4. **維護規則表。** 在 AI 的說明檔（Claude Code 是 `CLAUDE.md`）裡放一張表，寫每條規則由什麼來強制。沒有任何東西強制的規則，就是下次會再犯的地方。
+4. **維護規則表。** 在 AI 的說明檔（Claude Code 是 `CLAUDE.md`）裡放一張表，寫明每條規則由哪個機制強制執行。沒有檢查機制的規則，仍有再次被忽略的風險。
 
 **你會拿到**：每一類錯誤的證據、選的層級，以及為什麼更高的層級做不到；每一類一個 commit。
 
 **下一步**：逐個看 commit。它可能會改到 CI 設定或既有測試，這些改動都要你看過才推出去。所以 `/correct` 要在你看得到的對話裡跑，不要放進無人值守的提示。
 
-`/reflect` 和 `/correct` 的分工是：`/reflect` 從一次對話改進 skill，`/correct` 改專案，讓一類錯誤回不來（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L50)）。還有一件事：**不要在任務做到一半時改 skill**，另開一個 PR 改，任務照常進行（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L98)）。
+`/reflect` 和 `/correct` 的分工是：`/reflect` 從一次對話改進 skill，`/correct` 改專案，讓一類錯誤回不來（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L50)）。還有一件事：**不要在任務做到一半時改 skill**，先記下要改善的地方，等任務結束後另外處理；若需要提交，就另開 PR（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L98)）。
 
 ## 讓它自己跑：無人值守的提示怎麼寫
 
@@ -268,19 +270,19 @@ _一份無人值守提示的六個部分。時間長度不是完成條件。_
 
 ```text
 /pstack:poteto-mode 我要去睡了，自己跑到完成為止。
-目標：<要完成的事>，在新的分支 <分支名稱> 上做。
+目標：<要完成的事>，在已準備好的工作分支 <分支名稱> 上做。
 怎樣算完成：<可以檢查的條件 1>；<條件 2>；<條件 3>。
 決策紀錄：用 show-me-your-work 的格式記在 decisions.tsv。
-不用問我：commit 之前不用問；<其他可以還原的小決定>自己決定，寫進紀錄。
+不用問我：只 commit 這次任務的變更，不要把 decisions.tsv 納入 commit；<其他可以還原的小決定>自己決定，寫進紀錄。
 不可以做：push、開 PR、合併、安裝套件、連網、改這個資料夾以外的檔案。
 如果真的卡住：停下來，寫清楚卡在哪裡、試過什麼、需要我決定什麼。
 ```
 
 每一行的作用：
 
-- **「我要去睡了」** 是一個對話層級的覆寫，`/poteto-mode` 看到它，就不再停下來問，直接做下去（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)）。
+- **「我要去睡了」** 會要求 `/poteto-mode` 在這次對話中持續推進已授權的工作，減少中途確認；它仍須遵守你列出的禁止事項，遇到必須確認的動作或真正卡住時也要停下（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)）。
 - **「怎樣算完成」** 要寫成每一輪都能實際檢查的條件，例如「所有測試通過」「舊的函式沒有人呼叫」。指南特別提醒：**時間長度不是完成條件**。「做四個小時」沒有東西可以檢查，你醒來只會看到四個小時的忙碌，而不是結果（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)）。
-- **「新的分支」** 讓它不會碰到你手上其他的工作。指南建議用新的 worktree；Claude Code 的 `-w`（`--worktree`）選項可以在獨立的 worktree 裡啟動（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
+- **「工作分支」** 用來分開提交紀錄，但不會隔離同一工作目錄裡尚未提交的變更。要避免干擾手上的工作，應依指南建議使用新的 worktree；Claude Code 的 `-w`（`--worktree`）選項可以在獨立的 worktree 裡啟動（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 - **「不用問我」** 先回答它原本會停下來問的事。這裡只放行在本機新分支上 commit；push、開 PR、合併和其他不可逆的動作，仍然要由人確認。
 - **「不可以做」** 是界線。光寫在提示裡還不夠，要用權限設定擋住，見下一段。
 - **「如果真的卡住」** 是出口。讓它在真的死路時停下來寫清楚，比一整晚自己重新解讀目標好。
@@ -292,20 +294,28 @@ _一份無人值守提示的六個部分。時間長度不是完成條件。_
 1. **先設計流程。** 這類你離開後才要回來審的工作，`/poteto-mode` 會交給 [`/figure-it-out`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/figure-it-out/SKILL.md) 先把階段設計好，並接上決策紀錄（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L38)）。
 2. **把完成條件寫成可以檢查的判斷式**，在第一輪之前就定好（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L5)）。
 3. **每一輪做最小的改動**，拿完成條件檢查；有進展就 commit，沒幫助就丟掉，不留「也許有幫助」的東西。
-4. **支援目標的中途發現自己處理**，不停下來問你；只有不可逆的動作、無法用實驗回答的產品或偏好決定，以及真正的死路，才會留給你。
+4. **自行處理途中發現、且有助於目標的問題**，不停下來問你；只有不可逆的動作、無法用實驗回答的產品或偏好決定，以及真正的死路，才會留給你。
 5. **每一輪在決策紀錄記一列。**
-6. **完成條件達成才停。** 卡在原地就換方法，不會放寬完成條件來宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。
+6. **達成完成條件才算成功。** 卡在原地就換方法；若遇到必須由你決定的事、權限限制、費用上限，或真正無法前進，就留下未完成狀態與原因，不放寬完成條件來宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。
 
 **你會拿到**：一則回覆，寫出完成條件、跑了幾輪、留下了什麼、丟掉了什麼、完成條件最後的狀態，以及一份決策紀錄。
 
-**下一步**：早上用 `/show-me-your-work` 檢查（見下一節）。
+**下一步**：早上用 `/show-me-your-work` 檢查（見後面的「早上」一節）。
 
 ### 在 Claude Code 裡無人值守地跑
 
-你不在電腦前時，AI 每次要執行指令都停下來等你同意，就會卡一整晚。所以要事先設好它能做什麼、不能做什麼。我會用 `claude -p` 搭配權限模式、允許清單和費用上限：
+你不在電腦前時，AI 每次要執行指令都停下來等你同意，就會卡一整晚。所以要事先設好它能做什麼、不能做什麼。我會先準備好獨立的 worktree、工作分支、專案依賴和 `overnight-prompt.txt`，再從該 worktree 啟動 `claude -p`，搭配權限模式、允許清單和費用上限。以下沿用後面完整範例的分支名稱 `feat/export-csv`。先在終端機裡自行建立 worktree 與分支，並複製提示檔；使用前請將名稱換成自己的任務名稱：
 
 ```bash
 cd ~/my-project
+git worktree add ../my-project-overnight -b feat/export-csv
+cp overnight-prompt.txt ../my-project-overnight/
+```
+
+接著在新 worktree 準備好專案依賴，確認提示中的分支名稱和實際分支一致，再啟動：
+
+```bash
+cd ~/my-project-overnight
 claude -p "$(cat overnight-prompt.txt)" \
   --permission-mode acceptEdits \
   --allowedTools "Read" "Grep" "Glob" "Bash(python3 -m unittest *)" "Bash(git add *)" "Bash(git commit *)" "Bash(git status *)" "Bash(git diff *)" "Bash(git log *)" \
@@ -313,16 +323,16 @@ claude -p "$(cat overnight-prompt.txt)" \
   --max-budget-usd 10
 ```
 
-- `--permission-mode acceptEdits`：讀檔、改檔和常見的檔案指令不用問；其他指令要在允許清單裡才會執行。
-- `--allowedTools`：允許清單，列出不用問就能執行的工具和指令。測試指令要換成你專案用的。
+- `--permission-mode acceptEdits`：讀檔、改檔和常見的檔案指令不用問；其他指令則需要額外授權。在無人值守執行前，要先檢查既有權限設定。
+- `--allowedTools`：允許清單，列出不用問就能執行的工具和指令。測試指令要換成你專案用的。這裡沒有放行建立或切換分支的指令，所以前面的 worktree 與分支準備步驟要先由你完成。
 - `--disallowedTools`：禁止清單。禁止規則在每一種權限模式下都有效（[權限模式說明](https://code.claude.com/docs/en/permission-modes#available-modes)）。
 - `--max-budget-usd`：估計花費到這個金額就停止，只能用在 `claude -p`（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 
-`claude -p` 沒有設定權限模式時，需要核准的動作會直接被拒絕（[權限模式說明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。所以清單列得太少，它不會闖禍，只會做不完；早上看紀錄，再決定下次要多放行什麼。
+`claude -p` 沒有設定權限模式時，需要核准的動作會直接被拒絕（[權限模式說明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。允許清單漏列必要指令，可能讓任務無法完成；早上要根據紀錄判斷是否需要調整。這份範例只封鎖了部分工具與命令，不等於完整禁止連網、刪檔或修改工作目錄外的檔案；允許執行的程式本身也可能做這些事。若要強制限制網路和檔案範圍，還需要沙箱或容器等隔離設定。
 
 ### 想讓它停下來，或明天接著做
 
-想刻意停下來時，就直接告訴它要暫停，或說你要離線了。Pause safely playbook 會把目前這一步做完或退回去，用一個 `wip:` commit 存下進度，再寫一份接手說明（resume note）。它不會為了暫停做不可逆的動作，例如開 PR 或推送。注意：說「繼續」永遠不會觸發暫停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
+想讓 AI 停下來時，要明確說「暫停」，不要只說你要離線；後者也可能被理解成請它繼續無人值守工作。Pause safely playbook 會把目前這一步做完或退回去，用一個 `wip:` commit 存下進度，再寫一份接手說明（resume note）。暫停流程只在本機保存進度，不會自動開 PR 或推送。單純要求「繼續」不會觸發暫停（[pause-safely playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/pause-safely.md#L1-L10)）。
 
 ```text
 /pstack:poteto-mode 先暫停，我要離線了。
@@ -332,7 +342,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 ### 一整晚不只一件事
 
-一晚有好幾個互不相干的改動時，指南有兩個 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 會把每個 PR 一路做到合併；Autopilot-stack 一樣會驗證，但**不合併**，早上由你自己看、自己合併。我建議用 Autopilot-stack，因為合併是你該親自做的決定：
+一晚有好幾個互不相干的改動時，指南有兩個 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 會把每個 PR 一路做到合併；Autopilot-stack 一樣會驗證，但**不合併**，早上由你自己看、自己合併。若你希望 AI 先準備 PR、早上再由你審查並決定是否合併，可以選 Autopilot-stack。這和前面只做本機工作的範本不同，必須另外明確授權 push 與開 PR：
 
 ```text
 /pstack:poteto-mode autopilot these five changes, but don't merge. i'll land them in the morning.
@@ -342,7 +352,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 **什麼時候用**：AI 自己跑了一段長時間的工作，你回來要知道它做了什麼、為什麼這樣做。
 
-決策紀錄是一個 TSV 檔（用 Tab 分隔欄位的純文字表格），一個決定一列，欄位是時間、階段、決定、原因、證據、結果。證據是一個指標，例如 commit 編號或 `檔案:行號`，不是一段文字（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L11-L22)）。它預設放在工作資料夾的 `decisions.tsv`，有好幾個工作同時進行時放 `.audit/<任務名稱>.tsv`，預設**不 commit**；只有工作大到審查者需要這份紀錄才能相信結果時，才 commit（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L44-L48)）。紀錄只能往後加：判斷錯了，就新增一列取代它，不改也不刪舊的。
+決策紀錄是一個 TSV 檔（用 Tab 分隔欄位的純文字表格），一個決定一列，欄位是時間、階段、決定、原因、證據、結果。證據欄要指向可查驗的來源，例如 commit 編號或 `檔案:行號`，不能只有文字說明（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L11-L22)）。它預設放在工作資料夾的 `decisions.tsv`，有好幾個工作同時進行時放 `.audit/<任務名稱>.tsv`，預設**不 commit**；只有工作大到審查者需要這份紀錄才能相信結果時，才 commit（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L44-L48)）。紀錄只能往後加：判斷錯了，就新增一列註明更正，不改也不刪舊列。
 
 **指令怎麼寫**（取自[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L62-L66)），在跑工作的同一個對話裡：
 
@@ -370,11 +380,11 @@ column -s$'\t' -t decisions.tsv
 
 ### never-block-on-the-human 的界線
 
-讓 AI 自己跑的核心原則是 [never-block-on-the-human](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-never-block-on-the-human/SKILL.md#L9-L15)：人是非同步監督的，AI 不該卡著等人。可以還原的事，例如寫程式、改筆記、拆任務，先做再報告；不要問「要不要做 X」，做了再說明為什麼。但**不可逆的動作仍然要先確認**，例如 force push（強制覆蓋遠端分支的歷史）、刪除正式環境的資料、對外發訊息。產品方向由人決定。
+讓 AI 自己跑的核心原則是 [never-block-on-the-human](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-never-block-on-the-human/SKILL.md#L9-L15)：人可以稍後查看成果並介入，AI 不必為每個可還原的小決定停下來等待。可以還原的事，例如寫程式、改筆記、拆任務，先做再報告；不要問「要不要做 X」，做了再說明為什麼。但**不可逆的動作仍然要先確認**，例如 force push（強制覆蓋遠端分支的歷史）、刪除正式環境的資料、對外發訊息。產品方向由人決定。
 
 `/poteto-mode` 也寫明，就算你說了「我要去睡了」，下面這些仍然**一定會停下來**：force push 到共用分支、部署、刪除資料、發訊息給客戶（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L86-L88)）。
 
-但要注意，同一份 SKILL.md 也寫：可以還原的事，以及團隊聊天、更新 ticket、啟動 eval 這類對外動作，都會直接做、不先問，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)）。也就是說，它自己會停下來的只有上面那幾件：force push 到共用分支、部署、刪除資料、發訊息給客戶，不是所有對外訊息都會先問你。不想讓它對外發訊息，就在「不可以做」寫清楚，並用 `--disallowedTools` 把那些 MCP 工具擋掉。
+但要注意，同一份 SKILL.md 也寫：可以還原的事，以及團隊聊天、更新 ticket、啟動 eval 這類對外動作，都會直接做、不先問，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)）。因此，不能把「不可逆的動作要確認」理解成所有對外訊息都會先問你；這份文件對團隊內部訊息和客戶訊息的處理就不同。不想讓它對外發訊息，就在「不可以做」寫清楚，並用 `--disallowedTools` 把那些 MCP 工具擋掉。
 
 ![可逆的動作放手讓它做，不可逆的動作一定先問；權限設定和費用上限是第二道防線](ask-line.png){: w="800" h="450" }
 _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限設定是第二道。_
@@ -390,13 +400,13 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 
 ### 權限：寫在提示裡還不夠
 
-提示裡的「不可以」是請求，權限設定才是牆。Claude Code 的權限模式各有不同的放手程度（[權限模式說明](https://code.claude.com/docs/en/permission-modes#available-modes)）：
+提示用來表達意圖，權限規則用來限制工具呼叫；網路與檔案的隔離範圍則要另外設定。Claude Code 的權限模式各有不同的放手程度（[權限模式說明](https://code.claude.com/docs/en/permission-modes#available-modes)）：
 
 | 模式 | 不用問就能做的事 | 適合 |
 | --- | --- | --- |
 | `default`（Manual） | 只有讀取 | 每個動作都自己看 |
 | `acceptEdits` | 讀取、改檔、常見的檔案指令 | 改程式，其他指令用允許清單放行 |
-| `plan` | 讀取 | 動手之前先探索 |
+| `plan` | 讀取；可用 auto 時，也可執行通過其檢查的指令 | 動手之前先探索 |
 | `auto` | 全部，背景有安全檢查 | 長時間的工作 |
 | `dontAsk` | 讀取和事先允許的工具，其他一律拒絕 | 鎖死的 CI 和腳本 |
 | `bypassPermissions` | 全部 | 只能在隔離的容器或虛擬機裡用 |
@@ -409,7 +419,7 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 
 ### 費用：先設上限
 
-無人值守的工作會派很多子代理，花費可能比你想的多。
+無人值守的工作可能派出多個子代理，花費也可能比預期高。
 
 - `claude -p` 加上 `--max-budget-usd`。這是 Claude Code 自己的估計，可能和帳單不同，也可能稍微超過，所以要留一點空間；子代理的花費也算在內；用 `--resume` 接續對話時，之前的花費不算進這次的上限（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 - 用 Pro、Max 這類訂閱方案，又開了額外用量（usage credits）時，在 claude.ai 的 Settings → Usage 設每月花費上限（[費用說明](https://code.claude.com/docs/en/costs)）。
@@ -427,7 +437,7 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 /pstack:poteto-mode 幫 export 指令加一個 --since 日期選項。先告訴我你的計畫，不要動手。
 ```
 
-計畫裡多了兩個輔助函式和三個測試，我覺得太多：
+計畫用兩個輔助函式重複判斷同一個日期，三個測試也在檢查相同情境。我請它先消除重複，保留必要的測試：
 
 ```text
 /pstack:principle-laziness-protocol 用這條原則重看你的計畫，再實作並 commit。
@@ -451,17 +461,17 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 
 ```text
 /pstack:poteto-mode 我要去睡了，自己跑到完成為止。
-目標：幫 export 加一個 --format csv 選項，在新的分支 feat/export-csv 上做。
+目標：幫 export 加一個 --format csv 選項，在已準備好的工作分支 feat/export-csv 上做。
 怎樣算完成：所有測試通過；用範例資料跑出的 CSV 能被重新讀回、筆數一致；原本的 JSON 輸出一個位元組都不變。
 決策紀錄：用 show-me-your-work 的格式記在 decisions.tsv。
-不用問我：commit 之前不用問；欄位順序、空值怎麼寫這類小決定自己決定，寫進紀錄。
+不用問我：只 commit 這次任務的變更，不要把 decisions.tsv 納入 commit；欄位順序、空值怎麼寫這類小決定自己決定，寫進紀錄。
 不可以做：push、開 PR、合併、安裝套件、連網、改這個資料夾以外的檔案。
 如果真的卡住：停下來，寫清楚卡在哪裡、試過什麼、需要我決定什麼。
 ```
 
-用上一節的 `claude -p` 指令啟動，加上允許清單、禁止清單和費用上限。
+依前面的步驟先建立 `feat/export-csv` 分支與獨立 worktree，複製提示檔並準備好依賴，再用 `claude -p` 指令啟動，搭配允許清單、禁止清單和費用上限。
 
-**早上：檢查。** 在同一個對話接續（`claude -p --resume <對話 ID>`，或在對話視窗裡接著打）：
+**早上：檢查。** 用 `claude --resume <對話 ID>` 以互動模式接續昨晚的對話，再輸入：
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night
@@ -509,7 +519,11 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 
 ## 結論
 
-想用一句話改變 AI 的做法，就在對話中途輸入 `/pstack:principle-<名稱>`，再看它的回覆有沒有寫出這條原則改了哪個決定。想讓 AI 照你的方式工作，`/automate-me` 從你的對話裡整理出你自己的 mode，`/reflect` 把一次對話的教訓寫回 skill，`/correct` 則直接改專案，讓同一種錯不再發生。想讓它在你不在時自己跑，先確認這件事值得信任，再寫好目標、可以檢查的完成條件、決策紀錄、不用問的事、不可以做的事，以及卡住時怎麼停；用權限設定把不可逆的動作擋住，設好費用上限，早上用 `/show-me-your-work` 從 Attention 開始檢查。可以還原的事讓它放手做，不能還原的事，永遠由你決定。
+想用一句話改變 AI 的做法，就在對話中途輸入 `/pstack:principle-<名稱>`，再看它的回覆有沒有寫出這條原則改了哪個決定。
+
+想讓 AI 照你的方式工作，`/automate-me` 從你的對話裡整理出你自己的 mode，`/reflect` 把一次對話的教訓寫回 skill，`/correct` 則直接改專案，讓同一種錯不再發生。
+
+想讓它在你不在時自己跑，先確認這類工作已經符合前述四個條件，再寫好目標、可以檢查的完成條件、決策紀錄、不用問的事、不可以做的事，以及卡住時怎麼停；用權限規則與隔離設定落實操作界線，設好費用上限，早上用 `/show-me-your-work` 從 Attention 開始檢查。在已授權的範圍內，讓它完成可以還原的工作；不能還原的決定，仍由你掌握。
 
 ## 延伸閱讀
 
