@@ -39,7 +39,7 @@ If you install with `/plugin marketplace add cursor/plugins` instead, you get wh
 
 **You start every one of these skills yourself.** Of pstack's 58 skills, all but `/setup-pstack` are set so the AI can't start them on its own (`disable-model-invocation: true`), and that includes the principles. The AI reads a skill's instructions only when you type its command.
 
-**The official guide is written for Cursor.** Some things in it exist only in Cursor, such as `/loop` and `create-skill`. pstack ships [Claude Code adapter notes](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md), which `/poteto-mode` reads first in Claude Code to map Cursor names to their Claude Code equivalents. Where the two differ, I give the Claude Code way below.
+**The official guide is written for Cursor.** Some things in it exist only in Cursor, such as `/loop` (Claude Code has its own `/loop`, which works differently) and `create-skill`. pstack ships [Claude Code adapter notes](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md), which `/poteto-mode` reads first in Claude Code to map Cursor names to their Claude Code equivalents. Where the two differ, I give the Claude Code way below.
 
 ## Steer the AI With Principle Names
 
@@ -107,7 +107,7 @@ _Four common principles, and when to say their names._
 2. **Suspects the check first when a check fails.** It makes sure it looked in the right place before it blames the code.
 3. **Scripts the check when it can.** The strongest proof is a script that can be rerun, not a one-time look.
 
-**What you get**: the commands it actually ran, with their output. While verifying, it often finds a new problem and reports it in the reply.
+**What you get**: the commands it actually ran, with their output.
 
 **Next step**: read the output yourself and confirm it checked the thing you care about.
 
@@ -240,7 +240,7 @@ When you don't, leave it off and it finds the classes from history on its own:
 
 **What you get**: each class with its evidence, the level chosen, and why a higher level didn't work, plus one commit per class.
 
-**Next step**: review each commit. It may change your CI config or existing tests, and you should see those changes before anything is pushed.
+**Next step**: review each commit. It may change your CI config or existing tests, and you should see those changes before anything is pushed. So run `/correct` in a session you're watching, not in an unattended prompt.
 
 The split between them: `/reflect` improves skills from one conversation, and `/correct` changes the repo so a mistake class can't come back ([guide chapter 9](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L50)). One more thing: **don't edit a skill in the middle of a task**. Fix it in its own PR and keep the task moving ([guide chapter 9](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L98)).
 
@@ -281,7 +281,7 @@ What each line does:
 - **"im going to bed"** is a session override. When `/poteto-mode` sees it, it stops asking and keeps going ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L88)).
 - **"done means"** has to be a condition every iteration can actually check, such as "all tests pass" or "nothing calls the old function." The guide warns that **a duration is not a finish condition**: "work on this for 4 hours" gives the agent nothing to check, and you'll wake up to four hours of motion instead of a result ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L120)).
 - **"a new branch"** keeps it away from your other work. The guide recommends a fresh worktree; Claude Code's `-w` (`--worktree`) option starts a session in its own worktree ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
-- **"don't ask me"** answers in advance what it would otherwise stop to ask.
+- **"don't ask me"** answers in advance what it would otherwise stop to ask. It only clears committing on a new local branch; pushing, opening a PR, merging, and other irreversible actions still need a human to confirm.
 - **"never"** draws the line. Writing it in the prompt isn't enough; block it with permission settings, as the next section shows.
 - **"if you're truly stuck"** is the escape hatch. Stopping at a genuine dead end and writing it up beats a night of creatively reinterpreting the goal.
 
@@ -354,9 +354,9 @@ The decision log is a TSV file (a plain-text table with tab-separated columns), 
 
 1. **Audits the log against the transcript.** Every row has to match a real decision or action, and its evidence has to open and show what the row claims. Missing pivots get added. Wrong rows aren't edited or deleted; a new row corrects them.
 2. **Gets a reviewer from a different model family.** It sends a subagent from a model family other than the one that did the work to read the trail and the transcript, flagging decisions with weak evidence, verification claimed without proof, and choices that look risky in hindsight.
-3. **Retells what it did in order**, ending with an Attention section.
+3. **Summarizes what it did**, ending with an Attention section.
 
-**What you get**: a chronological summary and an Attention section. Attention starts with `reviewed by <model>`, then lists each thing that needs your scrutiny, pointing at specific log rows.
+**What you get**: a summary and an Attention section. Attention starts with `reviewed by <model>`, then lists each thing that needs your scrutiny, pointing at specific log rows.
 
 **Next step**: read Attention first, then follow it to the rows it points at and spot-check their evidence ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L68)). You're auditing decisions, not re-reading the whole night. Also look at the `reviewed by` line: if your setup has only one model family, the review isn't truly cross-family. To render the TSV as a table in the terminal:
 
@@ -373,6 +373,8 @@ For a quick status instead of a full audit, run `/pstack:ketchup` in the same co
 The core principle behind letting the AI run alone is [never-block-on-the-human](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-never-block-on-the-human/SKILL.md#L9-L15): the human supervises asynchronously, and the AI shouldn't sit waiting. Reversible work, such as writing code, editing notes, or splitting tasks, goes ahead and gets reported; instead of asking "should I do X?", it does X and explains why. But **irreversible actions still need confirmation**, such as a force push (overwriting the remote branch's history), deleting production data, or sending external messages. Product direction comes from the human.
 
 `/poteto-mode` also says that even after "im going to bed," it **always pauses** for these: force-pushing to shared branches, deploys, data deletion, and customer messages ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L86-L88)).
+
+Note that the same SKILL.md also says reversible work and external actions such as team chat, ticket updates, and kicking off evals proceed without asking, using any MCP tool ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)). So the only things it pauses for on its own are the ones above: force-pushing to shared branches, deploys, data deletion, and customer messages. Not every external message asks you first. If you don't want it posting anywhere, say so under Never and block those MCP tools with `--disallowedTools`.
 
 ![Let reversible actions run, ask before irreversible ones; permissions and spending caps back that up](ask-line.en.png){: w="800" h="450" }
 _The line is whether an action can be undone. The prompt is the first line of defense; permission settings are the second._
@@ -417,7 +419,7 @@ For more on permission and supply-chain risks, and how to tighten permissions, s
 
 ## Full Example: One Day's Flow
 
-This continues Part 3's example: a command-line tool that exports data.
+This continues Part 3's fictional example: a command-line tool that exports data.
 
 **Daytime: steer with principle names.** I ask for a new option:
 
@@ -521,3 +523,4 @@ To change how the AI works with one phrase, type `/pstack:principle-<name>` mid-
 - [pstack, Part 3: After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/): the Build, Clean, Verify, and Prepare for Review stages, including playbooks, `/tdd`, verification skills, and babysit.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.
+- [mattpocock/skills Series Guide: What It Is and How to Read It](/posts/mattpocock-skills-series-guide/) and [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/): a series about a different set of skills.
