@@ -71,7 +71,7 @@ In the same conversation, start your next message with the principle's command, 
 
 With the command form, Claude Code reads the principle's full instructions, not just a name. Below are the four I use most; for all 24, see [the principles table in the README](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L223-L257).
 
-![Four situations for using principles: an oversized plan, completion without proof, a symptom-only fix, and repeated failed fixes](principles-steer.en.png){: w="800" h="450" }
+![When to use principles: an oversized plan, done without proof, a symptom-only fix, repeated failed fixes](principles-steer.en.png){: w="800" h="450" }
 _Four common principles, and when to say their names._
 
 ### laziness-protocol: When the Plan Is Too Big
