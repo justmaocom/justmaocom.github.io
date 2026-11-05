@@ -348,7 +348,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 /pstack:poteto-mode autopilot these five changes. 可以 push 和開 PR，不要合併，我早上自己合併。
 ```
 
-如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，並在允許清單加上 `Bash(git push *)` 和 `Bash(gh pr create *)`；仍然不要放行 `gh pr merge`。
+如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，在允許清單加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，並在禁止清單加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。這些規則只比對指令的寫法，擋不住所有變形，所以真正的牆要放在 GitHub：替 main 開分支保護，要求一定要經過 PR，並禁止 force push。也因為規則只比對字面，分支名稱裡不要出現「-f」或「main」（例如 `feat/fix-login`），不然連正常的 push 也會被擋下。另外，如果你沿用前面的六段範本，這次「不可以做」那一行要拿掉「連網」，push 和開 PR 本來就需要連網。
 
 ## 早上：用 /show-me-your-work 檢查決策紀錄
 

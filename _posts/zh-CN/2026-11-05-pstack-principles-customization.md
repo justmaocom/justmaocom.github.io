@@ -348,7 +348,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 /pstack:poteto-mode autopilot these five changes. 可以 push 和开 PR，不要合并，我早上自己合并。
 ```
 
-如果用前面的 `claude -p` 设置，要把 `Bash(git push *)` 从禁止清单移掉，并在允许清单加上 `Bash(git push *)` 和 `Bash(gh pr create *)`；仍然不要放行 `gh pr merge`。
+如果用前面的 `claude -p` 设置，要把 `Bash(git push *)` 从禁止清单移掉，在允许清单加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，并在禁止清单加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。这些规则只比对命令的写法，挡不住所有变形，所以真正的墙要放在 GitHub：给 main 开启分支保护，要求必须经过 PR，并禁止强制推送。也因为规则只比对字面，分支名称里不要出现“-f”或“main”（例如 `feat/fix-login`），不然连正常的 push 也会被挡下。另外，如果你沿用前面的六段模板，这次“不可以做”那一行要去掉“联网”，push 和开 PR 本来就需要联网。
 
 ## 早上：用 /show-me-your-work 检查决策记录
 
@@ -473,7 +473,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 我按前面的步骤，先创建 `feat/export-csv` 分支和独立的 worktree，复制提示文件、准备好依赖，再用 `claude -p` 命令启动，搭配允许清单、禁止清单和费用上限。
 
-**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话。`claude -p` 的对话不会出现在 `claude --resume` 的选单里，所以要直接给 ID：它就是 `~/.claude/projects/<worktree 路径>/` 下面那次对话的 `.jsonl` 文件名，也可以直接把那个 `.jsonl` 的完整路径传给 `--resume`。接上之后输入：
+**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话。`claude -p` 的对话不会出现在 `claude --resume` 的列表里，所以要直接给 ID：它就是 `~/.claude/projects/<worktree 路径>/` 下面那次对话的 `.jsonl` 文件名，也可以直接把那个 `.jsonl` 的完整路径传给 `--resume`。接上之后输入：
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night

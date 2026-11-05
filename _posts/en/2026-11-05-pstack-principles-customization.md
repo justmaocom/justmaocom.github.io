@@ -348,7 +348,7 @@ If you have several unrelated changes for one night, the guide offers two playbo
 /pstack:poteto-mode autopilot these five changes. you may push branches and open PRs; don't merge. i'll land them in the morning.
 ```
 
-With the earlier `claude -p` setup, remove `Bash(git push *)` from the denylist and add `Bash(git push *)` and `Bash(gh pr create *)` to the allowlist. Still never allow `gh pr merge`.
+With the earlier `claude -p` setup, remove `Bash(git push *)` from the denylist, add `Bash(git push -u origin feat/*)` and `Bash(gh pr create *)` to the allowlist, and add `Bash(git push *--force*)`, `Bash(git push *-f*)`, `Bash(git push *main*)`, and `Bash(gh pr merge *)` to the denylist. These rules only match how a command is written, so the real wall is on GitHub: protect main so changes must go through a PR and force pushes are blocked. Because the rules match text literally, keep "-f" and "main" out of branch names (`feat/fix-login`, for example), or ordinary pushes get blocked too. Also, if you reuse the earlier six-part template, drop "go online" from its never line this time, since pushing and opening PRs need the network.
 
 ## In the Morning: Audit the Decision Log With /show-me-your-work
 
