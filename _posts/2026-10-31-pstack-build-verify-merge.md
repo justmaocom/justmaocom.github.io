@@ -14,7 +14,7 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 
 > pstack 系列｜第 3 篇
 >
-> - 系列導讀：這套 skill 是什麼、四篇該怎麼讀（尚未發布）
+> - 系列導讀：[這套 skill 是什麼、四篇該怎麼讀](/posts/pstack-series-guide/)
 > - 上一篇（第 2 篇）：[改程式之前，先看懂再設計](/posts/pstack-understand-design/)
 > - 下一篇（第 4 篇）：[用原則指揮 AI、做出自己的 mode，再放心讓它自己跑](/posts/pstack-principles-customization/)
 {: .prompt-info }

@@ -16,7 +16,7 @@ image:
 
 > pstack 系列｜第 4 篇（最后一篇）
 >
-> - 系列导读：这套 skill 是什么、四篇该怎么读（尚未发布）
+> - 系列导读：[这套 skill 是什么、四篇该怎么读](/posts/pstack-series-guide/)
 > - 上一篇（第 3 篇）：[写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)
 > - 下一篇：这是系列的最后一篇
 {: .prompt-info }

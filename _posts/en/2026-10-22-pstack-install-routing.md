@@ -20,7 +20,7 @@ The example prompts in this post are generic. Copy them and swap in details from
 
 > pstack Series | Part 1
 >
-> - Series guide: What pstack is and how to read the four parts (not yet published)
+> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
 > - Next (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
 >
 > **Version note**: This post is based on pstack [version `0.15.29`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `88d4751`, the version when this post first went out on 2026-10-22. When it was rewritten as a tutorial on 2026-10-24, it stayed on this version. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
