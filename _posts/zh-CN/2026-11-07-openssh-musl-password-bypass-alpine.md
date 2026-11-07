@@ -49,9 +49,9 @@ _概念图，不是实际架构。错误返回本来应该让登录失败，不�
 
 根据 Alpine 公告整理，以下条件**全部成立**才会受影响：
 
-1. 正在运行的 sshd 还没修补。版本号以你所用发行版的安全公告为准，已经应用 backport 修补并重启的 sshd，即使其他条件都成立，也不受这个漏洞影响。
+1. 在使用 musl 的 Linux 上运行，且正在运行的 sshd 尚未修补。版本号以你所用发行版的安全公告为准，已经应用 backport 修补并重启的 sshd，即使其他条件都成立，也不受这个漏洞影响。
 2. sshd 不经过 PAM 验证密码。在 Alpine 上，这代表装的是 `openssh-server`（本身就没有 PAM），或是装了 `openssh-server-pam` 但设置 `UsePAM no`。
-3. `PasswordAuthentication` 是 `yes`。上游 OpenSSH 的默认值是 `yes`，但发行版或云端镜像可能另外设置，要以 sshd 的有效设置为准。
+3. `PasswordAuthentication` 是 `yes`。上游 OpenSSH 的默认值是 `yes`，但发行版或云镜像可能另外设置，要以 sshd 的有效设置为准。
 4. 机器上有密码栏为 `*` 的账号。Alpine 公告特别列出：从 3.16 左右起默认的 `root:*`、用 `adduser` 创建却没设密码的密钥账号，以及通过 musl-nscd 从目录服务（例如 nslcd、winbind、sssd）来的用户，因为它们在本机没有 shadow 记录。
 5. 机器上至少有另一个本机账号使用 `$5$` 或 `$6$` 开头的密码哈希，也就是真的设过密码。
 
@@ -63,7 +63,7 @@ _概念图，不是实际架构。错误返回本来应该让登录失败，不�
 - **“我都用密钥登录”不等于“已经关掉密码验证”。** 只要 `PasswordAuthentication` 还是 `yes`，sshd 就还接受密码登录，不管你平常怎么连。
 - **root 另有规则。** Alpine 从大约 3.16 起，root 默认就是 `root:*`。不过 OpenSSH 默认的 `PermitRootLogin prohibit-password` 会挡掉 root 的密码登录，除非你改成 `yes`。真正要注意的是：如果另一个可登录的账号能通过 `doas` 之类的方式变成 root，这层保护就帮不上忙。
 
-Alpine 官方 tiny-cloud 云端镜像（3.18.11 到 3.24.3）是一个具体例子。里面的 `alpine` 账号密码栏是 `*`，而且可以免密码使用 `doas`。刚开机时是安全的，但只要机器上出现任何 `$6$` 哈希，例如管理员设了控制台密码，就符合条件。用 cloud-init 设置的镜像会写入 `PasswordAuthentication no`，Alpine 公告将它列为不受影响。
+Alpine 官方 tiny-cloud 云镜像（3.18.11 到 3.24.3）是一个具体例子。里面的 `alpine` 账号密码栏是 `*`，而且可以免密码使用 `doas`。刚开机时是安全的，但只要机器上出现任何 `$6$` 哈希，例如管理员设了控制台密码，就符合条件。用 cloud-init 设置的镜像会写入 `PasswordAuthentication no`，Alpine 公告将它列为不受影响。
 
 **不在这次范围内的情况：** 使用 glibc 的发行版、非 Linux 系统、sshd 通过 PAM 验证（例如 `openssh-server-pam` 搭配 `UsePAM yes`）、没有在容器内运行 sshd 的 Docker 容器，以及没有任何 `$` 型密码哈希的机器。如果你的容器是用 Alpine 当基底，而且里面真的跑了 sshd，就要照上面的条件逐项检查。自己编译 OpenSSH 的环境也一样。
 
@@ -106,7 +106,7 @@ awk -F: '$2=="*"{print "无密码:", $1} $2 ~ /^\$[56]\$/{print "有哈希:", $1
 
 Alpine 的修补是 backport，旧分支的版本号不会变成 10.6p2。例如 3.24 修补后的 `openssh` 版本是 `10.3_p1-r2`，3.22 是 `10.0_p1-r11`。所以判断有没有修好，要拿你的分支去对照 [Alpine 公告里的版本表](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/)，不能只看是不是 10.6p2。公告也说 3.21.10、3.22.8、3.23.8、3.24.4 这些镜像版本已经包含修补软件包。
 
-动手之前，先做好两件事：用另一个窗口确认密钥登录可以用，并保留目前已经连上的 SSH 连接。如果是云端主机，确认你还进得了供应商的管理控制台。
+动手之前，先做好两件事：用另一个窗口确认密钥登录可以用，并保留目前已经连上的 SSH 连接。如果是云主机，确认你还进得了供应商的管理控制台。
 
 Alpine 官方的做法是更新后重启 sshd。下面的 `sshd -t` 检查和新旧连接的确认，是我额外加上的保护步骤。另外，`apk upgrade -U -a` 会更新整个系统的软件包，不只 openssh，建议先看过会变动的软件包，并安排维护时段再做。
 

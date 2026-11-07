@@ -49,7 +49,7 @@ _A concept image, not the real architecture. An error return should make the log
 
 Based on the Alpine advisory, you're affected only if **all** of the following are true:
 
-1. The running sshd isn't patched yet. Go by your distribution's security advisory for version numbers. An sshd that has the backported fix applied and has been restarted isn't affected, even if every other condition holds.
+1. The host runs Linux with musl, and its running sshd is not patched yet. Go by your distribution's security advisory for version numbers. An sshd that has the backported fix applied and has been restarted isn't affected, even if every other condition holds.
 2. sshd doesn't verify passwords through PAM. On Alpine, that means you installed `openssh-server` (built without PAM), or `openssh-server-pam` with `UsePAM no`.
 3. `PasswordAuthentication` is `yes`. Upstream OpenSSH defaults to `yes`, but distributions or cloud images may set it differently, so go by sshd's effective configuration.
 4. The machine has an account whose password field is `*`. The Alpine advisory specifically lists: `root:*`, the default since about 3.16; key-only accounts created with `adduser` without a password; and users coming from a directory service (such as nslcd, winbind, or sssd) through musl-nscd, since they have no local shadow entry.

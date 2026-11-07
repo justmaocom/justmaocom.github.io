@@ -49,7 +49,7 @@ _概念圖，不是實際架構。錯誤回傳本來應該讓登入失敗，不�
 
 依照 Alpine 公告整理，以下條件**全部成立**才會受影響：
 
-1. 正在執行的 sshd 還沒修補。版號以你所用發行版的安全公告為準，已經套用 backport 修補並重啟的 sshd，即使其他條件都成立，也不受這個漏洞影響。
+1. 在使用 musl 的 Linux 上執行，且正在執行的 sshd 尚未修補。版號以你所用發行版的安全公告為準，已經套用 backport 修補並重啟的 sshd，即使其他條件都成立，也不受這個漏洞影響。
 2. sshd 不經過 PAM 驗證密碼。在 Alpine 上，這代表裝的是 `openssh-server`（本身就沒有 PAM），或是裝了 `openssh-server-pam` 但設定 `UsePAM no`。
 3. `PasswordAuthentication` 是 `yes`。上游 OpenSSH 的預設值是 `yes`，但發行版或雲端映像可能另外設定，要以 sshd 的有效設定為準。
 4. 機器上有密碼欄為 `*` 的帳號。Alpine 公告特別列出：從 3.16 左右起預設的 `root:*`、用 `adduser` 建立卻沒設密碼的金鑰帳號，以及透過 musl-nscd 從目錄服務（例如 nslcd、winbind、sssd）來的使用者，因為它們在本機沒有 shadow 紀錄。
