@@ -6,7 +6,7 @@ categories: [Security]
 tags: [application-security]
 media_subpath: /assets/img/posts/openssh-musl-password-bypass-alpine/
 image:
-  path: cover.webp
+  path: cover-en.webp
   alt: "I explain which hosts this OpenSSH flaw affects and why Alpine users need to restart sshd after updating."
 ---
 
@@ -79,8 +79,8 @@ According to Alpine, musl's `crypt()` returns `*` to signal an error when the pa
 
 [OpenSSH's fix](https://github.com/openssh/openssh-portable/commit/4353fdc43ef646c43a8dda7025cc1a898caf1482) adds a length check on the stored hash so that short values such as `*` cannot pass the comparison. Alpine's older branches carry corresponding fixes.
 
-![Concept illustration: an error signal mistaken for a successful password check](auth-error.webp){: w="1280" h="720" }
-_My simplified view of the problem: a calculation error should deny access, but matching return values cause the login to be accepted._
+![Concept diagram: the error marker from crypt() matches the account's stored asterisk, so sshd mistakenly permits login](auth-error.webp){: w="1280" h="720" }
+_I use `* = *` to show the mistaken comparison: the calculation's error return matches the account's stored value and is treated as a correct password._
 
 ## How would I check a server?
 
@@ -153,8 +153,8 @@ I would proceed in order, **continuing only when each step succeeds**:
 
 **Installing the fixed package must be followed by a successful sshd restart.** Alpine stresses that upgrading the package does not replace the running service; the old program may still be accepting connections. Testing a new connection checks availability. Being able to log in is not, by itself, proof that the vulnerability is fixed.
 
-![Concept illustration: an administrator keeps the original session open and tests a new connection after updating](safe-update.webp){: w="1280" h="720" }
-_I would keep the original session open until the update, restart, and new connection test have all succeeded._
+![Three-step concept diagram: keep the existing SSH session open, update and restart sshd, then test a new login](safe-update.webp){: w="1280" h="720" }
+_I would follow steps 1 → 2 → 3: keep the existing session open, update and restart sshd, then test a new connection. I would close the old session only after that succeeds._
 
 Alpine 3.21.10, 3.22.8, 3.23.8, and 3.24.4 images include the fix, but a new image release does not automatically repair existing hosts. For a container running sshd, I would update the packages used in the build, rebuild the image, and redeploy the running containers. For a source-built OpenSSH installation, I would use 10.6p2 or a later release containing the fix and confirm that the service is running the new program.
 

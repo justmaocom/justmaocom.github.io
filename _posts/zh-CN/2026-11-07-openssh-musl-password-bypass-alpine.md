@@ -6,7 +6,7 @@ categories: [信息安全]
 tags: [application-security]
 media_subpath: /assets/img/posts/openssh-musl-password-bypass-alpine/
 image:
-  path: cover.webp
+  path: cover-zh-cn.webp
   alt: "我整理这次 OpenSSH 漏洞的受影响条件，以及 Alpine 更新后仍须重启 sshd 的原因。"
 ---
 
@@ -79,8 +79,8 @@ root 本身另有登录规则。默认的 `PermitRootLogin prohibit-password` �
 
 [OpenSSH 的修补](https://github.com/openssh/openssh-portable/commit/4353fdc43ef646c43a8dda7025cc1a898caf1482)增加了保存哈希的长度检查，避免 `*` 这类过短的值通过比对；Alpine 旧分支的软件包也带有对应修补。
 
-![概念插画：错误信号在密码比对时被误当成验证通过](auth-error.webp){: w="1280" h="720" }
-_我把问题简化成这张概念图：运算出错应该拒绝登录，却因为返回值相同而被放行。_
+![概念图：crypt() 返回的错误符号与账号保存的星号相同，sshd 因而错误放行](auth-error.webp){: w="1280" h="720" }
+_我用图中的 `* = *` 表示这次的误判：运算错误的返回值刚好与账号保存值相同，于是被当成密码正确。_
 
 ## 管理主机时，我会怎么检查？
 
@@ -153,8 +153,8 @@ awk -F: '$2=="*"{print "密码字段为 *:", $1} $2 ~ /^\$[56]\$/{print "有 SHA
 
 **安装修补软件包后，还要成功重启 sshd。** Alpine 公告特别提醒，更新软件包不会替换正在运行的服务；如果只做更新，旧程序可能仍在接受连接。新连接测试则是确认服务可用，不能单靠“还能登录”证明漏洞已修补。
 
-![概念插画：管理员保留原有连接，另开新连接确认更新后仍能登录](safe-update.webp){: w="1280" h="720" }
-_我会保留原有连接，等更新、重启与新连接测试都完成后才关闭。_
+![三步骤概念图：保留现有 SSH 连接、更新并重启 sshd，再测试新的登录连接](safe-update.webp){: w="1280" h="720" }
+_我会按图中的 1 → 2 → 3 操作：保留现有连接，更新并重启 sshd，再测试新连接；确认成功后才关闭旧连接。_
 
 Alpine 3.21.10、3.22.8、3.23.8、3.24.4 镜像已包含修补软件包，但换成新镜像不会自动修好既有主机。若是在容器里运行 sshd，我会更新构建使用的软件包、重建镜像并重新部署运行中的容器；若自行编译 OpenSSH，则升级至 10.6p2 或后续包含修补的版本，并确认服务改用新程序。
 
