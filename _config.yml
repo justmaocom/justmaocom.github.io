@@ -31,12 +31,12 @@ i18n_site:
   zh-CN:
     tagline: 从问题开始，把答案写下来
     description: >-
-      JustMao的个人网站，分享技术、阅读、写作与生活中的笔记和思考。
+      JustMao 的个人网站，记录 coding agent 的 skill 与工作流程、agent 带来的信息安全问题，以及开源工具的源代码拆解。
   en:
     title: JustMao
     tagline: Start with a question, write down the answer
     description: >-
-      JustMao's personal site: notes and thoughts on technology, reading, writing, and life.
+      JustMao's personal site: coding agent skills and workflows, security problems that agents bring in, and source-code deep dives into open-source tools.
 
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Asia/Taipei
@@ -49,7 +49,7 @@ title: 只是一根毛 | JustMao # the main title
 tagline: 從問題開始，把答案寫下來 # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  JustMao的個人網站，分享技術、閱讀、寫作與生活中的筆記和思考。
+  JustMao 的個人網站，記錄 coding agent 的 skill 與工作流程、agent 帶來的資安問題，以及開源工具的原始碼拆解。
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.
