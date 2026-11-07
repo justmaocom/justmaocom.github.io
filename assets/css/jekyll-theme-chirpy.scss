@@ -14,10 +14,10 @@
 
 /* append your custom style below */
 
-/* Keep the OpenSSH cover headline visible in homepage cards of every locale. */
-#post-list .post-preview[href$='/posts/openssh-musl-password-bypass-alpine/'] img {
+/* Show the full cover in every article card, including localized homepages. */
+#post-list .post-preview img {
   object-fit: contain;
-  background-color: #0b1c2c;
+  background-color: var(--card-bg);
 }
 
 /* --- Mermaid 圖表放大檢視（搭配 assets/js/mermaid-zoom.js） --- */
