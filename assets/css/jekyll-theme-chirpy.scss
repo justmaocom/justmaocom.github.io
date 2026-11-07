@@ -14,6 +14,12 @@
 
 /* append your custom style below */
 
+/* Show the full cover in every article card, including localized homepages. */
+#post-list .post-preview img {
+  object-fit: contain;
+  background-color: var(--card-bg);
+}
+
 /* --- Mermaid 圖表放大檢視（搭配 assets/js/mermaid-zoom.js） --- */
 
 pre.mermaid[data-zoomable] {
