@@ -1,160 +1,201 @@
 ---
 title: "OpenSSH Password Authentication Bypass: Which Hosts Are Affected, and How Alpine Users Can Patch"
-description: "OpenSSH 10.6p2 fixes a password authentication bypass (CVE-2026-123158) in sshd on musl without PAM. Who is affected, how to check, and how to patch Alpine."
+description: "I explain who is affected by CVE-2026-123158, how to check an Alpine host, how to update safely, and what to do if patching has to wait."
 date: 2026-11-07 18:00:00 +0800
 categories: [Security]
 tags: [application-security]
 media_subpath: /assets/img/posts/openssh-musl-password-bypass-alpine/
 image:
   path: cover.webp
-  alt: "Only sshd on musl, without PAM, and with password login still enabled is affected; restart after updating."
+  alt: "I explain which hosts this OpenSSH flaw affects and why Alpine users need to restart sshd after updating."
 ---
 
-The short version: this OpenSSH password authentication bypass does **not** hit every machine running OpenSSH. glibc-based Linux such as Ubuntu, Debian, Fedora, and RHEL is outside its scope, and the `ssh` client on your laptop isn't the problem either. The hosts that really need attention are mainly ones like Alpine Linux, which use musl and whose SSH server doesn't verify passwords through PAM.
+The obvious question after reading that someone can bypass an OpenSSH password check is: does this affect my server? After checking the OpenSSH and Alpine advisories, I would start with the operating system and whether the machine accepts remote logins over SSH.
 
-If you run SSH on Alpine, this post walks you through deciding whether you're affected and how to update safely.
+The vulnerability is **CVE-2026-123158**. With certain system and account settings, an attacker may be able to log in without knowing the correct password. It affects `sshd`, the server program that accepts connections, and several conditions have to line up.
 
-## Three Terms First
+Here is how I would decide whether to investigate further:
 
-**sshd and ssh are different.** `sshd` is the server program that accepts incoming connections; `ssh` is the client you use to connect to other machines. This bug is in `sshd`, and the [OpenSSH 10.6p2 release notes](https://www.openssh.org/txt/release-10.6p2) label it `sshd(8)` as well.
+- **A standard Ubuntu, Debian, Fedora, or RHEL installation:** these normally use glibc and are outside this vulnerability's scope.
+- **An Alpine host that accepts SSH logins:** this needs a closer look. Using a key for my own logins would not be enough to put it in the clear.
+- **A computer used only to connect elsewhere with `ssh`, or a container without sshd:** the problem is not in that client or container itself. The server accepting the connection still needs checking.
 
-**musl is a low-level C library.** Almost every program relies on a C library for basic work, such as turning a password into a hash. Most Linux distributions use glibc; Alpine uses musl.
+If you do not manage servers, I suggest sharing this with whoever handles your systems. The commands below are for administrators; understanding the risk does not require running them yourself.
 
-**PAM is an authentication framework.** A system can hand "is this username and password right?" to PAM. If sshd doesn't go through PAM, it calls the C library itself to compare passwords, and that path is where this bug lives.
+## Three terms worth knowing
 
-## What Happened
+Before getting into the checks, I want to explain the terms that keep appearing in the advisories.
 
-On 2026-11-05, OpenSSH released Portable OpenSSH 10.6p2. The notes say it contains a "critical security workaround" affecting "Linux systems that use the musl libc and PAM disabled." OpenSSH also says it considers the root cause to be outside sshd, but because it's exploitable through sshd, it blocks it there.
+**sshd accepts remote logins.** It runs on a server and waits for incoming connections. `ssh` is the client used to connect to another machine. The server program is the one that needs this fix.
 
-The same day, [Alpine published a security advisory](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/) and shipped fixed packages for every branch from 3.16 to edge. The vulnerability is [CVE-2026-123158](https://cveawg.mitre.org/api/cve/CVE-2026-123158); the record was published on 2026-11-05 at 23:46 Taipei time.
+**musl and glibc are low-level C libraries.** Think of them as shared tools that programs use for basic tasks, including password calculations. Alpine uses musl; most familiar Linux distributions use glibc. This advisory concerns musl environments.
 
-Severity comes from two different sources. OpenSSH's own word is "critical." In the CVE record, MITRE, which registered the CVE, gives a CVSS 3.1 score (a standard severity score for vulnerabilities) of 8.1, rated High. As of my check, [the NVD record](https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-123158) still shows the status "Received," and NVD hasn't scored it yet.
+**PAM is a framework for checking logins.** sshd can ask PAM to verify a password, or it can call system functions directly. The vulnerable path is the one that does not use PAM.
 
-One more note: The Hacker News report and the Alpine advisory both said "no CVE assigned" when they were published. As of my check, the CVE record has this ID, and Alpine's security database (secdb) also maps the CVE to each branch's fixed version.
+## What happened, and how serious is it?
 
-## Where the Bug Is
+OpenSSH released [Portable OpenSSH 10.6p2](https://www.openssh.org/txt/release-10.6p2) on 2026-11-05, adding protection in sshd against this password authentication bypass. The project considers the root cause to be outside sshd, but blocks it there because it can be triggered through the server.
 
-Normally, if an account's password field is `*`, it means "this account has no usable password." Many key-only accounts are set up this way.
+The same day, [Alpine published an advisory](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/) and provided fixed packages for branches from 3.16 through edge. My first priorities would be to check whether a host is patched and whether an attacker can reach it. Alpine explains that when the exploitation conditions hold, knowing the account name can be enough; guessing the correct password is unnecessary.
 
-Without PAM, sshd passes the password you type to `crypt()` to compute a hash, then compares it with the stored value. `*` is too short to contain a salt (a parameter used in hashing), so sshd borrows the salt of another account on the machine.
+OpenSSH calls the release a "critical security workaround." In the [CVE record](https://cveawg.mitre.org/api/cve/CVE-2026-123158), MITRE gives it a CVSS 3.1 severity score of 8.1, rated High. I would keep the project's urgent warning separate from that severity score: they come from different sources. As of 2026-11-07, [NVD](https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-123158) still lists it as Received and has not supplied its own score.
 
-The trouble is that musl's `crypt()` returns `*` as an error indicator when the password is longer than 256 bytes. Normally an error should count as a failure and the login should be refused. But sshd compares this `*` as if it were an ordinary hash, it happens to equal the stored `*`, the comparison succeeds, and the error signal is mistaken for "password correct."
+If you notice "no CVE assigned" in Alpine's advisory, that describes the situation when it was written. The CVE record was published on 2026-11-05 at 23:46 Taipei time, and Alpine's security database now lists the corresponding fixes.
 
-10.6p2 makes sshd refuse to compare against a stored field that is too short, and the packages on Alpine's stable branches carry a patch for the same problem.
+## Which conditions would I check first?
 
-![Concept illustration: an "error" signal mistaken for a successful check during comparison](auth-error.webp){: w="1280" h="720" }
-_A concept image, not the real architecture. An error return should make the login fail, never count as successful authentication._
+Following Alpine's advisory, I would check whether all of these conditions hold:
 
-## Your Host Is Affected Only If All of These Hold
+1. **The host runs Linux with musl, and its running sshd is unpatched.** A host with its distribution's fixed package installed and sshd restarted is not affected by this vulnerability.
+2. **sshd does not use PAM to verify passwords.** On Alpine, that includes `openssh-server`, and `openssh-server-pam` configured with `UsePAM no`. The latter with `UsePAM yes` is not affected.
+3. **Password authentication is still allowed: `PasswordAuthentication yes`.** This is the upstream OpenSSH default, but a host may override it. I would check the settings actually applied.
+4. **An account has `*` as its password field.** This includes some accounts that use keys and have no usable password set. Alpine also lists directory-service users obtained through musl-nscd: these accounts come from a central account system and have no local shadow entry.
+5. **At least one other local account has a password hash starting with `$5$` or `$6$`.** A hash is the calculated value used to verify a password. This condition means that another account's password settings can change the risk.
 
-Based on the Alpine advisory, you're affected only if **all** of the following are true:
+The attacker must also be able to reach the SSH port and know the target account's name. Other login restrictions still apply to that account; bypassing the password comparison does not automatically override a rule that denies it access. I would not treat one `*` field as proof that a login is possible, or skip these checks just because I normally use keys.
 
-1. The host runs Linux with musl, and its running sshd is not patched yet. Go by your distribution's security advisory for version numbers. An sshd that has the backported fix applied and has been restarted isn't affected, even if every other condition holds.
-2. sshd doesn't verify passwords through PAM. On Alpine, that means you installed `openssh-server` (built without PAM), or `openssh-server-pam` with `UsePAM no`.
-3. `PasswordAuthentication` is `yes`. Upstream OpenSSH defaults to `yes`, but distributions or cloud images may set it differently, so go by sshd's effective configuration.
-4. The machine has an account whose password field is `*`. The Alpine advisory specifically lists: `root:*`, the default since about 3.16; key-only accounts created with `adduser` without a password; and users coming from a directory service (such as nslcd, winbind, or sssd) through musl-nscd, since they have no local shadow entry.
-5. At least one other local account has a password hash starting with `$5$` or `$6$`, meaning a password really was set.
+Two distinctions matter here:
 
-On top of that, an attacker has to be able to reach your SSH port and know the name of that `*` account. The Alpine advisory says that when all the conditions hold, an attacker can log in with a single connection, no retries needed. I think that sentence has to be read together with the conditions above; when they don't hold, it doesn't apply.
+- **`*` means there is no usable password hash. It is not an empty password and does not mean all logins are disabled.** The account may still accept keys. Alpine separately notes that locked accounts with `!` as their password field are not affected by this flaw.
+- **Using a key does not mean the server has password authentication disabled.** I would check `PasswordAuthentication` rather than infer the setting from my own login habits.
 
-A few things are easy to misread:
+### Why pay particular attention to Alpine cloud images?
 
-- **A `*` password field doesn't mean "login disabled."** It only means there's no password. Accounts locked with `!` are not affected, according to the Alpine advisory.
-- **"I only use keys" doesn't mean "password authentication is off."** As long as `PasswordAuthentication` is still `yes`, sshd still accepts password logins, however you usually connect.
-- **root has its own rule.** Since about Alpine 3.16, root defaults to `root:*`. But OpenSSH's default `PermitRootLogin prohibit-password` blocks password logins for root unless you change it to `yes`. What really matters: if another account that can log in can become root, for example through `doas`, that protection doesn't help.
+Alpine identifies official tiny-cloud images from 3.18.11 through 3.24.3 as affected versions. Their `alpine` account has a `*` password field and can use `doas` without a password to gain root, the system administrator account.
 
-Alpine's official tiny-cloud cloud images (3.18.11 through 3.24.3) are a concrete example. Their `alpine` account has a `*` password field and can use `doas` without a password. They're safe on first boot, but as soon as any `$6$` hash appears on the machine, for example when an admin sets a console password, the conditions are met. Images configured through cloud-init write `PasswordAuthentication no`, and the Alpine advisory lists them as not affected.
+The advisory says these images do not meet the exploitation conditions on first boot. But adding a `$6$` password hash later, for example by setting a console password, can turn the existing `alpine` account into an entry point. My takeaway is that **account changes can change the risk; being safe on first boot is not a lasting guarantee.**
 
-**Outside this bug's scope:** glibc distributions, non-Linux systems, sshd that verifies through PAM (such as `openssh-server-pam` with `UsePAM yes`), Docker containers that don't run sshd inside, and machines with no `$`-style password hash at all. If your container uses an Alpine base image and really runs sshd, check it against the conditions above one by one. The same goes for environments where you build OpenSSH yourself.
+Root has a separate login rule. The default `PermitRootLogin prohibit-password` prevents password logins directly as root. It does not stop an attacker who first logs in as `alpine` and then uses `doas` to become root.
 
-## Check Your Host First
+Alpine lists images configured through cloud-init as unaffected because cloud-init writes `PasswordAuthentication no`. I would still check the current configuration, since later changes may have enabled it again.
 
-These checks are read-only; run them on servers you manage yourself. `sshd -T` and reading `/etc/shadow` need root, and so do the update steps later.
+## How does an error turn into "correct password"?
 
-First, check the operating system and the installed OpenSSH packages:
+With the risk in view, the mechanism is easier to follow. My simplified version of the normal process is: sshd uses `crypt()` to turn the submitted password into a hash, then compares it with the stored value.
+
+A field containing only `*` has no salt, an additional parameter needed for normal password hashing. sshd borrows parameters from another account instead. That explains why another account having a password matters.
+
+According to Alpine, musl's `crypt()` returns `*` to signal an error when the password exceeds 256 bytes. Unpatched sshd compares that result with the account's password field, which is also `*`, and mistakenly accepts it. **A calculation error that should reject the login is treated as a matching password.**
+
+[OpenSSH's fix](https://github.com/openssh/openssh-portable/commit/4353fdc43ef646c43a8dda7025cc1a898caf1482) adds a length check on the stored hash so that short values such as `*` cannot pass the comparison. Alpine's older branches carry corresponding fixes.
+
+![Concept illustration: an error signal mistaken for a successful password check](auth-error.webp){: w="1280" h="720" }
+_My simplified view of the problem: a calculation error should deny access, but matching return values cause the login to be accepted._
+
+## How would I check a server?
+
+These are read-only checks for Alpine administrators. I would check the system and packages first, then the settings and accounts. Reading `/etc/shadow`, running the sshd checks, and applying the updates below should be done from an administrative shell with root privileges.
+
+### 1. Identify the system and installed packages
 
 ```sh
 cat /etc/os-release
 apk info -v | grep openssh
 ```
 
-Don't rely on `ssh -V`. That's the client version; it doesn't represent the sshd on the server, and it doesn't show the distribution's patch release.
+The first command identifies Alpine and its release; the second lists installed OpenSSH packages for comparison with the fixed versions below. On another distribution, use that distribution's package tools and advisory instead.
 
-Next, look at sshd's effective configuration:
+I would not rely on `ssh -V`: it reports the client version and cannot establish whether the server has the distribution's fix.
+
+### 2. Check the settings sshd would apply
 
 ```sh
 sshd -T | grep -Ei '^(usepam|passwordauthentication|permitrootlogin) '
 ```
 
-`sshd -T` prints the result for the default context. If your configuration uses `Match` blocks or `Include`, different users or source IPs may get different settings. In that case, add `-C` to specify a connection context, so sshd applies the matching `Match` rules before printing. According to the [sshd(8) manual](https://man.openbsd.org/sshd.8), `user` is the login account, `addr` is the source IP of the connection, and `host` is the source's reverse-resolved hostname, not your server's name. For example, to see the settings when the account `deploy` connects from `203.0.113.10`:
+I would first check whether `passwordauthentication` is `yes` or `no`, then consider the PAM package and settings. A build without PAM support may not list `usepam`; its absence is not evidence that PAM is enabled.
+
+`sshd -T` reads configuration files from disk and prints the parsed settings. **It does not ask the running service which settings it is using.** Seeing `no` after editing a file still requires the service to reload its configuration before the change takes effect. These commands assume the default configuration file; custom paths or service startup options need to be reflected in the checks too.
+
+If the configuration has `Match` blocks, which define exceptions for particular users or connection sources, I would test those contexts separately. For example, to check `deploy` connecting from `203.0.113.10`:
 
 ```sh
 sshd -T -C user=deploy,addr=203.0.113.10 | grep -i passwordauthentication
 ```
 
-If your `Match` rules use the source hostname, add `host=` as well. One run of `-T` doesn't prove that every connection context is safe.
+Replace the example account and IP with real values. The [sshd manual](https://man.openbsd.org/sshd.8) explains that `host=` supplies the source hostname when rules match it; `laddr=` and `lport=` supply the server's address and port if needed. I would also check files loaded by `Include`, rather than rely on one line in the main file.
 
-To see which accounts have a `*` password field and which have `$5$` or `$6$` hashes, you can print only account names:
+### 3. List relevant accounts without displaying password hashes
 
 ```sh
-awk -F: '$2=="*"{print "no password:", $1} $2 ~ /^\$[56]\$/{print "has hash:", $1}' /etc/shadow
+awk -F: '$2=="*"{print "password field is *:", $1} $2 ~ /^\$[56]\$/{print "has SHA password hash:", $1}' /etc/shadow
 ```
 
-This prints only account names, never the hashes themselves. Note that users coming from a directory service through musl-nscd aren't in `/etc/shadow`, so this line won't list them, but the Alpine advisory counts them among affected accounts. Please don't paste the contents of `/etc/shadow` into forums, chat groups, or AI tools.
+I use this to check whether both account types are present. It prints account names, not the hashes. Finding both types means the other conditions need checking; the list alone cannot establish exploitability.
 
-## Alpine's Patch Steps
+It is not a complete account inventory either: directory-service users obtained through musl-nscd are absent from the local `/etc/shadow`. The full file contains sensitive information, so I would not paste it into forums, chats, or AI tools.
 
-Alpine's fix is a backport, so older branches don't move to version 10.6p2. For example, the fixed `openssh` on 3.24 is `10.3_p1-r2`, and on 3.22 it's `10.0_p1-r11`. So to judge whether you're fixed, compare your branch against [the version table in the Alpine advisory](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/), rather than checking for 10.6p2. The advisory also says the 3.21.10, 3.22.8, 3.23.8, and 3.24.4 releases already include the fixed package.
+## What does a complete Alpine update involve?
 
-Before you start, do two things: confirm in another window that key login works, and keep your current SSH session open. On a cloud host, make sure you can still reach the provider's management console.
+I would judge patch status by **the package version for the relevant Alpine branch**. Alpine applies fixes to older packages, a practice called backporting, so not every host needs to move to OpenSSH 10.6p2.
 
-Alpine's official procedure is to update, then restart sshd. The `sshd -t` check and the new-versus-old session check below are extra safety steps I added. Also, `apk upgrade -U -a` updates every package on the system, not just openssh, so review what will change first and schedule a maintenance window.
+The advisory lists these as the first fixed versions for selected branches. Later packages in the same branch that retain the fix are suitable too:
 
-1. Update packages: `apk upgrade -U -a`
-2. Check the configuration for errors: `sshd -t`
-3. Restart sshd: `rc-service sshd restart`
-4. Open a new SSH session and confirm you can log in.
-5. Only after the new session works, close the old one.
+| Alpine branch | Fixed openssh package version |
+| --- | --- |
+| edge | `10.6_p2-r0` |
+| 3.24 | `10.3_p1-r2` |
+| 3.23 | `10.2_p1-r1` |
+| 3.22 | `10.0_p1-r11` |
 
-Don't skip step 3. The Alpine advisory stresses that upgrading the package doesn't replace the running sshd; without a restart, the old program is still running.
+For 3.16 through 3.21, see [the advisory's full table](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/). It also notes that 3.21 reached end of support on 2026-11-01, and older branches no longer receive routine updates either. **This exceptional fix does not restore ongoing support.** I would still plan a move to a supported release.
 
-![Concept illustration: an admin keeps the old session open while opening a new one to confirm login after the update](safe-update.webp){: w="1280" h="720" }
-_Keep your current session open, then verify with a new one; after the package update, sshd still needs a restart to take effect._
+Before making changes, I would confirm key login works in another window, keep my current SSH session open, and check that a cloud console or another recovery route is available. I would schedule maintenance because Alpine's recommended `apk upgrade -U -a` updates packages across the system, not just OpenSSH.
 
-If you build OpenSSH from source yourself, upgrade to 10.6p2.
+I would proceed in order, **continuing only when each step succeeds**:
 
-## If You Can't Update Yet
+1. Refresh package indexes with `apk update`, then preview changes with `apk upgrade -a --simulate`. The preview does not upgrade packages.
+2. After reviewing the impact, update with `apk upgrade -U -a`.
+3. Check sshd's configuration with `sshd -t`. Resolve errors before attempting a restart.
+4. Restart with `rc-service sshd restart` and confirm the command succeeds.
+5. Recheck the package version and relevant settings, then test a new SSH connection.
+6. Close the original session only after the new one works.
 
-The Alpine advisory recommends at least turning password logins off, that is, setting `PasswordAuthentication no`. The Hacker News also quotes OpenSSH's Damien Miller urging affected systems to disable password authentication immediately or disable SSH. This stops every account from logging in to SSH with a password, so confirm key login works first, or you may lock yourself out.
+**Installing the fixed package must be followed by a successful sshd restart.** Alpine stresses that upgrading the package does not replace the running service; the old program may still be accepting connections. Testing a new connection checks availability. Being able to log in is not, by itself, proof that the vulnerability is fixed.
 
-Watch out for `Match` blocks that set `PasswordAuthentication yes` separately; changing only the main settings may not be enough. Also, Alpine's default sshd_config reads the `/etc/ssh/sshd_config.d/` drop-in directory only from 3.19 onward; older releases ignore it. The Alpine advisory gives the complete commands, including a drop-in file and changing the `Match` blocks, and explains how to undo them. I recommend following [the advisory's "If you cannot update" section](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/) as written, instead of piecing together your own.
+![Concept illustration: an administrator keeps the original session open and tests a new connection after updating](safe-update.webp){: w="1280" h="720" }
+_I would keep the original session open until the update, restart, and new connection test have all succeeded._
 
-After the change, check again with `sshd -t`, then restart sshd for it to take effect. After the restart, run `sshd -T | grep -i passwordauthentication` and confirm it prints `passwordauthentication no`; if you have `Match` settings, check the relevant contexts with `-C` too.
+Alpine 3.21.10, 3.22.8, 3.23.8, and 3.24.4 images include the fix, but a new image release does not automatically repair existing hosts. For a container running sshd, I would update the packages used in the build, rebuild the image, and redeploy the running containers. For a source-built OpenSSH installation, I would use 10.6p2 or a later release containing the fix and confirm that the service is running the new program.
 
-## If You're Worried Someone Already Logged In
+## What would I do if updating has to wait?
 
-So far, neither OpenSSH nor Alpine mentions any known attacks. But "no reports yet" doesn't mean "definitely never exploited." Meanwhile, a public PoC already exists, and CISA's note in the CVE record is "poc." That only means a proof of concept is public; it doesn't mean exploitation in the wild.
+Alpine's temporary measure is `PasswordAuthentication no`, which closes the password authentication path used by this vulnerability. **I would verify key login before changing the setting** to avoid locking myself out. Blocking exploitation temporarily still needs to be followed by a planned update.
 
-Alpine recommends checking these on exposed machines:
+I would watch for two issues: `Match` blocks may separately set `PasswordAuthentication yes`, and Alpine's default configuration only starts reading `/etc/ssh/sshd_config.d/` in 3.19. Older releases do not automatically read that extra configuration directory. Custom configurations may differ too.
 
-- sshd's `Accepted password for` lines in `/var/log/messages`, especially for accounts that have no password, such as `alpine`, `root`, or key-only accounts.
-- `doas` usage records.
-- Recently created accounts and files, and any unfamiliar keys in `authorized_keys`.
+I would back up the configuration, then follow [the advisory's "If you cannot update" section](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/), making sure the change covers the main file, included files, and relevant `Match` rules. After checking for errors with `sshd -t`, I would restart sshd. Finally, I would use `sshd -T` and `-C` as above to confirm `passwordauthentication no` for the relevant contexts and test another connection.
 
-These records are only clues. Finding nothing suspicious doesn't prove the host is fine, because logs may not have been kept, may have been rotated, or may have been altered. Alpine's guidance: if you can't rule out a login, treat the machine as compromised. In practice, you can first isolate the host from the network or block outside SSH access, rebuild from a clean image, and then rotate the keys, passwords, API tokens, and other credentials used on that machine.
+For a lasting policy of allowing only keys, I would check other authentication methods too. For example, [keyboard-interactive authentication](https://man.openbsd.org/sshd_config#KbdInteractiveAuthentication) can use PAM to ask for a password or one-time code. Setting `PasswordAuthentication no` alone does not disable every interactive password prompt. Any existing multifactor authentication requirements need to be considered before making further changes.
 
-## Long-Term Advice
+## What if someone may already have logged in?
 
-The conditions this time are very specific, but two habits are worth keeping. First, have internet-facing SSH servers use key login only, and set `PasswordAuthentication no` explicitly instead of relying on defaults. Second, when deciding whether you're patched, go by your distribution's advisory and package version, not only the upstream version number.
+As of 2026-11-07, the OpenSSH and Alpine advisories I checked do not mention known attacks. CISA labels the exploitation status `poc` in the CVE record, indicating a proof of concept. That is not confirmation of real attacks, and it is not a guarantee that none have occurred.
 
-## Main Sources
+For a host that was reachable over the network and met the affected conditions, I would follow Alpine's advice and check:
 
-Checked as of 2026-11-07 (Taipei time).
+- `Accepted password for` entries in `/var/log/messages`, especially for accounts without a usable password that should only use keys. I would also check any centrally stored logs.
+- `doas` records for unfamiliar use of administrator privileges.
+- Recently created accounts and files, and unfamiliar login keys in `authorized_keys`.
+
+I would not treat an absence of records as proof of safety. Logs may be missing, rotated, or altered. Alpine recommends treating the host as compromised if a login cannot be ruled out.
+
+In practice, I would first restrict network access and preserve available logs and disk snapshots for investigation. Then I would rebuild from a trusted, clean image and use a clean administrative environment to revoke and replace potentially exposed credentials, such as private keys held on the host, passwords, and API tokens. **Patching stops further exploitation of the flaw; it does not remove what an intruder may already have left behind.**
+
+## The habits I would keep after this
+
+For me, the useful habit is to check "how I normally log in" separately from "how the server allows logins." For a host intended to use keys, I would explicitly review its authentication settings. To verify a fix, I would check the distribution's advisory, the package version, and whether the service has been restarted.
+
+Checking all three helps avoid an updated package leaving an old service running and accepting connections.
+
+## Main sources
+
+I checked these sources on 2026-11-07 (Taipei time). For later vulnerability status or package changes, use the latest official information.
 
 - [OpenSSH 10.6p2 release notes](https://www.openssh.org/txt/release-10.6p2)
-- [Alpine Linux security advisory: openssh-server password authentication bypass](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/)
-- [Alpine secdb (v3.24 main)](https://secdb.alpinelinux.org/v3.24/main.json): CVE-to-fixed-version mapping
+- [OpenSSH password authentication bypass fix](https://github.com/openssh/openssh-portable/commit/4353fdc43ef646c43a8dda7025cc1a898caf1482)
+- [Alpine Linux advisory and complete fixed-version table](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/)
+- [Alpine secdb (v3.24 main)](https://secdb.alpinelinux.org/v3.24/main.json) and [v3.22 main](https://secdb.alpinelinux.org/v3.22/main.json): CVE-to-fixed-version mappings
 - [CVE-2026-123158 record (CVE Services API)](https://cveawg.mitre.org/api/cve/CVE-2026-123158)
 - [CVE-2026-123158 on NVD (API)](https://services.nvd.nist.gov/rest/json/cves/2.0?cveId=CVE-2026-123158)
-- [oss-security mailing list discussion](https://www.openwall.com/lists/oss-security/2026/11/05/3)
-- [The Hacker News original report](https://thehackernews.com/2026/11/openssh-issues-emergency-fix-for-flaw.html)
+- [sshd check options](https://man.openbsd.org/sshd.8) and [sshd_config authentication settings](https://man.openbsd.org/sshd_config)
