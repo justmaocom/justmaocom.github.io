@@ -7,12 +7,12 @@ tags: [claude-code, coding-agent, workflow, testing]
 media_subpath: /assets/img/posts/claude-code-hooks-automate-checks/
 image:
   path: cover.webp
-  alt: "改完文件自动排版、碰到敏感文件先挡下再提醒，收工时再跑测试。"
+  alt: "改完文件自动排版、碰到敏感文件先挡下再提醒，结束这轮时再跑测试。"
 ---
 
 每次请 AI 改完文件，我都还要自己想：排版有没有跑？测试有没有过？有没有不小心改到 `.env`？这些事其实不必每次开口。Claude Code（在终端里使用的 AI 编程助手）提供 hooks：在对话过程的固定时机，运行你事先写好的指令，而不是等 AI 自己决定要不要做。
 
-这篇说明 hooks 是什么、什么时候适合用，以及怎么在项目里设置四种常见检查：改完文件自动排版、碰到敏感文件时挡下该次修改、收工时跑测试，还有对话被压缩后把项目规则补回来。最后会说明它挡不下什么，因为 hooks 不是安全边界。
+这篇说明 hooks 是什么、什么时候适合用，以及怎么在项目里设置四种常见检查：改完文件自动排版、碰到敏感文件时挡下该次修改、结束这轮时跑测试，还有对话被压缩后把项目规则补回来。最后会说明它挡不下什么，因为 hooks 不是安全边界。
 
 > **版本**：本文依 2026-11-10（台北时间）读取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)与 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。当天 npm 上 Claude Code 最新是 2.1.322。之后的版本，事件与字段可能会改变。
 {: .prompt-info }
@@ -131,15 +131,15 @@ _概念图，不是实际权限画面。这个 hook 挡的是该次 Edit 或 Wri
 
 **你会得到什么：** 若路径符合保护条件，该次修改不会运行，Claude 会看到挡下的原因。
 
-**下一步：** 请记得，只用 `Edit|Write` 挡不住通过 `Bash` 或 `PowerShell` 改文件的情况，限制一节会说明怎么补。若还想在收工时跑测试，接着设置 Stop。
+**下一步：** 请记得，只用 `Edit|Write` 挡不住通过 `Bash` 或 `PowerShell` 改文件的情况，限制一节会说明怎么补。若还想在结束这轮时跑测试，接着设置 Stop。
 
-## 收工时跑测试：Stop
+## 结束这轮时跑测试：Stop
 
-**什么时候用：** 你希望 Claude 结束这轮回复时，先跑项目测试；测试失败就不要就此收工，把失败原因反馈后继续修。
+**什么时候用：** 你希望 Claude 结束这轮回复时，先跑项目测试；测试失败就不要就此结束，把失败原因反馈后继续修。
 
 Stop hook 没有 matcher。它在每次回复结束时都会跑，用户中断时不会跑。若 hook 让对话继续，输入里的 `stop_hook_active` 会是 `true`。官方提醒一定要检查这个字段，或改读对话记录，以免在永远不会满足的条件上一直挡下去。连续挡下并让对话继续八次之后，Claude Code 会强制结束这一轮；Claude 一旦再调用工具，这个计数就会归零。
 
-添加 `.claude/hooks/run-tests-on-stop.sh`，把测试指令换成你项目自己的指令：
+添加 `.claude/hooks/run-tests-on-stop.sh`。这里用 `bun test`，配合后面的 Bun 场景；请换成你项目自己的测试指令，例如 `npm test` 或 `pytest`：
 
 ```bash
 #!/bin/bash
@@ -150,7 +150,7 @@ if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
-if ! python3 "$PROJECT_DIR/tests/test_hello.py" >&2; then
+if ! (cd "$PROJECT_DIR" && bun test) >&2; then
   echo "Blocked stop: tests failed. Fix the failing tests before finishing." >&2
   exit 2
 fi
@@ -214,12 +214,14 @@ exit 0
 
 假设你在维护一个小型网站，希望改完 JavaScript 就排版、不要用 Edit 或 Write 改到 `.env`、每次回复结束先跑测试，压缩后还记得“用 Bun、提交前先测”。
 
+排版仍用前面官方的 `npx prettier` 写法；这和你用 Bun 还是 npm 管理软件包无关。
+
 1. 在项目根目录创建 `.claude/settings.json`，放入上面四个事件的设置；创建 `protect-files.sh` 和 `run-tests-on-stop.sh`，把测试指令改成你的项目指令，并运行 `chmod +x .claude/hooks/*.sh`。
 2. 确认已安装 `jq`，以及可运行 `npx prettier` 的 Node.js 环境。
 3. 启动 Claude Code，输入 `/hooks`，确认 PostToolUse、PreToolUse、Stop、SessionStart 都在清单中，来源是项目设置。
 4. 请 Claude 在一个 `.js` 文件加上功能。它用 Edit 或 Write 改完后，Prettier 会接着排版。
 5. 若它试着用 Edit 或 Write 改 `.env`，该次修改会被挡下，并带回 `Blocked:` 的说明。
-6. 它说做完时，Stop hook 会跑测试；失败就依反馈继续，而不是直接收工。
+6. 它说做完时，Stop hook 会跑测试；失败就依反馈继续，而不是直接结束。
 7. 若这次对话经过压缩，SessionStart 会把你写的提醒再送进脉络。
 
 这四步可以分开加，不必一次全开。
@@ -230,7 +232,7 @@ exit 0
 | --- | --- |
 | 用 Edit 或 Write 改完文件，要自动排版 | PostToolUse，matcher 设 `Edit\|Write` |
 | 不要让该次 Edit 或 Write 改到 `.env`、`.git/` 等文件 | PreToolUse，matcher 设 `Edit\|Write`，结束码 2 挡下并说明原因 |
-| 不论谁改了某个文件，都要在文件写入后做扫描 | FileChanged（工具运行后才跑，不能事先挡住） |
+| 不论谁改了某个文件，都要在文件写入后做扫描 | FileChanged（文件写入后才运行，不能事先挡住） |
 | 这轮回复结束时先跑测试或扫描工作目录 | Stop，并检查 `stop_hook_active` |
 | 压缩后把项目规则补回脉络 | SessionStart，matcher 设 `compact` |
 | 只想确认目前设置了哪些 hooks | `/hooks`（只读浏览） |
@@ -254,10 +256,11 @@ _概念图。Matcher 守的是指定的工具名称；经由 Bash 或 PowerShell
 
 ## 结论
 
-Hooks 让排版、敏感文件提醒和收工测试在固定时机自动发生，不必每次再开口。先从项目的 `.claude/settings.json` 加一个 hook，用 `/hooks` 确认它出现在清单里，再依需要往上加。同时要记得：matcher 只看工具名称，Bash 或 PowerShell 可以绕过只看守 Edit 和 Write 的规则；`if` 只是尽量过滤；allow 不会绕过 deny；PostToolUse 无法还原已运行的动作。把它当成提高效率的固定检查，而不是最后一道防线。
+Hooks 让排版、敏感文件提醒和收尾测试在固定时机自动发生，不必每次再开口。先从项目的 `.claude/settings.json` 加一个 hook，用 `/hooks` 确认它出现在清单里，再依需要往上加。同时要记得：matcher 只看工具名称，Bash 或 PowerShell 可以绕过只看守 Edit 和 Write 的规则；`if` 只是尽量过滤；allow 不会绕过 deny；PostToolUse 无法还原已运行的动作。把它当成提高效率的固定检查，而不是最后一道防线。
 
 ## 延伸阅读
 
 - [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)：常见用法与可拷贝范例。
 - [Hooks reference](https://code.claude.com/docs/en/hooks)：事件、输入输出与 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：权限与供应链风险，和本篇的日常检查互补。
+- [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/zh-CN/posts/ai-native-sdlc-playbook/)：说明 skill 和 hook 的差别。

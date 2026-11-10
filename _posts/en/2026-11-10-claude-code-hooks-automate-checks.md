@@ -139,7 +139,7 @@ _A concept illustration, not a real permission screen. This hook blocks that Edi
 
 A Stop hook has no matcher. It runs whenever a reply ends, and it does not run if you interrupted. If the hook caused the conversation to continue, `stop_hook_active` in the input is `true`. The official docs say to check this field, or to read the transcript, so you don't keep blocking on a condition that will never resolve. After stop hooks have continued the turn eight times in a row, Claude Code ends the turn anyway; the count resets each time Claude calls a tool.
 
-Add `.claude/hooks/run-tests-on-stop.sh`, and replace the test command with your project's own:
+Add `.claude/hooks/run-tests-on-stop.sh`. This example uses `bun test` to match the Bun scenario later in the post; swap in your own test command, such as `npm test` or `pytest`:
 
 ```bash
 #!/bin/bash
@@ -150,7 +150,7 @@ if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
-if ! python3 "$PROJECT_DIR/tests/test_hello.py" >&2; then
+if ! (cd "$PROJECT_DIR" && bun test) >&2; then
   echo "Blocked stop: tests failed. Fix the failing tests before finishing." >&2
   exit 2
 fi
@@ -214,6 +214,8 @@ The screen is for inspection only; to change a hook, edit the corresponding JSON
 
 Suppose you maintain a small site, and you want JavaScript formatted after edits, no Edit or Write to `.env`, tests run when a reply ends, and a reminder after compaction to use Bun and test before committing.
 
+Formatting still uses the official `npx prettier` command from earlier; that does not depend on whether you manage packages with Bun or npm.
+
 1. At the project root, create `.claude/settings.json` with the four events above; add `protect-files.sh` and `run-tests-on-stop.sh`, point the test command at your project, and run `chmod +x .claude/hooks/*.sh`.
 2. Confirm `jq` is installed, and that you have a Node.js environment that can run `npx prettier`.
 3. Start Claude Code, type `/hooks`, and confirm that PostToolUse, PreToolUse, Stop, and SessionStart are listed, sourced from project settings.
@@ -230,7 +232,7 @@ You can add these one at a time; you don't have to enable all four at once.
 | --- | --- |
 | Auto-format after an Edit or Write | PostToolUse, matcher `Edit\|Write` |
 | Block that Edit or Write to `.env`, `.git/`, and similar files | PreToolUse, matcher `Edit\|Write`, exit code 2 with a reason |
-| Scan a file after it changes, whoever wrote it | FileChanged (runs after the write, so it can't block it first) |
+| Scan a file after it changes, whoever wrote it | FileChanged (runs after the file is written, cannot block in advance) |
 | Run tests or scan the working tree when a reply ends | Stop, and check `stop_hook_active` |
 | Put project rules back after compaction | SessionStart, matcher `compact` |
 | Just want to see which hooks are configured | `/hooks` (read-only browser) |
@@ -261,3 +263,4 @@ Hooks make formatting, sensitive-file reminders, and end-of-turn tests happen at
 - [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide): common uses and copyable examples.
 - [Hooks reference](https://code.claude.com/docs/en/hooks): events, input and output, and [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations).
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permission and supply-chain risks, complementary to the everyday checks in this post.
+- [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/en/posts/ai-native-sdlc-playbook/): explains the difference between skills and hooks.

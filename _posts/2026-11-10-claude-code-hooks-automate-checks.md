@@ -139,7 +139,7 @@ _概念圖，不是實際權限畫面。這個 hook 擋的是該次 Edit 或 Wri
 
 Stop hook 沒有 matcher。它在每次回覆結束時都會跑，使用者中斷時不會跑。若 hook 讓對話繼續，輸入裡的 `stop_hook_active` 會是 `true`。官方提醒一定要檢查這個欄位，或改讀對話紀錄，以免在永遠不會滿足的條件上一直擋下去。連續擋下並讓對話繼續八次之後，Claude Code 會強制結束這一輪；Claude 一旦再呼叫工具，這個計數就會歸零。
 
-新增 `.claude/hooks/run-tests-on-stop.sh`，把測試指令換成你專案自己的指令：
+新增 `.claude/hooks/run-tests-on-stop.sh`。這裡用 `bun test`，配合後面的 Bun 情境；請換成你專案自己的測試指令，例如 `npm test` 或 `pytest`：
 
 ```bash
 #!/bin/bash
@@ -150,7 +150,7 @@ if [ "$(echo "$INPUT" | jq -r '.stop_hook_active')" = "true" ]; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "$0")/../.." && pwd)}"
-if ! python3 "$PROJECT_DIR/tests/test_hello.py" >&2; then
+if ! (cd "$PROJECT_DIR" && bun test) >&2; then
   echo "Blocked stop: tests failed. Fix the failing tests before finishing." >&2
   exit 2
 fi
@@ -214,6 +214,8 @@ exit 0
 
 假設你在維護一個小型網站，希望改完 JavaScript 就排版、不要用 Edit 或 Write 改到 `.env`、每次回覆結束先跑測試，壓縮後還記得「用 Bun、提交前先測」。
 
+排版仍用前面官方的 `npx prettier` 寫法；這和你用 Bun 還是 npm 管理套件無關。
+
 1. 在專案根目錄建立 `.claude/settings.json`，放入上面四個事件的設定；建立 `protect-files.sh` 和 `run-tests-on-stop.sh`，把測試指令改成你的專案指令，並執行 `chmod +x .claude/hooks/*.sh`。
 2. 確認已安裝 `jq`，以及可執行 `npx prettier` 的 Node.js 環境。
 3. 啟動 Claude Code，輸入 `/hooks`，確認 PostToolUse、PreToolUse、Stop、SessionStart 都在清單中，來源是專案設定。
@@ -230,7 +232,7 @@ exit 0
 | --- | --- |
 | 用 Edit 或 Write 改完檔，要自動排版 | PostToolUse，matcher 設 `Edit\|Write` |
 | 不要讓該次 Edit 或 Write 改到 `.env`、`.git/` 等檔 | PreToolUse，matcher 設 `Edit\|Write`，結束碼 2 擋下並說明原因 |
-| 不論誰改了某個檔，都要在檔案寫入後做掃描 | FileChanged（工具執行後才跑，不能事先擋住） |
+| 不論誰改了某個檔，都要在檔案寫入後做掃描 | FileChanged（檔案寫入後才跑，不能事先擋住） |
 | 這輪回覆結束時先跑測試或掃描工作目錄 | Stop，並檢查 `stop_hook_active` |
 | 壓縮後把專案規則補回脈絡 | SessionStart，matcher 設 `compact` |
 | 只想確認目前設定了哪些 hooks | `/hooks`（唯讀瀏覽） |
@@ -261,3 +263,4 @@ Hooks 讓排版、敏感檔提醒和收工測試在固定時機自動發生，�
 - [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)：常見用法與可複製範例。
 - [Hooks reference](https://code.claude.com/docs/en/hooks)：事件、輸入輸出與 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：權限與供應鏈風險，和本篇的日常檢查互補。
+- [AI 寫程式變快了，產品為什麼還是交不出去？我怎麼理解 AI 原生開發流程](/posts/ai-native-sdlc-playbook/)：說明 skill 和 hook 的差別。
