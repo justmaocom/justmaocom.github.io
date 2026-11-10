@@ -4,9 +4,10 @@
  * _includes/metadata-hook.html 在 <head> 同步載入本檔，並輸出各語系版本的
  * <link rel="alternate" hreflang>。這裡只讀那些連結，不自行推算網址：
  *
- * 1. 從站外進入（或直接開啟網址）時，依「使用者上次手動選的語系」，
- *    沒有的話依瀏覽器語系偏好，導向對應的語系版本。站內換頁不會再導向，
- *    所以使用者點進其他語系的連結後就留在那裡。
+ * 1. 從站外進入（或直接開啟網址）時，依「使用者上次手動選的語系」導向對應的語系版本。
+ *    沒有手動選過的訪客，只在直接開啟首頁時依瀏覽器語系導向；從搜尋結果或別處的連結
+ *    進來的，留在他點的那個語系版本（Google 不建議自動把使用者帶到另一個語系）。
+ *    站內換頁不會再導向，所以使用者點進其他語系的連結後就留在那裡。
  * 2. 在頂欄搜尋框旁加上語系選單，選了之後記住該選擇。
  */
 (() => {
@@ -35,7 +36,9 @@
     en: 'Switch language'
   };
   // 搜尋引擎與預覽機器人不做導向，讓它們依 hreflang 各自收錄
-  const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|lighthouse|headless/i;
+  // Search Console 的網址檢查與 Rich Results Test 用 Google-InspectionTool，UA 裡沒有 bot 字樣
+  const BOT =
+    /bot|crawl|spider|slurp|preview|facebookexternalhit|lighthouse|headless|google-inspectiontool|googleother|mediapartners-google/i;
 
   function stored() {
     try {
@@ -97,8 +100,9 @@
   function redirect() {
     if (BOT.test(navigator.userAgent) || !isExternalEntry()) return false;
 
-    const target = stored() || detect();
-    if (target === current) return false;
+    const direct = !document.referrer && location.pathname === home(current);
+    const target = stored() || (direct ? detect() : null);
+    if (!target || target === current) return false;
 
     // 沒有對應版本的頁面（例如各語系名稱不同的分類頁）就留在原地
     const path = alternates()[target];
