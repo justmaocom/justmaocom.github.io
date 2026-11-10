@@ -42,6 +42,7 @@ main() {
     -d "$SITE_DIR$_baseurl"
 
   ruby tools/check-i18n.rb "$SITE_DIR$_baseurl"
+  ruby tools/check-seo.rb "$SITE_DIR$_baseurl"
 
   # test
   bundle exec htmlproofer "$SITE_DIR" \

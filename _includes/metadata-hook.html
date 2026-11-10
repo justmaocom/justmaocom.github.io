@@ -8,7 +8,17 @@
 
   default_lang 那一行的屬性順序必須是 hreflang 在前、href 在後：polyglot 靠這個
   順序辨認它，才不會替它補上當下語系的前綴。
+
+  x-default 指向英文版，與 assets/js/i18n.js 的 detect() 一致：瀏覽器語系既非中文
+  也非英文的訪客看英文版。
+
+  page.noindex 由 _plugins/seo-hook.rb 標在標籤頁上，也可以寫在任一頁的 front matter。
+  這些頁面仍輸出 hreflang，因為語系選單靠它找對應網址。
 {% endcomment %}
+{% if page.noindex %}
+  <meta name="robots" content="noindex, follow">
+{% endif %}
+<link rel="alternate" type="application/atom+xml" title="{{ site.title | escape }}" href="{{ '/feed.xml' | relative_url }}">
 {% unless page.layout == 'category' %}
   {% for i18n_lang in site.languages %}
     {% if i18n_lang == site.default_lang %}
@@ -17,7 +27,7 @@
       <link rel="alternate" hreflang="{{ i18n_lang }}" href="{{ site.url }}{{ site.baseurl }}/{{ i18n_lang }}{{ page.url }}">
     {% endif %}
   {% endfor %}
-  <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ site.baseurl }}{{ page.url }}">
+  <link rel="alternate" hreflang="x-default" href="{{ site.url }}{{ site.baseurl }}/en{{ page.url }}">
 {% endunless %}
 <script
   src="{{ site.baseurl }}/assets/js/i18n.js"

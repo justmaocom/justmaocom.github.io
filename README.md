@@ -32,7 +32,7 @@ bash tools/run.sh
 
 ## 驗證
 
-送出變更前，執行與 CI 相同的 production 建置及站內連結檢查：
+送出變更前，執行與 CI 相同的 production 建置、語系網址與 SEO 輸出檢查，以及站內連結檢查：
 
 ```bash
 bash tools/test.sh
