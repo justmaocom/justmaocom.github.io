@@ -11,6 +11,10 @@
 # - 搜尋框讀取的 search.json 路徑，以及 search.json 內各篇文章的 url
 # - feed.xml、sitemap.xml 等非 HTML 輸出中的絕對網址
 #
+# 非預設語系不輸出 robots.txt：爬蟲只讀網域根目錄那一份。_config.yml 的 exclude_from_localization
+# 擋掉本 repo 的 assets/robots.txt 之後，jekyll-sitemap 發現站台沒有 robots.txt 會自己產生一份，
+# 所以要等產生器跑完再移除。
+#
 # 另外依 _config.yml 的 i18n_site，替各語系覆寫 title、home_title、tagline、description。
 
 require 'cgi'
@@ -27,6 +31,10 @@ module I18nHook
     SITE_KEYS.each do |key|
       site.config[key] = overrides.fetch(key, original[key])
     end
+  end
+
+  def drop_robots(site)
+    site.pages.reject! { |page| page.url == '/robots.txt' }
   end
 
   def localize_output(site, doc)
@@ -65,6 +73,10 @@ end
 
 Jekyll::Hooks.register :site, :post_read do |site|
   I18nHook.localize_site_info(site)
+end
+
+Jekyll::Hooks.register :site, :pre_render do |site|
+  I18nHook.drop_robots(site) unless site.active_lang == site.default_lang
 end
 
 # polyglot 的 :site, :post_render hook 先註冊（gem 比 _plugins 早載入），

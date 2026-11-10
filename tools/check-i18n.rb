@@ -56,6 +56,7 @@ failures = []
     failures << "#{ root }: 沒有找到任何 #{ desc }" if urls.empty?
     "#{ desc } #{ urls.size }"
   end
+  failures << "#{ root }/robots.txt: 非預設語系不該輸出 robots.txt" if File.exist?("#{ root }/robots.txt")
   puts "#{ lang }: #{ html.size } 個 HTML，#{ summary.join('、') }"
 end
 

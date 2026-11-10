@@ -55,6 +55,8 @@ config['languages'].each do |lang|
     ['首頁標題', ["#{ root }/index.html"], ->(s) { title[s] == home_title }],
     ['首頁分頁的標題帶頁碼', Dir["#{ root }/page*/index.html"],
      ->(s) { title[s] != home_title && title[s] =~ /\d/ && title[s].end_with?(" | #{ suffix }") }],
+    ['分頁連結帶尾斜線', Dir["#{ root }/{,page*/}index.html"],
+     ->(s) { s.scan(%r{href="[^"]*/page\d+/?"}).then { |links| links.any? && links.all? { |link| link.end_with?('/"') } } }],
     # 標題不能只是「分類名稱 | 後綴」，描述不能沿用站台描述
     ['分類頁有自己的標題與描述', Dir["#{ root }/categories/*/index.html"],
      ->(s) { title[s] != "#{ CGI.unescapeHTML(s[/property="og:title" content="([^"]*)"/, 1]) } | #{ suffix }" && description[s] && description[s] != home_description }],
