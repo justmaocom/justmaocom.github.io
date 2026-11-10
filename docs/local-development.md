@@ -94,7 +94,7 @@ bundle exec jekyll serve --livereload --unpublished --host 127.0.0.1
 bash tools/test.sh
 ```
 
-腳本會刪除舊的 `_site/`、重新建置網站，再用 html-proofer 檢查產生的 HTML。外部網址不在檢查範圍內。指令成功結束且沒有錯誤訊息，才算通過驗證。
+腳本會刪除舊的 `_site/`、重新建置網站，以 `tools/check-i18n.rb` 與 `tools/check-seo.rb` 檢查語系網址及 SEO 輸出，再用 html-proofer 檢查產生的 HTML。外部網址不在檢查範圍內。指令成功結束且沒有錯誤訊息，才算通過驗證。
 
 只想檢查部分輸出時，可先建置，再指定 `_site/` 內的目錄或 HTML 檔：
 

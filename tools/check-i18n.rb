@@ -9,6 +9,7 @@
 #   site_dir 是放 <lang>/ 的目錄，即 _site 加上 baseurl，預設 _site
 
 require 'cgi'
+require 'json'
 require 'uri'
 require 'yaml'
 
@@ -30,6 +31,10 @@ failures = []
   checks = [
     ['og:url', html, ->(s) { s.scan(/property="og:url" content="([^"]*)"/).flatten }, is_local_page],
     ['JSON-LD @id', html, ->(s) { s.scan(/"@id":"([^"]*)"/).flatten }, is_local_page],
+    # 只取最外層的 url；author、image 的 url 不屬於本頁
+    ['JSON-LD url', html,
+     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json)['url'] } },
+     is_local_page],
     ['分享按鈕網址', html,
      ->(s) { s.scan(/#{ Regexp.escape(CGI.escape(origin)) }[\w.~%-]*/).map { |u| CGI.unescape(u) } },
      is_local_page],

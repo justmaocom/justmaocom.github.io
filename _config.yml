@@ -46,6 +46,16 @@ timezone: Asia/Taipei
 
 title: 只是一根毛 | JustMao # the main title
 
+# 首頁以外的 <title> 後綴，取代較長的 title（見 _plugins/seo-hook.rb）
+title_suffix: JustMao
+
+# jekyll-seo-tag 的預設作者：輸出 <meta name="author">、twitter:creator 與 JSON-LD 的 author。
+# 主題顯示的作者名稱仍來自 social.name。
+author:
+  name: JustMao
+  twitter: justmaocom
+  url: https://justmao.com/about/
+
 tagline: 從問題開始，把答案寫下來 # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
@@ -245,6 +255,15 @@ defaults:
       path: _tabs/en
     values:
       lang: en
+  # 不該被收錄的靜態 HTML（網站驗證檔、文章附帶的獨立圖表）不放進 sitemap
+  - scope:
+      path: google5762b861fb04640c.html
+    values:
+      sitemap: false
+  - scope:
+      path: assets/img/posts
+    values:
+      sitemap: false
   - scope:
       path: ""
       type: tabs # see `site.collections`
