@@ -14,14 +14,14 @@ image:
 
 这篇说明 hooks 是什么、什么时候适合用，以及怎么在项目里设置四种常见检查：改完文件自动排版、碰到敏感文件时挡下该次修改、结束这轮时跑测试，还有对话被压缩后把项目规则补回来。最后会说明它挡不下什么，因为 hooks 不是安全边界。
 
-> **版本**：本文依 2026-11-10（台北时间）读取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)与 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。当天 npm 上 Claude Code 最新是 2.1.322。之后的版本，事件与字段可能会改变。
+> **版本**：本文根据 2026-11-10（台北时间）读取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)与 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。当天 npm 上最新的 Claude Code 版本是 2.1.322。之后的版本可能会调整事件与字段。
 {: .prompt-info }
 
 若你关心的是第三方 skill 和 MCP 带来的权限风险，见[先前这篇](/posts/coding-agent-supply-chain-permission-risks/)。本篇只谈日常可以自己设置的自动检查。
 
 ## hooks 是什么，什么时候用
 
-Hook 是你定义的指令，Claude Code 会在生命周期的关键时机运行它。官方的说法是：某些动作会固定发生，而不依赖模型自己选择要不要跑。适合用在不需要当场判断、每次都该做的事，例如排版、跑测试、或在改到特定文件时先挡下来并说明原因。需要斟酌的决定，还是留给你或权限设置。
+Hook 是你定义的指令，Claude Code 会在生命周期的关键时机运行它。官方的说法是：某些动作会固定发生，而不依赖模型自己选择是否运行。它适合处理不需要临场判断、每次都该做的事，例如格式化、运行测试，或在改到特定文件时先拦截并说明原因。需要斟酌的决定，还是留给你或权限设置。
 
 常见的时机包括：
 
@@ -41,7 +41,7 @@ _概念图，不是实际接口。四个时机依序可以是：工具运行前�
 
 ## 设置放在哪里
 
-本篇的范例都写在项目根目录的 `.claude/settings.json`。这个文件可以提交到 repo，让同一项目的人共用。其他位置还有：只作用于你本机所有项目的 `~/.claude/settings.json`，以及不会进版控的 `.claude/settings.local.json`。各层的 hooks 是合并，不是互相取代。
+本篇的示例都写在项目根目录的 `.claude/settings.json`。这个文件可以提交到代码仓库，让同一项目的人共用。其他位置还有：只作用于你本机所有项目的 `~/.claude/settings.json`，以及不会纳入版本控制的 `.claude/settings.local.json`。各层的 hooks 会合并生效，不会互相取代。
 
 配置文件是 JSON，不能有注解，也不能在最后一个条目后面多写逗号。结构是三层：先写事件名称，再写一组带 matcher 的规则，最后是要运行的 hooks。
 
@@ -224,7 +224,7 @@ exit 0
 6. 它说做完时，Stop hook 会跑测试；失败就依反馈继续，而不是直接结束。
 7. 若这次对话经过压缩，SessionStart 会把你写的提醒再送进脉络。
 
-这四步可以分开加，不必一次全开。
+这四种 hook 可以分开添加，不必一次全部启用。
 
 ## 该用哪个 hook
 
@@ -252,7 +252,7 @@ _概念图。Matcher 守的是指定的工具名称；经由 Bash 或 PowerShell
 
 **PostToolUse 不能还原已经发生的事。** 工具运行完才会跑到这个 hook，文件写入、指令运行或网络请求都已经生效。Exit 2 在这里也不能撤回，只能把说明交给 Claude。要事先阻挡或改写调用，用 PreToolUse。
 
-**Hook 以你的完整用户权限运行。** 官方警告：command hook 会用你的账号权限运行指令，能改、删或读取这个账号能碰到的任何文件。加进设置前，先自己看过、在安全的环境试跑指令。在共用或正式环境使用前，请先读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。交互工作阶段会先问你是否信任该文件夹；但用 `claude -p` 或 SDK 时，官方说明不会跳出这个对话，会直接把文件夹视为已信任，因此 repo 里的 `.claude/settings.json` 也可能在你从未确认过的目录里被运行。Hooks 不称为安全边界，也不能宣称挡得住所有路径。
+**Hook 以你的完整用户权限运行。** 官方警告：command hook 会用你的账号权限运行指令，能修改、删除或读取这个账号有权访问的任何文件。加入设置前，请先亲自检查，并在安全的环境中试运行。在共享或生产环境使用前，请先阅读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。交互式会话会先询问你是否信任该文件夹；但使用 `claude -p` 或 SDK 时，官方说明不会弹出这个对话框，而会直接把文件夹视为已信任，因此代码仓库里的 `.claude/settings.json` 也可能在你从未确认过的目录中运行。不要把 Hooks 称为安全边界，也不要声称它能拦住所有修改途径。
 
 ## 结论
 

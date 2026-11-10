@@ -14,7 +14,7 @@ image:
 
 這篇說明 hooks 是什麼、什麼時候適合用，以及怎麼在專案裡設定四種常見檢查：改完檔自動排版、碰到敏感檔時擋下該次修改、收工時跑測試，還有對話被壓縮後把專案規則補回來。最後會說明它擋不下什麼，因為 hooks 不是安全邊界。
 
-> **版本**：本文依 2026-11-10（台北時間）讀取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)與 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。當天 npm 上 Claude Code 最新是 2.1.322。之後的版本，事件與欄位可能會改變。
+> **版本**：本文依 2026-11-10（台北時間）讀取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)與 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。當天 npm 上最新的 Claude Code 版本是 2.1.322。之後的版本可能會調整事件與欄位。
 {: .prompt-info }
 
 若你關心的是第三方 skill 和 MCP 帶來的權限風險，見[先前這篇](/posts/coding-agent-supply-chain-permission-risks/)。本篇只談日常可以自己設定的自動檢查。
@@ -41,7 +41,7 @@ _概念圖，不是實際介面。四個時機依序可以是：工具執行前�
 
 ## 設定放在哪裡
 
-本篇的範例都寫在專案根目錄的 `.claude/settings.json`。這個檔可以提交到 repo，讓同一專案的人共用。其他位置還有：只作用於你本機所有專案的 `~/.claude/settings.json`，以及不會進版控的 `.claude/settings.local.json`。各層的 hooks 是合併，不是互相取代。
+本篇的範例都寫在專案根目錄的 `.claude/settings.json`。這個檔可以提交到 repo，讓同一專案的人共用。其他位置還有：只作用於你本機所有專案的 `~/.claude/settings.json`，以及不會進版控的 `.claude/settings.local.json`。各層的 hooks 會合併生效，不會互相取代。
 
 設定檔是 JSON，不能有註解，也不能在最後一個項目後面多寫逗號。結構是三層：先寫事件名稱，再寫一組帶 matcher 的規則，最後是要執行的 hooks。
 
@@ -224,7 +224,7 @@ exit 0
 6. 它說做完時，Stop hook 會跑測試；失敗就依回饋繼續，而不是直接收工。
 7. 若這次對話經過壓縮，SessionStart 會把你寫的提醒再送進脈絡。
 
-這四步可以分開加，不必一次全開。
+這四種 hook 可以分開加，不必一次全開。
 
 ## 該用哪個 hook
 
@@ -252,7 +252,7 @@ _概念圖。Matcher 守的是指定的工具名稱；經由 Bash 或 PowerShell
 
 **PostToolUse 不能還原已經發生的事。** 工具執行完才會跑到這個 hook，檔案寫入、指令執行或網路請求都已經生效。Exit 2 在這裡也不能撤回，只能把說明交給 Claude。要事先阻擋或改寫呼叫，用 PreToolUse。
 
-**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。Hooks 不稱為安全邊界，也不能宣稱擋得住所有路徑。
+**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。不要把 Hooks 稱為安全邊界，也不要宣稱它擋得住所有修改途徑。
 
 ## 結論
 

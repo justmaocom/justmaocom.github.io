@@ -1,6 +1,6 @@
 ---
 title: "Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks"
-description: "Use Claude Code hooks to format files after edits, block changes to .env and .git, and run tests when a turn ends, and learn what hooks cannot block."
+description: "Use Claude Code hooks to format files after edits, block Edit or Write calls targeting .env and .git, and run tests when a turn ends—and learn what hooks cannot block."
 date: 2026-11-10 11:00:00 +0800
 categories: [AI, Software Development]
 tags: [claude-code, coding-agent, workflow, testing]
@@ -10,18 +10,18 @@ image:
   alt: "After each edit, format automatically, block changes to sensitive files, and run tests when the turn ends."
 ---
 
-After I ask an AI to edit a file, I still have to remember: did formatting run? Did the tests pass? Did it touch `.env` by mistake? You don't have to ask every time. Claude Code, an AI coding assistant you use in the terminal, offers hooks: commands you write in advance, which run at fixed points in a conversation, instead of waiting for the AI to decide whether to do them.
+After I ask an AI to edit a file, I still have to remember: did formatting run? Did the tests pass? Did it touch `.env` by mistake? You don't have to repeat these reminders every time. Claude Code, an AI coding assistant you use in the terminal, offers hooks: commands you write in advance that run at fixed points in a conversation, instead of waiting for the AI to decide whether to run them.
 
 This post explains what hooks are, when they help, and how to set up four common checks in a project: auto-format after edits, block that change when a sensitive file is targeted, run tests when a turn ends, and put project rules back after the conversation is compacted. It also covers what hooks cannot block, because they are not a security boundary.
 
 > **Version**: this post follows the [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide) and the [Hooks reference](https://code.claude.com/docs/en/hooks) (including [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)), read on 2026-11-10 (Taipei time). That day, the latest Claude Code on npm was 2.1.322. Later versions may change events and fields.
 {: .prompt-info }
 
-If you want the permission risks that come with third-party skills and MCP servers, see [this earlier post](/posts/coding-agent-supply-chain-permission-risks/). This one is only about everyday checks you can configure yourself.
+For the permission risks that come with third-party skills and MCP servers, see [this earlier post](/posts/coding-agent-supply-chain-permission-risks/). This post focuses only on everyday checks you can configure yourself.
 
 ## What Hooks Are, and When to Use Them
 
-A hook is a command you define, which Claude Code runs at key points in its lifecycle. In the official wording, certain actions always happen, rather than relying on the model to choose to run them. Use hooks for work that shouldn't need a fresh judgment each time: formatting, running tests, or blocking an edit to a given file and explaining why. Decisions that need discretion still belong to you or to the permission settings.
+A hook is a command you define that Claude Code runs at key points in its lifecycle. Hooks make selected actions run deterministically instead of relying on the model to decide whether to run them. Use them for work that shouldn't need a fresh judgment each time: formatting, running tests, or blocking an edit to a given file and explaining why. Decisions that need discretion still belong to you or to the permission settings.
 
 Common moments include:
 
@@ -41,7 +41,7 @@ _A concept illustration, not the real UI. The four moments can be: before a tool
 
 ## Where to Put the Settings
 
-The examples in this post go in `.claude/settings.json` at the project root. You can commit that file so everyone on the project shares it. Other locations include `~/.claude/settings.json`, which applies to all of your projects on this machine, and `.claude/settings.local.json`, which stays out of version control. Hooks from each layer are merged, not replaced.
+The examples in this post go in `.claude/settings.json` at the project root. You can commit that file so everyone on the project shares it. Other locations include `~/.claude/settings.json`, which applies to all of your projects on this machine, and `.claude/settings.local.json`, which stays out of version control. Hooks from the different layers are merged; one layer does not replace another.
 
 The file is JSON: no comments, and no trailing comma after the last item. The structure has three layers: the event name, a group of rules with a matcher, then the hooks to run.
 
@@ -212,7 +212,7 @@ The screen is for inspection only; to change a hook, edit the corresponding JSON
 
 ## A Full Example: One Day on a Small Project
 
-Suppose you maintain a small site, and you want JavaScript formatted after edits, no Edit or Write to `.env`, tests run when a reply ends, and a reminder after compaction to use Bun and test before committing.
+Suppose you maintain a small site, and you want JavaScript formatted after edits, Edit and Write calls prevented from changing `.env`, tests run when a reply ends, and a reminder after compaction to use Bun and test before committing.
 
 Formatting still uses the earlier `npx prettier` command, adapted from the official guide's example so the path is quoted and spaces or apostrophes are not split; that does not depend on whether you manage packages with Bun or npm.
 
@@ -224,7 +224,7 @@ Formatting still uses the earlier `npx prettier` command, adapted from the offic
 6. When it says it's done, the Stop hook runs the tests; on failure, work continues from the feedback instead of ending the turn.
 7. If the session is compacted, SessionStart sends your reminder back into the context.
 
-You can add these one at a time; you don't have to enable all four at once.
+You can add these four hooks one at a time; you don't have to enable them all at once.
 
 ## Which Hook When
 
