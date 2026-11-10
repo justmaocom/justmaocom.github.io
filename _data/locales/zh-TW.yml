@@ -7,3 +7,10 @@ tabs:
 projects:
   website: 開啟網站
   post: 介紹文章
+
+# _plugins/seo-hook.rb 產生的 <title> 與描述。
+# :name 是分類名稱，:count 是該分類的文章數，:latest 是最新一篇的標題，:num 是頁碼
+seo:
+  category_title: "「:name」分類文章"
+  category_description: "「:name」分類下的 :count 篇文章，最新一篇是〈:latest〉。"
+  page_title: "文章列表（第 :num 頁）"

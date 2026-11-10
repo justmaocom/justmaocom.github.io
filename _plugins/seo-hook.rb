@@ -4,7 +4,9 @@
 #
 # - 標籤頁設為 noindex。它由 jekyll-archives 產生，不吃 front matter defaults，所以在這裡標記。
 #   帶 noindex 的頁面一律移出 sitemap；<meta name="robots"> 由 _includes/metadata-hook.html 輸出。
-# - <title> 的站名後綴改用 _config.yml 的 title_suffix，首頁維持完整的 title。
+# - <title> 的站名後綴改用 _config.yml 的 title_suffix，首頁改用 home_title。
+# - 首頁的分頁與分類頁原本和別頁共用標題或描述：分頁的 <title> 補上頁碼；分類頁的 <title> 與
+#   描述依分類名稱、文章數與最新一篇產生。文字樣板在 _data/locales/<lang>.yml 的 seo。
 # - tab 頁（封存、分類、標籤、專案、關於）是 collection 文件，Jekyll 會拿建置時間當它的 date，
 #   seo-tag 因此把它當成文章輸出。這裡拿掉日期、改回一般頁面，並把標題換成該語系的 tab 名稱。
 #   sitemap 裡 tab 頁的 lastmod 也是建置時間，每次部署都會變，一併拿掉。
@@ -31,6 +33,46 @@ module SeoHook
   def mark_noindex(site)
     site.pages.each { |page| page.data['noindex'] = true if page.data['layout'] == 'tag' }
     (site.pages + site.documents).each { |doc| doc.data['sitemap'] = false if doc.data['noindex'] }
+  end
+
+  def strings(site)
+    site.data.dig('locales', site.config['lang'], 'seo') || {}
+  end
+
+  # 把樣板裡的 :name、:count 等換成實際的值
+  def fill(template, values)
+    values.reduce(template.to_s) { |text, (key, value)| text.gsub(":#{ key }", value.to_s) }
+  end
+
+  # 分類頁由 jekyll-archives 產生，沒有 front matter，描述在這裡寫進 page.data 交給 seo-tag 輸出
+  def describe_categories(site)
+    template = strings(site)['category_description'] or return
+
+    site.pages.each do |page|
+      next unless page.data['layout'] == 'category'
+
+      latest = page.posts.max_by(&:date)
+      page.data['description'] = fill(template, name: page.title, count: page.posts.size, latest: latest.data['title'])
+    end
+  end
+
+  # 首頁、首頁的分頁與分類頁各自的 <title>；其他頁面回傳 nil，維持主題的輸出
+  def listing_title(doc)
+    site = doc.site
+    suffix = site.config['title_suffix'] || site.config['title']
+
+    if doc.data['layout'] == 'category'
+      "#{ fill(strings(site)['category_title'], name: doc.title) } | #{ suffix }"
+    elsif doc.data['layout'] == 'home' && doc.pager && doc.pager.page > 1
+      "#{ fill(strings(site)['page_title'], num: doc.pager.page) } | #{ suffix }"
+    elsif doc.url == '/'
+      site.config['home_title']
+    end
+  end
+
+  def retitle_listing(doc)
+    title = listing_title(doc) or return
+    doc.output = doc.output.sub(%r{<title>.*?</title>}m) { "<title>#{ CGI.escapeHTML(title) }</title>" }
   end
 
   def shorten_title(doc)
@@ -98,12 +140,14 @@ end
 
 Jekyll::Hooks.register :site, :pre_render do |site|
   SeoHook.mark_noindex(site)
+  SeoHook.describe_categories(site)
 end
 
 Jekyll::Hooks.register [:documents, :pages], :post_render do |doc|
   next unless doc.output_ext == '.html'
 
   SeoHook.shorten_title(doc)
+  SeoHook.retitle_listing(doc)
   SeoHook.prioritize_cover(doc)
   SeoHook.fix_image_type(doc)
   SeoHook.fix_tab(doc) if doc.is_a?(Jekyll::Document) && doc.collection.label == 'tabs'

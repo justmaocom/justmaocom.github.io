@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
-# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式。
+# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -9,6 +9,7 @@
 # Usage: ruby tools/check-seo.rb [site_dir]
 #   site_dir 是 _site 加上 baseurl，預設 _site
 
+require 'cgi'
 require 'json'
 require 'yaml'
 
@@ -24,6 +25,10 @@ config['languages'].each do |lang|
   prefix = lang == default_lang ? '' : "/#{ lang }"
   suffix = config['title_suffix']
   site_title = config.dig('i18n_site', lang, 'title') || config['title']
+  home_title = config.dig('i18n_site', lang, 'home_title') || config['home_title']
+  title = ->(html) { CGI.unescapeHTML(html[%r{<title>(.*?)</title>}m, 1]) }
+  description = ->(html) { html[/<meta name="description" content="([^"]*)"/, 1] }
+  home_description = (description[File.read("#{ root }/index.html")] rescue nil)
   json_ld = ->(html) { JSON.parse(html[%r{<script type="application/ld\+json">(.*?)</script>}m, 1]) }
   # [說明, 檔案, 檔案內容應滿足的條件]
   checks = [
@@ -47,6 +52,12 @@ config['languages'].each do |lang|
     ['JSON-LD 圖片型別', Dir["#{ root }/posts/*/index.html"], ->(s) { !s.include?('"imageObject"') }],
     ['sitemap 的 tab 頁沒有 lastmod', ["#{ root }/sitemap.xml"],
      ->(s) { tabs.all? { |tab| s.include?("/#{ tab }/</loc>") && s !~ %r{/#{ tab }/</loc>\s*<lastmod>} } }],
+    ['首頁標題', ["#{ root }/index.html"], ->(s) { title[s] == home_title }],
+    ['首頁分頁的標題帶頁碼', Dir["#{ root }/page*/index.html"],
+     ->(s) { title[s] != home_title && title[s] =~ /\d/ && title[s].end_with?(" | #{ suffix }") }],
+    # 標題不能只是「分類名稱 | 後綴」，描述不能沿用站台描述
+    ['分類頁有自己的標題與描述', Dir["#{ root }/categories/*/index.html"],
+     ->(s) { title[s] != "#{ CGI.unescapeHTML(s[/property="og:title" content="([^"]*)"/, 1]) } | #{ suffix }" && description[s] && description[s] != home_description }],
     # 沒有封面的文章不會有 preview-img；有的話第一張要立即載入，其餘維持 lazy
     ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
      ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }]
