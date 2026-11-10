@@ -49,7 +49,7 @@ Matcher 是用來過濾「這次要不要跑」的條件。對 PreToolUse 和 Po
 
 設定好之後，在 Claude Code 的提示符輸入 `/hooks`，會打開一個唯讀的瀏覽畫面，列出目前的 hooks，以及它們來自使用者設定、專案設定、本機設定、外掛或目前這次對話。這只是查看，不能在這裡改設定。
 
-下面的指令範例需要 [`jq`](https://jqlang.org/)（用來從 hooks 傳入的 JSON 取出欄位）。排版那一項另外需要 Node.js 和 `npx`，才能執行官方的 Prettier 寫法。Hook 腳本在 macOS 和 Linux 上必須是可執行檔，設定後請執行 `chmod +x .claude/hooks/*.sh`。
+下面的指令範例需要 [`jq`](https://jqlang.org/)（用來從 hooks 傳入的 JSON 取出欄位）。排版那一項另外需要 Node.js 和 `npx`，才能執行依官方指南 Prettier 範例改寫的指令：路徑先存進變數再加引號，空白或單引號才不會被拆開。Hook 腳本在 macOS 和 Linux 上必須是可執行檔，設定後請執行 `chmod +x .claude/hooks/*.sh`。
 
 ## 改完檔自動排版：PostToolUse
 
@@ -66,7 +66,7 @@ Matcher 是用來過濾「這次要不要跑」的條件。對 PreToolUse 和 Po
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+            "command": "f=$(jq -r '.tool_input.file_path'); npx prettier --write \"$f\""
           }
         ]
       }
@@ -75,7 +75,7 @@ Matcher 是用來過濾「這次要不要跑」的條件。對 PreToolUse 和 Po
 }
 ```
 
-**它會做什麼：** 工具成功改檔後，這條指令從輸入的 JSON 取出檔案路徑，交給 `npx prettier --write` 就地排版。這是官方指南的寫法。
+**它會做什麼：** 工具成功改檔後，這條指令從輸入的 JSON 取出檔案路徑，交給 `npx prettier --write` 就地排版。這是依官方指南的 Prettier 範例改寫的：先把路徑存進變數、再加引號交給 `npx prettier --write`，路徑裡有空白或單引號也不會被拆開。
 
 **你會得到什麼：** 成功時，對話裡通常不會跳出訊息；要看的是檔案是否已被重排。官方的檢查方式是：請 Claude 在 JavaScript 檔裡加上單引號字串，再開檔確認是否被改成雙引號（依 Prettier 預設設定）。
 
@@ -214,7 +214,7 @@ exit 0
 
 假設你在維護一個小型網站，希望改完 JavaScript 就排版、不要用 Edit 或 Write 改到 `.env`、每次回覆結束先跑測試，壓縮後還記得「用 Bun、提交前先測」。
 
-排版仍用前面官方的 `npx prettier` 寫法；這和你用 Bun 還是 npm 管理套件無關。
+排版仍用前面依官方指南 Prettier 範例改寫的 `npx prettier` 指令，路徑加引號後空白或單引號不會被拆開；這和你用 Bun 還是 npm 管理套件無關。
 
 1. 在專案根目錄建立 `.claude/settings.json`，放入上面四個事件的設定；建立 `protect-files.sh` 和 `run-tests-on-stop.sh`，把測試指令改成你的專案指令，並執行 `chmod +x .claude/hooks/*.sh`。
 2. 確認已安裝 `jq`，以及可執行 `npx prettier` 的 Node.js 環境。

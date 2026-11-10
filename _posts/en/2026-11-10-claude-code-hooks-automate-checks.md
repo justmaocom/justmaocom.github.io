@@ -49,7 +49,7 @@ A matcher is the filter that decides whether this hook should run. For PreToolUs
 
 After you save the settings, type `/hooks` at the Claude Code prompt to open a read-only browser of the hooks you have, labeled by source: user settings, project settings, local settings, a plugin, or the current session. You can inspect them there, but you can't edit them in that screen.
 
-The command examples below need [`jq`](https://jqlang.org/) to pick fields out of the JSON sent to hooks. The formatter also needs Node.js and `npx`, so the official Prettier command can run. Hook scripts must be executable on macOS and Linux; after you add them, run `chmod +x .claude/hooks/*.sh`.
+The command examples below need [`jq`](https://jqlang.org/) to pick fields out of the JSON sent to hooks. The formatter also needs Node.js and `npx`, so this command adapted from the official guide's Prettier example can run: the path is stored in a variable and quoted, so spaces or apostrophes are not split. Hook scripts must be executable on macOS and Linux; after you add them, run `chmod +x .claude/hooks/*.sh`.
 
 ## Auto-Format After Edits: PostToolUse
 
@@ -66,7 +66,7 @@ Add this to the project's `.claude/settings.json` (if the file already has a `"h
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+            "command": "f=$(jq -r '.tool_input.file_path'); npx prettier --write \"$f\""
           }
         ]
       }
@@ -75,7 +75,7 @@ Add this to the project's `.claude/settings.json` (if the file already has a `"h
 }
 ```
 
-**What it does:** after a tool successfully edits a file, the command reads the file path from the input JSON and runs `npx prettier --write` on it. This is the wording from the official guide.
+**What it does:** after a tool successfully edits a file, the command reads the file path from the input JSON and runs `npx prettier --write` on it. This is adapted from the official guide's Prettier example: the path is stored in a variable, then quoted and passed to `npx prettier --write`, so a path with spaces or apostrophes is not split.
 
 **What you get:** on success, the conversation usually shows no message; check whether the file was reformatted. The official check is to ask Claude to add a line with single-quoted strings to a JavaScript file, then open the file and see whether they were rewritten to double quotes (with Prettier's default settings).
 
@@ -214,7 +214,7 @@ The screen is for inspection only; to change a hook, edit the corresponding JSON
 
 Suppose you maintain a small site, and you want JavaScript formatted after edits, no Edit or Write to `.env`, tests run when a reply ends, and a reminder after compaction to use Bun and test before committing.
 
-Formatting still uses the official `npx prettier` command from earlier; that does not depend on whether you manage packages with Bun or npm.
+Formatting still uses the earlier `npx prettier` command, adapted from the official guide's example so the path is quoted and spaces or apostrophes are not split; that does not depend on whether you manage packages with Bun or npm.
 
 1. At the project root, create `.claude/settings.json` with the four events above; add `protect-files.sh` and `run-tests-on-stop.sh`, point the test command at your project, and run `chmod +x .claude/hooks/*.sh`.
 2. Confirm `jq` is installed, and that you have a Node.js environment that can run `npx prettier`.
