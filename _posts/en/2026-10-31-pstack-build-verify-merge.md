@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-build-verify-merge/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Reproduce before fixing, clean the diff, verify by driving the app, then let babysit get the PR to mergeable. Merging is your call."
 ---
 
@@ -53,7 +53,7 @@ pstack is a set of skills in Cursor's official plugin repository. A skill is a s
 
 That gives the AI three concrete acceptance requirements it can check one by one. Its reply should include the exact commands and their output. When a check can't run, a good reply says "inconclusive." **A confident reply with no evidence is a warning sign.** The check also has to match the change: for a command change, run the command; for a UI change, walk the changed flow in the running app; for a parser or data migration, replay a saved input; for performance, compare profiles from before and after; for a change to saving data, read the stored value back.
 
-![Four stages: build, clean, verify, and ship, with the playbooks and skills used at each stage](four-stages.en.png){: w="800" h="450" }
+![Four stages: build, clean, verify, and ship, with the playbooks and skills used at each stage](four-stages.en.webp){: w="800" h="450" }
 _The four stages from writing code to mergeable. Opening a PR doesn't start babysit on its own, and merging is always your call._
 
 ## Build: Write the Code With a Playbook
@@ -297,7 +297,7 @@ For each fact it states how far it proved it: just asserted, pointed to a line o
 /pstack:poteto-mode Reproduce this issue with /verify-<app>. If it also reproduces on main, fix it and give me a video as evidence.
 ```
 
-![The six sections and features/ map of a verification skill, and the three outcomes of /maintain-verification-skill](verify-skill.en.png){: w="800" h="450" }
+![The six sections and features/ map of a verification skill, and the three outcomes of /maintain-verification-skill](verify-skill.en.webp){: w="800" h="450" }
 _Generate it once and commit it to the project. When the code changes, /maintain-verification-skill keeps the instructions current._
 
 ### /maintain-verification-skill: Keep the Verification Skill in Step With the Code
@@ -392,7 +392,7 @@ On GitHub, `drive` ends when watch-pr reports `READY` (GitHub has judged the PR 
 
 **Next step**: decide yourself whether to merge. To have the AI merge, you have to say so clearly, which runs the Shipping playbook: it first verifies each PR independently, then merges them one at a time from the bottom up ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L152-L160)).
 
-![Babysit handles conflicts, then review comments, then CI, and stops when watch-pr reports READY; merging is your call](babysit-loop.en.png){: w="800" h="450" }
+![Babysit handles conflicts, then review comments, then CI, and stops when watch-pr reports READY; merging is your call](babysit-loop.en.webp){: w="800" h="450" }
 _It reports conflicts instead of resolving them, and stops at mergeable without pressing merge for you._
 
 ## A Complete Example (Made Up)

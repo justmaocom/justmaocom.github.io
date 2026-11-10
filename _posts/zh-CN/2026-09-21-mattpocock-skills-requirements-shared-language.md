@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "把需求问清楚的关键是让同一个词代表同一件事；问答留在对话里，只有定义和少数重要决策才写进项目。"
 ---
 
@@ -28,7 +28,7 @@ image:
 
 ## 先看懂五个 skill 的关系
 
-![grill-me、grill-with-docs 与 wait-what 是由用户启动的入口，其中 grill-me 和 grill-with-docs 会把访谈交给 grilling，grill-with-docs 也会把词汇整理交给 domain-modeling](mattpocock-skills-requirements-1.png){: width="800" height="450" }
+![grill-me、grill-with-docs 与 wait-what 是由用户启动的入口，其中 grill-me 和 grill-with-docs 会把访谈交给 grilling，grill-with-docs 也会把词汇整理交给 domain-modeling](mattpocock-skills-requirements-1.webp){: width="800" height="450" }
 _选任选其一个符合目前状况的入口，其余工作由内部流程接手。_
 
 这五个 skill 不是一套必须依次跑完的步骤。`grill-me` 与 `grill-with-docs` 是两个可供选择的起点。`grilling` 与 `domain-modeling` 会在背后接手访谈与词汇整理。`wait-what` 则要求 AI 重讲上一条没说清楚的消息。
@@ -71,7 +71,7 @@ _选任选其一个符合目前状况的入口，其余工作由内部流程接�
 
 重要的技术选择则可能写成 ADR。这是 Architecture Decision Record 的缩写，中文常译为“架构决策记录”。它是一份短文档，交代做了什么选择以及原因。只有当某项决定日后很难修改、没有背景就不容易理解，而且当初确实比较过不同做法时，AI 才会提议创建 ADR。你同意后，它才会写入。原始格式允许 ADR 只写一段话，不要求为了填满模板增加内容。三项条件与格式可在 [`ADR-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/ADR-FORMAT.md#L1-L37)核对。
 
-![产品、财务与工程都同意按席位计费，三方对席位的定义却不同，右侧词汇文档写下计费席位的共同定义](mattpocock-skills-requirements-2.png){: width="800" height="450" }
+![产品、财务与工程都同意按席位计费，三方对席位的定义却不同，右侧词汇文档写下计费席位的共同定义](mattpocock-skills-requirements-2.webp){: width="800" height="450" }
 _同意使用同一个词，还不等于同意同一件事。_
 
 ## wait-what 只处理刚才没听懂的内容
@@ -86,7 +86,7 @@ _同意使用同一个词，还不等于同意同一件事。_
 
 ## 访谈结果不会全部写进同一份文档
 
-![访谈中确认的内容分流到三个去处：正式名词与定义写入 CONTEXT.md，重要且经过取舍的决定写成 ADR，其他功能行为、例外、默认值与完成标准交给 to-spec 整理](mattpocock-skills-requirements-3.png){: width="800" height="450" }
+![访谈中确认的内容分流到三个去处：正式名词与定义写入 CONTEXT.md，重要且经过取舍的决定写成 ADR，其他功能行为、例外、默认值与完成标准交给 to-spec 整理](mattpocock-skills-requirements-3.webp){: width="800" height="450" }
 _访谈结果依内容性质分别写入词汇表、ADR 或后续规格。_
 
 `grill-with-docs` 会写文档，不代表它会把所有答案都塞进 `CONTEXT.md`。访谈内容有三个去处：

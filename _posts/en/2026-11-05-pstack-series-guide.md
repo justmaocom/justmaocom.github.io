@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-series-guide/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Four parts: install, understand, prove it works, then steer and run alone; start where you're stuck."
 ---
 
@@ -51,7 +51,7 @@ On the other hand, you don't need the whole set in cases like these:
 
 The order of the four parts follows a single piece of work: install the tools, understand the code and then design, prove it works, and finally steer with principles and let it run on its own within limits.
 
-![Series map: install and playbooks, understand then design, prove then review, principles and run alone](series-map.en.png){: w="800" h="450" }
+![Series map: install and playbooks, understand then design, prove then review, principles and run alone](series-map.en.webp){: w="800" h="450" }
 _The four parts are ordered by workflow; each covers one stretch, and the details live in that post._
 
 Here's the main thread: install, pick your models, then hand each task to `/poteto-mode` (Part 1). Before changing code, use tools like `/how`, `/why`, and `/architect` to understand it first, then compare designs (Part 2). Next, work through Build, Clean, Verify, and Prepare for Review to get the job done, with the merge still your call (Part 3). Day to day, steer with principle names and turn your habits into your own mode; when you need to, write the finish condition and limits, let it run on its own, and audit the decision log the next morning (Part 4).
@@ -84,7 +84,7 @@ You don't have to write a long paragraph every time you want to change how the A
 
 ## Which Part to Start With
 
-![Reading routes: first time at Part 1, before edits at Part 2, unattended runs at Part 4](reading-routes.en.png){: w="800" h="450" }
+![Reading routes: first time at Part 1, before edits at Part 2, unattended runs at Part 4](reading-routes.en.webp){: w="800" h="450" }
 _Figure out which step you're stuck on, then open the matching part. You don't have to read all four in order before you start._
 
 | Your situation | Start here |

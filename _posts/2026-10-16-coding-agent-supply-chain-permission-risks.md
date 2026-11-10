@@ -6,7 +6,7 @@ categories: [資訊安全, AI Agent]
 tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-chain-security]
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "把第三方 skill 和 MCP 當成在你電腦上跑的程式：權杖縮到最小，被騙時損害有限；版本鎖死，才不會被偷換。"
 ---
 
@@ -45,7 +45,7 @@ image:
 
 ## 攻擊面拆解：四個入口
 
-![一個 Coding Agent 在中間，四個方向各有一個入口：工具回傳與文件裡藏的指令、惡意或被竄改的 skill 與 MCP、過大的權限與憑證、自動執行的指令（包括背景自動裝最新版）；底部寫著「四個入口，常常串在一起用」](attack-surface-map.png){: width="800" height="450" }
+![一個 Coding Agent 在中間，四個方向各有一個入口：工具回傳與文件裡藏的指令、惡意或被竄改的 skill 與 MCP、過大的權限與憑證、自動執行的指令（包括背景自動裝最新版）；底部寫著「四個入口，常常串在一起用」](attack-surface-map.webp){: width="800" height="450" }
 _四個入口很少單獨出現，真正的攻擊通常是把兩三個串起來。_
 
 ### 入口一：藏在內容裡的指令
@@ -135,7 +135,7 @@ Agent 能做的事，等於它拿到的權限總和。本機的 `~/.ssh`、環�
 
 ## 防護：四個方向，各自擋什麼
 
-![左邊是三個條件：能讀私人資料、會碰外部內容、能往外傳，三個圓圈互相重疊；右邊列出最小權限、沙箱與斷網（並註明 MCP server 要另外隔離）、審查與鎖版本，各自剪斷其中一條；底部寫著「三條湊齊就危險，至少剪斷一條」](trifecta-cut.png){: width="800" height="450" }
+![左邊是三個條件：能讀私人資料、會碰外部內容、能往外傳，三個圓圈互相重疊；右邊列出最小權限、沙箱與斷網（並註明 MCP server 要另外隔離）、審查與鎖版本，各自剪斷其中一條；底部寫著「三條湊齊就危險，至少剪斷一條」](trifecta-cut.webp){: width="800" height="450" }
 _防護的目標不是讓 AI 變聰明，而是讓它就算被騙了也做不了大事。_
 
 **觀點**：沒有任何一招能單獨解決提示注入。目前比較實際的思路，是假設 agent 有一天一定會讀到惡意內容，然後確保那一天它能造成的傷害很小。
@@ -186,7 +186,7 @@ git -C some-skill checkout <commit>
 
 ## 檢查清單
 
-![三欄檢查清單：裝之前（看完整資料夾與啟動指令、確認來源和維護者、鎖定版本）、用的時候（細粒度權杖、開沙箱與限制網路、不開永遠允許）、出事之後（撤銷權杖、查稽核紀錄、檢查設定檔與 shell 設定）；底部寫著「把 skill 和 MCP 當成會執行的軟體來管」](checklist-three-stages.png){: width="800" height="450" }
+![三欄檢查清單：裝之前（看完整資料夾與啟動指令、確認來源和維護者、鎖定版本）、用的時候（細粒度權杖、開沙箱與限制網路、不開永遠允許）、出事之後（撤銷權杖、查稽核紀錄、檢查設定檔與 shell 設定）；底部寫著「把 skill 和 MCP 當成會執行的軟體來管」](checklist-three-stages.webp){: width="800" height="450" }
 _清單分三段，各自對應不同的時間點。_
 
 ### 裝之前

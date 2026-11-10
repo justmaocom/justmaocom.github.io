@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-series-guide/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "The six parts follow the order of development and cover all 25 plugin skills; find the step you're stuck on and start there."
 ---
 
@@ -55,7 +55,7 @@ It's also worth being clear about what they can't do. Part 1 points out that the
 
 The six parts follow the order a feature moves through, from requirements to merge. Parts 1–5 form one main path, and Part 6 handles work that isn't coding but often holds things up.
 
-![Series map: Parts 1 through 5 cover setup and picking the next step, clarifying requirements, specs and tickets, implementation and tests, and review and merging; Part 6 covers research, handoffs, learning, and other work outside coding. Each part lists the skills it covers](series-map.en.png){: width="800" height="450" }
+![Series map: Parts 1 through 5 cover setup and picking the next step, clarifying requirements, specs and tickets, implementation and tests, and review and merging; Part 6 covers research, handoffs, learning, and other work outside coding. Each part lists the skills it covers](series-map.en.webp){: width="800" height="450" }
 _The six parts follow the order of development, one stretch each, with Part 6 covering the work outside coding._
 
 The main path goes roughly like this. First, `grill-with-docs` clarifies the requirements. If the feature is big enough to need several conversations, `to-spec` writes up a spec and `to-tickets` splits it into tickets. Then each ticket gets its own fresh conversation, where `implement` builds it, using `tdd` along the way and running `code-review` at the end. Most other skills are side roads: reports sent in by other people go to `triage`, work too big to list all its decisions goes to `wayfinder`, and when something breaks, you use `diagnosing-bugs`.
@@ -104,7 +104,7 @@ Work outside coding can stall a project too: looking up official docs, handing w
 
 You don't have to read from start to finish. Think about where you're stuck right now:
 
-![Reading paths: first-time users read Parts 1, 2, and 3; unclear requirements, Part 2; unsure whether to write a spec or tickets, Part 3; want to trust AI-written code, Parts 4 and 5; reviews, structure, or merge conflicts, Part 5; handoffs, research, or learning, Part 6; the full process, Parts 1 through 6](reading-paths.en.png){: width="800" height="450" }
+![Reading paths: first-time users read Parts 1, 2, and 3; unclear requirements, Part 2; unsure whether to write a spec or tickets, Part 3; want to trust AI-written code, Parts 4 and 5; reviews, structure, or merge conflicts, Part 5; handoffs, research, or learning, Part 6; the full process, Parts 1 through 6](reading-paths.en.webp){: width="800" height="450" }
 _Find where you're stuck, then start with the matching part._
 
 | Your situation | Read |

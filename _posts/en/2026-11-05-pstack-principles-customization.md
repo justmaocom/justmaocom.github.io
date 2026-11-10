@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, cursor, claude-code]
 media_subpath: /assets/img/posts/pstack-principles-customization/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Steer the AI with principle names, turn your habits into a mode, let it run within clear limits, and audit its decision log."
 ---
 
@@ -71,7 +71,7 @@ In the same conversation, start your next message with the principle's command, 
 
 With the command form, Claude Code reads the principle's full instructions, not just a name. Below are the four I use most; for all 24, see [the principles table in the README](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L223-L257).
 
-![When to use principles: an oversized plan, done without proof, a symptom-only fix, repeated failed fixes](principles-steer.en.png){: w="800" h="450" }
+![When to use principles: an oversized plan, done without proof, a symptom-only fix, repeated failed fixes](principles-steer.en.webp){: w="800" h="450" }
 _Four common principles, and when to say their names._
 
 ### laziness-protocol: When the Plan Is Too Big
@@ -261,7 +261,7 @@ Chapter 7 of the guide lists four conditions. Only let it run alone once all fou
 
 The guide's handoff template has four elements: the goal, the finish condition, permissions, and an escape hatch ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L18-L36)). I also split out "decision log" and "what it must not do" on their own, which makes six parts:
 
-![Six parts of an unattended prompt: goal, done means, decision log, don't ask, never, and if stuck](overnight-prompt.en.png){: w="800" h="450" }
+![Six parts of an unattended prompt: goal, done means, decision log, don't ask, never, and if stuck](overnight-prompt.en.webp){: w="800" h="450" }
 _The six parts of an unattended prompt. A duration is not a finish condition._
 
 **When to use it**: the task meets the four conditions above, and you won't be at the computer.
@@ -388,7 +388,7 @@ The core principle behind letting the AI run on its own is [never-block-on-the-h
 
 But note that the same SKILL.md also says reversible work, plus external actions like team chat, ticket updates, and kicking off evals, go ahead without asking, using any MCP tool ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)). So don't read "irreversible actions need confirmation" as "every external message gets asked about first": the document treats internal team messages differently from customer messages. If you don't want it posting anywhere, say so under Never and block those MCP tools with `--disallowedTools`.
 
-![Let reversible actions run, ask before irreversible ones; permissions and spending caps back that up](ask-line.en.png){: w="800" h="450" }
+![Let reversible actions run, ask before irreversible ones; permissions and spending caps back that up](ask-line.en.webp){: w="800" h="450" }
 _The line is whether an action can be undone. The prompt is the first line of defense; permission settings are the second._
 
 Personally, I draw the line a bit more conservatively:

@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "先看清楚缺的是哪一種資訊再挑 skill；五個規劃 skill 全跑一遍，只會多出一堆沒人用的文件。"
 ---
 
@@ -51,7 +51,7 @@ image:
 | 工作大到連該做哪些決定都列不完整 | `wayfinder` | 一張「地圖」與多張待決定的「決策單」 |
 | 關鍵答案在另一個人手上 | `to-questionnaire` | 一份交給對方填寫的問卷 |
 
-![左側把 to-spec、to-tickets、triage、wayfinder 與 to-questionnaire 五個按鈕全部按下，右側依資訊缺口只亮起一條路，底部寫著「這不是集點卡，不用五格蓋滿」](planning-skills-punch-card.png){: width="800" height="450" }
+![左側把 to-spec、to-tickets、triage、wayfinder 與 to-questionnaire 五個按鈕全部按下，右側依資訊缺口只亮起一條路，底部寫著「這不是集點卡，不用五格蓋滿」](planning-skills-punch-card.webp){: width="800" height="450" }
 _五個名稱放在同一張清單裡，不代表每次都要全部執行。_
 
 ## `to-spec` 只整理已經談過的內容
@@ -102,7 +102,7 @@ _五個名稱放在同一張清單裡，不代表每次都要全部執行。_
 
 切法有一個重點：每張工作單都要是「從頭到尾都能運作」的一小段功能，而不是「只做其中一層」。軟體功能通常分成好幾層，例如保存資料的地方、處理規則的程式、使用者看到的畫面，以及檢查功能的測試。原始規則把這種切法稱為 tracer bullet，也就是曳光彈。夜間射擊時，曳光彈會發光，讓射手看清彈道並即時修正。同樣地，先讓一小段功能完整打通每一層，團隊就能立刻看到方向對不對。只改資料或只改畫面的工作單，都不符合這項規則。
 
-![左側把指派席次拆成只改資料、規則、畫面與測試的四張工作單；右側以一張工作單打通畫面、規則、資料與測試，完成後可單獨驗證](vertical-slice-tickets.png){: width="800" height="450" }
+![左側把指派席次拆成只改資料、規則、畫面與測試的四張工作單；右側以一張工作單打通畫面、規則、資料與測試，完成後可單獨驗證](vertical-slice-tickets.webp){: width="800" height="450" }
 _同一項功能要切成能獨立完成的小段，而不是依技術層拆成互相等待的工作單。_
 
 原始規則替每張工作單設了兩個可以檢查的條件：第一，完成後能單獨展示或驗證；第二，份量要能在一次全新的對話裡做完。每張工作單也要列出「前置工作」，也就是開始前必須先完成的其他工作單；沒有前置工作的工作單可以立刻開始。[切分規則與前置關係](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-tickets/SKILL.md#L25-L40)都寫在 `to-tickets/SKILL.md`。
@@ -207,7 +207,7 @@ AI 不會直接把第一版切法寫出去。它會先列出每張工作單的�
 
 第一張決策單解決後，原本列在「還看不清楚的地方」的「轉換失敗時如何恢復」，可能變得能寫成明確的問題，例如「單一工作區轉換失敗時，在什麼條件下要退回舊的計費方式」。這時 `wayfinder` 才把它開成新的決策單，並從「還看不清楚的地方」移除。它不會一開始就假裝已經列出所有問題。
 
-![第一輪盤點時，地圖記錄終點與看不清楚的地方，已知問題另開決策單；解完分批轉換的決策單後，才把轉換失敗時何時退回舊計費寫成新決策單](wayfinder-decision-map.png){: width="800" height="450" }
+![第一輪盤點時，地圖記錄終點與看不清楚的地方，已知問題另開決策單；解完分批轉換的決策單後，才把轉換失敗時何時退回舊計費寫成新決策單](wayfinder-decision-map.webp){: width="800" height="450" }
 _決策單另外開在地圖底下；一張決策單的答案，可能讓下一個問題變得能具體提出。_
 
 ## `to-questionnaire` 去找握有答案的人

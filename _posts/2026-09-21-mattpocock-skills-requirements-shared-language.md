@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "把需求問清楚的關鍵是讓同一個詞代表同一件事；問答留在對話裡，定義和少數重要決策才寫進專案。"
 ---
 
@@ -28,7 +28,7 @@ image:
 
 ## 先看懂五個 skill 的關係
 
-![grill-me、grill-with-docs 與 wait-what 是由使用者啟動的入口，其中 grill-me 和 grill-with-docs 會把訪談交給 grilling，grill-with-docs 也會把詞彙整理交給 domain-modeling](mattpocock-skills-requirements-1.png){: width="800" height="450" }
+![grill-me、grill-with-docs 與 wait-what 是由使用者啟動的入口，其中 grill-me 和 grill-with-docs 會把訪談交給 grilling，grill-with-docs 也會把詞彙整理交給 domain-modeling](mattpocock-skills-requirements-1.webp){: width="800" height="450" }
 _選擇一個符合目前狀況的入口，其餘工作由內部流程接手。_
 
 這五個 skill 不是一套必須依序跑完的步驟。`grill-me` 與 `grill-with-docs` 是兩個可供選擇的起點。`grilling` 與 `domain-modeling` 會在背後接手訪談與詞彙整理。`wait-what` 則要求 AI 重講上一則沒說清楚的訊息。
@@ -71,7 +71,7 @@ _選擇一個符合目前狀況的入口，其餘工作由內部流程接手。_
 
 重要的技術選擇則可能寫成 ADR。這是 Architecture Decision Record 的縮寫，中文常譯為「架構決策紀錄」。它是一份短文件，交代做了什麼選擇以及原因。只有當某項決定日後很難修改、沒有背景就不容易理解，而且當初確實比較過不同做法時，AI 才會提議建立 ADR。你同意後，它才會寫入。原始格式允許 ADR 只寫一段話，不要求為了填滿模板增加內容。三項條件與格式可在 [`ADR-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/ADR-FORMAT.md#L1-L37)核對。
 
-![產品、財務與工程都同意按席次計費，三方對席次的定義卻不同，右側詞彙文件寫下計費席次的共同定義](mattpocock-skills-requirements-2.png){: width="800" height="450" }
+![產品、財務與工程都同意按席次計費，三方對席次的定義卻不同，右側詞彙文件寫下計費席次的共同定義](mattpocock-skills-requirements-2.webp){: width="800" height="450" }
 _同意使用同一個詞，還不等於同意同一件事。_
 
 ## wait-what 只處理剛才沒聽懂的內容
@@ -86,7 +86,7 @@ _同意使用同一個詞，還不等於同意同一件事。_
 
 ## 訪談結果不會全部寫進同一份文件
 
-![訪談中確認的內容分流到三個去處：正式名詞與定義寫入 CONTEXT.md，重要且經過取捨的決定寫成 ADR，其他功能行為、例外、預設值與完成標準交給 to-spec 整理](mattpocock-skills-requirements-3.png){: width="800" height="450" }
+![訪談中確認的內容分流到三個去處：正式名詞與定義寫入 CONTEXT.md，重要且經過取捨的決定寫成 ADR，其他功能行為、例外、預設值與完成標準交給 to-spec 整理](mattpocock-skills-requirements-3.webp){: width="800" height="450" }
 _訪談結果依內容性質分別寫入詞彙表、ADR 或後續規格。_
 
 `grill-with-docs` 會寫文件，不代表它會把所有答案都塞進 `CONTEXT.md`。訪談內容有三個去處：

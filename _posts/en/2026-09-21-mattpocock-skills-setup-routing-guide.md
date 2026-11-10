@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
 ---
 
@@ -31,7 +31,7 @@ First, a few terms. An AI coding assistant is an AI tool such as Claude Code or 
 
 ## Installing vs. Invoking: Two Separate Questions
 
-![A six-panel illustration of mattpocock/skills: choose the Claude Code plugin or skills.sh, run setup to create the project configuration, then let ask-matt suggest the next skill. A feature request moves through requirements clarification, spec writing, work breakdown, and implementation in order](ask-matt-router-tutorial.png){: width="800" height="450" }
+![A six-panel illustration of mattpocock/skills: choose the Claude Code plugin or skills.sh, run setup to create the project configuration, then let ask-matt suggest the next skill. A feature request moves through requirements clarification, spec writing, work breakdown, and implementation in order](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _The full path for first-time use: choose an installation method, run setup, then let ask-matt suggest the next skill._
 
 Installing and invoking are two different questions. The installation method determines where the skill files live and who is responsible for updating them; the invocation method determines who can tell a skill to start working.
@@ -138,7 +138,7 @@ If you're sure the work will take several conversations to complete, use `to-spe
 
 Everything from the requirements interview through `to-tickets` should stay in the same conversation, so that later steps build on the earlier discussion. Only after the tickets are created does each one get its own new conversation; each ticket already spells out the information it needs, so it doesn't depend on earlier conversation history. The full rules are in [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90).
 
-![On the left, a progress bar shows someone memorizing 25 skills; on the right, ask-matt asks which step they're stuck on](ask-matt-router-meme.png){: width="800" height="450" }
+![On the left, a progress bar shows someone memorizing 25 skills; on the right, ask-matt asks which step they're stuck on](ask-matt-router-meme.webp){: width="800" height="450" }
 _Memory test canceled. Time to get to work._
 
 ## Walkthrough: Adding Per-Seat Billing to an Existing Service

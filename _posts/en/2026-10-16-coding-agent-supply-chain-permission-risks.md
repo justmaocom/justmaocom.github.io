@@ -6,7 +6,7 @@ categories: [Security, AI Agents]
 tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-chain-security]
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Treat third-party skills and MCP servers as code on your machine: narrow tokens limit a tricked agent; pinned versions block silent swaps."
 ---
 
@@ -45,7 +45,7 @@ In other words, the vendors themselves put the responsibility on you.
 
 ## The Attack Surface: Four Entry Points
 
-![A coding agent in the middle with four entry points around it: instructions hidden in tool output and documents, malicious or tampered skills and MCP servers, excess access and exposed credentials, and commands that run automatically (including silent installs of the latest version); the bottom reads "Four entry points, often chained together"](attack-surface-map.en.png){: width="800" height="450" }
+![A coding agent in the middle with four entry points around it: instructions hidden in tool output and documents, malicious or tampered skills and MCP servers, excess access and exposed credentials, and commands that run automatically (including silent installs of the latest version); the bottom reads "Four entry points, often chained together"](attack-surface-map.en.webp){: width="800" height="450" }
 _The four entry points rarely show up alone; real attacks usually chain two or three._
 
 ### Entry 1: Instructions Hidden in Content
@@ -135,7 +135,7 @@ The same post covers two extensions:
 
 ## Defenses: Four Layers and What Each One Stops
 
-![On the left, three conditions: can read private data, touches outside content, can send things out, drawn as three overlapping circles. On the right, least privilege, sandbox with network off (noting that MCP servers need their own isolation), and review plus pinning each cut one of them; the bottom reads "All three together is dangerous; cut at least one"](trifecta-cut.en.png){: width="800" height="450" }
+![On the left, three conditions: can read private data, touches outside content, can send things out, drawn as three overlapping circles. On the right, least privilege, sandbox with network off (noting that MCP servers need their own isolation), and review plus pinning each cut one of them; the bottom reads "All three together is dangerous; cut at least one"](trifecta-cut.en.webp){: width="800" height="450" }
 _The goal isn't a smarter AI; it's an AI that can't do much damage even when fooled._
 
 **Opinion**: No single trick solves prompt injection. The practical approach today is to assume your agent will read malicious content someday, and make sure that when it does, it can't do much harm.
@@ -186,7 +186,7 @@ git -C some-skill checkout <commit>
 
 ## Checklist
 
-![Three-column checklist: before installing (read the whole folder and launch command, check source and maintainer, pin the version), while using (fine-grained tokens, sandbox with limited network, no "Always Allow"), after an incident (revoke tokens, check audit logs, inspect config and shell files); the bottom reads "Treat skills and MCP servers like code that runs on your machine"](checklist-three-stages.en.png){: width="800" height="450" }
+![Three-column checklist: before installing (read the whole folder and launch command, check source and maintainer, pin the version), while using (fine-grained tokens, sandbox with limited network, no "Always Allow"), after an incident (revoke tokens, check audit logs, inspect config and shell files); the bottom reads "Treat skills and MCP servers like code that runs on your machine"](checklist-three-stages.en.webp){: width="800" height="450" }
 _Three stages: before, during, and after._
 
 ### Before Installing

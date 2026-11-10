@@ -111,7 +111,7 @@ To examine this leg, you can split "login" into three layers. The first is ident
 
 What this case lacks most is technical detail on the second layer. The public material does not say what credentials the forum side held, what login session OpenAI SSO accepted, or which piece of decision logic the fix changed. For the third layer, all we know is the outcome Hacktron describes: Codex was connected to GitHub and was used to open a pull request. Keeping the three layers apart stops a vague "SSO was broken" from covering up every open question.
 
-![An SSO access review form where forum, ChatGPT, Codex, and GitHub are crammed into a field meant for a single line](sso-review-form.png){: width="960" height="540" }
+![An SSO access review form where forum, ChatGPT, Codex, and GitHub are crammed into a field meant for a single line](sso-review-form.webp){: width="960" height="540" }
 _When a login identity carries over to other services, one line on the review form quickly stops being enough._
 
 ## Upstream Version Numbers Alone Can Mislead You About Patch Status

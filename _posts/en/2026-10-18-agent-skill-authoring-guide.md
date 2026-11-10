@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, skill-authoring, testing, claude-code, codex, cursor]
 media_subpath: /assets/img/posts/agent-skill-authoring-guide/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "A skill works only if its description gets it picked at the right moment; scripts and tests check the output, and each change reruns them."
 ---
 
@@ -162,7 +162,7 @@ There's one more trade-off. `disable-model-invocation` and `user-invocable` aren
 
 ## Move Details Into References and Scripts
 
-![Progressive disclosure in three layers: name and description load at startup, the SKILL.md body loads when triggered, and reference files and scripts are used only when needed](progressive-disclosure.en.png){: width="800" height="450" }
+![Progressive disclosure in three layers: name and description load at startup, the SKILL.md body loads when triggered, and reference files and scripts are used only when needed](progressive-disclosure.en.webp){: width="800" height="450" }
 _One skill loads in three layers: each layer is bigger than the one above it, and enters the context window later._
 
 The [spec](https://agentskills.io/specification#progressive-disclosure) splits a skill into three layers:
@@ -465,7 +465,7 @@ A few spots map to the rules: the meeting was on a Monday, so "before Friday" be
 
 ## Test in Three Layers
 
-![Three layers of testing: format checks validate the fields with skills-ref, trigger tests use about 20 queries to see whether the skill gets picked, and output checks compare results with and without the skill](three-layer-tests.en.png){: width="800" height="450" }
+![Three layers of testing: format checks validate the fields with skills-ref, trigger tests use about 20 queries to see whether the skill gets picked, and output checks compare results with and without the skill](three-layer-tests.en.webp){: width="800" height="450" }
 _Each layer tests one thing: is the format right, does it get picked, and does it do the job once picked._
 
 ### Format Checks

@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "AI 自己寫程式也寫測試時，要看它改不了的東西：你確認過的測試位置，和出自規格的預期值。"
 ---
 
@@ -124,7 +124,7 @@ AI 開始探索程式時，[若專案裡有 `CONTEXT.md` 就先讀](https://gith
 
 偶爾才出現的 bug 不求每次重現，[目標是把重現率拉高](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L49-L51)。原文舉例，重現率 50% 的 bug 還追得下去，1% 就追不了。真的做不出迴路時，[AI 要停下來](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L53-L55)列出試過的方法，再向你要能重現問題的環境、去除機密後的紀錄檔，或請你允許它在正式環境暫時加上監測。
 
-![左側推理牆用紅線串起「是快取吧」「時區問題」「競態條件」「第三方 API」「上週的部署」五張便條，下方寫著「我盯這段程式碼三天了」；右側只有一行 node --test seats.test.js 與一顆亮起的紅燈，底部寫著「沒亮過紅燈，就先別開始猜」](diagnosing-red-light-first.png){: width="800" height="450" }
+![左側推理牆用紅線串起「是快取吧」「時區問題」「競態條件」「第三方 API」「上週的部署」五張便條，下方寫著「我盯這段程式碼三天了」；右側只有一行 node --test seats.test.js 與一顆亮起的紅燈，底部寫著「沒亮過紅燈，就先別開始猜」](diagnosing-red-light-first.webp){: width="800" height="450" }
 _還沒有會亮紅燈的指令，推測再多也無法確認哪一個對。_
 
 有了迴路之後，後面五個階段依序進行：
@@ -154,7 +154,7 @@ _還沒有會亮紅燈的指令，推測再多也無法確認哪一個對。_
 
 畫面原型預設做 3 個版本，[最多 5 個](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L36-L38)。版本之間要有結構上的差異，例如版面、資訊層次或主要操作方式不同。[`UI.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L54) 說，三個只稍微調整過的卡片格線不是原型，只是桌布：看起來各有花色，卻沒有回答任何設計問題。[它也建議把版本直接放進既有頁面](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L14-L30)，因為頁面周圍的真實資料與導覽列才能暴露設計問題。
 
-![左側版本 A、B、C 是同一種六格卡片格線，只分別塗成藍、綠、紫，旁邊的色卡寫著「本週新色」；右側三個版本分別是側欄加清單、精簡表格與摘要在上，底部寫著「只換顏色的三個版本，是桌布型錄」](prototype-wallpaper-variants.png){: width="800" height="450" }
+![左側版本 A、B、C 是同一種六格卡片格線，只分別塗成藍、綠、紫，旁邊的色卡寫著「本週新色」；右側三個版本分別是側欄加清單、精簡表格與摘要在上，底部寫著「只換顏色的三個版本，是桌布型錄」](prototype-wallpaper-variants.webp){: width="800" height="450" }
 _版本之間要在版面與操作方式上有所不同，只換顏色看不出設計差異。_
 
 兩條路共用[六條規則](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/SKILL.md#L19-L26)。原型從第一天就標明是拋棄式，一個指令或連按兩下就能啟動，預設不存資料，也不寫測試與錯誤處理。每次操作後都要把完整狀態顯示出來。
@@ -190,7 +190,7 @@ test("calculateTotal sums line items", () => {
 
 所以測試算不算數，要你自己看兩樣東西：你確認過的接點清單，以及每個預期值能不能在規格裡找到出處。
 
-![左側考卷的出題、作答、批改都是 AI，標準答案欄寫著「照作答算一遍」，蓋著 100 分；右側考卷由你確認的接點出題，標準答案寫著「15，出自規格」，由 node --test 批改；底部寫著「自己出題、自己作答、自己打分數」](tautological-test-exam.png){: width="800" height="450" }
+![左側考卷的出題、作答、批改都是 AI，標準答案欄寫著「照作答算一遍」，蓋著 100 分；右側考卷由你確認的接點出題，標準答案寫著「15，出自規格」，由 node --test 批改；底部寫著「自己出題、自己作答、自己打分數」](tautological-test-exam.webp){: width="800" height="450" }
 _預期值若照程式的算法重算，測試就會永遠通過。_
 
 ## 哪些地方要花你的時間

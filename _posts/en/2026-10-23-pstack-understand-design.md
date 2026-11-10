@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-understand-design/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Before changing code, understand it with /how and /why, design with /architect and /arena, then review with /interrogate."
 ---
 
@@ -40,7 +40,7 @@ pstack is a set of skills in Cursor's official plugin repository. A skill is a s
 
 You'll see the word "subagent" a lot below. When a skill runs, it sends out other AI instances to work on parts of the job in parallel; each one is a subagent. The more subagents a skill sends out, the more of your usage quota it usually takes.
 
-![The five-skill flow: understand with /how and /why, design with /architect, compare approaches with /arena, then review with /interrogate](five-skills-flow.en.png){: w="800" h="450" }
+![The five-skill flow: understand with /how and /why, design with /architect, compare approaches with /arena, then review with /interrogate](five-skills-flow.en.webp){: w="800" h="450" }
 _Understand first, then design, then review the change. `/arena` works on its own, and it is also the tool `/architect` uses inside to compare sketches._
 
 ## /how: Learn How the Code Works Now
@@ -175,7 +175,7 @@ To review just a few files:
 
 **What's next:** handle Act on first, then look at Consider. Read the Dismissed items too: the lead is a pragmatic senior engineer, not an oracle, and you can override it.
 
-![The /interrogate flow: the same change goes to several reviewers, and the merged findings are sorted into Act on, Consider, Noted, and Dismissed](interrogate-buckets.en.png){: w="800" h="450" }
+![The /interrogate flow: the same change goes to several reviewers, and the merged findings are sorted into Act on, Consider, Noted, and Dismissed](interrogate-buckets.en.webp){: w="800" h="450" }
 _Several models review the same change independently, then the lead sorts the findings into four buckets. Nothing is changed automatically._
 
 ## /arena: Let Several AIs Each Try, Then Keep the Best
@@ -211,7 +211,7 @@ For example:
 
 **What's next:** if the result is code, you can run `/interrogate` before merging. If what you actually need is **coverage**, such as checking every package once, rather than comparing approaches, that's the job of another skill, `/swarm`. Don't use `/arena` for it.
 
-![/arena's six phases: frame (set the rules), fan out, cross-judge (scoring), pick the base, graft (mix in strengths), verify (final check)](arena-phases.en.png){: w="800" h="450" }
+![/arena's six phases: frame (set the rules), fan out, cross-judge (scoring), pick the base, graft (mix in strengths), verify (final check)](arena-phases.en.webp){: w="800" h="450" }
 _More candidates means more subagents: N candidates plus one judge._
 
 ## A Complete Example (Made Up)
