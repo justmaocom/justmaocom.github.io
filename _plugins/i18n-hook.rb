@@ -11,13 +11,13 @@
 # - 搜尋框讀取的 search.json 路徑，以及 search.json 內各篇文章的 url
 # - feed.xml、sitemap.xml 等非 HTML 輸出中的絕對網址
 #
-# 另外依 _config.yml 的 i18n_site，替各語系覆寫 title、tagline、description。
+# 另外依 _config.yml 的 i18n_site，替各語系覆寫 title、home_title、tagline、description。
 
 require 'cgi'
 
 module I18nHook
 
-  SITE_KEYS = %w(title tagline description).freeze
+  SITE_KEYS = %w(title home_title tagline description).freeze
 
   module_function
 

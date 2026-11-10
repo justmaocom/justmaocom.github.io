@@ -29,11 +29,13 @@ exclude_from_localization:
 # 非預設語系的站台資訊，建置該語系時覆寫同名的頂層欄位（見 _plugins/i18n-hook.rb）
 i18n_site:
   zh-CN:
+    home_title: 只是一根毛 JustMao｜Coding Agent 工作流程、Skill 与信息安全
     tagline: 从问题开始，把答案写下来
     description: >-
       JustMao 的个人网站，记录 coding agent 的 skill 与工作流程、agent 带来的信息安全问题，以及开源工具的源代码拆解。
   en:
     title: JustMao
+    home_title: "JustMao — Coding Agent Skills, Workflows & Security"
     tagline: Start with a question, write down the answer
     description: >-
       JustMao's personal site: coding agent skills and workflows, security problems that agents bring in, and source-code deep dives into open-source tools.
@@ -48,6 +50,9 @@ title: 只是一根毛 | JustMao # the main title
 
 # 首頁以外的 <title> 後綴，取代較長的 title（見 _plugins/seo-hook.rb）
 title_suffix: JustMao
+
+# 首頁的 <title>，比 title 多帶主題字詞。側欄、og:site_name 與 feed 仍用 title
+home_title: 只是一根毛 JustMao｜Coding Agent 工作流程、Skill 與資安
 
 # jekyll-seo-tag 的預設作者：輸出 <meta name="author">、twitter:creator 與 JSON-LD 的 author。
 # 主題顯示的作者名稱仍來自 social.name。
