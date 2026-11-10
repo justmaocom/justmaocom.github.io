@@ -13,7 +13,7 @@ If you practice straight from the PDF question bank a few times, it's easy to en
 
 The problem to solve: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
 
-![On the left, a fixed question order lets you predict the answer; on the right, once the order is shuffled, understanding shows as "reloading"](pdf-order-memory.png){: width="800" height="430" }
+![On the left, a fixed question order lets you predict the answer; on the right, once the order is shuffled, understanding shows as "reloading"](pdf-order-memory.webp){: width="800" height="430" }
 _Once the question order is shuffled, familiarity can no longer stand in for understanding._
 
 ## A Web App That Turns the Official Question Bank Into Practice Records
@@ -24,7 +24,7 @@ It takes the official PDF or DOCX files you've already downloaded locally and wr
 
 The overall architecture has two data paths. In the upper half, the manually downloaded official question bank goes to a CLI, which parses it and writes it into PostgreSQL. In the lower half, the browser UI calls FastAPI to read and write questions, sessions, and answer records.
 
-![The official question bank goes through local files and the import CLI into PostgreSQL, while the browser reads and writes practice data through the UI and FastAPI](system-architecture.png){: width="1200" height="548" }
+![The official question bank goes through local files and the import CLI into PostgreSQL, while the browser reads and writes practice data through the UI and FastAPI](system-architecture.webp){: width="1200" height="548" }
 _Architecture diagram based on commit `b29fe3f`; [open the interactive version](/assets/img/posts/gpa-question-webapp-study-loop/system-architecture.html)._
 
 ## How Data Travels From a PDF to an Answerable Question

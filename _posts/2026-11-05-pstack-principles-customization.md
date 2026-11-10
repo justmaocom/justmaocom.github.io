@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, cursor, claude-code]
 media_subpath: /assets/img/posts/pstack-principles-customization/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "用原則名稱中途指揮 AI，把習慣做成自己的 mode，寫好完成條件和界線後讓它自己跑，早上看決策紀錄。"
 ---
 
@@ -71,7 +71,7 @@ pstack 有 24 條原則，每一條都是一個獨立的 skill，名稱是 `prin
 
 用指令的寫法，Claude Code 會把那條原則的完整說明讀進來，而不只是看到一個名稱。下面示範我最常用的四條，完整的 24 條可以看 [README 的原則表](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L223-L257)。
 
-![四條原則各自適合的時機：計畫太大、說做完卻沒證據、修了症狀、連續修不好](principles-steer.png){: w="800" h="450" }
+![四條原則各自適合的時機：計畫太大、說做完卻沒證據、修了症狀、連續修不好](principles-steer.webp){: w="800" h="450" }
 _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 ### laziness-protocol：計畫太大的時候
@@ -261,7 +261,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 指南的交接範本有四個要素：目標、完成條件、權限，以及卡住時的出口（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L18-L36)）。我會再把「決策紀錄」和「不可以做的事」分開寫，變成六個部分：
 
-![無人值守提示的六個部分：目標、怎樣算完成、決策紀錄、不用問的事、不可以做的事、卡住時怎麼停](overnight-prompt.png){: w="800" h="450" }
+![無人值守提示的六個部分：目標、怎樣算完成、決策紀錄、不用問的事、不可以做的事、卡住時怎麼停](overnight-prompt.webp){: w="800" h="450" }
 _一份無人值守提示的六個部分。時間長度不是完成條件。_
 
 **什麼時候用**：任務已經符合上面四個條件，而且你不在電腦前。
@@ -388,7 +388,7 @@ column -s$'\t' -t decisions.tsv
 
 不過要注意，同一份 SKILL.md 也寫到：可以還原的事，以及團隊聊天、更新 ticket、啟動 eval 這類對外動作，都會直接做、不先問，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L84)）。所以別把「不可逆的動作要確認」理解成所有對外訊息都會先問你；這份文件對團隊內部訊息和客戶訊息的處理方式是不一樣的。如果不想讓它對外發訊息，就在「不可以做」裡寫清楚，並用 `--disallowedTools` 把那些 MCP 工具擋掉。
 
-![可逆的動作放手讓它做，不可逆的動作一定先問；權限設定和費用上限是第二道防線](ask-line.png){: w="800" h="450" }
+![可逆的動作放手讓它做，不可逆的動作一定先問；權限設定和費用上限是第二道防線](ask-line.webp){: w="800" h="450" }
 _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限設定是第二道。_
 
 我自己會把界線再畫得保守一點：

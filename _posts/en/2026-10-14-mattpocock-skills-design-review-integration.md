@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, code-review, software-architecture, git]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "After tests pass, ask: is the structure getting messier, does the change match the request, and what did each side of a conflict want?"
 ---
 
@@ -77,7 +77,7 @@ When designing an interface, it has the AI [ask itself three questions](https://
 - Can each button ask for less?
 - Can more of the hassle be hidden inside?
 
-![On the left, a shallow module with five buttons: assign seat, release seat, count members, notify billing, check member, with the inside just passing calls along; on the right, a deep module with only three buttons: assign, deactivate, and check available seats, with everything else hidden inside; the bottom reads "Users remember three buttons, and tests press the same three"](deep-vs-shallow-module.png){: width="800" height="450" }
+![On the left, a shallow module with five buttons: assign seat, release seat, count members, notify billing, check member, with the inside just passing calls along; on the right, a deep module with only three buttons: assign, deactivate, and check available seats, with everything else hidden inside; the bottom reads "Users remember three buttons, and tests press the same three"](deep-vs-shallow-module.webp){: width="800" height="450" }
 _The same seat feature: five buttons to remember on the left, three on the right._
 
 ### Four Rules of Thumb
@@ -164,7 +164,7 @@ The reason is simple: [a change can pass one check and fail the other](https://g
 
 Reporting them separately keeps a good grade on one side from hiding a problem on the other.
 
-![On the left, the "Written by the rules?" report lists two possible code smells, marked as heads-ups only; on the right, the "Built what was asked?" report quotes the spec, showing billing receives the new seat count and that deactivating a member with no seat may be handled wrong; the bottom reads "Nicely written but built the wrong thing: a good grade on one side can't hide a problem on the other"](code-review-two-axes.png){: width="800" height="450" }
+![On the left, the "Written by the rules?" report lists two possible code smells, marked as heads-ups only; on the right, the "Built what was asked?" report quotes the spec, showing billing receives the new seat count and that deactivating a member with no seat may be handled wrong; the bottom reads "Nicely written but built the wrong thing: a good grade on one side can't hide a problem on the other"](code-review-two-axes.webp){: width="800" height="450" }
 _The two reports stay separate and are never merged into one ranking._
 
 As the previous post mentioned, [`tdd` leaves tidying up the code to the review stage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38). The "written by the rules?" side is the step after the tests pass where you go back and tidy up.
@@ -183,7 +183,7 @@ The skill is just [five steps](https://github.com/mattpocock/skills/blob/c55ee46
 
 Step 2 is the heart of it. Conflict markers only tell you "the text differs on each side," not what each side was trying to do. If you just choose "keep mine" or "keep theirs," the code may run, but it can quietly throw away a change someone made on purpose.
 
-![On the left, simply choosing "keep mine" quietly drops "return false when deactivating an unknown member"; on the right, reading both commits first keeps the member check, the billing notification, and the return value; the bottom reads "A conflict tells you the text differs, not what each side wanted"](merge-conflict-intent.png){: width="800" height="450" }
+![On the left, simply choosing "keep mine" quietly drops "return false when deactivating an unknown member"; on the right, reading both commits first keeps the member check, the billing notification, and the return value; the bottom reads "A conflict tells you the text differs, not what each side wanted"](merge-conflict-intent.webp){: width="800" height="450" }
 _Picking a side may run, but can lose half of what the changes were for._
 
 As noted above, this skill was removed in `1.3.0`, and [the archived docs page](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1) says nothing replaces it. Still, the five steps don't need any tools, so you can follow them even without the skill installed.

@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-build-verify-merge/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "先重现再修、清理 diff、实际操作验证，再让 babysit 推到可合并；合并由你决定。"
 ---
 
@@ -53,7 +53,7 @@ pstack 是 Cursor 官方插件库里的一整组 skill。skill 是一份告诉 A
 
 这样 AI 就有了三项具体的验收要求，可以逐项检查是否完成。它的回复应该附上确切的命令和输出；有检查跑不了时，好的回复会写“无法判断”（inconclusive）。**很有自信、却没附证据的回复，就是警示信号。**检查也要对得上改动：改命令就实际跑命令，改界面就在运行中的程序里走一遍改过的流程，改解析器或数据迁移就重放一份存好的输入，改性能就比较前后的性能剖析，改保存就把写进去的值读回来。
 
-![四个阶段：实现、清理、验证、上线，以及每个阶段用到的 playbook 和 skill](four-stages.zh-CN.png){: w="800" h="450" }
+![四个阶段：实现、清理、验证、上线，以及每个阶段用到的 playbook 和 skill](four-stages.zh-CN.webp){: w="800" h="450" }
 _从写代码到可以合并的四个阶段。开 PR 不会自动开始 babysit，合并永远由你决定。_
 
 ## 实现：用 playbook 写代码
@@ -297,7 +297,7 @@ _从写代码到可以合并的四个阶段。开 PR 不会自动开始 babysit�
 /pstack:poteto-mode 用 /verify-<app> 重现这个问题。如果在 main 上也重现得出来，就修好它，给我一段视频当证据。
 ```
 
-![验证 skill 的六段内容和 features/ 功能地图，以及 /maintain-verification-skill 的三种结果](verify-skill.zh-CN.png){: w="800" h="450" }
+![验证 skill 的六段内容和 features/ 功能地图，以及 /maintain-verification-skill 的三种结果](verify-skill.zh-CN.webp){: w="800" h="450" }
 _生成一次，commit 进项目；代码改了，用 /maintain-verification-skill 让说明跟上。_
 
 ### /maintain-verification-skill：让验证 skill 跟上代码
@@ -392,7 +392,7 @@ _生成一次，commit 进项目；代码改了，用 /maintain-verification-ski
 
 **下一步**：自己决定要不要合并。要让 AI 合并，得明确说出来，那会走 Shipping playbook：它会先逐一独立验证每个 PR，再从最底下开始一个一个合并（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
 
-![Babysit 依序处理冲突、审查留言、CI，watch-pr 判定 READY 就停，合并由你决定](babysit-loop.zh-CN.png){: w="800" h="450" }
+![Babysit 依序处理冲突、审查留言、CI，watch-pr 判定 READY 就停，合并由你决定](babysit-loop.zh-CN.webp){: w="800" h="450" }
 _冲突只报告不自己解；到了可以合并就停，不会替你按下合并。_
 
 ## 一个完整的例子（虚构）

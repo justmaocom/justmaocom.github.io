@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Work out which information is missing before picking a skill; running all five planning skills just piles up documents nobody uses."
 ---
 
@@ -51,7 +51,7 @@ The other three skills are off the main path. `triage` handles work that other p
 | The work is so big you can't even list all the decisions it needs | `wayfinder` | A "map" and several open "decision tickets" |
 | The key answer is in someone else's hands | `to-questionnaire` | A questionnaire for that person to fill out |
 
-![On the left, all five buttons (to-spec, to-tickets, triage, wayfinder, and to-questionnaire) are pressed; on the right, only one path lights up based on the information gap, with a caption at the bottom saying "This isn't a stamp card; you don't need to fill all five slots"](planning-skills-punch-card.png){: width="800" height="450" }
+![On the left, all five buttons (to-spec, to-tickets, triage, wayfinder, and to-questionnaire) are pressed; on the right, only one path lights up based on the information gap, with a caption at the bottom saying "This isn't a stamp card; you don't need to fill all five slots"](planning-skills-punch-card.webp){: width="800" height="450" }
 _Having five names on the same list doesn't mean you run all of them every time._
 
 ## `to-spec` Only Organizes What's Already Been Discussed
@@ -102,7 +102,7 @@ This spec only contains confirmed answers. If "takes effect from the next bill" 
 
 The key to how it slices: every ticket has to be a small slice of functionality that works end to end, not one that touches only a single layer. Software features usually span several layers, such as where the data is stored, the code that applies the rules, the screens users see, and the tests that check the feature. The original rules call this kind of slice a tracer bullet. When firing at night, tracer rounds glow so the shooter can see the trajectory and correct their aim on the spot. In the same way, once a small slice of functionality runs through every layer, the team can immediately see whether it's heading in the right direction. A ticket that only changes the data or only changes the UI doesn't satisfy this rule.
 
-![On the left, seat assignment is split into four tickets that change only the data, the rules, the UI, and the tests; on the right, a single ticket runs through the UI, rules, data, and tests, and can be verified on its own once done](vertical-slice-tickets.png){: width="800" height="450" }
+![On the left, seat assignment is split into four tickets that change only the data, the rules, the UI, and the tests; on the right, a single ticket runs through the UI, rules, data, and tests, and can be verified on its own once done](vertical-slice-tickets.webp){: width="800" height="450" }
 _A feature should be cut into small slices that can be completed independently, not split by technical layer into tickets that wait on each other._
 
 The original rules give every ticket two checkable conditions: first, once done, it can be demonstrated or verified on its own; second, it's small enough to finish in one fresh session. Each ticket also lists what it's "blocked by": other tickets that must be done before it can start; a ticket with nothing blocking it can start right away. [The slicing rules and blocking relationships](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-tickets/SKILL.md#L25-L40) are all written in `to-tickets/SKILL.md`.
@@ -207,7 +207,7 @@ The map itself doesn't list unresolved decision tickets; those are opened separa
 
 After the first decision ticket is resolved, "how to restore if the migration fails," originally listed under "Still unclear," may become concrete enough to write as a question, such as "When a single workspace's migration fails, under what conditions should it fall back to the old billing method?" Only then does `wayfinder` open it as a new decision ticket and remove it from "Still unclear." It doesn't pretend from the start that it has already listed every question.
 
-![In the first pass, the map records the destination and the unclear areas, while known questions get their own decision tickets; only after the batch-migration decision ticket is resolved does "when to fall back to old billing if migration fails" become a new decision ticket](wayfinder-decision-map.png){: width="800" height="450" }
+![In the first pass, the map records the destination and the unclear areas, while known questions get their own decision tickets; only after the batch-migration decision ticket is resolved does "when to fall back to old billing if migration fails" become a new decision ticket](wayfinder-decision-map.webp){: width="800" height="450" }
 _Decision tickets are opened separately under the map; the answer to one decision ticket may make the next question concrete enough to ask._
 
 ## `to-questionnaire` Goes to the Person Who Holds the Answer

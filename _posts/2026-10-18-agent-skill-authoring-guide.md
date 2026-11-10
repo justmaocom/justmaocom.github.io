@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, skill-authoring, testing, claude-code, codex, cursor]
 media_subpath: /assets/img/posts/agent-skill-authoring-guide/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "skill 好不好用，先看 description 能否在對的時候被選中，再用腳本與測試確認輸出，每次改版都重跑。"
 ---
 
@@ -162,7 +162,7 @@ A 剛好站在這條線上，因為 commit 就是有副作用的動作。我的�
 
 ## 把細節拆到參考檔與腳本
 
-![漸進式揭露三層：name 與 description 在啟動時就載入，SKILL.md 本文在觸發時才讀，參考檔和腳本只在需要時才用](progressive-disclosure.png){: width="800" height="450" }
+![漸進式揭露三層：name 與 description 在啟動時就載入，SKILL.md 本文在觸發時才讀，參考檔和腳本只在需要時才用](progressive-disclosure.webp){: width="800" height="450" }
 _同一個 skill 分三層載入：越往下越大，但越晚才進入 context window。_
 
 [規範](https://agentskills.io/specification#progressive-disclosure)把一個 skill 分成三層：
@@ -465,7 +465,7 @@ metadata:
 
 ## 分三層測試
 
-![三層測試：格式檢查用 skills-ref 驗證欄位，觸發測試用約 20 條查詢看會不會被叫出來，輸出檢查比較有沒有 skill 的結果](three-layer-tests.png){: width="800" height="450" }
+![三層測試：格式檢查用 skills-ref 驗證欄位，觸發測試用約 20 條查詢看會不會被叫出來，輸出檢查比較有沒有 skill 的結果](three-layer-tests.webp){: width="800" height="450" }
 _三層各測一件事：格式對不對、會不會被叫出來、叫出來之後做得對不對。_
 
 ### 格式檢查

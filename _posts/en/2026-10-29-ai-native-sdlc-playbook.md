@@ -6,7 +6,7 @@ categories: [AI, Software Development]
 tags: [ai-native-sdlc, coding-agent, workflow, claude-code]
 media_subpath: /assets/img/posts/ai-native-sdlc-playbook/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Faster delivery with AI depends on clear handoffs, verifiable results, and human judgment."
 ---
 
@@ -43,7 +43,7 @@ A restaurant is a useful analogy. Cooking faster doesn't help much if the order 
 
 The same applies to waitlist notifications. AI might build the email feature quickly, but if I then spend days deciding how to allocate places, or never find time to review the changes, users won't experience faster delivery.
 
-![Two sequences of work: clarify requirements, build, and verify and deliver. In the second sequence, only the build stage is shorter.](bottleneck.en.png){: width="1600" height="800" }
+![Two sequences of work: clarify requirements, build, and verify and deliver. In the second sequence, only the build stage is shorter.](bottleneck.en.webp){: width="1600" height="800" }
 _I use this diagram to show how waiting adds up. The block lengths are illustrative, not measured durations or performance gains._
 
 What I want to observe is the time from proposing a feature to making it usable. Where do discussions keep repeating? Does the release create more support work? If more code is being produced but the review queue keeps growing, that tells me where to focus next.
@@ -107,7 +107,7 @@ What should the page do?
 
 I would have it display “This offer has expired” and prevent Alex from taking the place now held for Ben. The page also shouldn't promise “You've automatically rejoined the queue” unless I have actually decided how rejoining works.
 
-![A hypothetical timeline: Alex gets an offer at 9:00. After it expires at 11:00, Ben gets the next offer. At 11:05, Alex cannot use the old link to claim the place held for Ben.](invitation-timeline.en.png){: width="1600" height="900" }
+![A hypothetical timeline: Alex gets an offer at 9:00. After it expires at 11:00, Ben gets the next offer. At 11:05, Alex cannot use the old link to claim the place held for Ben.](invitation-timeline.en.webp){: width="1600" height="900" }
 _These times are part of my example. Putting events on one timeline makes it easier to see what an expired link can do and who the place is now reserved for._
 
 I would then ask AI to work through the design against that scenario:
@@ -252,7 +252,7 @@ If the investigation shows that the countdown starts when the offer is created b
 
 That closes the loop: evidence from maintenance informs planning, and the six stages become a cycle of improvement.
 
-![Evidence passed between stages of the waitlist feature: requirements decisions, implementation scope, verification scenarios, release records, and user feedback.](handoff.en.png){: width="1600" height="1000" }
+![Evidence passed between stages of the waitlist feature: requirements decisions, implementation scope, verification scenarios, release records, and user feedback.](handoff.en.webp){: width="1600" height="1000" }
 _I want each handoff to record what was decided, how it was checked, and who takes over. This is my hypothetical waitlist example._
 
 ## Why I Want the Information to Exist Outside the Chat

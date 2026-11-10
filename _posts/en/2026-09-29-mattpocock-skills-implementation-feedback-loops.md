@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "When the AI writes both code and tests, check what it can't change: tests placed where you approved and expected values from the spec."
 ---
 
@@ -124,7 +124,7 @@ The first phase has [four completion criteria](https://github.com/mattpocock/ski
 
 For bugs that only show up occasionally, reproducing them every time isn't required; [the goal is to push the reproduction rate up](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L49-L51). The skill gives an example: a bug that reproduces 50% of the time can still be chased down, while one at 1% can't. When a loop truly can't be built, [the AI has to stop](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L53-L55), list what it tried, and ask you for an environment that reproduces the problem, logs with secrets removed, or permission to temporarily add instrumentation in production.
 
-![On the left, a wall of theories connects five sticky notes with red string: "It's the cache," "Time zone issue," "Race condition," "Third-party API," and "Last week's deploy," with "I've been staring at this code for three days" written underneath; on the right is just one line, node --test seats.test.js, and a lit red light, with "If nothing has gone red yet, don't start guessing" at the bottom](diagnosing-red-light-first.png){: width="800" height="450" }
+![On the left, a wall of theories connects five sticky notes with red string: "It's the cache," "Time zone issue," "Race condition," "Third-party API," and "Last week's deploy," with "I've been staring at this code for three days" written underneath; on the right is just one line, node --test seats.test.js, and a lit red light, with "If nothing has gone red yet, don't start guessing" at the bottom](diagnosing-red-light-first.webp){: width="800" height="450" }
 _Without a command that goes red, no amount of guessing can confirm which theory is right._
 
 Once there's a loop, the remaining five phases run in order:
@@ -154,7 +154,7 @@ Logic prototypes are meant for people who don't write code. [`LOGIC.md`](https:/
 
 UI prototypes default to 3 variants, [with a maximum of 5](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L36-L38). The variants must differ structurally, such as in layout, information hierarchy, or primary interaction. [`UI.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L54) says three slightly tweaked card grids aren't a prototype, just wallpaper: each has its own pattern, but none of them answers a design question. [It also recommends putting the variants directly into the existing page](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L14-L30), because only real data and the surrounding navigation will expose design problems.
 
-![On the left, variants A, B, and C are the same six-card grid, painted blue, green, and purple respectively, with a color swatch beside them labeled "This week's new colors"; on the right, the three variants are a sidebar plus list, a compact table, and a summary on top, with "Three variants that only change color are a wallpaper catalog" at the bottom](prototype-wallpaper-variants.png){: width="800" height="450" }
+![On the left, variants A, B, and C are the same six-card grid, painted blue, green, and purple respectively, with a color swatch beside them labeled "This week's new colors"; on the right, the three variants are a sidebar plus list, a compact table, and a summary on top, with "Three variants that only change color are a wallpaper catalog" at the bottom](prototype-wallpaper-variants.webp){: width="800" height="450" }
 _Variants need to differ in layout and interaction; changing only the colors reveals no design differences._
 
 Both paths share [six rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/SKILL.md#L19-L26). A prototype is labeled as throwaway from day one, launches with a single command or double-click, doesn't persist data by default, and skips tests and error handling. After every action, the full state must be displayed.
@@ -190,7 +190,7 @@ That said, both rules are just instructions written in Markdown, with no code en
 
 So whether the tests count comes down to two things you have to check yourself: the list of seams you confirmed, and whether each expected value can be traced back to the spec.
 
-![On the left, an exam where the AI writes the questions, answers them, and grades them; the answer key column says "Calculate it the same way as the answer," stamped with a score of 100; on the right, an exam whose questions come from seams you confirmed, with the answer key reading "15, from the spec," graded by node --test; at the bottom: "Writing your own questions, answering them, and grading yourself"](tautological-test-exam.png){: width="800" height="450" }
+![On the left, an exam where the AI writes the questions, answers them, and grades them; the answer key column says "Calculate it the same way as the answer," stamped with a score of 100; on the right, an exam whose questions come from seams you confirmed, with the answer key reading "15, from the spec," graded by node --test; at the bottom: "Writing your own questions, answering them, and grading yourself"](tautological-test-exam.webp){: width="800" height="450" }
 _If the expected value is recomputed with the code's own algorithm, the test will always pass._
 
 ## Where Your Time Goes

@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, domain-modeling]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
 ---
 
@@ -28,7 +28,7 @@ A skill, as used in this post, can be thought of as a set of instructions that t
 
 ## How the Five Skills Relate
 
-![grill-me, grill-with-docs, and wait-what are user-invoked entry points; grill-me and grill-with-docs hand the interview to grilling, and grill-with-docs also hands vocabulary curation to domain-modeling](mattpocock-skills-requirements-1.png){: width="800" height="450" }
+![grill-me, grill-with-docs, and wait-what are user-invoked entry points; grill-me and grill-with-docs hand the interview to grilling, and grill-with-docs also hands vocabulary curation to domain-modeling](mattpocock-skills-requirements-1.webp){: width="800" height="450" }
 _Pick the entry point that fits your current situation, and the internal flows take over the rest._
 
 These five skills are not a sequence of steps you must run in order. `grill-me` and `grill-with-docs` are two alternative starting points. `grilling` and `domain-modeling` take over the interview and the vocabulary work behind the scenes. `wait-what` asks the AI to re-explain its last message when it wasn't clear.
@@ -71,7 +71,7 @@ Once a term is confirmed, `domain-modeling` updates `CONTEXT.md` immediately ins
 
 Significant technical choices may be written up as an ADR, short for Architecture Decision Record. It's a short document that explains what was chosen and why. The AI proposes an ADR only when a decision will be hard to change later, will be hard to understand without context, and actually involved weighing alternatives. It writes the ADR only after you agree. The skill's format allows an ADR to be a single paragraph and doesn't ask you to pad it out just to fill a template. You can check the three conditions and the format in [`ADR-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/ADR-FORMAT.md#L1-L37).
 
-![Product, finance, and engineering all agree to per-seat billing, but each defines a seat differently; the glossary document on the right records a shared definition of a billable seat](mattpocock-skills-requirements-2.png){: width="800" height="450" }
+![Product, finance, and engineering all agree to per-seat billing, but each defines a seat differently; the glossary document on the right records a shared definition of a billable seat](mattpocock-skills-requirements-2.webp){: width="800" height="450" }
 _Agreeing on the same word is not the same as agreeing on the same thing._
 
 ## wait-what Re-Explains Only the Message You Didn't Follow
@@ -86,7 +86,7 @@ Its instruction only asks for the previous message to be re-explained; it doesn'
 
 ## Interview Results Don't All Go Into the Same Document
 
-![What gets confirmed in the interview is routed to three destinations: canonical terms and definitions go into CONTEXT.md, significant decisions that involved trade-offs become ADRs, and other feature behavior, exceptions, defaults, and acceptance criteria are handed to to-spec](mattpocock-skills-requirements-3.png){: width="800" height="450" }
+![What gets confirmed in the interview is routed to three destinations: canonical terms and definitions go into CONTEXT.md, significant decisions that involved trade-offs become ADRs, and other feature behavior, exceptions, defaults, and acceptance criteria are handed to to-spec](mattpocock-skills-requirements-3.webp){: width="800" height="450" }
 _Interview results are written to the glossary, an ADR, or a later spec depending on what kind of content they are._
 
 `grill-with-docs` writes documentation, but that doesn't mean it stuffs every answer into `CONTEXT.md`. Interview content goes to one of three places:

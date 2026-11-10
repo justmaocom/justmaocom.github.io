@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "Research notes, handoffs, API key setup, and docs for AI share one rule: keep a single source of truth and link to it everywhere else."
 ---
 
@@ -63,7 +63,7 @@ On the `ask-matt` roadmap, [`handoff` sits under "phase boundaries"](https://git
 
 Why insist on primary sources? Think of asking for directions. A passer-by saying "turn left up ahead, I think" is far less reliable than opening the map yourself. Tutorials online are often written for one particular version and go stale when the version changes; official docs and source code are the rules as they stand now.
 
-![On the left, a chain of hearsay: a forum post cites a blog, which cites another tutorial, drifting further with each retelling; on the right, official docs, source code, and a spec are read directly and turned into a note with a source for every line; the bottom reads "Trace every claim to its original source"](research-primary-sources.png){: width="800" height="450" }
+![On the left, a chain of hearsay: a forum post cites a blog, which cites another tutorial, drifting further with each retelling; on the right, official docs, source code, and a spec are read directly and turned into a note with a source for every line; the bottom reads "Trace every claim to its original source"](research-primary-sources.webp){: width="800" height="450" }
 _Second-hand articles drift with every retelling; primary sources are the current rules._
 
 The note isn't the end of the road. [As `ask-matt` explains](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L81), research results go into `grill-with-docs` in the main flow, as material for discussing requirements. Research is there to help you think, not to decide for you.
@@ -84,7 +84,7 @@ It has just [five rules](https://github.com/mattpocock/skills/blob/c55ee46073ed9
 
 Rule 3 matters most. A handoff sheet has to be short for anyone to read it; copying the spec in not only makes it longer, the two copies can later drift apart.
 
-![On the left, a long conversation log that still hasn't reached the point after scrolling top to bottom; on the right, a handoff sheet with just four parts: "where we are," "next step," "suggested skills," and "links," with passwords blacked out; the bottom reads "The handoff sheet holds only what the next person needs; link the rest"](handoff-note.png){: width="800" height="450" }
+![On the left, a long conversation log that still hasn't reached the point after scrolling top to bottom; on the right, a handoff sheet with just four parts: "where we are," "next step," "suggested skills," and "links," with passwords blacked out; the bottom reads "The handoff sheet holds only what the next person needs; link the rest"](handoff-note.webp){: width="800" height="450" }
 _The next person doesn't need the whole conversation, just a sheet that states where things are and what's next._
 
 ### When You Actually Need a Handoff Sheet
@@ -101,7 +101,7 @@ Some things the AI genuinely can't do: log into the payment service's dashboard 
 
 The program is a bash script, a list of commands run one after another in the terminal (the text window where you type commands). The look and the interaction are [already written in the template `template.sh`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L10), including progress display, hidden password entry, and re-running without corrupting the settings file. The AI only plans the steps and fills in each one; the shared code in the template's top half must never be edited.
 
-![On the left, a terminal showing "Step 1/2: payment service keys," with a note that the web page is open and a prompt to paste the key, the input shown as dots; on the right, the results: keys written to .env, the needed key stored in GitHub's encrypted settings; the bottom reads "For what only you can do, let a program walk you through it step by step"](wizard-human-steps.png){: width="800" height="450" }
+![On the left, a terminal showing "Step 1/2: payment service keys," with a note that the web page is open and a prompt to paste the key, the input shown as dots; on the right, the results: keys written to .env, the needed key stored in GitHub's encrypted settings; the bottom reads "For what only you can do, let a program walk you through it step by step"](wizard-human-steps.webp){: width="800" height="450" }
 _The AI writes the steps; you just follow the screen and paste the values._
 
 It works in four steps:

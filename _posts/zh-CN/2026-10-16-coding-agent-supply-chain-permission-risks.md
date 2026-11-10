@@ -6,7 +6,7 @@ categories: [信息安全, AI Agent]
 tags: [ai-security, coding-agent, mcp, agent-skills, prompt-injection, supply-chain-security]
 media_subpath: /assets/img/posts/coding-agent-supply-chain-permission-risks/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "把第三方 skill 和 MCP 当成在你电脑上运行的程序：令牌权限降到最低，被骗时损失有限；锁定版本，才不会被偷换。"
 ---
 
@@ -45,7 +45,7 @@ image:
 
 ## 攻击面拆解：四个入口
 
-![一个 Coding Agent 在中间，四个方向各有一个入口：工具返回结果与文档里藏的指令、恶意或被篡改的 skill 与 MCP、过大的权限与凭证、自动运行的命令（包括后台自动装最新版）；底部写着“四个入口，常常串在一起用”](attack-surface-map.zh-CN.png){: width="800" height="450" }
+![一个 Coding Agent 在中间，四个方向各有一个入口：工具返回结果与文档里藏的指令、恶意或被篡改的 skill 与 MCP、过大的权限与凭证、自动运行的命令（包括后台自动装最新版）；底部写着“四个入口，常常串在一起用”](attack-surface-map.zh-CN.webp){: width="800" height="450" }
 _四个入口很少单独出现，真正的攻击通常是把两三个串起来。_
 
 ### 入口一：藏在内容里的指令
@@ -135,7 +135,7 @@ Agent 能做的事，等于它拿到的权限总和。本地的 `~/.ssh`、环�
 
 ## 防护：四个方向，各自挡什么
 
-![左边是三个条件：能读私人数据、会碰外部内容、能往外传，三个圆圈互相重叠；右边列出最小权限、沙箱与断网（并注明 MCP server 要另外隔离）、审查与锁版本，各自剪断其中一条；底部写着“三条凑齐就危险，至少剪断一条”](trifecta-cut.zh-CN.png){: width="800" height="450" }
+![左边是三个条件：能读私人数据、会碰外部内容、能往外传，三个圆圈互相重叠；右边列出最小权限、沙箱与断网（并注明 MCP server 要另外隔离）、审查与锁版本，各自剪断其中一条；底部写着“三条凑齐就危险，至少剪断一条”](trifecta-cut.zh-CN.webp){: width="800" height="450" }
 _防护的目标不是让 AI 变聪明，而是让它就算被骗了也做不了大事。_
 
 **观点**：没有任何一招能单独解决提示注入。目前比较实际的思路，是假设 agent 有一天一定会读到恶意内容，然后确保那一天它能造成的伤害很小。
@@ -186,7 +186,7 @@ git -C some-skill checkout <commit>
 
 ## 检查清单
 
-![三栏检查清单：装之前（看完整文件夹与启动命令、确认来源和维护者、锁定版本）、用的时候（细粒度令牌、开沙箱与限制网络、不开始终允许）、出事之后（撤销令牌、查审计日志、检查配置文件与 shell 设置）；底部写着“把 skill 和 MCP 当成会运行的软件来管”](checklist-three-stages.zh-CN.png){: width="800" height="450" }
+![三栏检查清单：装之前（看完整文件夹与启动命令、确认来源和维护者、锁定版本）、用的时候（细粒度令牌、开沙箱与限制网络、不开始终允许）、出事之后（撤销令牌、查审计日志、检查配置文件与 shell 设置）；底部写着“把 skill 和 MCP 当成会运行的软件来管”](checklist-three-stages.zh-CN.webp){: width="800" height="450" }
 _清单分三段，各自对应不同的时间点。_
 
 ### 装之前

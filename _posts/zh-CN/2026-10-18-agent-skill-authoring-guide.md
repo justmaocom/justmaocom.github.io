@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, skill-authoring, testing, claude-code, codex, cursor]
 media_subpath: /assets/img/posts/agent-skill-authoring-guide/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "skill 好不好用，先看 description 能否在对的时候被选中，再用脚本和测试确认输出，每次改版都重跑。"
 ---
 
@@ -162,7 +162,7 @@ A 正好站在这条线上，因为 commit 就是有副作用的操作。我的�
 
 ## 把细节拆到参考文件和脚本
 
-![渐进式披露三层：name 和 description 在启动时就加载，SKILL.md 正文在触发时才读，参考文件和脚本只在需要时才用](progressive-disclosure.zh-CN.png){: width="800" height="450" }
+![渐进式披露三层：name 和 description 在启动时就加载，SKILL.md 正文在触发时才读，参考文件和脚本只在需要时才用](progressive-disclosure.zh-CN.webp){: width="800" height="450" }
 _同一个 skill 分三层加载：越往下越大，但越晚才进入 context window。_
 
 [规范](https://agentskills.io/specification#progressive-disclosure)把一个 skill 分成三层：
@@ -465,7 +465,7 @@ metadata:
 
 ## 分三层测试
 
-![三层测试：格式检查用 skills-ref 验证字段，触发测试用约 20 条查询看会不会被调出来，输出检查对比有无 skill 的结果](three-layer-tests.zh-CN.png){: width="800" height="450" }
+![三层测试：格式检查用 skills-ref 验证字段，触发测试用约 20 条查询看会不会被调出来，输出检查对比有无 skill 的结果](three-layer-tests.zh-CN.webp){: width="800" height="450" }
 _三层各测一件事：格式对不对、会不会被调出来、调出来之后做得对不对。_
 
 ### 格式检查

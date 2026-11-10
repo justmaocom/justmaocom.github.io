@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-install-routing/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "教你安装 pstack、核对版本、用 /setup-pstack 选模型，再把每个任务交给 /poteto-mode。"
 ---
 
@@ -34,7 +34,7 @@ pstack 能让 AI 编程助手做事更有条理，但打开一看，光是 skill
 
 在 Claude Code 里，插件的命令前面要加插件名称，所以 Cursor 的 `/poteto-mode`，在 Claude Code 里写成 `/pstack:poteto-mode`（见 [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L28)）。下文的示例都用 Claude Code 的写法；在 Cursor 里，把 `pstack:` 拿掉就好。两边的其他差异，列在官方的 [Claude Code 对照说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md)。
 
-![四步：安装 pstack、核对版本、用 /setup-pstack 选模型、每个任务用 /poteto-mode 开头](install-setup-flow.zh-CN.png){: width="800" height="450" }
+![四步：安装 pstack、核对版本、用 /setup-pstack 选模型、每个任务用 /poteto-mode 开头](install-setup-flow.zh-CN.webp){: width="800" height="450" }
 _第一次使用的流程：安装、核对版本、选模型，再从 /poteto-mode 开始。_
 
 ## 第 1 步：安装
@@ -212,7 +212,7 @@ pstack 会把工作分给不同角色，例如写代码的、做判断的、组�
 
 ### 它会怎么做
 
-![任务描述写出目标和完成条件，/poteto-mode 挑出对应的 playbook，步骤抄进待办清单，跳过的标 skip](poteto-mode-routing.zh-CN.png){: width="800" height="450" }
+![任务描述写出目标和完成条件，/poteto-mode 挑出对应的 playbook，步骤抄进待办清单，跳过的标 skip](poteto-mode-routing.zh-CN.webp){: width="800" height="450" }
 _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 
 1. **判断任务类型，挑一个 playbook。** [playbook 清单](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md#L121-L149)涵盖调查（Investigation）、修 bug（Bug fix）、性能问题、新功能（Feature）、重构、原型、撰写 skill 等。规模大、跨很多地方的工作，或是你要离开、之后才回来看结果的工作，会交给 `figure-it-out` 这个 skill 另外设计一套流程。

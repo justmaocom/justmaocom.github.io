@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-understand-design/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "用 /how、/why 看懂代码，用 /architect、/arena 设计，改完以 /interrogate 审查。"
 ---
 
@@ -40,7 +40,7 @@ pstack 是 Cursor 官方插件库里的一整组 skill。skill 是一份告诉 A
 
 下面会常出现“子代理”这个词：skill 运行时，会另外派出几个 AI 分头做事，每一个就是一个子代理。派出去的子代理越多，用掉的额度通常也越多。
 
-![五个 skill 的流程：先用 /how、/why 看懂，再用 /architect 设计、/arena 比较做法，最后用 /interrogate 审查](five-skills-flow.zh-CN.png){: w="800" h="450" }
+![五个 skill 的流程：先用 /how、/why 看懂，再用 /architect 设计、/arena 比较做法，最后用 /interrogate 审查](five-skills-flow.zh-CN.webp){: w="800" h="450" }
 _先看懂，再设计，改完再审查。`/arena` 可以单独用，也是 `/architect` 内部用来比较草稿的工具。_
 
 ## /how：先弄懂代码现在怎么运行
@@ -175,7 +175,7 @@ _先看懂，再设计，改完再审查。`/arena` 可以单独用，也是 `/a
 
 **下一步**：先处理 Act on，再看 Consider。被归到 Dismissed 的也要读：主审只是务实的资深工程师，不是标准答案，你可以推翻它的判断。
 
-![/interrogate 的流程：同一份改动交给几位审查者，合并后分成 Act on、Consider、Noted、Dismissed 四类](interrogate-buckets.zh-CN.png){: w="800" h="450" }
+![/interrogate 的流程：同一份改动交给几位审查者，合并后分成 Act on、Consider、Noted、Dismissed 四类](interrogate-buckets.zh-CN.webp){: w="800" h="450" }
 _同一份改动交给几个模型各自审查，再由主审分成四类。它不会自动改代码。_
 
 ## /arena：让几个 AI 各做一份，再挑最好的
@@ -211,7 +211,7 @@ _同一份改动交给几个模型各自审查，再由主审分成四类。它�
 
 **下一步**：如果产出是代码，合并前可以再跑 `/interrogate`。如果你要的是“每个包都检查一遍”这种**覆盖**，而不是比较做法，那是另一个 skill `/swarm` 的工作，不要用 `/arena`。
 
-![/arena 的六个阶段：定规则、分头做、评审、选底稿、嫁接、验证](arena-phases.zh-CN.png){: w="800" h="450" }
+![/arena 的六个阶段：定规则、分头做、评审、选底稿、嫁接、验证](arena-phases.zh-CN.webp){: w="800" h="450" }
 _候选越多，派出的子代理就越多：N 份候选再加一位评审。_
 
 ## 一个完整的例子（虚构）

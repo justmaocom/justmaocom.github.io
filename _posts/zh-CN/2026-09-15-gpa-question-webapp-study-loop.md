@@ -13,7 +13,7 @@ media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
 
 要解的问题是：怎么把固定题库改造成每轮顺序不同、还能留下弱项记录的练习？
 
-![左侧照固定题序能预告答案，右侧题序洗牌后显示理解度重新加载中](pdf-order-memory.png){: width="800" height="430" }
+![左侧照固定题序能预告答案，右侧题序洗牌后显示理解度重新加载中](pdf-order-memory.webp){: width="800" height="430" }
 _题序一洗牌，熟悉感就不能代替理解。_
 
 ## 这是一套把官方题库变成练习记录的 Web App
@@ -24,7 +24,7 @@ _题序一洗牌，熟悉感就不能代替理解。_
 
 整体架构有两条数据路径。上半部把手动下载的官方题库交给 CLI，解析后写进 PostgreSQL；下半部由浏览器界面调用 FastAPI，读写题目、session 与作答记录。
 
-![官方题库经本地文件与导入 CLI 写入 PostgreSQL，浏览器则经界面和 FastAPI 读写练习数据](system-architecture.png){: width="1200" height="548" }
+![官方题库经本地文件与导入 CLI 写入 PostgreSQL，浏览器则经界面和 FastAPI 读写练习数据](system-architecture.webp){: width="1200" height="548" }
 _架构图依据 commit `b29fe3f` 绘制；[打开交互版](/assets/img/posts/gpa-question-webapp-study-loop/system-architecture.html)。_
 
 ## 数据怎么从 PDF 走到一道可作答的题目

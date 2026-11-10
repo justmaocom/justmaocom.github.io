@@ -13,7 +13,7 @@ media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
 
 要解的問題是：怎麼把固定題庫改造成每輪順序不同、還能留下弱項紀錄的練習？
 
-![左側照固定題序能預告答案，右側題序洗牌後顯示理解度重新載入中](pdf-order-memory.png){: width="800" height="430" }
+![左側照固定題序能預告答案，右側題序洗牌後顯示理解度重新載入中](pdf-order-memory.webp){: width="800" height="430" }
 _題序一洗牌，熟悉感就不能代替理解。_
 
 ## 這是一套把官方題庫變成練習紀錄的 Web App
@@ -24,7 +24,7 @@ _題序一洗牌，熟悉感就不能代替理解。_
 
 整體架構有兩條資料路徑。上半部把手動下載的官方題庫交給 CLI，解析後寫進 PostgreSQL；下半部由瀏覽器介面呼叫 FastAPI，讀寫題目、session 與作答紀錄。
 
-![官方題庫經本機檔案與匯入 CLI 寫入 PostgreSQL，瀏覽器則經介面和 FastAPI 讀寫練習資料](system-architecture.png){: width="1200" height="548" }
+![官方題庫經本機檔案與匯入 CLI 寫入 PostgreSQL，瀏覽器則經介面和 FastAPI 讀寫練習資料](system-architecture.webp){: width="1200" height="548" }
 _架構圖依據 commit `b29fe3f` 繪製；[開啟互動版](/assets/img/posts/gpa-question-webapp-study-loop/system-architecture.html)。_
 
 ## 資料怎麼從 PDF 走到一道可作答的題目

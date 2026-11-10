@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "AI 自己写代码也写测试时，要看它改不了的东西：你确认过的测试位置，以及来自规格的预期值。"
 ---
 
@@ -124,7 +124,7 @@ AI 开始探索程序时，[若项目里有 `CONTEXT.md` 就先读](https://gith
 
 偶尔才出现的 bug 不求每次复现，[目标是把复现率拉高](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L49-L51)。原文举例，复现率 50% 的 bug 还追得下去，1% 就追不了。真的做不出回路时，[AI 要停下来](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L53-L55)列出试过的方法，再向你要能复现问题的环境、脱敏后的日志文件，或请你允许它在生产环境暂时加上监控。
 
-![左侧推理墙用红线串起“是缓存吧”“时区问题”“竞态条件”“第三方 API”“上周的部署”五张便条，下方写着“我盯这段代码三天了”；右侧只有一行 node --test seats.test.js 与一颗亮起的红灯，底部写着“没亮过红灯，就先别开始猜”](diagnosing-red-light-first.png){: width="800" height="450" }
+![左侧推理墙用红线串起“是缓存吧”“时区问题”“竞态条件”“第三方 API”“上周的部署”五张便条，下方写着“我盯这段代码三天了”；右侧只有一行 node --test seats.test.js 与一颗亮起的红灯，底部写着“没亮过红灯，就先别开始猜”](diagnosing-red-light-first.webp){: width="800" height="450" }
 _还没有会亮红灯的命令，推测再多也无法确认哪一个对。_
 
 有了回路之后，后面五个阶段依次进行：
@@ -154,7 +154,7 @@ _还没有会亮红灯的命令，推测再多也无法确认哪一个对。_
 
 界面原型默认做 3 个版本，[最多 5 个](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L36-L38)。版本之间要有结构上的差异，例如布局、信息层次或主要操作方式不同。[`UI.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L54) 说，三个只稍微调整过的卡片网格不是原型，只是壁纸：看起来各有花色，却没有回答任何设计问题。[它也建议把版本直接放进现有页面](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/UI.md#L14-L30)，因为页面周围的真实数据与导航栏才能暴露设计问题。
 
-![左侧版本 A、B、C 是同一种六格卡片网格，只分别涂成蓝、绿、紫，旁边的色卡写着“本周新色”；右侧三个版本分别是侧栏加列表、精简表格与摘要在上，底部写着“只换颜色的三个版本，是壁纸型录”](prototype-wallpaper-variants.png){: width="800" height="450" }
+![左侧版本 A、B、C 是同一种六格卡片网格，只分别涂成蓝、绿、紫，旁边的色卡写着“本周新色”；右侧三个版本分别是侧栏加列表、精简表格与摘要在上，底部写着“只换颜色的三个版本，是壁纸型录”](prototype-wallpaper-variants.webp){: width="800" height="450" }
 _版本之间要在布局与操作方式上有所不同，只换颜色看不出设计差异。_
 
 两条路共用[六条规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/prototype/SKILL.md#L19-L26)。原型从第一天就标明是抛弃式，一条命令或双击就能启动，默认不存数据，也不写测试与错误处理。每次操作后都要把完整状态显示出来。
@@ -190,7 +190,7 @@ test("calculateTotal sums line items", () => {
 
 所以测试算不算数，要你自己看两样东西：你确认过的接缝清单，以及每个预期值能不能在规格里找到出处。
 
-![左侧试卷的出题、作答、批改都是 AI，标准答案栏写着“照作答算一遍”，盖着 100 分；右侧试卷由你确认的接缝出题，标准答案写着“15，出自规格”，由 node --test 批改；底部写着“自己出题、自己作答、自己打分”](tautological-test-exam.png){: width="800" height="450" }
+![左侧试卷的出题、作答、批改都是 AI，标准答案栏写着“照作答算一遍”，盖着 100 分；右侧试卷由你确认的接缝出题，标准答案写着“15，出自规格”，由 node --test 批改；底部写着“自己出题、自己作答、自己打分”](tautological-test-exam.webp){: width="800" height="450" }
 _预期值若照程序的算法重算，测试就会永远通过。_
 
 ## 哪些地方要花你的时间

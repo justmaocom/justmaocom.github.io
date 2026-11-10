@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "不必先背 25 個 skill：替專案跑一次設定，卡住時再讓 ask-matt 建議下一步，但仍要你親自啟動。"
 ---
 
@@ -31,7 +31,7 @@ image:
 
 ## 先分清楚安裝與啟動
 
-![六格圖解說明 mattpocock/skills：選擇 Claude Code 外掛或 skills.sh，執行 setup 建立專案設定，再由 ask-matt 建議下一個 skill。功能需求依序經過需求釐清、撰寫規格、拆分工作與實作](ask-matt-router-tutorial.png){: width="800" height="450" }
+![六格圖解說明 mattpocock/skills：選擇 Claude Code 外掛或 skills.sh，執行 setup 建立專案設定，再由 ask-matt 建議下一個 skill。功能需求依序經過需求釐清、撰寫規格、拆分工作與實作](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _第一次使用的完整路徑：選擇安裝方式、執行 setup，再由 ask-matt 建議下一個 skill。_
 
 安裝與啟動是兩個不同的問題。安裝方式決定 skill 檔案放在哪裡、由誰負責更新；啟動方式則決定誰能叫某個 skill 開始工作。
@@ -138,7 +138,7 @@ setup 只把標籤名稱寫進 `docs/agents/triage-labels.md`，原始流程裡�
 
 從需求訪談到 `to-tickets`，都應該留在同一段對話裡，讓後面的步驟接續前面的討論。工作單建立好之後，每張工作單才各自開新的對話；工作單已寫明所需資訊，不必依賴先前的對話內容。完整規則位於 [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90)。
 
-![左側進度條顯示正在背 25 個 skills，右側 ask-matt 詢問目前卡在哪一步](ask-matt-router-meme.png){: width="800" height="450" }
+![左側進度條顯示正在背 25 個 skills，右側 ask-matt 詢問目前卡在哪一步](ask-matt-router-meme.webp){: width="800" height="450" }
 _記憶測驗取消，工作開始。_
 
 ## 模擬情境：替既有服務加入按席次計費

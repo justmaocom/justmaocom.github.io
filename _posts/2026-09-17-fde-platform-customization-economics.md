@@ -49,7 +49,7 @@ Foundry Ontology 是演講中唯一點名的例子。[Palantir 官方文件](htt
 
 真正改變成本結構的是客製程式共享了多少已維護的能力，而不是工程師坐在哪裡。沒有平台時，每張新合約都帶來另一套相依套件、部署流程與支援責任。演講用「工程師不想學 55 個 repo」形容這個維護局面，接著指出維護成本會侵蝕損益。
 
-![左側沒有共用平台，職缺要求維護 55 個 repo，候選人稱它為人形套件管理器；右側以資料模型、動作與權限支撐不同需求](fde-hiring-test.png){: width="1200" height="675" }
+![左側沒有共用平台，職缺要求維護 55 個 repo，候選人稱它為人形套件管理器；右側以資料模型、動作與權限支撐不同需求](fde-hiring-test.webp){: width="1200" height="675" }
 _同樣叫 FDE，底層平台會改變工程師每天維護的東西。_
 
 演講中的財務數字也不能直接證明這套模式的獲利能力。Bai 在 [6:39 到 7:07](https://www.youtube.com/watch?v=KwhgfwOSToQ&t=399s) 以 ACV（average contract value，平均合約價值）比較幾家公司。他口頭列出 Palantir 400 萬美元、ServiceNow 120 萬美元與 Workday 60 萬美元，並用了「上次查看」與「印象中」這類限定語。[官方校訂稿](https://ai.engineer/talks/KwhgfwOSToQ-forward-deployed-engineering-101#commercial-case) 明確註記這些數字沒有量測日期、計算方式或獨立排名。它們只能說明講者的商業論證，不能當成一致口徑的公司比較。

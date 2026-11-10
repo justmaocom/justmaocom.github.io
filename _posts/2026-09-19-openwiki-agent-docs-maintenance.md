@@ -22,7 +22,7 @@ OpenWiki 是產生與維護 repo wiki 的命令列工具。本文查證的是原
 
 OpenWiki 寫入的 agent 指引會把 `openwiki/` 定位成按需求查閱的 evidence index。也就是說，agent 先用 wiki 找到相關系統與檔案，再回到原始碼和測試確認；wiki 本身不是最終依據。這項限制寫在 [`createCodeModeAgentsSnippet`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L423) 產生的指引中。
 
-![短指引指向 repo wiki，wiki 再連回原始碼與測試](agents-md-points-to-wiki.png){: width="800" height="430" }
+![短指引指向 repo wiki，wiki 再連回原始碼與測試](agents-md-points-to-wiki.webp){: width="800" height="430" }
 _AGENTS.md 只負責指路；wiki 是按需查閱的 evidence index，仍要回到程式碼確認。_
 
 ## 一次更新如何決定要改哪些頁面
@@ -34,7 +34,7 @@ OpenWiki 會產生 wiki 頁面，也會為頁面中的重要敘述建立 Claim�
 3. 負責寫頁面的 worker 一次只處理目前排到的 page job。它完成頁面後，還要列出哪些 Claims 是新增、修訂、確認或撤回。這些動作讓 OpenWiki 知道一條既有敘述是仍然成立、內容需要修改，還是應該從文件移除。[`submitRepositoryPage`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/generation/repository-run.ts#L1184) 會拒絕不按佇列順序提交的頁面，並在接受前確認頁面檔案可讀。
 4. 寫入頁面和 Claims 時，OpenWiki 會檢查 worker 讀取的頁面版本是否仍是最新版，避免覆蓋其他更新。接著它確認 sidecar 內的 Claim 能找到所引用的程式碼，通過後才把這個 page job 標成完成。所有頁面處理完後，它還會檢查 Mermaid 圖、wiki 索引、內部連結、Claim 來源與本次生成紀錄。這組收尾檢查實作在 [`finalizeWikiArtifacts`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/agent/wiki-finalizer.ts#L248)。
 
-![OpenWiki 更新流程：Git 變更、planner、page job 與收尾檢查](openwiki-update-pipeline.png){: width="800" height="430" }
+![OpenWiki 更新流程：Git 變更、planner、page job 與收尾檢查](openwiki-update-pipeline.webp){: width="800" height="430" }
 _一次更新先看程式碼改了什麼，再決定頁面、寫入 Claims，最後才做整批檢查。_
 
 OpenWiki 每完成一頁就把結果寫進本次更新的 checkpoint。若程序中途失敗，已完成頁面的紀錄不會跟著消失。只有全部頁面通過驗證並寫入本次生成紀錄後，[`finishRepositoryRun`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/generation/repository-run.ts#L1487) 才會移除這份執行狀態。這代表中斷時能保留部分進度，不代表未完成的 wiki 已經可以合併。
@@ -49,7 +49,7 @@ Grounded Claims 的用途是讓重要文件敘述可以回查原始碼。每條 
 
 所以，來源檢查全綠只代表 Claim 仍能連到當初引用的內容。審查者仍要讀該段程式碼與相關測試，確認文件沒有誤解條件、數量或執行順序。
 
-![CI 面板顯示來源檢查全綠，開發者詢問文件是否正確，審查者拿出紅筆](claims-green-review-red-pen.png){: width="800" height="430" }
+![CI 面板顯示來源檢查全綠，開發者詢問文件是否正確，審查者拿出紅筆](claims-green-review-red-pen.webp){: width="800" height="430" }
 _Claims 全綠後，仍需人工核對文件敘述。_
 
 ## 放進日常工作，差別在哪裡

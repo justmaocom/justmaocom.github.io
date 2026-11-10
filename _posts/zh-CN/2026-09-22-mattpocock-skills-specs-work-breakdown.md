@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, requirements, project-planning]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
-  path: cover.zh-CN.png
+  path: cover.zh-CN.webp
   alt: "先看清楚缺的是哪一种信息再挑 skill；五个规划 skill 全跑一遍，只会多出一堆没人用的文档。"
 ---
 
@@ -51,7 +51,7 @@ image:
 | 工作大到连该做哪些决定都列不完整 | `wayfinder` | 一张“地图”与多张待决定的“决策单” |
 | 关键答案在另一个人手上 | `to-questionnaire` | 一份交给对方填写的问卷 |
 
-![左侧把 to-spec、to-tickets、triage、wayfinder 与 to-questionnaire 五个按钮全部按下，右侧依信息缺口只亮起一条路，底部写着“这不是集章卡，不用五格盖满”](planning-skills-punch-card.png){: width="800" height="450" }
+![左侧把 to-spec、to-tickets、triage、wayfinder 与 to-questionnaire 五个按钮全部按下，右侧依信息缺口只亮起一条路，底部写着“这不是集章卡，不用五格盖满”](planning-skills-punch-card.webp){: width="800" height="450" }
 _五个名称放在同一张清单里，不代表每次都要全部运行。_
 
 ## `to-spec` 只整理已经谈过的内容
@@ -102,7 +102,7 @@ _五个名称放在同一张清单里，不代表每次都要全部运行。_
 
 切法有一个重点：每张工作单都要是“从头到尾都能运作”的一小段功能，而不是“只做其中一层”。软件功能通常分成好几层，例如保存数据的地方、处理规则的程序、用户看到的界面，以及检查功能的测试。原始规则把这种切法称为 tracer bullet，也就是曳光弹。夜间射击时，曳光弹会发光，让射手看清弹道并实时修正。同样地，先让一小段功能完整打通每一层，团队就能立刻看到方向对不对。只改数据或只改界面的工作单，都不符合这项规则。
 
-![左侧把分配席位拆成只改数据、规则、界面与测试的四张工作单；右侧以一张工作单打通界面、规则、数据与测试，完成后可单独验证](vertical-slice-tickets.png){: width="800" height="450" }
+![左侧把分配席位拆成只改数据、规则、界面与测试的四张工作单；右侧以一张工作单打通界面、规则、数据与测试，完成后可单独验证](vertical-slice-tickets.webp){: width="800" height="450" }
 _同一项功能要切成能独立完成的小段，而不是依技术层拆成互相等待的工作单。_
 
 原始规则替每张工作单设了两个可以检查的条件：第一，完成后能单独展示或验证；第二，工作量要能在一次全新的对话里做完。每张工作单也要列出“前置工作”，也就是开始前必须先完成的其他工作单；没有前置工作的工作单可以立刻开始。[切分规则与前置关系](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/to-tickets/SKILL.md#L25-L40)都写在 `to-tickets/SKILL.md`。
@@ -207,7 +207,7 @@ AI 不会直接把第一版切法写出去。它会先列出每张工作单的�
 
 第一张决策单解决后，原本列在“还看不清楚的地方”的“转换失败时如何恢复”，可能变得能写成明确的问题，例如“单一工作区转换失败时，在什么条件下要退回旧的计费方式”。这时 `wayfinder` 才把它开成新的决策单，并从“还看不清楚的地方”移除。它不会一开始就假装已经列出所有问题。
 
-![第一轮盘点时，地图记录终点与看不清楚的地方，已知问题另开决策单；解完分批转换的决策单后，才把转换失败时何时退回旧计费写成新决策单](wayfinder-decision-map.png){: width="800" height="450" }
+![第一轮盘点时，地图记录终点与看不清楚的地方，已知问题另开决策单；解完分批转换的决策单后，才把转换失败时何时退回旧计费写成新决策单](wayfinder-decision-map.webp){: width="800" height="450" }
 _决策单另外开在地图底下；一张决策单的答案，可能让下一个问题变得能具体提出。_
 
 ## `to-questionnaire` 去找掌握答案的人

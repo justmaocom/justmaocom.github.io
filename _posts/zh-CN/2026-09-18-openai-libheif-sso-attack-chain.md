@@ -111,7 +111,7 @@ Hacktron 表示，他们验证了一条不需用户交互的账号接管路径�
 
 本案最缺的是第二层的技术资料。公开材料没有说明论坛端持有什么凭证、OpenAI SSO 接受了什么登录状态，也没有说明修复动了哪一段判断逻辑。第三层则只知道 Hacktron 所述的结果：Codex 已连接 GitHub，并被用来创建 pull request。把三层分开，才能避免用一个模糊的“SSO 有问题”盖过所有待查项目。
 
-![SSO 权限审查单把论坛、ChatGPT、Codex 和 GitHub 填进一个原本只留一行的字段](sso-review-form.png){: width="960" height="540" }
+![SSO 权限审查单把论坛、ChatGPT、Codex 和 GitHub 填进一个原本只留一行的字段](sso-review-form.webp){: width="960" height="540" }
 _当登录身份能带到其他服务，审查表的一行很快就不够用。_
 
 ## 只看上游版本号会判错修复状态

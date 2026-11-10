@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-build-verify-merge/
 image:
-  path: cover.png
+  path: cover.webp
   alt: "先重現再修、清理 diff、實際操作驗證，再讓 babysit 推到可合併；合併由你決定。"
 ---
 
@@ -53,7 +53,7 @@ pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 A
 
 這樣 AI 就有了三項具體的驗收要求，可以逐項檢查是否完成。它的回覆應該附上確切的指令和輸出；有檢查跑不了時，好的回覆會寫「無法判斷」（inconclusive）。**很有自信、卻沒附證據的回覆，就是警訊。**檢查也要對得上改動：改指令就實際跑指令，改畫面就在執行中的程式裡走一遍改過的流程，改解析器或資料遷移就重放一份存好的輸入，改效能就比較前後的效能剖析，改儲存就把寫進去的值讀回來。
 
-![四個階段：實作、清理、驗證、上線，以及每個階段用到的 playbook 和 skill](four-stages.png){: w="800" h="450" }
+![四個階段：實作、清理、驗證、上線，以及每個階段用到的 playbook 和 skill](four-stages.webp){: w="800" h="450" }
 _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit，合併永遠由你決定。_
 
 ## 實作：用 playbook 寫程式
@@ -297,7 +297,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:poteto-mode 用 /verify-<app> 重現這個問題。如果在 main 上也重現得出來，就修好它，給我一段影片當證據。
 ```
 
-![驗證 skill 的六段內容和 features/ 功能地圖，以及 /maintain-verification-skill 的三種結果](verify-skill.png){: w="800" h="450" }
+![驗證 skill 的六段內容和 features/ 功能地圖，以及 /maintain-verification-skill 的三種結果](verify-skill.webp){: w="800" h="450" }
 _產生一次，commit 進專案；程式改了，用 /maintain-verification-skill 讓說明跟上。_
 
 ### /maintain-verification-skill：讓驗證 skill 跟上程式
@@ -392,7 +392,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 **下一步**：自己決定要不要合併。要讓 AI 合併，得明確說出來，那會走 Shipping playbook：它會先逐一獨立驗證每個 PR，再從最底下開始一個一個合併（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
 
-![Babysit 依序處理衝突、審查留言、CI，watch-pr 判定 READY 就停，合併由你決定](babysit-loop.png){: w="800" h="450" }
+![Babysit 依序處理衝突、審查留言、CI，watch-pr 判定 READY 就停，合併由你決定](babysit-loop.webp){: w="800" h="450" }
 _衝突只回報不自己解；到了可以合併就停，不會替你按下合併。_
 
 ## 一個完整的例子（虛構）

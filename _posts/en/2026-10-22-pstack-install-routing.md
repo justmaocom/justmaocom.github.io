@@ -6,7 +6,7 @@ categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
 media_subpath: /assets/img/posts/pstack-install-routing/
 image:
-  path: cover.en.png
+  path: cover.en.webp
   alt: "How to install pstack, check its version, pick models with /setup-pstack, and then hand every task to /poteto-mode."
 ---
 
@@ -34,7 +34,7 @@ Version `0.15.29` has 56 skills, and each skill is a slash command. It also has 
 
 In Claude Code, a plugin's commands carry the plugin's name as a prefix, so Cursor's `/poteto-mode` becomes `/pstack:poteto-mode` (see the [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L28)). The examples below use the Claude Code form; in Cursor, just drop `pstack:`. Other differences are listed in the official [Claude Code notes](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md).
 
-![Four steps: install pstack, check and update or pin the version, pick models with /setup-pstack, start each task with /poteto-mode](install-setup-flow.en.png){: width="800" height="450" }
+![Four steps: install pstack, check and update or pin the version, pick models with /setup-pstack, start each task with /poteto-mode](install-setup-flow.en.webp){: width="800" height="450" }
 _The first-run flow: install, check the version, pick models, then start from /poteto-mode._
 
 ## Step 1: Install
@@ -212,7 +212,7 @@ According to [guide chapter 2](https://github.com/cursor/plugins/blob/88d47514b8
 
 ### What It Does
 
-![Your task states the goal and done check; /poteto-mode matches a playbook and copies its steps into a todo list, marking skips](poteto-mode-routing.en.png){: width="800" height="450" }
+![Your task states the goal and done check; /poteto-mode matches a playbook and copies its steps into a todo list, marking skips](poteto-mode-routing.en.webp){: width="800" height="450" }
 _/poteto-mode first identifies the task type, then follows that playbook's steps._
 
 1. **It identifies the task type and picks a playbook.** The [playbook list](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md#L121-L149) covers Investigation, Bug fix, Perf issue, Feature, Refactoring, Prototype, writing a skill, and more. Large or cross-cutting work, or work you'll step away from and check later, goes to the `figure-it-out` skill, which designs its own process.
