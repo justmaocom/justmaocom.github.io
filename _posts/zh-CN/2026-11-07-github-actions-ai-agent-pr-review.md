@@ -135,7 +135,7 @@ PR #29 那条摘要的触发栏是 PR opened。同一条公开评论列出的触
 使用前先了解两点：
 
 - 这份要求表达的是希望审查关注的方向。查阅时的官方文档写明，GitHub 上的 Code Review 只标出 P0、P1 这类高优先级问题（最严重、最该先处理的问题），不保证逐项回复。若要逐段校对文字，或一定要拿到固定字段的完整报告，需要另外设计流程。
-- 长期沿用时，官方文档是把规则写进仓库里的 `AGENTS.md`（写给 Agent 读的项目规则文件），并用 `## Code Review Rules` 当标题。Codex 在 GitHub 上读的是仓库里的文件。本站目前把 `AGENTS.md` 列在 `.gitignore`（不纳入版本控制的文件清单），未提交的文件不会出现在公开 PR 里。要让团队和 GitHub 上的审查共用这份规则，必须另外决定如何跟踪这个文件。
+- 长期沿用时，官方文档是把规则写进仓库里的 `AGENTS.md`（写给 Agent 读的项目规则文件），并用 `## Code Review Rules` 当标题。Codex 在 GitHub 上读的是仓库里的文件。本站目前把 `AGENTS.md` 列在 `.gitignore`（不纳入版本控制的文件清单），未提交的文件不会出现在公开 PR 里。要让团队和 GitHub 上的审查共用这份规则，必须另外决定如何跟踪这个文件。这份文件的写法见 [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。
 
 ### 步骤三：补交 commit 后，确认审到的是新版
 
@@ -236,3 +236,5 @@ AI：列出受审 head、报告链接、未涵盖范围
 - [GitHub：workflow 触发事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)、[安全指南](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)、[受保护分支](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)：事件、token 与合并门槛。
 - [pstack 系列（3）：写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)：把验证和送审排进 Agent 的工作流程。
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：为什么读取文件、运行命令与持有凭据要分开考虑。
+- [把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)：提交 PR 之前，先在 Claude Code 的会话里自动排版、跑测试。
+- [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)：从需求到上线的六个阶段里，PR 评审的前后各接着什么。

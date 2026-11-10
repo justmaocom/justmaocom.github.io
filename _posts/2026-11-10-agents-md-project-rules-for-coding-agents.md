@@ -308,4 +308,4 @@ my-project/              ← 根目錄
 
 今天就可以照〈動手做〉的步驟，在根目錄放一份 30 行以內的 AGENTS.md，寫上真正會用到的安裝、測試和注意事項。若還需要 Claude 專屬補充，再加一份以 `@AGENTS.md` 開頭的 CLAUDE.md。改完後用上面的指令或 `/memory` 確認有讀到。
 
-若要進一步了解「寫給助理看的每一行都有成本」，見 [mattpocock/skills 系列（6）：查資料、做交接、學新東西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。官方說明則見 [Codex 的 AGENTS.md 文件](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的記憶說明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官網](https://agents.md/)。要把規則變成固定時機會執行的檢查，見[hooks 篇](/posts/claude-code-hooks-automate-checks/)。
+若要進一步了解「寫給助理看的每一行都有成本」，見 [mattpocock/skills 系列（6）：查資料、做交接、學新東西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。官方說明則見 [Codex 的 AGENTS.md 文件](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的記憶說明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官網](https://agents.md/)。要把規則變成固定時機會執行的檢查，見[hooks 篇](/posts/claude-code-hooks-automate-checks/)。完整的架構說明這類長篇內容不適合放進 AGENTS.md；把它整理成 repo 內的 wiki、再由 AGENTS.md 指過去的做法，見 [OpenWiki 追得到程式碼變更，卻證明不了文件正確](/posts/openwiki-agent-docs-maintenance/)。

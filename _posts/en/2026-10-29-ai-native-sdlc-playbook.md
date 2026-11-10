@@ -269,7 +269,7 @@ I would also watch the amount of documentation. A change to a few lines of text 
 
 ## I Distinguish Between Reminding AI and Enforcing a Rule
 
-The original article distinguishes between skills, which provide working instructions, and hooks, which can run programmatic checks when an action occurs. [See its discussion of skills and hooks](https://claude.com/resources/articles/the-ai-native-sdlc-playbook).
+The original article distinguishes between skills, which provide working instructions, and hooks, which can run programmatic checks when an action occurs. [See its discussion of skills and hooks](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). I cover how hooks are actually configured in Claude Code, and what they can and can't block, in [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/posts/claude-code-hooks-automate-checks/).
 
 I think of two arrangements at an event: “Please check tickets” belongs in the staff handbook, while a gate that opens only after a ticket is validated enforces a condition. The handbook explains what to do; the gate checks whether a requirement has been met.
 
@@ -322,3 +322,5 @@ Those answers give me a better chance of turning faster coding into software I c
 ## Further Reading
 
 - Louis Claxton, Anthropic: [The AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). The original covers detailed practices and governance across the six stages. This post contains my reading notes and illustrative examples; its diagrams are original, not reproductions of the source's figures.
+- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): how the PR review in Step 5 is split on this site among automated checks, AI review, and human approval.
+- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): keeping project rules out of chat, in a file a coding agent can read.

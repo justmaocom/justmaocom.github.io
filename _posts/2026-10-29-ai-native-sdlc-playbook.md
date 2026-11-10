@@ -260,7 +260,7 @@ _我希望每次交接都留下「已決定什麼、如何確認、誰接手」�
 
 ## 我會分清楚：提醒 AI，和系統真的阻止它
 
-原文區分了 skill 與 hook：前者提供工作指引，後者可在動作發生時執行程式檢查。[參考原文的 Skills 與 Hooks 說明](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)。
+原文區分了 skill 與 hook：前者提供工作指引，後者可在動作發生時執行程式檢查。[參考原文的 Skills 與 Hooks 說明](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)。hook 在 Claude Code 裡實際怎麼設定、擋得住什麼，我另外寫在[把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 我會把它想成活動現場的兩種安排：「請確認票券」是工作手冊，「驗票成功才開門」是入口設備。手冊告訴人怎麼做，設備負責檢查某個條件。
 
@@ -313,3 +313,5 @@ _我希望每次交接都留下「已決定什麼、如何確認、誰接手」�
 ## 延伸閱讀
 
 - Louis Claxton，Anthropic：[The AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)。原文提供六階段的詳細做法與治理建議。本文為我的閱讀心得與延伸示例，未重製原文圖表。
+- [用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)：第五步的 PR 審閱，在本站實際怎麼分給自動檢查、AI 審查與人工核准。
+- [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)：把專案規則留在聊天以外，寫成 coding agent 讀得到的檔案。
