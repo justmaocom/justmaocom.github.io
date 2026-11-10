@@ -188,6 +188,8 @@ For me, the useful habit is to check "how I normally log in" separately from "ho
 
 Checking all three helps avoid an updated package leaving an old service running and accepting connections.
 
+Version numbers alone can mislead in the other direction too. In [From a Forum Image Upload to Codex: The HEIF and SSO Attack on OpenAI](/posts/openai-libheif-sso-attack-chain/), the distribution had backported the security fix while the upstream version number stayed the same.
+
 ## Main sources
 
 I checked these sources on 2026-11-07 (Taipei time). For later vulnerability status or package changes, use the latest official information.

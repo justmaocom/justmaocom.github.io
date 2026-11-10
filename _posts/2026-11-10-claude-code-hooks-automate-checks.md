@@ -264,3 +264,5 @@ Hooks 讓排版、敏感檔提醒和收工測試在固定時機自動發生，�
 - [Hooks reference](https://code.claude.com/docs/en/hooks)：事件、輸入輸出與 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：權限與供應鏈風險，和本篇的日常檢查互補。
 - [AI 寫程式變快了，產品為什麼還是交不出去？我怎麼理解 AI 原生開發流程](/posts/ai-native-sdlc-playbook/)：說明 skill 和 hook 的差別。
+- [用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)：hooks 在 Claude Code 的工作階段裡執行；這篇談 PR 送出後的固定規則檢查、AI 審查與人工核准。
+- [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)：只需要讓 AI 知道、不必強制執行的專案規則，該怎麼寫成規則檔。

@@ -126,6 +126,8 @@ If your asset inventory only records `libheif 1.19.8`, it is missing the informa
 
 This is also why "the scanner shows upstream version X" is not enough to close a ticket. The scan result is where the investigation starts; the distro advisory and the running image together determine the current state.
 
+Once the package is fixed, you still have to confirm the running program has been replaced. [OpenSSH Password Authentication Bypass: Which Hosts Are Affected, and How Alpine Users Can Patch](/posts/openssh-musl-password-bypass-alpine/) is one example: on Alpine, the fix is not complete until sshd has been restarted successfully after the package upgrade.
+
 ## Isolating Image Processing Has Deployment Prerequisites
 
 Discourse's [fix commit](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec) notes that Landlock requires Linux 5.13 or later. If the kernel does not support it, you cannot treat "the code now has a sandbox" as "this host now restricts the image process." Deployment checks must cover both kernel capability and whether the restriction is actually enabled.
@@ -202,3 +204,4 @@ The smallest first step is to open your current access review sheet. Find one se
 - [Discourse's image-processing isolation fix](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec): see how the `ImageMagick` wrapper, allowed read/write paths, and network restrictions land in code.
 - [Debian security advisory DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/msg00328.html): check the full package revision and the format compatibility change caused by one of its fixes.
 - [libheif's overlay calculation fix](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae): compare the boundary calculation changes in `HeifPixelImage::overlay` directly.
+- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): the same lesson for coding agents, where the damage from a small entry point depends on how much trust sits behind it.

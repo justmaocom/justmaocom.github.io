@@ -308,4 +308,4 @@ my-project/              ← 根目录
 
 今天就可以按“动手做”的步骤，在根目录放一份 30 行以内的 AGENTS.md，写上真正会用到的安装、测试和注意事项。若还需要 Claude 专用补充，再加一份以 `@AGENTS.md` 开头的 CLAUDE.md。改完后用上面的命令或 `/memory` 确认有读到。
 
-若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/zh-CN/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/zh-CN/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/zh-CN/posts/claude-code-hooks-automate-checks/)。完整的架构说明这类长篇内容不适合放进 AGENTS.md；把它整理成 repo 内的 wiki、再由 AGENTS.md 指过去的做法，见 [OpenWiki 追得到代码变更，却证明不了文档正确](/posts/openwiki-agent-docs-maintenance/)。

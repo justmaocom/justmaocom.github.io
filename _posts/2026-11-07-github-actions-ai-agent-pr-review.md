@@ -135,7 +135,7 @@ PR #29 那則摘要的觸發欄是 PR opened。同一則公開留言列出的觸
 使用前先了解兩點：
 
 - 這份要求表達的是希望審查關注的方向。查閱時的官方文件寫明，GitHub 上的 Code Review 只標出 P0、P1 這類高優先級問題（最嚴重、最該先處理的問題），不保證逐項回覆。若要逐段校對文字，或一定要拿到固定欄位的完整報告，需要另外設計流程。
-- 長期沿用時，官方文件是把規則寫進儲存庫裡的 `AGENTS.md`（寫給 Agent 讀的專案規則檔），並用 `## Code Review Rules` 當標題。Codex 在 GitHub 上讀的是儲存庫裡的檔案。本站目前把 `AGENTS.md` 列在 `.gitignore`（不納入版本控制的檔案清單），未提交的檔案不會出現在公開 PR 裡。要讓團隊和 GitHub 上的審查共用這份規則，必須另外決定怎麼追蹤這個檔案。
+- 長期沿用時，官方文件是把規則寫進儲存庫裡的 `AGENTS.md`（寫給 Agent 讀的專案規則檔），並用 `## Code Review Rules` 當標題。Codex 在 GitHub 上讀的是儲存庫裡的檔案。本站目前把 `AGENTS.md` 列在 `.gitignore`（不納入版本控制的檔案清單），未提交的檔案不會出現在公開 PR 裡。要讓團隊和 GitHub 上的審查共用這份規則，必須另外決定怎麼追蹤這個檔案。這份檔案的寫法見 [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
 
 ### 步驟三：補交 commit 後，確認審到的是新版
 
@@ -236,3 +236,5 @@ AI：列出受審 head、報告連結、未涵蓋範圍
 - [GitHub：workflow 觸發事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)、[安全指南](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)、[受保護分支](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)：事件、token 與合併門檻。
 - [pstack 系列（3）：寫完程式之後，先證明它能用再合併](/posts/pstack-build-verify-merge/)：把驗證和送審排進 Agent 的工作流程。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：為什麼讀檔、執行命令與持有憑證要分開考慮。
+- [把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)：送出 PR 之前，先在 Claude Code 的工作階段裡自動排版、跑測試。
+- [AI 寫程式變快了，產品為什麼還是交不出去？我怎麼理解 AI 原生開發流程](/posts/ai-native-sdlc-playbook/)：從需求到上線的六個階段裡，PR 審閱的前後各接著什麼。

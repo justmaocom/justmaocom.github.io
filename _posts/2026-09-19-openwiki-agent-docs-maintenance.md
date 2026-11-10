@@ -136,3 +136,5 @@ OpenWiki 先比較 Git 變更，再由 planner 讀取 repo 結構與測試，決
 - [OpenWiki README](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md)：查 CLI、code mode、Grounded Claims 與排程更新的使用方式。
 - [Claims preflight 實作](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/brains/code/preflight.ts)：核對 `stale` 與 `unresolved` 的實際判定。
 - [Repository evidence resolver](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/evidence/repository/resolver.ts)：追查行號移動後如何用內容 hash 與上下文重新定位 evidence。
+- [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)：OpenWiki 會寫入指引區塊的那份檔案，本身該放什麼、不該放什麼。
+- [用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)：自動產生的文件 PR 一樣要有人審；這篇整理自動檢查、AI 審查與人工核准各看什麼。

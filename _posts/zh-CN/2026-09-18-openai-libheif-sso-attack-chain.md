@@ -126,6 +126,8 @@ Debian 的 [DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/m
 
 这也解释了为何“扫描工具显示某个上游版本”不能直接结案。扫描结果是调查起点，发行版公告与运行中的镜像才共同决定当下状态。
 
+软件包修好之后，还要确认运行中的程序已经换成新版。[OpenSSH 密码验证绕过漏洞：哪些主机受影响，Alpine 用户怎么修补？](/posts/openssh-musl-password-bypass-alpine/)就是一例：Alpine 更新软件包后，要成功重启 sshd 才算修补完成。
+
 ## 隔离图片处理也有部署条件
 
 Discourse 的[修复提交](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec)指出 Landlock 需要 Linux 5.13 以上。内核不支持时，不能把“代码已经加上沙箱”直接当成“这台主机已经限制了图片进程”。部署检查必须包含内核能力与实际启用状态。
@@ -202,3 +204,4 @@ Hacktron 还表示，HEIF Heist 这项覆盖多个目标的研究持续两个月
 - [Discourse 的图片处理隔离修复](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec)：查看 `ImageMagick` wrapper、允许的读写路径与网络限制如何落进代码。
 - [Debian 安全公告 DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/msg00328.html)：核对完整软件包修订版，以及其中一项修复造成的格式兼容性改变。
 - [libheif 的 overlay 计算修复](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae)：直接比较 `HeifPixelImage::overlay` 的边界计算差异。
+- [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：把同一个教训放到 coding agent 上，入口看起来很小，损害取决于它背后连着多少信任。
