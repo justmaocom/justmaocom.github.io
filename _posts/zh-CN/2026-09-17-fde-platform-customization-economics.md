@@ -5,6 +5,9 @@ date: 2026-09-17 16:15:05 +0800
 categories: [软件工程, FDE]
 tags: [fde, forward-deployed-engineer, enterprise-software, go-to-market, product-platform, talk-notes]
 media_subpath: /assets/img/posts/fde-platform-customization-economics/
+image:
+  path: cover.zh-CN.webp
+  alt: "FDE 能不能扩编，要看定制工作是落在共用平台上，还是变成一个个要维护的 repo。"
 ---
 
 你把一套要在上面开发才能用的平台卖进企业，合同签了，第一场导入会议也开了。投影屏幕上却只有一张空白的工作流程图。客户知道要改善商品上架率或销售吞吐量，却不知道该怎么把平台组成可用的方案。

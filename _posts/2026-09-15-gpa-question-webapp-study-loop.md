@@ -5,6 +5,9 @@ date: 2026-09-15 13:42:04 +0800
 categories: [軟體開發, Web應用]
 tags: [python, fastapi, sqlalchemy, postgresql, pdf-parsing, side-project]
 media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
+image:
+  path: cover.webp
+  alt: "把官方 PDF 題庫解析成題目、每次隨機組卷，再用跨練習的統計找出弱項。"
 ---
 
 做這個專案，是因為老婆報名了採購法證照考試。

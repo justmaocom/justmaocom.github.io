@@ -204,6 +204,8 @@ pwa:
       # - "/example"  # URLs match `<SITE_URL>/example/*` will not be cached by the PWA
 
 paginate: 10
+# 分頁網址帶尾斜線，與實際輸出的 /page2/ 一致，站內的分頁連結才不會多一次 301
+paginate_path: /page:num/
 
 # The base URL of your site
 baseurl: ""

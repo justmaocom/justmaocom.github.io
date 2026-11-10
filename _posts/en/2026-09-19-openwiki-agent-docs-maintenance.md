@@ -5,6 +5,9 @@ date: 2026-09-19 08:20:00 +0800
 categories: [AI, Documentation]
 tags: [openwiki, coding-agent, documentation]
 media_subpath: /assets/img/posts/openwiki-agent-docs-maintenance/
+image:
+  path: cover.en.webp
+  alt: "A green source check only means the cited code hasn't gone stale; whether the statement is right still needs a human review."
 ---
 
 > **Version note (checked 2026-10-19):** This post analyzes OpenWiki `0.5.2` (commit `715109a`); the latest on npm is now `0.7.2` (2026-10-10). Since [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0), the native CLI can [work on several pages at once](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers) via `OPENWIKI_PAGE_CONCURRENCY`. The default is still 1, so you have to raise it to get parallel processing, and runs through coding-agent integrations still go page by page. So when this post says page jobs are processed in order and the worker handles only the page job at the front of the queue, those statements only stop being true once you raise that setting. Whether to fully update this post will be decided separately.
