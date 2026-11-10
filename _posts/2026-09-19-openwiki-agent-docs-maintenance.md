@@ -5,6 +5,9 @@ date: 2026-09-19 08:20:00 +0800
 categories: [AI, 文件維護]
 tags: [openwiki, coding-agent, documentation]
 media_subpath: /assets/img/posts/openwiki-agent-docs-maintenance/
+image:
+  path: cover.webp
+  alt: "來源檢查全綠只代表引用的程式碼沒過期，敘述對不對仍要人來審。"
 ---
 
 > **版本提醒（2026-10-19 查證）**：本文分析的是 OpenWiki `0.5.2`（commit `715109a`），npm 上最新已是 `0.7.2`（2026-10-10）。[`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同時處理多個頁面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。預設值仍是 1，要調高才會平行處理；透過 coding agent 整合執行時也仍然逐頁處理。所以下文說 page job「依序處理」、worker「一次只處理目前排到的 page job」，只在調高這個設定時不成立。之後會另行評估是否全面更新。

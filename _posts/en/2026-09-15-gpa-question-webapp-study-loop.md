@@ -5,6 +5,9 @@ date: 2026-09-15 13:42:04 +0800
 categories: [Software Development, Web Applications]
 tags: [python, fastapi, sqlalchemy, postgresql, pdf-parsing, side-project]
 media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
+image:
+  path: cover.en.webp
+  alt: "Parse the official PDF question bank, shuffle every quiz, and track weak categories across sessions."
 ---
 
 I built this project because my wife signed up for the Government Procurement Act certification exam.

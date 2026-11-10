@@ -5,6 +5,9 @@ date: 2026-09-17 16:15:05 +0800
 categories: [Software Engineering, FDE]
 tags: [fde, forward-deployed-engineer, enterprise-software, go-to-market, product-platform, talk-notes]
 media_subpath: /assets/img/posts/fde-platform-customization-economics/
+image:
+  path: cover.en.webp
+  alt: "Whether FDE scales depends on custom work landing on a shared platform instead of becoming one more repo to maintain."
 ---
 
 You've sold an enterprise a platform that only becomes useful once someone builds on top of it. The contract is signed, and the first onboarding meeting is underway. But the only thing on the projector is a blank workflow diagram. The customer knows they want to improve their product listing rate or sales throughput, but has no idea how to assemble the platform into a working solution.
