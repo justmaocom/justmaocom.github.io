@@ -7,6 +7,7 @@
 # 仍指向預設語系，這裡在它處理完之後再補上：
 #
 # - og:url、JSON-LD 的 url 與 @id（jekyll-seo-tag 寫在 content 或 JSON 裡），以及分享按鈕的網址
+# - JSON-LD 裡作者的網址（_config.yml 的 author.url，指向「關於」頁）
 # - 搜尋框讀取的 search.json 路徑，以及 search.json 內各篇文章的 url
 # - feed.xml、sitemap.xml 等非 HTML 輸出中的絕對網址
 #
@@ -45,6 +46,12 @@ module I18nHook
         .gsub(CGI.escape(page_url), CGI.escape(local_url)) # 分享按鈕的 query string
         .gsub("'#{ site.baseurl }/assets/js/data/search.json'",
               "'#{ site.baseurl }/#{ lang }/assets/js/data/search.json'")
+
+      author_url = site.config.dig('author', 'url').to_s
+      if author_url.start_with?("#{ origin }/")
+        doc.output = doc.output.gsub(%("url":"#{ author_url }"),
+                                     %("url":"#{ origin }/#{ lang }#{ author_url.delete_prefix(origin) }"))
+      end
     else
       # 已帶語系前綴，或屬於只輸出一份的共用資源（assets/…）的網址，都不處理
       skip = "(?!(?:#{ site.languages.map { |l| Regexp.escape(l) }.join('|') })/)(?!assets/)"

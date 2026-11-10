@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
-# sitemap 內容、x-default 與 feed 連結。
+# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -41,7 +41,15 @@ config['languages'].each do |lang|
     ['x-default 指向英文版', Dir["#{ root }/{,posts/*/,about/}index.html"],
      ->(s) { s[/hreflang="x-default" href="([^"]*)"/, 1].to_s.start_with?("#{ origin }/en/") }],
     ['feed 連結', Dir["#{ root }/{,posts/*/}index.html"],
-     ->(s) { s.include?(%(type="application/atom+xml")) && s[/type="application\/atom\+xml"[^>]* href="([^"]*)"/, 1] == "#{ config['baseurl'] }#{ prefix }/feed.xml" }]
+     ->(s) { s.include?(%(type="application/atom+xml")) && s[/type="application\/atom\+xml"[^>]* href="([^"]*)"/, 1] == "#{ config['baseurl'] }#{ prefix }/feed.xml" }],
+    ['「關於」頁是 ProfilePage', ["#{ root }/about/index.html"],
+     ->(s) { json_ld[s].then { |d| d['@type'] == 'ProfilePage' && d.dig('mainEntity', 'name') == config.dig('social', 'name') } }],
+    ['JSON-LD 圖片型別', Dir["#{ root }/posts/*/index.html"], ->(s) { !s.include?('"imageObject"') }],
+    ['sitemap 的 tab 頁沒有 lastmod', ["#{ root }/sitemap.xml"],
+     ->(s) { tabs.all? { |tab| s.include?("/#{ tab }/</loc>") && s !~ %r{/#{ tab }/</loc>\s*<lastmod>} } }],
+    # 沒有封面的文章不會有 preview-img；有的話第一張要立即載入，其餘維持 lazy
+    ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
+     ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }]
   ]
 
   summary = checks.map do |desc, files, valid|

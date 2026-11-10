@@ -1,0 +1,6 @@
+# 這裡列出的 commit 不算文章的「修改」，不會更新「更新於」、dateModified 與 sitemap 的 lastmod
+# （見 _plugins/posts-lastmod-hook.rb）。只放沒有動到文章內容的批次變更。
+#
+# 每行一個完整的 commit SHA，# 之後是註解。SHA 要等 commit 進了 main 再填：rebase 會改變它。
+
+67ad732d21026dbcd91887c04942d876713af9c1 # perf(img): 文章圖片由 PNG 轉成 WebP
