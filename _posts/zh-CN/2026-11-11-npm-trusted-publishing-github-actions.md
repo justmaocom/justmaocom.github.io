@@ -123,11 +123,13 @@ jobs:
 
 若包有私有依赖，在 `npm ci` 那一步加上：
 
+{% raw %}
 ```yaml
 - run: npm ci
   env:
     NODE_AUTH_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
 ```
+{% endraw %}
 
 这里要用 **read-only** 的 granular access token（细粒度 token，可限制包、权限和到期日）。第一次把 scoped 包（名称类似 `@组织/包`）以公开方式发布时，还需要 `--access public`，否则可能以受限权限上架。
 

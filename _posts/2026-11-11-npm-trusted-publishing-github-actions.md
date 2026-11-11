@@ -123,11 +123,13 @@ jobs:
 
 若套件有私有相依，在 `npm ci` 那一步加上：
 
+{% raw %}
 ```yaml
 - run: npm ci
   env:
     NODE_AUTH_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
 ```
+{% endraw %}
 
 這裡要用 **read-only** 的 granular access token（細粒度 token，可限制套件、權限和到期日）。第一次把 scoped 套件（名稱像 `@組織/套件`）以公開方式發布時，還需要 `--access public`，否則可能以受限權限上架。
 

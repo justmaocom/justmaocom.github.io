@@ -123,11 +123,13 @@ You do **not** need `NODE_AUTH_TOKEN`, and you do **not** need `--provenance`. W
 
 If the package has private dependencies, add this to the `npm ci` step:
 
+{% raw %}
 ```yaml
 - run: npm ci
   env:
     NODE_AUTH_TOKEN: ${{ secrets.NPM_READ_TOKEN }}
 ```
+{% endraw %}
 
 Use a **read-only** granular access token (a token whose package list, permissions, and expiry you can limit). The first time you publish a scoped public package (a name like `@org/package`), you also need `--access public`; otherwise it may be published as restricted.
 
