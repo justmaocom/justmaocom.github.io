@@ -1,6 +1,6 @@
 ---
-title: "用 OWASP Agentic Top 10 检查你的 AI 工作流：十项风险逐条对照与修法"
-description: "把 OWASP Agentic Top 10 整理成十道是／否检查，用来对照你的 coding agent、MCP 与 CI，并附上可着手的修法。"
+title: "用 OWASP Agentic Top 10 检查你的 AI 工作流：十项风险逐条对照与修复方法"
+description: "把 OWASP Agentic Top 10 整理成十道是／否检查，用来对照你的 coding agent、MCP 与 CI，并附上可着手的修复方法。"
 date: 2026-11-11 16:00:00 +0800
 categories: [信息安全, AI Agent]
 tags: [ai-security, coding-agent, prompt-injection, mcp, claude-code]
@@ -12,7 +12,7 @@ image:
 
 用 coding agent 久了，工具会越接越多：多一个 MCP、多一条自动放行、再把 CI 接上去，却很少回头把整个工作流检查一遍。OWASP（一个非营利的开放安全社区，最出名的是网站风险清单“OWASP Top 10”）在 2025 年 12 月发布了《[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)》，也可简称 OWASP Agentic Top 10。发布页的原文是：a globally peer-reviewed framework，由 100 多位专家、研究者与实务工作者共同写成，用来指出自主与 agent 系统最关键的安全风险。
 
-这份清单原本是写给要建 agent 系统的组织。我把它翻译成个人开发工作流可以回答的十道是／否问题，每题附上修法。分组、场景、检查题和修补顺序都是本站整理，**不是** OWASP 官方的“个人开发者检查表”；ASI 编号只是编号，不代表严重程度。
+这份清单原本是写给要建 agent 系统的组织。我把它翻译成个人开发工作流可以回答的十道是／否问题，每题附上修复方法。分组、场景、检查题和修复顺序都是本站整理，**不是** OWASP 官方的“个人开发者检查表”；ASI 编号只是编号，不代表严重程度。
 
 范围是个人开发者的 coding agent 工作流，例如 Claude Code、Codex、Cursor 的 agent，以及接上的 MCP 和 GitHub Actions。和[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/zh-CN/posts/coding-agent-supply-chain-permission-risks/) 的分工是：那篇从“装了什么”讲攻击面；这篇用 OWASP 的十项把整个工作流扫一遍。供应链篇已经详细写过的案例，这里不再重讲。
 
@@ -41,11 +41,11 @@ OWASP 在文档第 7 页提出 Least-Agency：“avoid unnecessary autonomy; dep
 
 1. **盘点**：写下你用的 agent、它能读的文件夹、能跑的命令、接了哪些 MCP、手上有哪些 token、有哪些自动化（CI、定时任务）。
 2. **对照**：十题逐一回答是或否；答“是”就代表要修。
-3. **修补**：先修“没人把关、做了就收不回”的项目。
+3. **修复**：先修“没人把关、做了就收不回”的项目。
 4. **复查**：加了新工具、MCP，或改了设置，就再跑一轮。
 
-![体检 AI 工作流的四个步骤：盘点、对照、修补、复查，原则是用不到的自主权就别给](audit-loop.zh-CN.webp){: w="1600" h="900" }
-_概念图：盘点、对照、修补、复查围成一轮；中心原则是最小自主（Least-Agency），用不到的自主权就别给。这四步是本站整理的用法，不是 OWASP 官方流程。_
+![体检 AI 工作流的四个步骤：盘点、对照、修复、复查，原则是用不到的自主权就别给](audit-loop.zh-CN.webp){: w="1600" h="900" }
+_概念图：盘点、对照、修复、复查围成一轮；中心原则是最小自主（Least-Agency），用不到的自主权就别给。这四步是本站整理的用法，不是 OWASP 官方流程。_
 
 ## 十项总览
 
@@ -60,16 +60,16 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 | ASI02 | Tool Misuse and Exploitation | 工具被误用 | 合法工具被用在错的地方 |
 | ASI03 | Identity and Privilege Abuse | 身份与权限滥用 | 拿你的身份和钥匙做事 |
 | ASI04 | Agentic Supply Chain Vulnerabilities | 供应链 | 装进来的 MCP、skill 有问题 |
-| ASI05 | Unexpected Code Execution (RCE) | 意外执行代码 | 它写的、跑的程序被利用 |
+| ASI05 | Unexpected Code Execution (RCE) | 意外执行代码 | 它写的、跑的代码被利用 |
 | ASI06 | Memory & Context Poisoning | 记忆与上下文污染 | 错的内容写进长期记忆 |
-| ASI07 | Insecure Inter-Agent Communication | agent 间通信 | 互传的消息被冒充或篡改 |
+| ASI07 | Insecure Inter-Agent Communication | agent 间通信 | agent 互传的消息被冒充或篡改 |
 | ASI08 | Cascading Failures | 连锁失效 | 一个小错被自动化一路放大 |
-| ASI09 | Human-Agent Trust Exploitation | 过度信任 agent | 讲得很有把握，你就按了同意 |
+| ASI09 | Human-Agent Trust Exploitation | 过度信任 agent | 说得很有把握，你就点了同意 |
 | ASI10 | Rogue Agents | 失控的 agent | 偏离任务还持续自己行动 |
 
 ## 逐项检查
 
-每一项都用同一组结构：先白话说明，再对到 coding agent 上常见的样子，接着一道是／否（“是”就要修），最后写怎么修。检查题和清单图是同一套意思。官方原文会加引号和链接；场景与修法里的工具做法，是本站对照，不是 OWASP 替各家工具写的步骤。
+每一项都用同一组结构：先白话说明，再对到 coding agent 上常见的样子，接着一道是／否（“是”就要修），最后写怎么修。检查题和清单图是同一套意思。官方原文会加引号和链接；场景与修复方法里的工具做法，是本站对照，不是 OWASP 替各家工具写的步骤。
 
 工具的默认权限最近有调整，下面只教你去哪里看、确认什么，不以某一天的默认值当作永远正确。Claude Code 可从 `/permissions`、[permissions](https://code.claude.com/docs/en/permissions)、[security](https://code.claude.com/docs/en/security) 与 [sandboxing](https://code.claude.com/docs/en/sandboxing) 文档确认；Codex 看 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)；Cursor 看 [Agent Security](https://cursor.com/docs/agent/security)。
 

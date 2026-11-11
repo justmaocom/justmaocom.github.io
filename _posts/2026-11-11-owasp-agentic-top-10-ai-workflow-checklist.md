@@ -62,7 +62,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 | ASI04 | Agentic Supply Chain Vulnerabilities | 供應鏈 | 裝進來的 MCP、skill 有問題 |
 | ASI05 | Unexpected Code Execution (RCE) | 意外執行程式碼 | 它寫的、跑的程式被利用 |
 | ASI06 | Memory & Context Poisoning | 記憶與脈絡污染 | 錯的內容寫進長期記憶 |
-| ASI07 | Insecure Inter-Agent Communication | agent 間通訊 | 互傳的訊息被冒充或竄改 |
+| ASI07 | Insecure Inter-Agent Communication | agent 間通訊 | agent 互傳的訊息被冒充或竄改 |
 | ASI08 | Cascading Failures | 連鎖失效 | 一個小錯被自動化一路放大 |
 | ASI09 | Human-Agent Trust Exploitation | 過度信任 agent | 講得很有把握，你就按了同意 |
 | ASI10 | Rogue Agents | 失控的 agent | 偏離任務還持續自己行動 |

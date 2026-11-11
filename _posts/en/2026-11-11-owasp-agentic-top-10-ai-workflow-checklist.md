@@ -56,16 +56,16 @@ _Concept diagram: The ten risks in this site's five groups. The footer already n
 
 | ID | Official Name | Short Name | In One Sentence |
 | --- | --- | --- | --- |
-| ASI01 | Agent Goal Hijack | Goal Hijack | Content it reads can change what it is supposed to do |
-| ASI02 | Tool Misuse and Exploitation | Tool Misuse | A legitimate tool is used in the wrong place |
-| ASI03 | Identity and Privilege Abuse | Identity & Privilege | It acts with your identity and your keys |
-| ASI04 | Agentic Supply Chain Vulnerabilities | Supply Chain | An MCP server or skill you installed is compromised |
-| ASI05 | Unexpected Code Execution (RCE) | Unexpected Code Exec | Code it writes or runs is exploited |
-| ASI06 | Memory & Context Poisoning | Memory Poisoning | Bad content is written into long-term memory |
-| ASI07 | Insecure Inter-Agent Communication | Inter-Agent Comms | Messages between agents are spoofed or changed |
-| ASI08 | Cascading Failures | Cascading Failures | A small error is amplified down an automated chain |
-| ASI09 | Human-Agent Trust Exploitation | Human Trust | It sounds sure of itself, so you click Approve |
-| ASI10 | Rogue Agents | Rogue Agents | It drifts off the task and keeps acting on its own |
+| ASI01 | Agent Goal Hijack | Goal Hijack | Content it reads rewrites its goal |
+| ASI02 | Tool Misuse and Exploitation | Tool Misuse | A legit tool used the wrong way |
+| ASI03 | Identity and Privilege Abuse | Identity & Privilege | Acts with your identity and keys |
+| ASI04 | Agentic Supply Chain Vulnerabilities | Supply Chain | A bad MCP server or skill gets in |
+| ASI05 | Unexpected Code Execution (RCE) | Unexpected Code Exec | Code it writes or runs gets abused |
+| ASI06 | Memory & Context Poisoning | Memory Poisoning | Bad content lands in long-term memory |
+| ASI07 | Insecure Inter-Agent Communication | Inter-Agent Comms | Messages between agents get spoofed |
+| ASI08 | Cascading Failures | Cascading Failures | One small error amplified downstream |
+| ASI09 | Human-Agent Trust Exploitation | Human Trust | Sounds sure, so you click Allow |
+| ASI10 | Rogue Agents | Rogue Agents | Drifts off task and keeps going |
 
 ## Check Each Risk in Official Order
 
@@ -145,7 +145,7 @@ Tool defaults have shifted recently. The sections below tell you where to look a
 
 The docs warn that if you put the same block in `~/.claude/settings.json`, `.` resolves to `~/.claude`, and project files can be blocked instead. Use `bypassPermissions` only in an isolated environment such as a container or a virtual machine.
 
-- For Codex, check [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) directly. The official wording is that network access is turned off by default, and that on a computer the OS-enforced sandbox usually limits writes to the current workspace. For a read-only session, run `codex --sandbox read-only --ask-for-approval on-request`.
+- For Codex, check [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) directly. The official wording is that network access is turned off by default, and that locally, Codex uses an OS-enforced sandbox that limits what it can touch (typically to the current workspace). For a read-only session, run `codex --sandbox read-only --ask-for-approval on-request`.
 - Do not let the agent regenerate lockfiles on its own; review the change yourself when an update is needed.
 
 ### ASI06 Memory & Context Poisoning: Bad Content Written Into Long-Term Memory
@@ -182,9 +182,9 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
 
 **How to fix it:** Keep at least one check that cannot be skipped before a merge or a deploy—either a person, or CI that must pass. GitHub's docs describe how to prevent GitHub Actions from creating or approving pull requests; see the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use). If you already use an AI to help review PRs, also see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/); the point is that a review result should not automatically become an irreversible merge. Pin third-party actions: GitHub currently recommends a workflow dependency lockfile (`.github/workflows/actions.lock`); otherwise pin the action to a full commit SHA. See [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles).
 
-### ASI09 Human-Agent Trust Exploitation: It Sounds Sure, So You Click Approve
+### ASI09 Human-Agent Trust Exploitation: It Sounds Sure, So You Click Allow
 
-**In plain language:** The agent sounds confident and the rationale looks complete, so you click Approve. You are the one who acted, and the record shows you.
+**In plain language:** The agent sounds confident and the rationale looks complete, so you click Allow. You are the one who acted, and the record shows you.
 
 **How it looks in your AI workflow:** OWASP's "Helpful Assistant Trojan" example is a tampered coding assistant that suggests an elegant one-line fix; after you paste it, a malicious command runs. A more everyday risk is approval fatigue: prompts keep appearing, and after a while you click Allow.
 
