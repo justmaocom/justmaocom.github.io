@@ -48,11 +48,11 @@ _概念圖：一輪的五個步驟是開 herdr、開工作目錄、跑 agent、�
 ## 步驟 1：安裝
 
 ![安裝 herdr 建議用 brew 或 mise；官方的 curl | sh 一行安裝要先下載、看過腳本再執行](install.webp){: w="1600" h="900" }
-_概念圖：左邊是本站建議的做法，用 brew 或 mise 安裝與升級；右邊是官方首頁的一行安裝，若要用，先下載腳本、看過再執行。_
+_概念圖：左邊是本站建議的做法，用 brew 或 mise 安裝與升級；右邊是官方 Install／TUI 頁的一行安裝，若要用，先下載腳本、看過再執行。_
 
 我建議已經在用 [Homebrew](https://formulae.brew.sh/formula/herdr) 的人用 `brew install herdr`，已經在用 [mise](https://mise.jdx.dev/) 的人用 `mise use -g herdr`。這兩種都列在官方[Install](https://herdr.dev/tui/docs/0.9.5/install/)頁。
 
-官方首頁另外提供 `curl -fsSL https://herdr.dev/install.sh | sh`。我建議不要直接貼上執行：貼上就跑的是伺服器當下回傳、你沒看過的內容，下次執行也可能不同；而且它會裝到 `~/.local/bin`，之後靠 `herdr update` 自己更新，不在你的套件管理器清單裡，比較不好盤點和移除。用 brew 或 mise，版本查得到，升級和移除也是同一套指令。這不是說安裝腳本有問題，而是「先看再跑」的習慣，說明見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+官方 Install／TUI 頁另外提供 `curl -fsSL https://herdr.dev/install.sh | sh`。我建議不要直接貼上執行：貼上就跑的是伺服器當下回傳、你沒看過的內容，下次執行也可能不同；而且它會裝到 `~/.local/bin`，之後靠 `herdr update` 自己更新，不在你的套件管理器清單裡，比較不好盤點和移除。用 brew 或 mise，版本查得到，升級和移除也是同一套指令。這不是說安裝腳本有問題，而是「先看再跑」的習慣，說明見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 
 若一定要用官方腳本，先下載再看過：
 
@@ -79,7 +79,7 @@ _實際畫面：在 demo-app 資料夾開 herdr，再用 prefix+v 分出第二�
 
 ## 步驟 3：每個工作目錄一個 workspace
 
-本站的做法是：每個 worktree 配一個 workspace，讓每個 agent 改自己的工作目錄，和 worktree 篇的原則相同。有兩種開法，選一種即可，底層都是 `git worktree`。合併、刪分支，以及有 submodule 時不要用 worktree，都照 worktree 篇。
+本站的做法是：每個 worktree 配一個 workspace，讓每個 agent 改自己的工作目錄，和 worktree 篇的原則相同。有兩種開法，選一種即可，底層都是 `git worktree`。合併、刪分支，以及有 submodule 時不要用 worktree，都照[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)。
 
 **做法 A：用 herdr 開。** 在 workspace 列選 `New worktree`，或按 `prefix+shift+g`；分支欄一開始會填好隨機名稱，先按 ctrl+c 清掉再輸入。herdr 會建好 git worktree，並開成一個新 workspace，排在原專案底下。等同在專案資料夾內執行：
 
@@ -127,7 +127,7 @@ _實際畫面（herdr 預設主題）：黃點 working、紅點 blocked、青綠
 ![Go to 清單依 workspace 分組，每列寫出 idle、working、blocked 或 done](screen-goto.webp){: w="1600" h="900" }
 _實際畫面：按 prefix+g 開 Go to，狀態直接寫成文字；再按 b 只留下 blocked 的那一列，按 Enter 跳過去。清單裡示範的「agent」是用 herdr pane report-agent 回報狀態的 shell 腳本，不是 Claude Code 或 Codex。_
 
-通知預設會在 herdr 裡跳提示（`[ui.toast]`），也可以改成系統通知。若要在 macOS 用系統通知，官方建議先 `brew install terminal-notifier`，細節見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)。
+通知預設不會跳出提示（`[ui.toast] delivery` 預設為 `off`）；若要在 herdr 裡看到提示，把 delivery 設成 `herdr`，也可以改成系統通知。若要在 macOS 用系統通知，官方建議先 `brew install terminal-notifier`，細節見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)或[Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/)。
 
 依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意保守，新的提示畫面一開始可能顯示成 idle；而且「idle status is not authorization to approve an action」。跳過去之後，要看清楚再按允許。這一點和[拿 OWASP Agentic Top 10 檢查你的 AI 工作流：十項風險逐條對照與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
 

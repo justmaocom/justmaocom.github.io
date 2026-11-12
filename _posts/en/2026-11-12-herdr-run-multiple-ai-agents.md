@@ -48,11 +48,11 @@ _Concept diagram: The five steps in one loop are Start herdr, Add a worktree, Ru
 ## Step 1: Install herdr
 
 ![Install herdr with brew or mise; if you use the official curl | sh one-liner, download and read the script first](install.en.webp){: w="1600" h="900" }
-_Concept diagram: The left side is this site's suggestion, installing and upgrading with brew or mise. The right side is the one-liner from the official homepage; if you use it, download the script, read it, then run it._
+_Concept diagram: The left side is this site's suggestion, installing and upgrading with brew or mise. The right side is the one-liner from the official Install/TUI page; if you use it, download the script, read it, then run it._
 
 If you already use [Homebrew](https://formulae.brew.sh/formula/herdr), I recommend `brew install herdr`. If you already use [mise](https://mise.jdx.dev/), I recommend `mise use -g herdr`. Both are listed on the official [Install](https://herdr.dev/tui/docs/0.9.5/install/) page.
 
-The official homepage also offers `curl -fsSL https://herdr.dev/install.sh | sh`. I recommend not pasting that straight into a shell: what runs is whatever the server returns at that moment, which you have not read, and a later run may not be the same. It also installs into `~/.local/bin` and then updates itself with `herdr update`, so it never appears in your package manager list and is harder to inventory or remove. With brew or mise, you can look up the version, and upgrade and uninstall use the same tool. That is not a claim that the install script is broken; it is the habit of reading first, then running, as in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/en/posts/coding-agent-supply-chain-permission-risks/).
+The official Install/TUI page also offers `curl -fsSL https://herdr.dev/install.sh | sh`. I recommend not pasting that straight into a shell: what runs is whatever the server returns at that moment, which you have not read, and a later run may not be the same. It also installs into `~/.local/bin` and then updates itself with `herdr update`, so it never appears in your package manager list and is harder to inventory or remove. With brew or mise, you can look up the version, and upgrade and uninstall use the same tool. That is not a claim that the install script is broken; it is the habit of reading first, then running, as in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/en/posts/coding-agent-supply-chain-permission-risks/).
 
 If you do need the official script, download it and read it first:
 
@@ -79,7 +79,7 @@ You can click, drag borders, and right-click to split. The official docs treat t
 
 ## Step 3: Give Each Working Directory Its Own Workspace
 
-This site's approach is one workspace per worktree, so each agent edits its own working directory, following the same idea as the worktree post. There are two ways to get there; pick one. Both are `git worktree` underneath. Merging, deleting branches, and the warning not to use worktrees with submodules all follow the worktree post.
+This site's approach is one workspace per worktree, so each agent edits its own working directory, following the same idea as the worktree post. There are two ways to get there; pick one. Both are `git worktree` underneath. Merging, deleting branches, and the warning not to use worktrees with submodules all follow [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/).
 
 **Option A: Let herdr create it.** Choose `New worktree` in the workspace list, or press `prefix+shift+g`. The branch field starts with a random name, so press ctrl+c to clear it before typing. herdr creates a git worktree and opens it as a new workspace, grouped under the original project. That is the same as running this inside the project folder:
 
@@ -127,7 +127,7 @@ To jump quickly, press `prefix+g` to open the Goto list, then press `b` to show 
 ![herdr Go to list grouped by workspace, each row labeled idle, working, blocked, or done](screen-goto.en.webp){: w="1600" h="900" }
 _Real screen: prefix+g opens Go to with each state written out; press b to keep only the blocked row, then Enter to jump there. The demo “agents” are shell scripts reporting state with herdr pane report-agent, not Claude Code or Codex._
 
-Notifications appear as in-app toasts by default (`[ui.toast]`); you can switch them to system notifications. For system notifications on macOS, the official docs suggest `brew install terminal-notifier`; see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/).
+Notifications are off by default (`[ui.toast] delivery` defaults to `off`); to see in-app toasts, set delivery to `herdr`, or switch to system notifications. For system notifications on macOS, the official docs suggest `brew install terminal-notifier`; see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/) or the [Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/).
 
 The official [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) page says blocked detection is deliberately strict, so an unusual new prompt may first show as idle, and that "idle status is not authorization to approve an action." After you jump to the pane, read it carefully before you click Allow. That is the same point as human-agent trust and approval fatigue in [Audit Your AI Workflow With the OWASP Agentic Top 10: Ten Risks, Ten Checks, and How to Fix Them](/en/posts/owasp-agentic-top-10-ai-workflow-checklist/).
 
