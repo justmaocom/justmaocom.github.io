@@ -12,7 +12,9 @@ image:
 
 After [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/), the next snag is often this: once two or three coding agents are running at once, you have to flip through windows to see which one is waiting for you to click Allow, and which one is still working. Close the terminal, or drop an SSH connection, and work that was only halfway done may stop with it.
 
-herdr is a tool that manages workspaces and split views in your terminal. It puts each agent in its own pane and marks the sidebar with working, blocked, done, or idle; close the view you see, and the work in the background can keep going. The official description is "the runtime your coding agents live on."
+herdr is a tool that manages workspaces and split views in your terminal. It puts each agent in its own pane and marks the sidebar with colored dots; the words working, blocked, done, or idle appear only in the list you open with prefix+g. Close the view you see, and the work in the background can keep going. The official description is "the runtime your coding agents live on."
+
+This post covers the terminal Herdr TUI ([herdr.dev/tui](https://herdr.dev/tui)), not the Herdr desktop App ([herdr-app](https://github.com/herdrdev/herdr-app)) that the herdr.dev homepage now mainly promotes, and the two do not share agents.
 
 This article focuses on macOS and Linux, and uses Claude Code and Codex as the examples (the official list of supported agents is longer; see [Agents](https://herdr.dev/tui/docs/0.9.5/agents/)). Native Windows support is generally available, with known limitations; see [Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/). This post does not cover Windows installation.
 
@@ -70,17 +72,23 @@ For upgrades, use `brew upgrade herdr` if you installed with brew, and `mise upg
 
 `cd` into your project folder, then run `herdr`. According to the [Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/), it launches or attaches to your default background session, and if that session has no workspaces yet, it opens one automatically. I recommend one workspace per project.
 
+![Real herdr screen: the sidebar lists the demo-app workspace; two panes run git commands and a build](screen-main.en.webp){: w="1600" h="900" }
+_Real screen: herdr opened in the demo-app folder, with a second pane split off by prefix+v. Both panes run a plain shell, not an agent, so the agents list is empty._
+
 You can click, drag borders, and right-click to split. The official docs treat the mouse and the keyboard as first-class; the keyboard is optional, not required.
 
 ## Step 3: Give Each Working Directory Its Own Workspace
 
 This site's approach is one workspace per worktree, so each agent edits its own working directory, following the same idea as the worktree post. There are two ways to get there; pick one. Both are `git worktree` underneath. Merging, deleting branches, and the warning not to use worktrees with submodules all follow the worktree post.
 
-**Option A: Let herdr create it.** Choose `New worktree` in the workspace list, or press `prefix+shift+g`, then enter a branch name. herdr creates a git worktree and opens it as a new workspace, grouped under the original project. That is the same as running this inside the project folder:
+**Option A: Let herdr create it.** Choose `New worktree` in the workspace list, or press `prefix+shift+g`. The branch field starts with a random name, so press ctrl+c to clear it before typing. herdr creates a git worktree and opens it as a new workspace, grouped under the original project. That is the same as running this inside the project folder:
 
 ```bash
 herdr worktree create --branch login-page
 ```
+
+![The new worktree dialog from prefix+shift+g, with branch login-page and the checkout folder below](screen-worktree.en.webp){: w="1600" h="900" }
+_Real screen: prefix+shift+g adds a worktree. The branch field starts with a random name, so press ctrl+c to clear it before typing; Enter creates it and opens a new workspace._
 
 The default location is `~/.herdr/worktrees/<repo>/<branch>`. You can change it with `[worktrees] directory` in `~/.config/herdr/config.toml`; see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/).
 
@@ -101,7 +109,7 @@ Integrations are optional. You can read states without them; install one if you 
 ![herdr's five agent states, blocked, working, done, idle, and unknown, with what each means and what to do](states.en.webp){: w="1600" h="900" }
 _Concept diagram: What the five states mean, and what this site suggests you do. Deal with blocked first. A new prompt may first show as idle, and idle is not permission to click Allow. The colors in the figure are this site's palette, not herdr's own UI colors._
 
-The sidebar shows each agent's state and rolls that up to the tab and the workspace: if one agent is blocked, the whole workspace looks blocked. The official docs define five states; the "what you should do" column is this site's suggestion.
+The sidebar marks each agent's state with a colored dot; if an agent in a workspace is blocked, that workspace's own row also uses the blocked color. The words working, blocked, done, and idle appear only in the Go to list you open with prefix+g. The official docs define five states; the "what you should do" column is this site's suggestion.
 
 | State | Official meaning, in plain words | What this site suggests you do |
 | --- | --- | --- |
@@ -111,7 +119,13 @@ The sidebar shows each agent's state and rolls that up to the tab and the worksp
 | idle | It finished or is waiting, and you have already looked | You can give it the next task |
 | unknown | herdr cannot tell the state | Open it yourself and take a look |
 
+![herdr sidebar: two worktree workspaces grouped under demo-app, and colored dots showing four agent states](screen-states.en.webp){: w="1600" h="900" }
+_Real screen (herdr default theme): yellow dot = working, red = blocked, teal = done, hollow green = idle. The demo “agents” are shell scripts reporting state with herdr pane report-agent, not Claude Code or Codex._
+
 To jump quickly, press `prefix+g` to open the Goto list, then press `b` to show only blocked agents (`w` for working, `i` for idle, `d` for done, `a` for all), and press Enter to jump.
+
+![herdr Go to list grouped by workspace, each row labeled idle, working, blocked, or done](screen-goto.en.webp){: w="1600" h="900" }
+_Real screen: prefix+g opens Go to with each state written out; press b to keep only the blocked row, then Enter to jump there. The demo “agents” are shell scripts reporting state with herdr pane report-agent, not Claude Code or Codex._
 
 Notifications appear as in-app toasts by default (`[ui.toast]`); you can switch them to system notifications. For system notifications on macOS, the official docs suggest `brew install terminal-notifier`; see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/).
 
@@ -135,7 +149,7 @@ The loop is the five steps in the figure: start herdr in the project folder, add
 | --- | --- |
 | `prefix+v` / `prefix+minus` | Split a pane right / down |
 | `prefix+h` / `j` / `k` / `l` | Move between panes |
-| `prefix+c` | New tab |
+| `prefix+c` | Opens a naming window; the tab is created after Enter |
 | `prefix+w` | Workspace navigation |
 | `prefix+shift+n` | New workspace |
 | `prefix+shift+g` | New worktree |

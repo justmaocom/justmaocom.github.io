@@ -12,7 +12,9 @@ image:
 
 读过[让两个 AI 分开工作：用 git worktree 开独立工作目录](/zh-CN/posts/git-worktree-parallel-ai-agents/)，开始让两三个 coding agent 同时做事之后，下一个麻烦常常是：哪个在等你点“允许”、哪个还在跑，要一个窗口一个窗口切过去才知道；终端关掉，或 SSH 断线，做到一半的工作也可能一起停。
 
-herdr 是在终端里管理多个工作区和分屏的工具。它会把每个 agent 放在自己的 pane，侧栏标出它现在是 working、blocked、done 还是 idle；关掉你看到的窗口，后台的工作仍可继续。官方的说法是“the runtime your coding agents live on”。
+herdr 是在终端里管理多个工作区和分屏的工具。它会把每个 agent 放在自己的 pane，侧栏用不同颜色的圆点标出状态；按 prefix+g 打开的列表才会直接写出 working、blocked、done 或 idle。关掉你看到的窗口，后台的工作仍可继续。官方的说法是“the runtime your coding agents live on”。
+
+这篇讲的是终端里的 Herdr TUI（[herdr.dev/tui](https://herdr.dev/tui)），不是 herdr.dev 首页现在主要推广的另一个程序 Herdr desktop App（[herdr-app](https://github.com/herdrdev/herdr-app)），两者也不会共用 agent。
 
 这篇以 macOS 和 Linux 为主，用 Claude Code 与 Codex 当例子（官方还支持其他 agent，见[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)）。Windows 已有原生支持，但有已知限制，细节见[Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/)，本文不教 Windows 安装。
 
@@ -70,17 +72,23 @@ curl -fsSL https://herdr.dev/install.sh -o herdr-install.sh
 
 先 `cd` 到你的项目文件夹，再输入 `herdr`。按[Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/)，它会启动或接上默认的后台 session；这个 session 还没有 workspace 时，会自动开一个。我建议一个项目对应一个 workspace。
 
+![herdr 实际画面：侧栏是 demo-app workspace，两个 pane 分别运行 git 和 build](screen-main.zh-CN.webp){: w="1600" h="900" }
+_实际画面：在 demo-app 文件夹打开 herdr，再用 prefix+v 分出第二个 pane。这两个 pane 运行的是普通 shell，不是 agent，所以 agents 区是空的。_
+
 鼠标可以直接点、拖边界，也可以右键分割；官方强调鼠标和键盘都是一等公民，键盘是选用而不是必备。
 
 ## 步骤 3：每个工作目录一个 workspace
 
 本站的做法是：每个 worktree 配一个 workspace，让每个 agent 改自己的工作目录，和 worktree 篇的原则相同。有两种开法，选一种即可，底层都是 `git worktree`。合并、删分支，以及有 submodule 时不要用 worktree，都照 worktree 篇。
 
-**做法 A：用 herdr 开。** 在 workspace 列选 `New worktree`，或按 `prefix+shift+g`，再输入分支名称。herdr 会建好 git worktree，并开成一个新 workspace，排在原项目底下。等同在项目文件夹内执行：
+**做法 A：用 herdr 开。** 在 workspace 列选 `New worktree`，或按 `prefix+shift+g`；分支栏一开始会填好随机名称，先按 ctrl+c 清空再输入。herdr 会建好 git worktree，并开成一个新 workspace，排在原项目底下。等同在项目文件夹内执行：
 
 ```bash
 herdr worktree create --branch login-page
 ```
+
+![按 prefix+shift+g 弹出 new worktree 窗口，分支填 login-page，下方是文件夹位置](screen-worktree.zh-CN.webp){: w="1600" h="900" }
+_实际画面：按 prefix+shift+g 开 worktree。分支栏一开始会填好随机名称，先按 ctrl+c 清空再输入；按 Enter 会创建并打开成新的 workspace。_
 
 默认位置是 `~/.herdr/worktrees/<repo>/<分支>`，可在 `~/.config/herdr/config.toml` 的 `[worktrees] directory` 更改，见[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)。
 
@@ -101,7 +109,7 @@ herdr worktree create --branch login-page
 ![herdr 的五种状态：blocked、working、done、idle、unknown，各代表什么、你该做什么](states.zh-CN.webp){: w="1600" h="900" }
 _概念图：五种状态的意思，以及本站建议你该做的事。blocked 要先处理；新的提示界面可能先显示成 idle，idle 不代表可以替它点“允许”。图上的颜色是本站配图用的，不是 herdr 界面的配色。_
 
-侧栏会显示每个 agent 的状态，并往上汇总到 tab 和 workspace：一个 agent 是 blocked，整个 workspace 看起来就会是 blocked。官方定义有五种；“你该做什么”是本站的建议。
+侧栏用不同颜色的圆点标出每个 agent 的状态；同一个 workspace 里若有 agent 是 blocked，该 workspace 自己的那一行也会换成 blocked 的颜色。状态名称（working、blocked、done、idle）只写在按 prefix+g 打开的 Go to 列表里。官方定义有五种；“你该做什么”是本站的建议。
 
 | 状态 | 官方定义（白话） | 本站建议你该做什么 |
 | --- | --- | --- |
@@ -111,7 +119,13 @@ _概念图：五种状态的意思，以及本站建议你该做的事。blocked
 | idle | 做完或在等，你已经看过 | 可以交代下一件事 |
 | unknown | herdr 认不出状态 | 自己点进去看一眼 |
 
+![herdr 侧栏：worktree workspace 排在 demo-app 下面，agents 区用圆点颜色标状态](screen-states.zh-CN.webp){: w="1600" h="900" }
+_实际画面（herdr 默认主题）：黄点 working、红点 blocked、青绿点 done、空心绿圈 idle。演示用的“agent”是用 herdr pane report-agent 上报状态的 shell 脚本，不是 Claude Code 或 Codex。_
+
 要快速找人，按 `prefix+g` 开 Goto 清单，再按 `b` 只看 blocked（`w` 看 working、`i` 看 idle、`d` 看 done、`a` 看全部），Enter 跳过去。
+
+![Go to 列表按 workspace 分组，每行写出 idle、working、blocked 或 done](screen-goto.zh-CN.webp){: w="1600" h="900" }
+_实际画面：按 prefix+g 打开 Go to，状态直接写成文字；再按 b 只留下 blocked 的那一行，按 Enter 跳过去。列表里演示的“agent”是用 herdr pane report-agent 上报状态的 shell 脚本，不是 Claude Code 或 Codex。_
 
 通知默认会在 herdr 里跳提示（`[ui.toast]`），也可以改成系统通知。若要在 macOS 用系统通知，官方建议先 `brew install terminal-notifier`，细节见[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)。
 
@@ -135,7 +149,7 @@ _概念图：五种状态的意思，以及本站建议你该做的事。blocked
 | --- | --- |
 | `prefix+v`／`prefix+minus` | 向右／向下分割 pane |
 | `prefix+h`／`j`／`k`／`l` | 在 pane 之间移动 |
-| `prefix+c` | 新 tab |
+| `prefix+c` | 先打开命名窗口，按 Enter 才创建新 tab |
 | `prefix+w` | workspace 导览 |
 | `prefix+shift+n` | 新 workspace |
 | `prefix+shift+g` | 新 worktree |
