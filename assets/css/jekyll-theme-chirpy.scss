@@ -20,6 +20,17 @@
   background-color: var(--card-bg);
 }
 
+.content > :is(h2, h3, h4, h5) {
+  font-family: variables.$font-family-base;
+  font-weight: 700;
+}
+
+.content > h2 {
+  margin-top: 3rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--main-border-color);
+}
+
 /* --- Mermaid 圖表放大檢視（搭配 assets/js/mermaid-zoom.js） --- */
 
 pre.mermaid[data-zoomable] {
