@@ -43,7 +43,7 @@ herdr.dev has two programs with very similar names. According to the official FA
 
 The two **don't share agents**: according to the official FAQ, an agent started in one does not show up in the other. The phone app works only with herdr-core (which comes with Herdr App), not with Herdr TUI. According to the phone app page, Herdr TUI and herdr-core can both be installed on the same computer.
 
-How to choose: this site suggests picking one as your main tool. Because agents aren't shared, running a few in each brings back the old problem of not knowing who is waiting for you. If you want to stay in the terminal, read [Run Several AI Coding Agents at Once and Spot the Stuck One: Getting Started With herdr](/posts/herdr-run-multiple-ai-agents/); if you want a desktop window, or want to check on agents from your phone, read on.
+How to choose: this site suggests picking one as your main tool. Because agents aren't shared, running a few in each brings back the old problem of not knowing who is waiting for you. If you want to stay in the terminal, read [Run Several AI Coding Agents at Once and Spot the Stuck One: Getting Started With herdr](/en/posts/herdr-run-multiple-ai-agents/); if you want a desktop window, or want to check on agents from your phone, read on.
 
 ## When It Fits
 
@@ -175,7 +175,7 @@ Compiled from the official default key files ([macOS](https://github.com/herdrde
 
 ### Using It With git worktree
 
-If you followed [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/posts/git-worktree-parallel-ai-agents/) and gave each agent its own working directory (a worktree), this site suggests one space per worktree, or at least a pane of its own, so each agent edits files only in its own directory. The app can also manage worktrees itself. According to the built-in guide, the space menu and the + menu have New worktree, Open worktree (open an existing one), and Remove worktree. A new worktree goes in `~/.herdr/worktrees/<repo name>/<branch name>` on that machine, and the Spaces sidebar lists the spaces for those worktrees under the original repo's space.
+If you followed [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/) and gave each agent its own working directory (a worktree), this site suggests one space per worktree, or at least a pane of its own, so each agent edits files only in its own directory. The app can also manage worktrees itself. According to the built-in guide, the space menu and the + menu have New worktree, Open worktree (open an existing one), and Remove worktree. A new worktree goes in `~/.herdr/worktrees/<repo name>/<branch name>` on that machine, and the Spaces sidebar lists the spaces for those worktrees under the original repo's space.
 
 ## Step 4: Check the Agents Sidebar to Find the One Waiting for You
 
@@ -341,8 +341,8 @@ After these steps, you'll have one desktop window with a space for each repo and
 
 ## Next Steps
 
-- To manage agents in the terminal instead: [Run Several AI Coding Agents at Once and Spot the Stuck One: Getting Started With herdr](/posts/herdr-run-multiple-ai-agents/) (Herdr TUI, a different program from the app).
-- To give each agent its own working directory: [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/posts/git-worktree-parallel-ai-agents/).
+- To manage agents in the terminal instead: [Run Several AI Coding Agents at Once and Spot the Stuck One: Getting Started With herdr](/en/posts/herdr-run-multiple-ai-agents/) (Herdr TUI, a different program from the app).
+- To give each agent its own working directory: [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/).
 - For details, the official [herdr-app README (v0.1.15)](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md) is authoritative.
 
 Further reading: [README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md), [Security and privacy](https://github.com/herdrdev/herdr-app/blob/v0.1.15/docs/security.md), [Built-in guide AGENTS.md](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/AGENTS.md), [macOS default keys](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json), [Linux/Windows default keys](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json), [CHANGELOG](https://github.com/herdrdev/herdr-app/blob/v0.1.15/CHANGELOG.md), [Install script](https://github.com/herdrdev/herdr-app/blob/v0.1.15/distribution/install.sh), [herdr.dev](https://herdr.dev/), [Download page](https://herdr.dev/download/), [Phone app](https://herdr.dev/mobile/), [herdr-core](https://herdr.dev/core/), [Privacy](https://herdr.dev/privacy/), [Herdr TUI](https://herdr.dev/tui/), [Homebrew cask](https://formulae.brew.sh/cask/herdr-app).
