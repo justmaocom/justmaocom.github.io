@@ -1,0 +1,32 @@
+---
+layout: null
+permalink: /llms.txt
+# 給 coding agent 與 AI 瀏覽器讀的文章索引，格式見 https://llmstxt.org
+# 每個語系各輸出一份。_plugins/i18n-hook.rb 會替非預設語系的網址補上語系前綴，
+# 指向根目錄那份的連結也會被改掉，所以語系清單只放在預設語系
+---
+# {{ site.title }}
+
+> {{ site.description | normalize_whitespace }}
+
+Written by [{{ site.author.name }}]({{ site.author.url }}).
+{%- if site.active_lang == site.default_lang %}
+
+## Other languages
+{% for lang in site.languages %}
+  {%- unless lang == site.default_lang %}
+- [{{ lang }}]({{ site.url }}{{ site.baseurl }}/{{ lang }}/llms.txt)
+  {%- endunless %}
+{%- endfor %}
+{%- endif %}
+
+## Posts
+{% for post in site.posts %}
+- [{{ post.title | normalize_whitespace }}]({{ post.url | absolute_url }}): {{ post.description | normalize_whitespace }} ({{ post.date | date: '%Y-%m-%d' }})
+{%- endfor %}
+
+## Optional
+
+- [About]({{ '/about/' | absolute_url }}): who writes this blog and what it covers
+- [Projects]({{ '/projects/' | absolute_url }}): side projects with source code and write-ups
+- [Atom feed]({{ '/feed.xml' | absolute_url }}): the newest posts with summaries

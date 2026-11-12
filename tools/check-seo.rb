@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
-# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述。
+# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述、
+# llms.txt 的文章清單。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -62,7 +63,9 @@ config['languages'].each do |lang|
      ->(s) { title[s] != "#{ CGI.unescapeHTML(s[/property="og:title" content="([^"]*)"/, 1]) } | #{ suffix }" && description[s] && description[s] != home_description }],
     # 沒有封面的文章不會有 preview-img；有的話第一張要立即載入，其餘維持 lazy
     ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
-     ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }]
+     ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }],
+    ['llms.txt 列出每篇文章', ["#{ root }/llms.txt"],
+     ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }]
   ]
 
   summary = checks.map do |desc, files, valid|
