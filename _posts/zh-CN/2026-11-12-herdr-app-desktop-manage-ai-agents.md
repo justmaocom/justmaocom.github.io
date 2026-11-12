@@ -1,5 +1,5 @@
 ---
-title: "用 Herdr 桌面 App 管好一群 AI：space、标签页和 agent 状态栏入门"
+title: "用 Herdr 桌面 App 管好一群 AI：space、标签页和 agents 侧边栏入门"
 description: "用 Herdr 桌面 App 把每个 repo 放进 space、每件工作放进标签页，从 agents 侧边栏一眼看出哪个 AI 在等你；本文依 v0.1.15 官方文档，说明安装、四种状态、关窗后的行为与遥测设置。"
 date: 2026-11-12 17:00:00 +0800
 categories: [AI, 软件开发]
