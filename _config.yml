@@ -25,6 +25,7 @@ exclude_from_localization:
   - assets/robots.txt
   - CNAME
   - google5762b861fb04640c.html
+  - cbcef6df4bdda9405c5172d6fa6599fd.txt
 
 # 非預設語系的站台資訊，建置該語系時覆寫同名的頂層欄位（見 _plugins/i18n-hook.rb）
 i18n_site:
