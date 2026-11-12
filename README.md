@@ -59,6 +59,8 @@ index.html       首頁入口
 
 推送到 `main` 或 `master` 後，GitHub Actions 會使用 Ruby 3.4 建置網站、執行 `html-proofer`，再將輸出部署到 GitHub Pages。工作流程也可從 Actions 頁面手動執行。
 
+建置時，`tools/indexnow.rb` 比對新建置與線上的 sitemap，找出新增、更新或移除的網址。部署完成後，`indexnow` job 把這些網址送給 [IndexNow](https://www.indexnow.org/)，讓 Bing 等搜尋引擎提早重新抓取。根目錄檔名與內容相同的 `<key>.txt` 是 IndexNow 的驗證金鑰，不要改名或修改內容。
+
 ## 授權
 
 本專案採用 [MIT License](LICENSE)。
