@@ -26,11 +26,13 @@ failures = []
   local_url = ->(file) { "#{ origin }/#{ lang }#{ file.delete_prefix(root).delete_suffix('index.html') }" }
   is_local_page = ->(url, file) { URI.decode_uri_component(url) == local_url[file] }
   is_local_prefix = ->(url, _) { url.start_with?("#{ origin }/#{ lang }/", "#{ origin }/assets/") }
+  # 中繼資料只在 <head>，文章內文的程式碼區塊可能引用同樣的字串；HTML 壓縮會省略 </head>，所以截到 <body>
+  head = ->(s) { s[%r{<head>.*?<body>}m].to_s }
 
   # [說明, 檔案, 從內容取出要檢查的網址, 每個網址應滿足的條件]
   checks = [
-    ['og:url', html, ->(s) { s.scan(/property="og:url" content="([^"]*)"/).flatten }, is_local_page],
-    ['JSON-LD @id', html, ->(s) { s.scan(/"@id":"([^"]*)"/).flatten }, is_local_page],
+    ['og:url', html, ->(s) { head[s].scan(/property="og:url" content="([^"]*)"/).flatten }, is_local_page],
+    ['JSON-LD @id', html, ->(s) { head[s].scan(/"@id":"([^"]*)"/).flatten }, is_local_page],
     # 只取最外層的 url；author、image 的 url 不屬於本頁
     ['JSON-LD url', html,
      ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json)['url'] } },
