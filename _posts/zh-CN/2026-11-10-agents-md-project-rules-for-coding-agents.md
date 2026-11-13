@@ -18,7 +18,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 
 这篇文章只谈怎么写这份文件，以及 [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) 和 [Claude Code](https://code.claude.com/docs/en/memory#agents-md) 的官方文档分别怎么说它们会读哪些文件。我不会写成“所有工具都一样”，也不会列出其他还没查证的产品。
 
-如果你想用一套 skill（打包好的做事流程，助手用到时才加载）帮项目生成规则，请看 [mattpocock/skills 系列（1）：先设置项目规则，再用 ask-matt 找下一步](/zh-CN/posts/mattpocock-skills-setup-routing-guide/)。那一篇讲的是那套 skill 的流程；本文讲的是文件格式本身，以及这两个工具实际怎么读。
+如果你想用一套 skill（打包好的做事流程，助手用到时才加载）帮项目生成规则，请看 [mattpocock/skills 系列（1）：先设置项目规则，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)。那一篇讲的是那套 skill 的流程；本文讲的是文件格式本身，以及这两个工具实际怎么读。
 
 > **版本说明**：本文依据 2026-11-10（台北时间）读取的 [Codex AGENTS.md 说明](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 记忆与 CLAUDE.md 说明](https://code.claude.com/docs/en/memory)（含 [AGENTS.md 段落](https://code.claude.com/docs/en/memory#agents-md)），以及 [AGENTS.md 格式官网](https://agents.md/)。当天 npm 上最新的 Codex CLI 是 0.167.0，Claude Code 是 2.1.322。之后的版本或文档可能会改变读取规则。
 {: .prompt-info }
@@ -43,7 +43,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 - 它一直跑错测试命令，例如该用 `pnpm test`，却一再执行 `npm test`。
 - 这件事新同事也需要知道，或下次再打开这个 repo 的人也用得上。
 
-不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），参见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），参见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
 **什么时候用：** 项目规则会反复讲，也会给之后进来的人看。
 
@@ -115,7 +115,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 - 代码里如果直接写入密码或 API 密钥，请标出来
 ```
 
-如果想进一步了解怎么让 AI agent 在 GitHub 上审查 PR，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。
+如果想进一步了解怎么让 AI agent 在 GitHub 上审查 PR，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
 ## 放在哪里：Codex 怎么读
 
@@ -308,4 +308,4 @@ my-project/              ← 根目录
 
 今天就可以按“动手做”的步骤，在根目录放一份 30 行以内的 AGENTS.md，写上真正会用到的安装、测试和注意事项。若还需要 Claude 专用补充，再加一份以 `@AGENTS.md` 开头的 CLAUDE.md。改完后用上面的命令或 `/memory` 确认有读到。
 
-若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/zh-CN/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/zh-CN/posts/claude-code-hooks-automate-checks/)。完整的架构说明这类长篇内容不适合放进 AGENTS.md；把它整理成 repo 内的 wiki、再由 AGENTS.md 指过去的做法，见 [OpenWiki 追得到代码变更，却证明不了文档正确](/posts/openwiki-agent-docs-maintenance/)。
+若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/posts/claude-code-hooks-automate-checks/)。完整的架构说明这类长篇内容不适合放进 AGENTS.md；把它整理成 repo 内的 wiki、再由 AGENTS.md 指过去的做法，见 [OpenWiki 追得到代码变更，却证明不了文档正确](/posts/openwiki-agent-docs-maintenance/)。

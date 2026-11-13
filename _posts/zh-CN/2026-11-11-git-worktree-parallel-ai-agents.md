@@ -12,7 +12,7 @@ image:
 
 如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
 
-本文只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，请看[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/zh-CN/posts/ai-native-sdlc-playbook/)。
+本文只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，请看[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)。
 
 > **版本说明**：本文依据 2026-11-11 读取的 git-scm.com [git-worktree 手册](https://git-scm.com/docs/git-worktree)（Git 2.56.0 版）撰写；git worktree 的多重 checkout 官方仍标记为实验性，之后行为可能改变，以手册为准。
 {: .prompt-info }
@@ -153,7 +153,7 @@ git merge feature-login
 - `git diff main...feature-login`：列出 `feature-login` 从和 `main` 分叉那一刻起改了哪些地方。[手册说明](https://git-scm.com/docs/git-diff)，三个点的写法是从两条分支的共同起点开始比较。先看一遍，确认没问题再合并。
 - `git merge feature-login`：[把那条分支上的 commit 合并进当前所在的分支](https://git-scm.com/docs/git-merge)，也就是 `main`。
 
-合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，可以参考 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/zh-CN/posts/mattpocock-skills-design-review-integration/)。
+合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，可以参考 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
 
 **做法二：推送上去开 PR。** 想让别人或自动审查先看一遍，就把分支推送到远程 repo（放在 GitHub 这类网站上的那一份），再到网站上开 PR（pull request，请求把分支合并进主分支）：
 
@@ -233,7 +233,7 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
    git push -u origin feature-login
    ```
 
-   另一条分支同样处理。之后可以让审查自动跑起来，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)；若想对“谁来看结构、审修改”有一套固定做法，请看 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/zh-CN/posts/mattpocock-skills-design-review-integration/)。
+   另一条分支同样处理。之后可以让审查自动跑起来，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)；若想对“谁来看结构、审修改”有一套固定做法，请看 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
 
 5. 合并：开了 PR 的，等 PR 在网站上合并，再回到 `myapp` 执行 `git pull` 更新 `main`。不开 PR 的，在主文件夹 `myapp`（第 1 步已经停在 `main`）执行 `git merge feature-login` 和 `git merge fix-typo`。细节见步骤 3。
 6. 收尾：先确认两个文件夹里的 AI 都停下来、要保留的修改都 commit 了，因为 `remove` 只收干净的文件夹。接着回到 `myapp`，先移除工作目录，再删除分支：
@@ -247,7 +247,7 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
 
    如果 `git branch -d` 拒绝删除，请看步骤 4 的说明。最后再执行 `git worktree list`，应该只剩主文件夹。
 
-小提醒：如果项目的规则写在 AGENTS.md，而且这份文件有被 git 跟踪，每个 worktree 都会有同一份，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/zh-CN/posts/agents-md-project-rules-for-coding-agents/)。若还想在某个工作目录里做固定时机的自动检查，请看[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+小提醒：如果项目的规则写在 AGENTS.md，而且这份文件有被 git 跟踪，每个 worktree 都会有同一份，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。若还想在某个工作目录里做固定时机的自动检查，请看[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ## 保护：lock 与 unlock
 
@@ -329,4 +329,4 @@ git worktree repair ../tasks/myapp-typo ../tasks/myapp-login
 
 下次要让两个 AI 同时动手，先用 `git worktree add -b` 各开一个文件夹。做完把成果合并回 `main`（或推送上去开 PR），再 `git worktree remove`，并记得删除用完的分支。repo 里若有 submodule（最上层有 `.gitmodules`），就别用这个方法。
 
-接下来，可以给每个工作目录里的 AI 写好项目规则，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/zh-CN/posts/agents-md-project-rules-for-coding-agents/)；若要把审查自动化，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。命令的细节以 [git-worktree 手册](https://git-scm.com/docs/git-worktree)为准，自动清理的宽限期见 [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)。
+接下来，可以给每个工作目录里的 AI 写好项目规则，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)；若要把审查自动化，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。命令的细节以 [git-worktree 手册](https://git-scm.com/docs/git-worktree)为准，自动清理的宽限期见 [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)。

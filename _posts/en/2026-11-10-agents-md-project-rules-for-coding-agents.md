@@ -18,7 +18,7 @@ AGENTS.md is a README for those assistants. A README is the file many projects k
 
 This post covers how to write the file, and what the official docs for [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [Claude Code](https://code.claude.com/docs/en/memory#agents-md) say each tool will actually read. I will not claim that every tool behaves the same way, and I will not list products I have not checked.
 
-If you want a skill pack (packaged workflows that an assistant loads when it needs them) to help generate project rules, see [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/en/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. This one is about the file format itself, and how these two tools load it.
+If you want a skill pack (packaged workflows that an assistant loads when it needs them) to help generate project rules, see [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. This one is about the file format itself, and how these two tools load it.
 
 > **Version note:** This post follows the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) (including the [AGENTS.md section](https://code.claude.com/docs/en/memory#agents-md)), and the [AGENTS.md site](https://agents.md/), all read on 2026-11-10 (Taipei time). That day, the latest Codex CLI on npm was 0.167.0, and Claude Code was 2.1.322. Later versions or docs may change how files are loaded.
 {: .prompt-info }
@@ -43,7 +43,7 @@ These are good reasons to put the rules in AGENTS.md:
 - It keeps running the wrong test command, for example `npm test` when the project uses `pnpm test`.
 - A new teammate, or anyone who opens this repo next, also needs to know it.
 
-Two kinds of content do not belong here. Long workflows that apply only to one small area are a better fit as a short file in that subdirectory, or as a skill that loads when it is needed. Rules that must always happen are the other case. The [Claude Code docs](https://code.claude.com/docs/en/memory) are explicit: these files are context (text added to the conversation for the model to read), not enforced configuration. The model takes them into account, but what it does in the end is still the model's decision. To block an action at a fixed point, use a hook (a command the tool runs automatically at a set moment); see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
+Two kinds of content do not belong here. Long workflows that apply only to one small area are a better fit as a short file in that subdirectory, or as a skill that loads when it is needed. Rules that must always happen are the other case. The [Claude Code docs](https://code.claude.com/docs/en/memory) are explicit: these files are context (text added to the conversation for the model to read), not enforced configuration. The model takes them into account, but what it does in the end is still the model's decision. To block an action at a fixed point, use a hook (a command the tool runs automatically at a set moment); see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 **When to use it:** the rule will be repeated, and later people on the project should see it too.
 
@@ -115,7 +115,7 @@ If you use Codex code review on GitHub (code review: checking changes before the
 - Flag any password or API key written directly into the code
 ```
 
-To learn more about having an AI agent review PRs on GitHub, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/).
+To learn more about having an AI agent review PRs on GitHub, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
 
 ## Where to Put It: How Codex Reads the Files
 
@@ -308,4 +308,4 @@ If Claude should also see the payments rules, add a `CLAUDE.md` in `services/pay
 
 Following the hands-on steps above, you can add an AGENTS.md of 30 lines or fewer at the repository root today, with the install, test, and caution lines you actually use. If you also need Claude-specific notes, add a CLAUDE.md that starts with `@AGENTS.md`. Then use the commands above, or `/memory`, to confirm the files were loaded.
 
-For more on why every line written for an assistant has a cost, see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/en/posts/mattpocock-skills-research-handoff/). The official references are the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/). To turn a rule into a check that runs at a fixed point, see the [hooks post](/en/posts/claude-code-hooks-automate-checks/). Long material such as a full architecture write-up doesn't belong in AGENTS.md; for the approach of keeping it in a wiki inside the repo and pointing to it from AGENTS.md, see [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
+For more on why every line written for an assistant has a cost, see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/). The official references are the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/). To turn a rule into a check that runs at a fixed point, see the [hooks post](/posts/claude-code-hooks-automate-checks/). Long material such as a full architecture write-up doesn't belong in AGENTS.md; for the approach of keeping it in a wiki inside the repo and pointing to it from AGENTS.md, see [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).

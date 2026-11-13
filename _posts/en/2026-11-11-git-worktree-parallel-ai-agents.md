@@ -12,7 +12,7 @@ image:
 
 If I let two coding agents (AI assistants that can read files, edit them, and run commands) work on different tasks in the same folder, it is like two people sharing one desk and one computer. When one agent switches to another branch (a separate line of work), the files in the folder are replaced with that branch's version, and the files the other agent is halfway through change as well. A better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory, each checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
 
-This post is only about isolating those working directories, merging the work back, and cleaning up afterward. It does not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, see [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/en/posts/ai-native-sdlc-playbook/).
+This post is only about isolating those working directories, merging the work back, and cleaning up afterward. It does not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, see [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/posts/ai-native-sdlc-playbook/).
 
 > **Version note:** This post follows the git-scm.com [git-worktree manual](https://git-scm.com/docs/git-worktree) (the Git 2.56.0 edition), read on 2026-11-11. Multiple checkout with git worktree is still marked experimental, and later behavior may change; treat the manual as the source of truth.
 {: .prompt-info }
@@ -151,7 +151,7 @@ git merge feature-login
 - `git diff main...feature-login` lists what `feature-login` changed since it split off from `main`. As the [manual explains](https://git-scm.com/docs/git-diff), the three-dot form compares from the point where the two branches share a common ancestor. Read it first, and merge once it looks right.
 - `git merge feature-login` [brings the commits from that branch into the branch you are on](https://git-scm.com/docs/git-merge), which is `main`.
 
-You do not need to switch to `feature-login` to merge it, so it is fine that the branch is still checked out in its worktree. If both sides changed the same part of the same file, Git cannot pick one side on its own and [stops to ask you to resolve it](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented). This is called a conflict. For one way to handle conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/en/posts/mattpocock-skills-design-review-integration/).
+You do not need to switch to `feature-login` to merge it, so it is fine that the branch is still checked out in its worktree. If both sides changed the same part of the same file, Git cannot pick one side on its own and [stops to ask you to resolve it](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented). This is called a conflict. For one way to handle conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
 
 **Option 2: push it and open a PR.** If you want someone else, or an automated review, to look first, push the branch to the remote repository (the copy hosted on a site such as GitHub) and open a PR there (a pull request, asking to merge the branch into the main line):
 
@@ -231,7 +231,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
    git push -u origin feature-login
    ```
 
-   Do the same for the other branch. You can then automate the review; see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/). For a fixed approach to structure checks, review, and merge conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/en/posts/mattpocock-skills-design-review-integration/).
+   Do the same for the other branch. You can then automate the review; see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). For a fixed approach to structure checks, review, and merge conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
 
 5. Merge: if you opened PRs, wait for them to be merged on the site, then run `git pull` in `myapp` to update `main`. If you skipped the PRs, run `git merge feature-login` and `git merge fix-typo` in the main folder `myapp` (which has been on `main` since step 1). Step 3 has the details.
 6. Clean up: first make sure the agents in both folders have stopped and everything you want to keep is committed, because `remove` only accepts a clean folder. Then go back to `myapp`, remove the worktrees first, and delete the branches after:
@@ -245,7 +245,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
 
    If `git branch -d` refuses, see the explanation in Step 4. After a final `git worktree list`, only the main folder should remain.
 
-A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
+A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 ## Protect a Worktree With lock and unlock
 
@@ -327,4 +327,4 @@ If it was the main folder that moved, run `git worktree repair` in the main fold
 
 The next time two AI agents need to work at once, start with `git worktree add -b` so each gets its own folder. When the work is done, merge it back into `main` (or push it and open a PR), then run `git worktree remove`, and delete the branches you no longer need. If the repository has submodules (look for `.gitmodules` at the top level), skip this approach.
 
-From there, you can write project rules for the agent in each working directory; see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/). To automate review, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/). For command details, use the [git-worktree manual](https://git-scm.com/docs/git-worktree). The grace period for automatic cleanup is documented under [`gc.worktreePruneExpire` in git-config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire).
+From there, you can write project rules for the agent in each working directory; see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). To automate review, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). For command details, use the [git-worktree manual](https://git-scm.com/docs/git-worktree). The grace period for automatic cleanup is documented under [`gc.worktreePruneExpire` in git-config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire).

@@ -263,6 +263,6 @@ Hooks make formatting, sensitive-file reminders, and end-of-turn tests happen at
 - [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide): common uses and copyable examples.
 - [Hooks reference](https://code.claude.com/docs/en/hooks): events, input and output, and [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations).
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permission and supply-chain risks, complementary to the everyday checks in this post.
-- [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/en/posts/ai-native-sdlc-playbook/): explains the difference between skills and hooks.
+- [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/posts/ai-native-sdlc-playbook/): explains the difference between skills and hooks.
 - [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): hooks run inside a Claude Code session; this post covers what happens after the PR is opened, from rule-based checks to AI review and human approval.
 - [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): how to write down the project rules the AI only needs to know about, as opposed to the ones that must be enforced.

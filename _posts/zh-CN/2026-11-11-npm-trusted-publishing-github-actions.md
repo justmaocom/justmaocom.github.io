@@ -23,9 +23,9 @@ image:
 
 为什么要换？token（令牌）是一串代替账号密码的通行码，谁拿到，就能用你的身份做它允许的事。如果你的自动发布，是把一个 `NPM_TOKEN` 放进 GitHub Actions 的 secrets（GitHub 存放密码等机密数据的地方），这就是长期 token：在撤销或到期前一直有效。一旦泄露，别人就能冒用你的名义发布新版本。
 
-另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)是从用户那边看这个风险：文中的 Nx 案例，根据 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻击者是通过 GitHub Actions 的注入漏洞取得 npm 发布令牌。本文改从**发布者**这端，去掉“长期 token 放在 CI”这个风险。但要先说清楚：Trusted Publishing 挡不住那类事件本身。workflow 若已被注入恶意命令，它照样可以发布。想让每个版本多一道人工把关，请看后面的“进阶：更严格的做法”。
+另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)是从用户那边看这个风险：文中的 Nx 案例，根据 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻击者是通过 GitHub Actions 的注入漏洞取得 npm 发布令牌。本文改从**发布者**这端，去掉“长期 token 放在 CI”这个风险。但要先说清楚：Trusted Publishing 挡不住那类事件本身。workflow 若已被注入恶意命令，它照样可以发布。想让每个版本多一道人工把关，请看后面的“进阶：更严格的做法”。
 
-本文只讲 GitHub 托管的 runner（由 GitHub 提供的机器），搭配 npmjs.com 上的设置。若想给 workflow 加上自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。
+本文只讲 GitHub 托管的 runner（由 GitHub 提供的机器），搭配 npmjs.com 上的设置。若想给 workflow 加上自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
 > **版本说明**：本文依据 2026-11-11 读取的 npm 官方文档《[Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers)》撰写；npm 近几个月仍在调整这项功能（例如 2026-09-03 之后新建的设置，默认只允许 stage publish），设置界面与默认值以官方文档为准。
 {: .prompt-info }
@@ -311,6 +311,6 @@ _概念图：左边把本文步骤 0 到步骤 4 整理成六项清单，右边�
 
 ## 结论与下一步
 
-把 GitHub Actions 的发布从“放一把长期钥匙”改成“每次当场换短期凭证”之后，记得收回旧 token，必要时再加上批准或 stage publish。用户那一端还能怎么降低风险，请看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)；若要给这些 workflow 加自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。
+把 GitHub Actions 的发布从“放一把长期钥匙”改成“每次当场换短期凭证”之后，记得收回旧 token，必要时再加上批准或 stage publish。用户那一端还能怎么降低风险，请看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)；若要给这些 workflow 加自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
-官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补](/zh-CN/posts/openssh-musl-password-bypass-alpine/)。
+官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补](/posts/openssh-musl-password-bypass-alpine/)。

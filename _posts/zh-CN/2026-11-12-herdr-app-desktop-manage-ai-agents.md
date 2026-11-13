@@ -43,7 +43,7 @@ herdr.dev 上有两个名字很像的程序。依官方 FAQ：
 
 两者**不共享 agent**：依官方 FAQ，在其中一个里启动的 agent，不会出现在另一个里。手机 App 只支持 herdr-core（随 Herdr App 附带），不支持 Herdr TUI。依手机 App 页面，Herdr TUI 和 herdr-core 可以同时装在同一台电脑上。
 
-怎么选：本站建议挑一个当主力。因为 agent 不共享，两边各开几个，又会回到“不知道谁在等你”的老问题。想留在终端里用的，看[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/zh-CN/posts/herdr-run-multiple-ai-agents/)；想要一个桌面窗口、或想用手机查看 agent 的，继续往下读。
+怎么选：本站建议挑一个当主力。因为 agent 不共享，两边各开几个，又会回到“不知道谁在等你”的老问题。想留在终端里用的，看[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)；想要一个桌面窗口、或想用手机查看 agent 的，继续往下读。
 
 ## 什么时候适合用
 
@@ -175,7 +175,7 @@ _概念图：一台机器 → space（通常是一个 repo）→ 标签页（一
 
 ### 搭配 git worktree
 
-如果你照[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/zh-CN/posts/git-worktree-parallel-ai-agents/)，给每个 agent 开了一份独立的工作目录（worktree），本站建议每个 worktree 开一个 space，或至少给它一个自己的 pane，让每个 agent 只在自己的那份目录里改文件。App 本身也能管理 worktree。依内置指南，space 菜单和 + 菜单里有 New worktree（新建）、Open worktree（打开已有的）和 Remove worktree（删除）；新建的 worktree 会放在那台机器的 `~/.herdr/worktrees/<repo 名称>/<分支名称>`，Spaces 侧边栏会把这些 worktree 的 space 收在原来 repo 的 space 下面。
+如果你照[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)，给每个 agent 开了一份独立的工作目录（worktree），本站建议每个 worktree 开一个 space，或至少给它一个自己的 pane，让每个 agent 只在自己的那份目录里改文件。App 本身也能管理 worktree。依内置指南，space 菜单和 + 菜单里有 New worktree（新建）、Open worktree（打开已有的）和 Remove worktree（删除）；新建的 worktree 会放在那台机器的 `~/.herdr/worktrees/<repo 名称>/<分支名称>`，Spaces 侧边栏会把这些 worktree 的 space 收在原来 repo 的 space 下面。
 
 ## 步骤 4：看 agents 侧边栏，找出在等你的那个
 
@@ -341,8 +341,8 @@ _概念图：在 Settings → Privacy，或在 settings.json 加上 `"telemetry"
 
 ## 下一步
 
-- 想在终端里管理 agent：[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/zh-CN/posts/herdr-run-multiple-ai-agents/)（Herdr TUI，和 App 是不同的程序）。
-- 让每个 agent 在自己的工作目录里干活：[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/zh-CN/posts/git-worktree-parallel-ai-agents/)。
+- 想在终端里管理 agent：[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)（Herdr TUI，和 App 是不同的程序）。
+- 让每个 agent 在自己的工作目录里干活：[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)。
 - 操作细节以官方 [herdr-app README（v0.1.15）](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)为准。
 
 延伸阅读：[README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)、[Security and privacy](https://github.com/herdrdev/herdr-app/blob/v0.1.15/docs/security.md)、[内置指南 AGENTS.md](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/AGENTS.md)、[macOS 默认快捷键](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json)、[Linux／Windows 默认快捷键](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)、[CHANGELOG](https://github.com/herdrdev/herdr-app/blob/v0.1.15/CHANGELOG.md)、[安装脚本](https://github.com/herdrdev/herdr-app/blob/v0.1.15/distribution/install.sh)、[herdr.dev](https://herdr.dev/)、[下载页](https://herdr.dev/download/)、[手机 App](https://herdr.dev/mobile/)、[herdr-core](https://herdr.dev/core/)、[隐私](https://herdr.dev/privacy/)、[Herdr TUI](https://herdr.dev/tui/)、[Homebrew cask](https://formulae.brew.sh/cask/herdr-app)。
