@@ -2,7 +2,7 @@
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
 # sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述、
-# llms.txt 的文章清單。
+# llms.txt 的文章清單、給 agent 的 Markdown 版本。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -65,7 +65,11 @@ config['languages'].each do |lang|
     ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
      ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }],
     ['llms.txt 列出每篇文章', ["#{ root }/llms.txt"],
-     ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }]
+     ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }],
+    # Cloudflare 把帶 Accept: text/markdown 的請求改寫到這些檔案，少一份 agent 就會拿到 404
+    ['文章與「關於」頁有 Markdown 版本', Dir["#{ root }/{posts/*,about}/index.html"].map { |file| file.sub(/html\z/, 'md') },
+     ->(s) { !s.strip.empty? && s !~ /<!DOCTYPE|\{% (?:end)?raw %\}/i }],
+    ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }]
   ]
 
   summary = checks.map do |desc, files, valid|
