@@ -14,7 +14,7 @@ If you have read [git worktree for AI Agents: Run Two Agents in One Repo](/en/po
 
 herdr is a tool that manages workspaces and split views in your terminal. It puts each agent in its own split view (a pane), and the sidebar shows a colored dot for each agent, so you can tell whether it is working, waiting for you, or done. Even if you close the view you are looking at, the work in the background can keep going. The official description is "the runtime your coding agents live on."
 
-This post covers the terminal Herdr TUI ([herdr.dev/tui](https://herdr.dev/tui)), not the Herdr desktop App ([herdr-app](https://github.com/herdrdev/herdr-app)) that the herdr.dev homepage now mainly promotes. They are separate programs: an agent started in one does not show up in the other.
+This post covers the terminal Herdr TUI ([herdr.dev/tui](https://herdr.dev/tui)), not the Herdr desktop App ([herdr-app](https://github.com/herdrdev/herdr-app)) that the herdr.dev homepage now mainly promotes. They are separate programs: an agent started in one does not show up in the other. For the desktop app, see [Herdr Desktop App: Manage AI Agents With Spaces and Tabs](/posts/herdr-app-desktop-manage-ai-agents/).
 
 This article focuses on macOS and Linux, and uses Claude Code and Codex as the examples (the official list of supported agents is longer; see [Agents](https://herdr.dev/tui/docs/0.9.5/agents/)). Native Windows support is generally available, with known limitations; see [Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/). This post does not cover Windows installation.
 

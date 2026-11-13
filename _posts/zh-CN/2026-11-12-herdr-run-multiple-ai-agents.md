@@ -14,7 +14,7 @@ image:
 
 herdr 是在终端里管理多个工作区和分屏的工具。它把每个 agent 放进自己的分屏（pane），并在侧栏用不同颜色的圆点标出每个 agent 是在跑、在等你，还是已经做完。就算关掉你看到的界面，后台的工作也能继续。官方的说法是“the runtime your coding agents live on”。
 
-这篇讲的是终端里的 Herdr TUI（[herdr.dev/tui](https://herdr.dev/tui)），不是 herdr.dev 首页现在主要推广的另一个程序 Herdr desktop App（[herdr-app](https://github.com/herdrdev/herdr-app)）。两者是分开的程序，在其中一个里启动的 agent，不会出现在另一个里。
+这篇讲的是终端里的 Herdr TUI（[herdr.dev/tui](https://herdr.dev/tui)），不是 herdr.dev 首页现在主要推广的另一个程序 Herdr desktop App（[herdr-app](https://github.com/herdrdev/herdr-app)）。两者是分开的程序，在其中一个里启动的 agent，不会出现在另一个里。桌面 App 的用法另见[Herdr 桌面 App 入门：用 space 与标签页管理多个 AI](/posts/herdr-app-desktop-manage-ai-agents/)。
 
 这篇以 macOS 和 Linux 为主，用 Claude Code 与 Codex 当例子（官方还支持其他 agent，见[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)）。Windows 已有原生支持，但有已知限制，细节见[Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/)，本文不讲 Windows 安装。
 

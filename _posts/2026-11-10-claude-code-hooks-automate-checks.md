@@ -252,7 +252,7 @@ _概念圖。Matcher 守的是指定的工具名稱；經由 Bash 或 PowerShell
 
 **PostToolUse 不能還原已經發生的事。** 工具執行完才會跑到這個 hook，檔案寫入、指令執行或網路請求都已經生效。Exit 2 在這裡也不能撤回，只能把說明交給 Claude。要事先阻擋或改寫呼叫，用 PreToolUse。
 
-**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。不要把 Hooks 稱為安全邊界，也不要宣稱它擋得住所有修改途徑。
+**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。所以 hooks 不是安全邊界，擋不住所有修改途徑。要由作業系統限制指令能讀寫的範圍，見[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)。
 
 ## 結論
 
