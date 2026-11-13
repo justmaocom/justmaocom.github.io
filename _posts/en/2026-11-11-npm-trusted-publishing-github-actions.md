@@ -262,6 +262,8 @@ Trusted publishing removes the long-lived token, but a compromised workflow can 
 - **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the package's **Staged Packages** tab on npmjs.com or with `npm stage approve <stage-id>`. The docs treat a stage-only trusted publisher as a stronger combination. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
 - **Regular reviews:** audit the package's trusted publishers periodically, and delete publish tokens you no longer use.
 
+For a step-by-step setup of these gates, and why a release with provenance can still be malicious, see the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/).
+
 ## Limits You Should Know First
 
 ![A six-item trusted publishing setup checklist, plus four limits to know first](checklist.en.webp){: w="1600" h="900" }

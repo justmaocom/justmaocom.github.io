@@ -262,6 +262,8 @@ Trusted Publishing 拿掉了長期 token，但 workflow 本身若被攻破，仍
 - **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 套件的 **Staged Packages** 分頁按 **Approve**，或用 `npm stage approve <stage-id>`。文件把「trusted publisher 只允許 stage publish」視為更強的組合。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期檢查：** 定期稽核套件的 trusted publisher 設定，刪掉沒在用的發布 token。
 
+這幾道關卡怎麼一步步設定，以及為什麼帶著 provenance 的版本仍可能是惡意的，見續篇[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)。
+
 ## 限制
 
 ![設定 Trusted Publishing 的六項清單，以及四個要先知道的限制](checklist.webp){: w="1600" h="900" }
