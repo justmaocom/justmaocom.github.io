@@ -6,3 +6,4 @@
 67ad732d21026dbcd91887c04942d876713af9c1 # perf(img): 文章圖片由 PNG 轉成 WebP
 8c4107ba28ce7b156721760974d40b00e4ff7f12 # feat(posts): 替三篇沒有封面的文章補上封面
 5f9329b0146e2d35a3fb1ffddc7b80a0801d5226 # docs(posts): 其他文章引用的舊標題改成新標題
+eef814591f62b60d99b8332bf18ad53d57a903fa # docs(posts): 簡中與英文的站內連結改回 /posts/<slug>/
