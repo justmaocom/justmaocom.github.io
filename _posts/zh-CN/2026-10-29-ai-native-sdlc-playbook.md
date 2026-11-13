@@ -260,7 +260,7 @@ _我希望每次交接都留下“决定了什么、如何验证、谁来接手�
 
 ## 我会区分：提醒 AI，和系统真正限制它的操作
 
-原文区分了 skill 和 hook：前者提供工作指引，后者可以在执行操作时运行程序检查。[参考原文对 Skills 和 Hooks 的说明](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)。hook 在 Claude Code 里实际怎么设置、挡得住什么，我另外写在[把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
+原文区分了 skill 和 hook：前者提供工作指引，后者可以在执行操作时运行程序检查。[参考原文对 Skills 和 Hooks 的说明](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)。hook 在 Claude Code 里实际怎么设置、挡得住什么，我另外写在[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
 我会把它们理解为活动现场的两种安排：“请检查门票”是工作手册，“验票通过才开门”是入口设备。手册说明应该怎么做，设备则负责检查某个条件。
 

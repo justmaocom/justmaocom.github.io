@@ -269,7 +269,7 @@ I would also watch the amount of documentation. A change to a few lines of text 
 
 ## I Distinguish Between Reminding AI and Enforcing a Rule
 
-The original article distinguishes between skills, which provide working instructions, and hooks, which can run programmatic checks when an action occurs. [See its discussion of skills and hooks](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). I cover how hooks are actually configured in Claude Code, and what they can and can't block, in [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/posts/claude-code-hooks-automate-checks/).
+The original article distinguishes between skills, which provide working instructions, and hooks, which can run programmatic checks when an action occurs. [See its discussion of skills and hooks](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). I cover how hooks are actually configured in Claude Code, and what they can and can't block, in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 I think of two arrangements at an event: “Please check tickets” belongs in the staff handbook, while a gate that opens only after a ticket is validated enforces a condition. The handbook explains what to do; the gate checks whether a requirement has been met.
 

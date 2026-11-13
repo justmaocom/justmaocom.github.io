@@ -126,7 +126,7 @@ If your asset inventory only records `libheif 1.19.8`, it is missing the informa
 
 This is also why "the scanner shows upstream version X" is not enough to close a ticket. The scan result is where the investigation starts; the distro advisory and the running image together determine the current state.
 
-Once the package is fixed, you still have to confirm the running program has been replaced. [OpenSSH Password Authentication Bypass: Which Hosts Are Affected, and How Alpine Users Can Patch](/posts/openssh-musl-password-bypass-alpine/) is one example: on Alpine, the fix is not complete until sshd has been restarted successfully after the package upgrade.
+Once the package is fixed, you still have to confirm the running program has been replaced. [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/) is one example: on Alpine, the fix is not complete until sshd has been restarted successfully after the package upgrade.
 
 ## Isolating Image Processing Has Deployment Prerequisites
 

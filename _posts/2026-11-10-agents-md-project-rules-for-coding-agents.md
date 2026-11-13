@@ -43,7 +43,7 @@ AGENTS.md 就是寫給這些助理看的 README。README 是很多專案最上�
 - 它一直跑錯測試指令，例如該用 `pnpm test`，卻一再執行 `npm test`。
 - 這件事新同事也需要知道，或下次再開這個 repo 的人也用得上。
 
-不適合塞進這份檔的，主要有兩種。一種是只跟某一小區塊有關、而且很長的流程：那種內容比較適合放到該子目錄較短的規則，或寫成用到才載入的 skill。另一種是「一定得做到」的事。[Claude Code 的文件](https://code.claude.com/docs/en/memory)寫得很清楚：這些說明是 context（塞進對話裡給模型看的脈絡），不是強制設定；模型會參考它，但最後怎麼做仍由模型判斷。要在固定時機擋下某個動作，請用 hook（在固定時機由工具自動執行的指令），見[把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
+不適合塞進這份檔的，主要有兩種。一種是只跟某一小區塊有關、而且很長的流程：那種內容比較適合放到該子目錄較短的規則，或寫成用到才載入的 skill。另一種是「一定得做到」的事。[Claude Code 的文件](https://code.claude.com/docs/en/memory)寫得很清楚：這些說明是 context（塞進對話裡給模型看的脈絡），不是強制設定；模型會參考它，但最後怎麼做仍由模型判斷。要在固定時機擋下某個動作，請用 hook（在固定時機由工具自動執行的指令），見[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 **什麼時候用：** 專案規則會重複講、也會給之後進來的人看。
 

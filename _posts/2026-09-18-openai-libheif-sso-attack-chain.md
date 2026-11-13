@@ -126,7 +126,7 @@ Debian 的 [DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/m
 
 這也解釋了為何「掃描器顯示某個上游版本」不能直接結案。掃描結果是調查起點，發行版公告與執行中的映像才共同決定當下狀態。
 
-套件修好之後，還要確認執行中的程式已經換成新版。[OpenSSH 密碼驗證繞過漏洞：哪些主機受影響，Alpine 使用者怎麼修補？](/posts/openssh-musl-password-bypass-alpine/)就是一例：Alpine 更新套件後，要成功重啟 sshd 才算修補完成。
+套件修好之後，還要確認執行中的程式已經換成新版。[OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補](/posts/openssh-musl-password-bypass-alpine/)就是一例：Alpine 更新套件後，要成功重啟 sshd 才算修補完成。
 
 ## 隔離圖片處理也有部署條件
 
