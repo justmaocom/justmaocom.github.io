@@ -1,13 +1,13 @@
 ---
 title: "How My Blog Maintains Three Versions: Traditional Chinese, Simplified Chinese, and English"
-description: "Every post on this site has a Traditional Chinese, a Simplified Chinese, and an English version. Using the site's real configuration, this post explains how the URLs are split, where the translations go, how I fill in the URLs the plugin misses, and how I help search engines tell the three versions apart."
+description: "How this site keeps Traditional Chinese, Simplified Chinese, and English versions of every post: the URLs, translations, missed plugin URLs, and hreflang."
 date: 2026-11-13 08:30:00 +0800
 categories: [Software Development, Multilingual Sites]
 tags: [jekyll, i18n, github-pages, hreflang, seo, side-project]
 media_subpath: /assets/img/posts/jekyll-blog-three-languages/
 image:
   path: cover.en.webp
-  alt: "One post is published at three URLs, in Traditional Chinese, Simplified Chinese, and English, and the three versions point to each other with hreflang."
+  alt: "One post is published at three URLs in Traditional Chinese, Simplified Chinese, and English, and they point to each other with hreflang."
 ---
 
 Since late September 2026, every post on this site has come in three versions: Traditional Chinese, Simplified Chinese, and English. As I write this, each language has 28 posts (not counting this one), with none missing.
