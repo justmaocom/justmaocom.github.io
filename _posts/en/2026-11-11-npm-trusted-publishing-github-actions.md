@@ -95,7 +95,7 @@ The fields are:
 - **Environment name** (optional): a GitHub environment is a deployment gate that can carry protection rules, such as a required human approval. Fill this in only if you use one; otherwise leave it blank.
 - **Allowed actions**: which actions this publisher may perform.
 
-**Do not skip Allowed actions.** It has two options: `npm publish` publishes directly and makes the version public right away; `npm stage publish` sends the version to a staging area, where a maintainer must approve it with 2FA before it goes public.
+**Do not skip Allowed actions.** Start with the two publishing options: `npm publish` publishes directly and makes the version public right away; `npm stage publish` sends the version to a staging area, where a maintainer must approve it with 2FA before it goes public. Some interfaces also offer a separate `npm dist-tag` permission; leave it off unless needed.
 
 - Multiple interface: `npm stage publish` is always allowed, and `npm publish` must be selected separately. According to the docs, configurations created after 2026-09-03 **allow only `npm stage publish` by default**.
 - Single interface: this field is required, and you must select at least one option.
@@ -259,7 +259,7 @@ Trusted publishing removes the long-lived token, but a compromised workflow can 
 
 - **Environment approval:** give the publish job a GitHub environment that requires a human approval, and enter the same name in **Environment name** on npmjs.com.
 - **Tag protection rules:** limit who can push the tags that trigger a release.
-- **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the package's **Staged Packages** tab on npmjs.com or with `npm stage approve <stage-id>`. The docs treat a stage-only trusted publisher as a stronger combination. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
+- **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the **Staged Packages** tab in your npmjs.com account settings or with `npm stage approve <stage-id>`. The docs treat a stage-only trusted publisher as a stronger combination; check every configured publisher for any remaining direct-publish permissions. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
 - **Regular reviews:** audit the package's trusted publishers periodically, and delete publish tokens you no longer use.
 
 For a step-by-step setup of these gates, and why a release with provenance can still be malicious, see the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/).

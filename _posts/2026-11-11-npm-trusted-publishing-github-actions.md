@@ -95,7 +95,7 @@ _概念圖：GitHub Actions 先出示身分證明，npm 核對設定後才換發
 - **Environment name**（選填）：GitHub 的 environment 是可以加上人工核准等保護規則的部署關卡。有用才填，沒用就留空。
 - **Allowed actions**：允許這個 publisher 做哪些動作。
 
-**Allowed actions 一定要看。** 它有兩個選項：`npm publish` 是直接發布、立刻公開；`npm stage publish` 是先把版本送進暫存區，等維護者用 2FA 核准後才公開。
+**Allowed actions 一定要看。** 這裡先看兩個發布選項：`npm publish` 是直接發布、立刻公開；`npm stage publish` 是先把版本送進暫存區，等維護者用 2FA 核准後才公開。部分介面另有獨立的 `npm dist-tag` 權限，不需要就不要開啟。
 
 - Multiple 介面：`npm stage publish` 一律允許，`npm publish` 要另外勾。依文件，2026-09-03 之後新建的設定，**預設只允許 `npm stage publish`**。
 - Single 介面：這一欄必填，兩項至少勾一項。
@@ -259,7 +259,7 @@ Trusted Publishing 拿掉了長期 token，但 workflow 本身若被攻破，仍
 
 - **environment 加人工核准：** 在 GitHub 為發布 job 指定 environment，並設定需要人工核准；npmjs.com 的 **Environment name** 要填同一個名稱。
 - **tag protection rules：** 限制誰能推送發布用的 tag。
-- **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 套件的 **Staged Packages** 分頁按 **Approve**，或用 `npm stage approve <stage-id>`。文件把「trusted publisher 只允許 stage publish」視為更強的組合。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
+- **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 帳號設定的 **Staged Packages** 分頁按 **Approve**，或用 `npm stage approve <stage-id>`。文件把「trusted publisher 只允許 stage publish」視為更強的組合；若有多筆 publisher，也要逐筆檢查是否仍允許直接發布。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期檢查：** 定期稽核套件的 trusted publisher 設定，刪掉沒在用的發布 token。
 
 這幾道關卡怎麼一步步設定，以及為什麼帶著 provenance 的版本仍可能是惡意的，見續篇[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)。
