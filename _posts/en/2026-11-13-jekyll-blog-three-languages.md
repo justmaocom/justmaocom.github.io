@@ -1,5 +1,5 @@
 ---
-title: "How My Blog Maintains Three Versions: Traditional Chinese, Simplified Chinese, and English"
+title: "Multilingual Jekyll Blog With Polyglot and hreflang"
 description: "How this site keeps Traditional Chinese, Simplified Chinese, and English versions of every post: the URLs, translations, missed plugin URLs, and hreflang."
 date: 2026-11-13 08:30:00 +0800
 categories: [Software Development, Multilingual Sites]

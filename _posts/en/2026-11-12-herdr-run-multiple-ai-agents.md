@@ -1,5 +1,5 @@
 ---
-title: "Run Several AI Coding Agents at Once and Spot the Stuck One: Getting Started With herdr"
+title: "herdr Tutorial: Run Multiple AI Agents in One Terminal"
 description: "Install herdr with brew or mise, give each AI its own worktree and pane, spot the blocked one in the sidebar, then detach and come back."
 date: 2026-11-12 08:00:00 +0800
 categories: [AI, Software Development]
@@ -10,7 +10,7 @@ image:
   alt: "Give each AI coding agent its own pane with herdr, see at a glance which one needs you, and come back after you detach."
 ---
 
-If you have read [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/) and now run two or three coding agents at once, the next snag is usually this: to find out which one is waiting for you to click Allow and which one is still working, you have to flip through the windows one by one. And if you close the terminal or your SSH connection drops, work that was only halfway done may stop with it.
+If you have read [git worktree for AI Agents: Run Two Agents in One Repo](/en/posts/git-worktree-parallel-ai-agents/) and now run two or three coding agents at once, the next snag is usually this: to find out which one is waiting for you to click Allow and which one is still working, you have to flip through the windows one by one. And if you close the terminal or your SSH connection drops, work that was only halfway done may stop with it.
 
 herdr is a tool that manages workspaces and split views in your terminal. It puts each agent in its own split view (a pane), and the sidebar shows a colored dot for each agent, so you can tell whether it is working, waiting for you, or done. Even if you close the view you are looking at, the work in the background can keep going. The official description is "the runtime your coding agents live on."
 
@@ -86,7 +86,7 @@ You can use herdr entirely with the mouse: click to switch between panes, tabs, 
 
 ## Step 3: Give Each Working Directory Its Own Workspace
 
-This site's approach is one workspace per worktree, so each agent edits only its own working directory and two agents never change the same file at the same time. This follows the same idea as the worktree post. There are two ways to create one; pick either. Both use `git worktree` underneath. For how to merge and delete branches when you are done, and why repos with submodules should not use worktrees, see [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/).
+This site's approach is one workspace per worktree, so each agent edits only its own working directory and two agents never change the same file at the same time. This follows the same idea as the worktree post. There are two ways to create one; pick either. Both use `git worktree` underneath. For how to merge and delete branches when you are done, and why repos with submodules should not use worktrees, see [git worktree for AI Agents: Run Two Agents in One Repo](/en/posts/git-worktree-parallel-ai-agents/).
 
 **Option A: Let herdr create it.** In the project's workspace, press `prefix+shift+g` (`New worktree` is also available from the workspace's row in the sidebar). A new worktree dialog opens. The branch field starts with a random name, so press ctrl+c to clear it, type the branch name you want (for example, `login-page`), and press Enter. herdr creates a git worktree and opens it as a new workspace, grouped under the original project; click its name in the sidebar to switch to it. This does the same thing as running the following inside the project folder:
 
@@ -115,7 +115,7 @@ If you need another terminal in the same workspace, for example to run tests, sp
 
 Switch to the workspace you want, and type `claude` or `codex` in a pane, just as you would in a regular terminal. According to the Quick start, herdr detects which agent it is automatically, and a new row appears in the agents section of the sidebar. Official support also includes Cursor Agent CLI, GitHub Copilot CLI, OpenCode, and others; see the full list on [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) rather than repeating it here.
 
-Integrations are optional. You can read states without them; install one if you want the same conversation to resume after herdr's background server restarts. The commands are `herdr integration install claude` and `herdr integration install codex`; see [Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/). An integration changes the agent's settings: for Claude Code, it adds a hook script and the matching hook entries in `settings.json`; for Codex, it adds a hook script, updates `hooks.json`, and turns on `[features] hooks = true` in `config.toml`. You can remove one with `herdr integration uninstall claude` (or `codex`), but Codex's `config.toml` is not reverted. For what a hook is, see [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/en/posts/claude-code-hooks-automate-checks/).
+Integrations are optional. You can read states without them; install one if you want the same conversation to resume after herdr's background server restarts. The commands are `herdr integration install claude` and `herdr integration install codex`; see [Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/). An integration changes the agent's settings: for Claude Code, it adds a hook script and the matching hook entries in `settings.json`; for Codex, it adds a hook script, updates `hooks.json`, and turns on `[features] hooks = true` in `config.toml`. You can remove one with `herdr integration uninstall claude` (or `codex`), but Codex's `config.toml` is not reverted. For what a hook is, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
 
 ## Step 5: Read the States and Find the Stuck One
 
@@ -149,7 +149,7 @@ delivery = "herdr"
 
 Save the file, then run `herdr server reload-config` (or press `prefix+shift+r`) to apply it. With `herdr`, the toast appears inside herdr; with `system`, herdr uses your operating system's notifications instead. On macOS, `system` tries terminal-notifier first, so the official docs suggest `brew install terminal-notifier`. For the other options, see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/) or the [Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/).
 
-The official [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) page says blocked detection is deliberately strict: an unusual new prompt that herdr has not seen before may first show as idle instead of blocked. It also says "idle status is not authorization to approve an action," which means seeing idle does not make it safe to approve. After you jump to the pane, read it carefully before you click Allow. That is the same point as human-agent trust and approval fatigue in [Audit Your AI Workflow With the OWASP Agentic Top 10: Ten Risks, Ten Checks, and How to Fix Them](/en/posts/owasp-agentic-top-10-ai-workflow-checklist/).
+The official [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) page says blocked detection is deliberately strict: an unusual new prompt that herdr has not seen before may first show as idle instead of blocked. It also says "idle status is not authorization to approve an action," which means seeing idle does not make it safe to approve. After you jump to the pane, read it carefully before you click Allow. That is the same point as human-agent trust and approval fatigue in [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/en/posts/owasp-agentic-top-10-ai-workflow-checklist/).
 
 ## Step 6: Detach, Then Come Back
 

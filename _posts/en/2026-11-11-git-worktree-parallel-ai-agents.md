@@ -1,5 +1,5 @@
 ---
-title: "Let Two AI Agents Work Separately: Isolated Working Directories With git worktree"
+title: "git worktree for AI Agents: Run Two Agents in One Repo"
 description: "How to give two AI agents their own git worktree, how to list and remove them, and why this does not suit a repo that uses submodules."
 date: 2026-11-11 09:00:00 +0800
 categories: [AI, Software Development]
@@ -245,7 +245,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
 
    If `git branch -d` refuses, see the explanation in Step 4. After a final `git worktree list`, only the main folder should remain.
 
-A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/en/posts/claude-code-hooks-automate-checks/).
+A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
 
 ## Protect a Worktree With lock and unlock
 

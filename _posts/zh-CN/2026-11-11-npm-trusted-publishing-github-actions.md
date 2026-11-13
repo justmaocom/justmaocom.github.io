@@ -1,5 +1,5 @@
 ---
-title: "发布 npm 包不再放长期 token：Trusted Publishing 设置教程"
+title: "npm Trusted Publishing 设置教程：发布包不再放长期 token"
 description: "在 GitHub Actions 用 Trusted Publishing 发布 npm 包，不必放长期 token。这篇文章教你怎么设置，以及设好后怎么收回旧令牌。"
 date: 2026-11-11 13:00:00 +0800
 categories: [信息安全]
@@ -313,4 +313,4 @@ _概念图：左边把本文步骤 0 到步骤 4 整理成六项清单，右边�
 
 把 GitHub Actions 的发布从“放一把长期钥匙”改成“每次当场换短期凭证”之后，记得收回旧 token，必要时再加上批准或 stage publish。用户那一端还能怎么降低风险，请看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)；若要给这些 workflow 加自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。
 
-官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞：哪些主机受影响，Alpine 用户怎么修补？](/zh-CN/posts/openssh-musl-password-bypass-alpine/)。
+官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补](/zh-CN/posts/openssh-musl-password-bypass-alpine/)。

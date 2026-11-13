@@ -1,5 +1,5 @@
 ---
-title: "發 npm 套件不再放長期 token：Trusted Publishing 設定教學"
+title: "npm Trusted Publishing 設定教學：發套件不再放長期 token"
 description: "在 GitHub Actions 用 Trusted Publishing 發布 npm 套件，不必放長期 token。這篇教你怎麼設定，以及設好後怎麼收掉舊權杖。"
 date: 2026-11-11 13:00:00 +0800
 categories: [資訊安全]
@@ -313,4 +313,4 @@ _概念圖：左邊把本文步驟 0 到步驟 4 整理成六項清單，右邊�
 
 把 GitHub Actions 的發布從「放一把長期鑰匙」改成「每次當場換短期憑證」之後，記得收掉舊 token，必要時再加上核准或 stage publish。使用者那一端還能怎麼降低風險，見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)；若要幫這些 workflow 加自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
 
-官方說明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 為準，並可參閱 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 說明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他資安文章，也可看 [OpenSSH 密碼驗證繞過漏洞：哪些主機受影響，Alpine 使用者怎麼修補？](/posts/openssh-musl-password-bypass-alpine/)。
+官方說明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 為準，並可參閱 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 說明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他資安文章，也可看 [OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補](/posts/openssh-musl-password-bypass-alpine/)。
