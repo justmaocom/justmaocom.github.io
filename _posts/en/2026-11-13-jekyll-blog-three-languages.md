@@ -4,15 +4,19 @@ description: "Every post on this site has a Traditional Chinese, a Simplified Ch
 date: 2026-11-13 08:30:00 +0800
 categories: [Software Development, Multilingual Sites]
 tags: [jekyll, i18n, github-pages, hreflang, seo, side-project]
+media_subpath: /assets/img/posts/jekyll-blog-three-languages/
+image:
+  path: cover.en.webp
+  alt: "One post is published at three URLs, in Traditional Chinese, Simplified Chinese, and English, and the three versions point to each other with hreflang."
 ---
 
-Since late September 2026, every post on this site has come in three versions: Traditional Chinese, Simplified Chinese, and English. As I write this, each language has 28 posts, with none missing.
+Since late September 2026, every post on this site has come in three versions: Traditional Chinese, Simplified Chinese, and English. As I write this, each language has 28 posts (not counting this one), with none missing.
 
 I wanted three languages because my readers are not only in Taiwan. Once I actually started, though, I found that "translating each post into three copies" was the easiest part. The harder parts are the ones you cannot see: which language a shared link points to, whether search engines know the three pages are the same post, and whether a reader who clicks through from Google gets redirected somewhere else. If you get these wrong, the site still loads. It just goes wrong quietly.
 
 This post uses the site's actual configuration to show how I handle these things. If you want to add multiple languages to your own personal site, you can use it as a reference from a site that is really running. This site uses Jekyll with the Chirpy theme. With other tools, the steps will be different, but most of the problems you need to solve are the same.
 
-> **Version note:** This post is based on the configuration in this site's repo as of 2026-11-13 (Taipei time), using Jekyll 4.4.1, Chirpy theme 7.6.0, and jekyll-polyglot 1.14.0. What I cite from Google and polyglot comes from their official docs, read the same day. The whole site's configuration is public in the [GitHub repo](https://github.com/justmaocom/justmaocom.github.io), where you can read the full contents of every file this post mentions.
+> **Version note:** This post is based on the configuration in this site's repo as of 2026-11-13 (Taipei time), using Jekyll 4.4.1, Chirpy theme 7.6.0, and jekyll-polyglot 1.14.0. What I cite from Google and polyglot comes from their official docs, read the same day. The whole site's configuration is public in the [GitHub repo](https://github.com/justmaocom/justmaocom.github.io), where you can read the full contents of every file this post mentions except `CLAUDE.md`.
 {: .prompt-info }
 
 ## Before You Start: A Few Terms
@@ -36,14 +40,14 @@ Here are the URLs for the three languages:
 | Simplified Chinese | `/zh-CN/` | `/zh-CN/posts/jekyll-blog-three-languages/` |
 | English | `/en/` | `/en/posts/jekyll-blog-three-languages/` |
 
-Traditional Chinese is the language I write in, so it sits at the root, and the other languages put a language code at the front of the URL. This is how the [jekyll-polyglot](https://github.com/untra/polyglot) plugin (polyglot from here on) does it. The setup is only a few lines in `_config.yml`:
+Traditional Chinese is the language I write in, so it sits at the root, and the other languages put a language code at the front of the URL. This is how the [jekyll-polyglot](https://github.com/untra/polyglot) plugin (polyglot from here on) does it. The setup is only a few lines in `_config.yml` (this is an excerpt; the real `exclude_from_localization` lists more files):
 
 ```yaml
 languages: ["zh-TW", "zh-CN", "en"]
 default_lang: zh-TW
 lang_vars: [lang]
 
-# 這些檔案只輸出一份在根目錄，不複製到 /<lang>/ 之下
+# These files are output once at the root and not copied under /<lang>/
 exclude_from_localization:
   - assets/lib
   - assets/img
@@ -87,11 +91,13 @@ defaults:
 
 When polyglot sees three files with the same permalink, it treats them as different language versions of the same post. If a language is missing a translation, polyglot uses the Traditional Chinese original in its place. In the README's words, pages without a counterpart "will fallback to your `default_lang`," so no content disappears. This would let me publish in Traditional Chinese first and add the translations later. This site's rule is to publish all three versions together, though, so in practice I do not use it.
 
+![Three files with the same name in the repo become three URLs after the build, /posts/, /zh-CN/posts/, and /en/posts/, while shared files are output once](url-structure.en.webp){: w="1600" h="900" }
+
 Sidebar pages with their own text, such as "About" and "Projects," work the same way. Their translations go in `_tabs/zh-CN/` and `_tabs/en/`.
 
 ### The Translation Rules Live in the Repo
 
-Keeping the three versions consistent depends on written rules, not on memory. This site keeps its rules in the repo's `CLAUDE.md`. Whether I translate a post myself or have AI write the first draft, the same rules apply:
+Keeping the three versions consistent depends on written rules, not on memory. This site keeps its rules in the repo at [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md). That document is compiled from `CLAUDE.md`, the project notes the AI assistant reads; `CLAUDE.md` itself is listed in `.gitignore` and is not on GitHub. Whether I translate a post myself or have AI write the first draft, the same rules apply (for how to write a rules file for AI tools, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/)):
 
 - Simplified Chinese takes more than converting the characters. The wording has to change to what readers in mainland China use. For example, 軟體 (software) becomes 软件, 程式碼 (code) becomes 代码, and the corner-bracket quotation marks 「」 become “”. The same word depends on context. For example, 指令 becomes 命令 only when it means a command-line command.
 - The `tags` must be exactly the same in all three versions, because the languages share tag pages with the same names.
@@ -112,6 +118,8 @@ For site links written as `href="..."` in the HTML, polyglot adds the language p
 
 Here is what happens if these stay unfixed. A reader clicks "Share" on an English post, and the friend who opens the link sees the Traditional Chinese version. A search engine reads the structured data on an English page, and the page URL it finds there is the Traditional Chinese one. The site looks perfectly normal, so these problems are hard to spot.
 
+![URLs on an English page are handled in three layers: polyglot fixes href links, i18n-hook.rb fixes og:url, JSON-LD, share buttons, search.json, and the feed, sitemap, and llms.txt, and check-i18n.rb checks the output](url-fix.en.webp){: w="1600" h="900" }
+
 This site fills in these URLs with a hook in `_plugins/i18n-hook.rb`. It runs after polyglot has finished, and replaces the exact string "this page's Traditional Chinese URL" with the URL for that language. Here is the core of the part that handles HTML:
 
 ```ruby
@@ -121,7 +129,7 @@ doc.output = doc.output
   .gsub(%(content="#{ page_url }"), %(content="#{ local_url }"))
   .gsub(%("url":"#{ page_url }"), %("url":"#{ local_url }"))
   .gsub(%("@id":"#{ page_url }"), %("@id":"#{ local_url }"))
-  .gsub(CGI.escape(page_url), CGI.escape(local_url)) # 分享按鈕的 query string
+  .gsub(CGI.escape(page_url), CGI.escape(local_url)) # query string of the share buttons
 ```
 {: file="_plugins/i18n-hook.rb" }
 
@@ -170,7 +178,9 @@ Sitemap: https://justmao.com/zh-CN/sitemap.xml
 Sitemap: https://justmao.com/en/sitemap.xml
 ```
 
-There is a small trap here. When jekyll-sitemap, the plugin that generates the sitemaps, finds that a language has no `robots.txt`, it adds one automatically, so `/zh-CN/robots.txt` and `/en/robots.txt` show up after all. These two files do nothing except confuse people, so `i18n-hook.rb` deletes them after the sitemaps are generated.
+There is a small trap here. When jekyll-sitemap, the plugin that generates the sitemaps, finds that a language has no `robots.txt`, it adds one automatically, so `/zh-CN/robots.txt` and `/en/robots.txt` show up after all. These two files do nothing except confuse people, so `i18n-hook.rb` waits until the sitemaps are generated, then takes these two files off the output list so they are never written.
+
+![Pages in all three languages output the same four hreflang lines, with x-default pointing to English; a single robots.txt at the root lists all three sitemaps; category pages output no hreflang](hreflang.en.webp){: w="1600" h="900" }
 
 ### Which Language Readers See When They Arrive
 
@@ -179,12 +189,16 @@ A common approach on multilingual sites is to check the browser language and aut
 This site's rules live in `assets/js/i18n.js`. Roughly, they work like this:
 
 1. There is a language menu next to the search box in the top bar. When a reader picks a language, the site remembers the choice.
-2. If a reader has picked a language before, the site takes them to that language when they later arrive from another site. The reader stated this preference themselves. The site is not guessing.
-3. For readers who have never picked one, the site redirects by browser language only when they open the home page directly (not by clicking through from another page).
-4. Readers who click through from Google search results or from someone else's link stay on the version they clicked, with no redirect.
+2. If a reader has picked a language before, the site takes them to that language when they later arrive from another site. The reader stated this preference themselves. The site is not guessing. If the page has no version in that language (a category page, for example), the reader stays where they are.
+3. For readers who have never picked one, the site redirects by browser language only when they open the home page directly (not by clicking through from another page). Traditional Chinese (including Taiwan, Hong Kong, and Macau settings) goes to the Traditional Chinese version, other Chinese settings go to Simplified Chinese, and every other language goes to English.
+4. Readers who have never picked a language and click through from Google search results or from someone else's link stay on the version they clicked, with no redirect.
 5. The site never redirects search engine crawlers, so they can index all three versions separately through hreflang.
 
+These redirect rules only come into play when a reader arrives from outside the site. Moving between pages on the site never triggers a redirect, so a reader who clicks a link to another language stays in that language.
+
 The crawler list behind item 5 has one entry that is easy to miss: `Google-InspectionTool`, which Google Search Console uses to inspect URLs. Its User-Agent (the string a browser or crawler sends to identify itself) does not contain the word `bot`. At first, this site recognized crawlers only by words like `bot` and `crawl`, so it did not recognize this one. If you miss it, the tool may be treated as an ordinary reader and redirected to another language when it inspects an English page, and then it is not inspecting the page you wanted to check.
+
+![The order of checks when a reader arrives: no redirect for crawlers or in-site navigation, a saved language choice wins, browser language is used only on a direct home page visit, and everyone else stays on the version they opened](entry-flow.en.webp){: w="1600" h="900" }
 
 ### A Side Note: llms.txt for AI Tools
 
@@ -196,25 +210,25 @@ The root of this site has an `llms.txt` file. It is an index of posts for AI bro
 
 So I also wrote a check program, `tools/check-i18n.rb`. It does not care how the hook is written. It looks only at the built output. On every Simplified Chinese and English page, every type of URL mentioned above must carry the correct language prefix, and the check must find at least one URL of each type. That last rule prevents a false pass like "the format changed, so nothing matched, so there are zero errors." It also checks that `/zh-CN/robots.txt` and `/en/robots.txt` do not exist.
 
-The checks are written as a table. When a new type of URL needs a prefix, I just add a row to the table:
+The checks are written as a table. When a new type of URL needs a prefix, I just add a row to the table. The `head[s]` below takes only the `<head>` part of the page, because the same strings can also appear in a post's code blocks, as they do in this post:
 
 ```ruby
 checks = [
   ['og:url', html, ->(s) { head[s].scan(/property="og:url" content="([^"]*)"/).flatten }, is_local_page],
   ['JSON-LD @id', html, ->(s) { head[s].scan(/"@id":"([^"]*)"/).flatten }, is_local_page],
-  # ……分享按鈕、search.json、feed.xml、sitemap.xml、llms.txt
+  # …share buttons, search.json, feed.xml, sitemap.xml, llms.txt
 ]
 ```
 {: file="tools/check-i18n.rb" }
 
-This check runs in the GitHub Actions publishing workflow, in this order: build the site, run `check-i18n.rb`, run the SEO check, check the site's links with html-proofer, and publish only if everything passes. Pull requests run the same checks but do not publish. Locally, `bash tools/test.sh` runs the whole set.
+This check runs in the GitHub Actions publishing workflow, in this order: build the site, run `check-i18n.rb`, run the SEO check, check the site's links with html-proofer (a tool that checks pages for broken links and images), and publish only if everything passes. Pull requests run the same checks but do not publish. Locally, `bash tools/test.sh` runs the whole set.
 
 ## The Costs
 
 Three languages are not free. These are the real costs:
 
 - **Every post gets written three times.** Even with AI writing the first draft, I still have to review the Simplified Chinese wording and the English tone. When the original changes, both translations have to change with it.
-- **Builds take longer.** polyglot builds the complete site once for each language, so the more languages there are, the more work every build has to do.
+- **Builds have more work to do.** polyglot builds the complete site once for each language (in parallel by default), so the more languages there are, the more work every build has to do.
 - **There are two more programs to maintain.** I only need `i18n-hook.rb` and `check-i18n.rb` because of what polyglot does not handle. After upgrading the theme or a plugin, I have to rerun the check.
 
 ## If You Want to Do This Too

@@ -4,15 +4,19 @@ description: "本站每篇文章都有繁中、簡中、英文三個版本。這
 date: 2026-11-13 08:30:00 +0800
 categories: [軟體開發, 多語系網站]
 tags: [jekyll, i18n, github-pages, hreflang, seo, side-project]
+media_subpath: /assets/img/posts/jekyll-blog-three-languages/
+image:
+  path: cover.webp
+  alt: "同一篇文章輸出成繁中、簡中、英文三個網址，三個版本用 hreflang 互相指向。"
 ---
 
-這個網站從 2026 年 9 月底開始，每篇文章都同時有繁體中文、簡體中文、英文三個版本。寫這篇的時候，三個語系各有 28 篇，一篇不缺。
+這個網站從 2026 年 9 月底開始，每篇文章都同時有繁體中文、簡體中文、英文三個版本。寫這篇的時候，三個語系各有 28 篇（不算這篇），一篇不缺。
 
 我想做三語，是因為讀者不只在台灣。可是真的動手後才發現，「把文章翻成三份」只是最容易的一段。比較麻煩的是那些看不到的地方：分享出去的連結指向哪個語系、搜尋引擎知不知道這三頁是同一篇、讀者從 Google 點進來會不會被帶走。這些地方做錯了，網站照樣能開，只是悄悄出錯。
 
 這篇用本站實際的設定，說明我怎麼處理這些事。想替自己的個人網站加上多語系的人，可以拿它當一份實際運作的參考。本站用 Jekyll 和 Chirpy 主題；換成別的工具，做法會不同，但要處理的問題大多一樣。
 
-> **版本說明**：本文依 2026-11-13（台北時間）本站 repo 的設定撰寫，使用 Jekyll 4.4.1、Chirpy 主題 7.6.0、jekyll-polyglot 1.14.0。Google 與 polyglot 的說法依同一天讀取的官方文件。整個站的設定都公開在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，文中提到的檔案都可以在那裡看到完整內容。
+> **版本說明**：本文依 2026-11-13（台北時間）本站 repo 的設定撰寫，使用 Jekyll 4.4.1、Chirpy 主題 7.6.0、jekyll-polyglot 1.14.0。Google 與 polyglot 的說法依同一天讀取的官方文件。整個站的設定都公開在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，除了 `CLAUDE.md`，文中提到的檔案都可以在那裡看到完整內容。
 {: .prompt-info }
 
 ## 開始前：先認識幾個詞
@@ -36,7 +40,7 @@ tags: [jekyll, i18n, github-pages, hreflang, seo, side-project]
 | 簡體中文 | `/zh-CN/` | `/zh-CN/posts/jekyll-blog-three-languages/` |
 | 英文 | `/en/` | `/en/posts/jekyll-blog-three-languages/` |
 
-繁中是我寫作的語言，所以放在根目錄，其他語系在網址前面加上語系代碼。這是 [jekyll-polyglot](https://github.com/untra/polyglot)（以下簡稱 polyglot）這個外掛的做法，設定只有幾行，寫在 `_config.yml`：
+繁中是我寫作的語言，所以放在根目錄，其他語系在網址前面加上語系代碼。這是 [jekyll-polyglot](https://github.com/untra/polyglot)（以下簡稱 polyglot）這個外掛的做法，設定只有幾行，寫在 `_config.yml`（以下是節錄，`exclude_from_localization` 實際列了更多檔案）：
 
 ```yaml
 languages: ["zh-TW", "zh-CN", "en"]
@@ -87,11 +91,13 @@ defaults:
 
 polyglot 看到三份檔案的 permalink 相同，就把它們當成同一篇的不同語系版本。某個語系缺了譯文時，它會拿繁中原文頂替；README 的說法是，缺少對應版本的頁面會「退回 `default_lang`」，內容不會不見。這個機制讓我可以先發繁中、晚點再補譯文，但本站的規則是三個版本一起發布，所以實際上沒用到。
 
+![repo 裡同名的三份檔案，建置後變成 /posts/、/zh-CN/posts/、/en/posts/ 三個網址；共用檔案只輸出一份](url-structure.webp){: w="1600" h="900" }
+
 側欄的「關於」、「專案」這類有內文的頁面也一樣，譯文放在 `_tabs/zh-CN/`、`_tabs/en/`。
 
 ### 翻譯規則寫在 repo 裡
 
-三個版本要一致，靠的不是記性，而是寫下來的規則。本站的規則放在 repo 的 `CLAUDE.md`，不論是我自己翻，還是請 AI 起稿，都照同一份規則：
+三個版本要一致，靠的不是記性，而是寫下來的規則。本站的規則寫在 repo 的 [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md)。這份文件整理自 `CLAUDE.md`，也就是給 AI 助手讀的專案說明；`CLAUDE.md` 本身列在 `.gitignore` 裡，沒有放上 GitHub。不論是我自己翻，還是請 AI 起稿，都照同一份規則（給 AI 看的規則檔怎麼寫，可以參考[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)）：
 
 - 簡中不是轉換字形就好，用詞要換成大陸慣用的說法，例如「軟體」改成「软件」、「程式碼」改成「代码」，引號「」改成“”。同一個詞要看上下文，例如「指令」只有在指命令列時才改成「命令」。
 - 三個版本的 `tags` 必須完全相同，因為各語系共用同名的標籤頁。
@@ -111,6 +117,8 @@ polyglot 會把 HTML 裡 `href="..."` 形式的站內連結補上語系前綴，
 - RSS feed 和 sitemap 裡的完整網址。
 
 這些沒修的話，會發生的事情是：讀者在英文文章按「分享」，朋友點開卻看到繁中版；搜尋引擎讀英文頁的結構化資料，看到的本頁網址卻是繁中那一頁。網站看起來一切正常，所以很難發現。
+
+![英文頁上的網址分三層處理：polyglot 補 href 連結，i18n-hook.rb 補 og:url、JSON-LD、分享按鈕、search.json 與 feed、sitemap、llms.txt，check-i18n.rb 檢查成品](url-fix.webp){: w="1600" h="900" }
 
 本站用一支 hook 補上這些網址，檔案是 `_plugins/i18n-hook.rb`。它在 polyglot 處理完之後執行，把「本頁的繁中網址」這個精確字串換成該語系的網址。下面是處理 HTML 的核心部分：
 
@@ -170,7 +178,9 @@ Sitemap: https://justmao.com/zh-CN/sitemap.xml
 Sitemap: https://justmao.com/en/sitemap.xml
 ```
 
-這裡有一個小陷阱。產生 sitemap 的外掛 jekyll-sitemap 發現某個語系沒有 `robots.txt` 時，會自動補一份，結果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出來了。這兩份沒有作用，只會讓人困惑，所以 `i18n-hook.rb` 在 sitemap 產生之後把它們刪掉。
+這裡有一個小陷阱。產生 sitemap 的外掛 jekyll-sitemap 發現某個語系沒有 `robots.txt` 時，會自動補一份，結果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出來了。這兩份沒有作用，只會讓人困惑，所以 `i18n-hook.rb` 等 sitemap 產生完，再把它們從輸出清單拿掉，不寫成檔案。
+
+![三個語系的頁面都輸出相同的四行 hreflang，x-default 指向英文版；根目錄只有一份 robots.txt，列出三份 sitemap；分類頁不輸出 hreflang](hreflang.webp){: w="1600" h="900" }
 
 ### 讀者進站時，看到哪個語系
 
@@ -179,12 +189,16 @@ Sitemap: https://justmao.com/en/sitemap.xml
 本站的規則寫在 `assets/js/i18n.js`，大致是這樣：
 
 1. 頂欄搜尋框旁邊有語系選單，讀者選了之後，網站會記住這個選擇。
-2. 讀者手動選過語系，之後從站外進來，就帶到他選的語系。這是讀者自己表達過的意願，不是網站猜的。
-3. 沒選過的讀者，只有在直接打開首頁（沒有從別的網頁點進來）時，才依瀏覽器語言導向。
-4. 從 Google 搜尋結果或別人的連結點進來的讀者，留在他點的那個版本，不轉走。
+2. 讀者手動選過語系，之後從站外進來，就帶到他選的語系。這是讀者自己表達過的意願，不是網站猜的。如果這一頁沒有那個語系的版本（例如分類頁），就留在原頁。
+3. 沒選過的讀者，只有在直接打開首頁（沒有從別的網頁點進來）時，才依瀏覽器語言導向：繁體中文（含台灣、香港、澳門的設定）到繁中，其他中文到簡中，其餘語言都到英文。
+4. 沒選過語系、從 Google 搜尋結果或別人的連結點進來的讀者，留在他點的那個版本，不轉走。
 5. 搜尋引擎的爬蟲完全不轉址，讓它們依 hreflang 各自收錄三個版本。
 
+上面的轉址規則只在從站外進來時才會用到。在站內換頁一律不轉址，所以讀者點了其他語系的連結，就會留在那個語系。
+
 第 5 條的爬蟲名單有一個容易漏掉的項目：Google Search Console 檢查網址用的 `Google-InspectionTool`。它的 User-Agent（瀏覽器或爬蟲送出的自我介紹字串）裡沒有 `bot` 這個字，本站一開始只用 `bot`、`crawl` 這類字眼辨認爬蟲，沒認出它。漏掉的話，它檢查英文頁時可能被當成一般讀者轉到別的語系，檢查的就不是你想看的那一頁。
+
+![讀者進站時的判斷順序：爬蟲不轉址、站內換頁不轉址、選過語系就帶到該語系、直接開首頁才依瀏覽器語言導向，其他情況留在原版本](entry-flow.webp){: w="1600" h="900" }
 
 ### 順帶一提：給 AI 工具讀的 llms.txt
 
@@ -196,7 +210,7 @@ Sitemap: https://justmao.com/en/sitemap.xml
 
 所以本站另外寫了一支檢查程式 `tools/check-i18n.rb`。它不管 hook 怎麼寫，只看建置出來的成品：簡中和英文的每一頁，上面提到的每一類網址都要帶正確的語系前綴，而且每一類都至少要找到一個網址。最後這條是防止「格式變了，所以一個都沒抓到，所以零個錯誤」這種假的通過。它也會檢查 `/zh-CN/robots.txt`、`/en/robots.txt` 不存在。
 
-檢查項目寫成一張表，新增一類需要帶前綴的網址時，在表上加一列就好：
+檢查項目寫成一張表，新增一類需要帶前綴的網址時，在表上加一列就好。下面的 `head[s]` 只取網頁的 `<head>` 那一段，因為像這篇文章的程式碼區塊裡，也會出現同樣的字串：
 
 ```ruby
 checks = [
@@ -207,14 +221,14 @@ checks = [
 ```
 {: file="tools/check-i18n.rb" }
 
-這支檢查放在 GitHub Actions 的發布流程裡，順序是：建置網站，跑 `check-i18n.rb`，跑 SEO 檢查，用 html-proofer 檢查站內連結，全部通過才發布。送 pull request 時也會跑同樣的檢查，只是不發布。在本機，執行 `bash tools/test.sh` 就能跑完整套。
+這支檢查放在 GitHub Actions 的發布流程裡，順序是：建置網站，跑 `check-i18n.rb`，跑 SEO 檢查，用 html-proofer（檢查網頁連結和圖片有沒有壞掉的工具）檢查站內連結，全部通過才發布。送 pull request 時也會跑同樣的檢查，只是不發布。在本機，執行 `bash tools/test.sh` 就能跑完整套。
 
 ## 代價
 
 三語不是免費的，實際的代價是這些：
 
 - **每篇文章要寫三次。** 就算請 AI 起稿，簡中的用詞和英文的語氣還是要看過。原文修改後，兩份譯文也要跟著改。
-- **建置時間變長。** polyglot 每個語系各建置一次完整的網站，語系越多，每次建置要做的事就越多。
+- **建置要做的事變多。** polyglot 每個語系各建置一次完整的網站（預設會同時跑），語系越多，每次建置要做的事就越多。
 - **要多維護兩支程式。** `i18n-hook.rb` 和 `check-i18n.rb` 都是因為 polyglot 沒處理到才需要的。升級主題或外掛之後，要重跑檢查。
 
 ## 如果你也想做
