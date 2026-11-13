@@ -1,5 +1,5 @@
 ---
-title: "Publish npm Packages Without Long-Lived Tokens: A Trusted Publishing Setup Guide"
+title: "npm Trusted Publishing With GitHub Actions: A Setup Guide"
 description: "How to set up npm trusted publishing with GitHub Actions, what you get after it works, and how to retire old tokens."
 date: 2026-11-11 13:00:00 +0800
 categories: [Security]
@@ -313,4 +313,4 @@ Where people most often get stuck, and what to do:
 
 Once GitHub Actions publishes with a short-lived credential instead of a long-lived key, retire the old tokens, and add an approval or stage publish if you want a tighter gate. For defenses on the user side, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/en/posts/coding-agent-supply-chain-permission-risks/). To add automated review to these workflows, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/).
 
-Treat [Trusted publishing](https://docs.npmjs.com/trusted-publishers) as the official reference, along with [provenance](https://docs.npmjs.com/generating-provenance-statements), [about access tokens](https://docs.npmjs.com/about-access-tokens), [staged publishing](https://docs.npmjs.com/staged-publishing), and [GitHub's OIDC documentation](https://docs.github.com/en/actions/concepts/security/openid-connect). For another security write-up on this site, see [OpenSSH Password Authentication Bypass: Which Hosts Are Affected, and How Alpine Users Can Patch](/en/posts/openssh-musl-password-bypass-alpine/).
+Treat [Trusted publishing](https://docs.npmjs.com/trusted-publishers) as the official reference, along with [provenance](https://docs.npmjs.com/generating-provenance-statements), [about access tokens](https://docs.npmjs.com/about-access-tokens), [staged publishing](https://docs.npmjs.com/staged-publishing), and [GitHub's OIDC documentation](https://docs.github.com/en/actions/concepts/security/openid-connect). For another security write-up on this site, see [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/en/posts/openssh-musl-password-bypass-alpine/).

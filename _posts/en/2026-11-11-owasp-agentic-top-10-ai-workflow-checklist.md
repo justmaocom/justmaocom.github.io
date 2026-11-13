@@ -1,5 +1,5 @@
 ---
-title: "Audit Your AI Workflow With the OWASP Agentic Top 10: Ten Risks, Ten Checks, and How to Fix Them"
+title: "OWASP Agentic Top 10 Checklist: Audit Your AI Workflow"
 description: "Turn the OWASP Agentic Top 10 into ten yes/no checks for your coding agent, MCP servers, and CI, with a fix for each yes."
 date: 2026-11-11 16:00:00 +0800
 categories: [Security, AI Agents]
@@ -143,7 +143,7 @@ A few reading notes:
 - Claude Code can use deny rules to block its file tools from reading; the official examples include `Read(./.env)`, `Read(./secrets/**)`, and `Read(~/.ssh/**)`. After you write them, confirm with `/permissions` that they appear in the list.
 - Two common stumbling points. First, the official docs state that a `.claudeignore` file has no effect; use deny rules instead. Second, `Read` deny rules are not airtight. Per the [permissions](https://code.claude.com/docs/en/permissions) docs, they cover Claude's file tools and file commands it recognizes in Bash, such as `cat` and `head`, but not a program that opens files itself, such as a Python or Node script. To keep every program away from a path, turn on the sandbox (see ASI05).
 - In Cursor, use `.cursorignore` to block agent access to specific files.
-- If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is this site's worked example, not a method named in the OWASP text; see [Publish npm Packages Without Long-Lived Tokens: A Trusted Publishing Setup Guide](/en/posts/npm-trusted-publishing-github-actions/).
+- If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is this site's worked example, not a method named in the OWASP text; see [npm Trusted Publishing With GitHub Actions: A Setup Guide](/en/posts/npm-trusted-publishing-github-actions/).
 - Code running in GitHub Actions can use the workflow's `GITHUB_TOKEN` to act on your repo. GitHub recommends setting its default permission to read-only for repository contents: put `permissions: contents: read` at the top of the workflow, and grant more only in the job (a group of steps in a workflow) that needs it. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
 
 ### ASI04 Agentic Supply Chain Vulnerabilities: What You Installed Is Compromised
@@ -172,7 +172,7 @@ A few reading notes:
 
 **How to fix it:** Bottom line: keep its commands in an isolated environment where they cannot reach production or read your credentials.
 
-- OWASP's mitigations: do not let the agent connect directly to production; never run it as root (the all-powerful system account); isolate it in a sandbox or container (an execution environment separated from your machine) when you can; and limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/en/posts/git-worktree-parallel-ai-agents/).
+- OWASP's mitigations: do not let the agent connect directly to production; never run it as root (the all-powerful system account); isolate it in a sandbox or container (an execution environment separated from your machine) when you can; and limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [git worktree for AI Agents: Run Two Agents in One Repo](/en/posts/git-worktree-parallel-ai-agents/).
 - Claude Code: first use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on. Once it is on, check three things in the defaults table in the [sandboxing docs](https://code.claude.com/docs/en/sandboxing): what it can read (especially credential files such as `~/.ssh` and `~/.aws/credentials`), which sites it can reach, and which environment variables it inherits. You can narrow reads with `filesystem.denyRead` or `permissions.blockReadsOutsideWorkingDirectories`. Here is the official project-level example. It goes in the project's `.claude/settings.json`, and it blocks reads across your home directory while allowing the current project:
 
 ```json
@@ -206,7 +206,7 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
 
 - OWASP mitigation 7 calls for version control and snapshots so you can roll back. In practice: keep rule files in Git and read the diff before you accept a change. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/).
 - OWASP mitigation 6: do not let the agent automatically write its own output back into "trusted memory."
-- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment; `ConfigChange` fires when a configuration file changes. Details are in [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/en/posts/claude-code-hooks-automate-checks/).
+- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment; `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
 
 ### ASI07 Insecure Inter-Agent Communication: Messages Between Agents Can Be Spoofed or Changed
 

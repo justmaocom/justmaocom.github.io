@@ -1,5 +1,5 @@
 ---
-title: "用 OWASP Agentic Top 10 检查你的 AI 工作流：十项风险逐条对照与修复方法"
+title: "OWASP Agentic Top 10 检查表：AI 工作流十项风险与修复方法"
 description: "把 OWASP Agentic Top 10 整理成十道是／否检查，用来对照你的 coding agent、MCP 与 CI，并附上可着手的修复方法。"
 date: 2026-11-11 16:00:00 +0800
 categories: [信息安全, AI Agent]
@@ -143,7 +143,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - Claude Code 可以用 deny 规则挡住文件工具读取，官方文档的示例有 `Read(./.env)`、`Read(./secrets/**)`，以及 `Read(~/.ssh/**)`。写好后，用 `/permissions` 确认规则已经在列表里。
 - 这里有两个容易卡住的地方。第一，官方文档写明 `.claudeignore` 文件没有作用，要挡就用 deny 规则。第二，`Read` deny 规则不是万能的。按 [permissions](https://code.claude.com/docs/en/permissions) 文档，它挡得住 Claude 的文件工具，以及 `cat`、`head` 这类它认得的读文件命令；但挡不住自己打开文件的程序，例如 Python 或 Node 脚本。要让所有程序都读不到，就要开沙箱（见 ASI05）。
 - Cursor 可以用 `.cursorignore` 挡住 agent 访问特定文件。
-- CI 发布包时如果还在用长期 npm token，可以改用短期凭证。这是本站的对照例子，不是 OWASP 原文提到的做法，说明见[发布 npm 包不再放长期 token：Trusted Publishing 设置教程](/zh-CN/posts/npm-trusted-publishing-github-actions/)。
+- CI 发布包时如果还在用长期 npm token，可以改用短期凭证。这是本站的对照例子，不是 OWASP 原文提到的做法，说明见[npm Trusted Publishing 设置教程：发布包不再放长期 token](/zh-CN/posts/npm-trusted-publishing-github-actions/)。
 - 在 GitHub Actions 里跑的程序，可以用 workflow 的 `GITHUB_TOKEN` 操作你的 repo。GitHub 建议把它的默认权限设成只能读 repo 内容：在 workflow 顶层写 `permissions: contents: read`，个别 job（workflow 里的一组任务）真正需要时再打开。做法见 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 
 ### ASI04 Agentic Supply Chain Vulnerabilities：供应链
@@ -172,7 +172,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 **怎么修：** 先说结论：让它跑的命令关在隔离环境里，碰不到生产环境，也读不到你的凭证。
 
-- OWASP 的对策：不要让 agent 直接连到生产环境；不要用 root（系统最高权限账号）运行；能隔离就放进沙箱或容器（和主机隔开的独立运行环境），文件系统尽量只开一个专用工作目录。想把两个任务彻底分开，可以参考[让两个 AI 分开工作：用 git worktree 开独立工作目录](/zh-CN/posts/git-worktree-parallel-ai-agents/)。
+- OWASP 的对策：不要让 agent 直接连到生产环境；不要用 root（系统最高权限账号）运行；能隔离就放进沙箱或容器（和主机隔开的独立运行环境），文件系统尽量只开一个专用工作目录。想把两个任务彻底分开，可以参考[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/zh-CN/posts/git-worktree-parallel-ai-agents/)。
 - Claude Code：先用 `/sandbox` 或设置里的 `sandbox.enabled` 确认沙箱有没有开。开了之后，到 [sandboxing 文档](https://code.claude.com/docs/en/sandboxing) 的默认值表确认三件事：能读哪些地方（特别是 `~/.ssh`、`~/.aws/credentials` 这类凭证文件）、能连哪些网站，以及会继承哪些环境变量。读取范围可以用 `filesystem.denyRead` 或 `permissions.blockReadsOutsideWorkingDirectories` 收紧。下面是官方的项目设置示例，放在项目的 `.claude/settings.json`，作用是挡掉整个用户主目录的读取，只开放当前项目：
 
 ```json
@@ -206,7 +206,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 - OWASP 对策 7 是用版本控制和快照，需要时能回退。实际做法：把规则文件放进 git，改动先看 diff 再接受。规则文件怎么写，见[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/zh-CN/posts/agents-md-project-rules-for-coding-agents/)。
 - OWASP 对策 6：不要让 agent 自动把自己的输出写回“可信的记忆”。
-- Claude Code 可以用 `ConfigChange` hook 审计或挡住 session 中的设置变更。hook 是在特定时机自动执行的检查脚本；`ConfigChange` 会在配置文件被改动时触发。细节见[把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+- Claude Code 可以用 `ConfigChange` hook 审计或挡住 session 中的设置变更。hook 是在特定时机自动执行的检查脚本；`ConfigChange` 会在配置文件被改动时触发。细节见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
 
 ### ASI07 Insecure Inter-Agent Communication：agent 间通信
 

@@ -236,5 +236,5 @@ AI：列出受审 head、报告链接、未涵盖范围
 - [GitHub：workflow 触发事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)、[安全指南](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)、[受保护分支](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)：事件、token 与合并门槛。
 - [pstack 系列（3）：写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)：把验证和送审排进 Agent 的工作流程。
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：为什么读取文件、运行命令与持有凭据要分开考虑。
-- [把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)：提交 PR 之前，先在 Claude Code 的会话里自动排版、跑测试。
+- [Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)：提交 PR 之前，先在 Claude Code 的会话里自动排版、跑测试。
 - [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)：从需求到上线的六个阶段里，PR 评审的前后各接着什么。

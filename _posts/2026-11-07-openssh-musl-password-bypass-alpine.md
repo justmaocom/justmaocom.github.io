@@ -1,5 +1,5 @@
 ---
-title: "OpenSSH 密碼驗證繞過漏洞：哪些主機受影響，Alpine 使用者怎麼修補？"
+title: "OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補"
 description: "我整理了 OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158 的受影響條件，說明 Alpine 使用者如何檢查主機、安全更新，以及暫時無法更新時的處理方式。"
 date: 2026-11-07 18:00:00 +0800
 categories: [資訊安全]

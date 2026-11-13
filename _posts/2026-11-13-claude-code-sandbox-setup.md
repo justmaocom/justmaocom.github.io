@@ -1,5 +1,5 @@
 ---
-title: "把 AI 下的指令關進沙箱：Claude Code /sandbox 一步步設定，擋住 SSH 金鑰與 token"
+title: "Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token"
 description: "Claude Code 的沙箱預設關閉，開了之後預設仍讀得到 ~/.ssh。這篇一步步開啟 /sandbox、確認真的有擋、把金鑰和 token 擋在外面，附上實際在 Mac 上跑出來的結果，並列出沙箱管不到的地方。"
 date: 2026-11-13 09:00:00 +0800
 categories: [資訊安全, AI Agent]
@@ -19,7 +19,7 @@ Claude Code（在終端機裡使用的 AI 程式助理）會自己下指令：�
 > **版本與實測**：本文依 2026-11-13（台北時間）讀取的 [Sandboxing](https://code.claude.com/docs/en/sandboxing)、[Permissions](https://code.claude.com/docs/en/permissions)、[Settings reference](https://code.claude.com/docs/en/settings-reference) 與 [changelog](https://code.claude.com/docs/en/changelog) 整理，並在同一天用 macOS 上的 Claude Code 2.1.323（當天最新版，11 月 12 日發布）實際跑過一次。11 月的幾個版本連續修了沙箱與權限規則的問題，例如 2.1.321 修正唯讀指令沒經過提示就在沙箱外執行，以及 `cp`／`mv` 寫進資料夾時拒絕規則失效；2.1.323 修正沙箱可能在對話中途關掉、`excludedCommands` 讓沒列到的指令跑出沙箱。照著做之前，請先在終端機執行 `claude update` 更新，再用 `claude --version` 確認版本。
 {: .prompt-info }
 
-這篇是〈[拿 OWASP Agentic Top 10 檢查你的 AI 工作流：十項風險逐條對照與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉的實作續篇。那篇只要你「確認 `/sandbox` 有沒有開」，這篇示範開了之後怎麼設定。為什麼要限制 agent 的權限，見〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉，這裡不再重講。
+這篇是〈[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉的實作續篇。那篇只要你「確認 `/sandbox` 有沒有開」，這篇示範開了之後怎麼設定。為什麼要限制 agent 的權限，見〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉，這裡不再重講。
 
 ## 先認識幾個名詞
 
@@ -374,7 +374,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 
 **網域允許清單只看主機名稱。** 代理依連線要求的主機名稱放行，預設不解開也不檢查加密流量的內容。官方警告，允許 `github.com` 這類範圍很大的網域，可能成為把資料送出去的管道。允許清單只放真正需要的網域。另外，網路確認視窗選「Yes, and don't ask again」時，Claude Code 會存一條 `WebFetch(domain:...)` 允許規則，這條規則也讓 WebFetch 工具可以連到那個網域。
 
-**git worktree。** 如果你照〈[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)〉的方式，在 worktree 裡開 Claude Code，沙箱會允許寫入主 repo 共用的 `.git` 資料夾，所以 `git commit` 照常運作；但其中的 `hooks/` 和 `config` 仍不能寫。從 2.1.323 起，沙箱裡的 `git worktree add`、`move`、`remove` 會因為唯讀而失敗，在不是這次對話開啟或加入的 worktree 裡 commit 也一樣。建立和移除 worktree 請自己在終端機做。
+**git worktree。** 如果你照〈[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)〉的方式，在 worktree 裡開 Claude Code，沙箱會允許寫入主 repo 共用的 `.git` 資料夾，所以 `git commit` 照常運作；但其中的 `hooks/` 和 `config` 仍不能寫。從 2.1.323 起，沙箱裡的 `git worktree add`、`move`、`remove` 會因為唯讀而失敗，在不是這次對話開啟或加入的 worktree 裡 commit 也一樣。建立和移除 worktree 請自己在終端機做。
 
 想把上面這些也一起關起來，就要把整個 Claude Code 放進容器、虛擬機器或官方的 sandbox runtime 裡執行。比較方式見官方的 [Sandbox environments](https://code.claude.com/docs/en/sandbox-environments)。
 
@@ -449,6 +449,6 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 
 - [Sandboxing](https://code.claude.com/docs/en/sandboxing)：官方的完整說明，包括疑難排解與組織層級的強制設定。
 - [Permissions](https://code.claude.com/docs/en/permissions)：權限規則的寫法，以及怎麼限制檔案工具。
-- [拿 OWASP Agentic Top 10 檢查你的 AI 工作流：十項風險逐條對照與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)：這篇的起點，十題自我檢查。
+- [OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)：這篇的起點，十題自我檢查。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：MCP server 和外掛在沙箱外執行，這篇說明它們帶來的風險。
-- [把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)：hooks 以你的完整權限執行，不受沙箱限制。
+- [Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)：hooks 以你的完整權限執行，不受沙箱限制。

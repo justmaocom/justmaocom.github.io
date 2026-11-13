@@ -1,5 +1,5 @@
 ---
-title: "Sandbox the Commands Your AI Runs: Set Up Claude Code /sandbox Step by Step and Keep SSH Keys and Tokens Out"
+title: "Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out"
 description: "Claude Code's sandbox is off by default and still reads ~/.ssh when on. Turn it on, verify it, keep keys and tokens out, with real results from a Mac."
 date: 2026-11-13 09:00:00 +0800
 categories: [Security, AI Agents]
@@ -19,7 +19,7 @@ This post walks you through these steps: turn on `/sandbox`, confirm it actually
 > **Version and test run**: this post follows [Sandboxing](https://code.claude.com/docs/en/sandboxing), [Permissions](https://code.claude.com/docs/en/permissions), [Settings reference](https://code.claude.com/docs/en/settings-reference), and the [changelog](https://code.claude.com/docs/en/changelog), read on 2026-11-13 (Taipei time). I ran through it the same day with Claude Code 2.1.323 on macOS, the latest version that day (released November 12). Several November releases fixed sandbox and permission-rule bugs one after another. For example, 2.1.321 fixed read-only commands running outside the sandbox without a prompt, and deny rules not applying when `cp` or `mv` wrote into a folder. 2.1.323 fixed the sandbox possibly turning off mid-conversation, and `excludedCommands` letting commands it didn't list run outside the sandbox. Before you follow along, run `claude update` in your terminal, then check the version with `claude --version`.
 {: .prompt-info }
 
-This post is the hands-on follow-up to [Audit Your AI Workflow With the OWASP Agentic Top 10: Ten Risks, Ten Checks, and How to Fix Them](/posts/owasp-agentic-top-10-ai-workflow-checklist/). That post only asks you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. For why you should limit an agent's permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). This post doesn't repeat that.
+This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). That post only asks you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. For why you should limit an agent's permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). This post doesn't repeat that.
 
 ## A Few Terms First
 
@@ -374,7 +374,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 
 **The domain allowlist checks only hostnames.** The proxy allows a connection based on the hostname it requests, and by default it doesn't decrypt or inspect encrypted traffic. The official docs warn that allowing a broad domain such as `github.com` can become a channel for sending data out. Put only the domains you really need on the allowlist. Also, when you choose "Yes, and don't ask again" in the network prompt, Claude Code saves a `WebFetch(domain:...)` allow rule, and that rule also lets the WebFetch tool reach that domain.
 
-**git worktree.** If you open Claude Code in a worktree, as in [Let Two AI Agents Work Separately: Isolated Working Directories With git worktree](/posts/git-worktree-parallel-ai-agents/), the sandbox allows writes to the main repo's shared `.git` folder, so `git commit` works as usual. The `hooks/` and `config` inside it are still not writable, though. Since 2.1.323, `git worktree add`, `move`, and `remove` fail in the sandbox because of read-only restrictions, and so does committing in a worktree that this conversation didn't open or add. Create and remove worktrees yourself in the terminal.
+**git worktree.** If you open Claude Code in a worktree, as in [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/), the sandbox allows writes to the main repo's shared `.git` folder, so `git commit` works as usual. The `hooks/` and `config` inside it are still not writable, though. Since 2.1.323, `git worktree add`, `move`, and `remove` fail in the sandbox because of read-only restrictions, and so does committing in a worktree that this conversation didn't open or add. Create and remove worktrees yourself in the terminal.
 
 To contain everything above as well, run the whole of Claude Code inside a container, a virtual machine, or the official sandbox runtime. The official [Sandbox environments](https://code.claude.com/docs/en/sandbox-environments) page compares the options.
 
@@ -449,6 +449,6 @@ Finally, remember that the sandbox covers only commands. Claude's file tools dep
 
 - [Sandboxing](https://code.claude.com/docs/en/sandboxing): the full official guide, including troubleshooting and organization-level enforced settings.
 - [Permissions](https://code.claude.com/docs/en/permissions): how to write permission rules, and how to restrict the file tools.
-- [Audit Your AI Workflow With the OWASP Agentic Top 10: Ten Risks, Ten Checks, and How to Fix Them](/posts/owasp-agentic-top-10-ai-workflow-checklist/): where this post started, a ten-question self-check.
+- [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): where this post started, a ten-question self-check.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): MCP servers and plugins run outside the sandbox, and this post explains the risks they bring.
-- [Automate Repeated Checks: Format, Test, and Flag Sensitive Files With Claude Code Hooks](/posts/claude-code-hooks-automate-checks/): hooks run with your full permissions and aren't limited by the sandbox.
+- [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): hooks run with your full permissions and aren't limited by the sandbox.

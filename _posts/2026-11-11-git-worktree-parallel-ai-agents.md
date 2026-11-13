@@ -1,5 +1,5 @@
 ---
-title: "讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄"
+title: "git worktree 教學：讓兩個 AI 在同一個 repo 分開工作"
 description: "同一個 repo 要讓兩個 AI 分開做事時，用 git worktree 開出獨立工作目錄。這篇教你怎麼開、怎麼看、怎麼收，以及有 submodule 時為什麼不要用。"
 date: 2026-11-11 09:00:00 +0800
 categories: [AI, 軟體開發]
@@ -247,7 +247,7 @@ _概念圖，不是實際介面。做完的工作目錄可以收掉，只留下�
 
    如果 `git branch -d` 拒絕刪除，見步驟 4 的說明。最後再執行 `git worktree list`，應該只剩主資料夾。
 
-小提醒：如果專案的規則寫在 AGENTS.md，而且這份檔有被 git 追蹤，每個 worktree 都會有同一份，見[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。若還想在某個工作目錄裡做固定時機的自動檢查，見[把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
+小提醒：如果專案的規則寫在 AGENTS.md，而且這份檔有被 git 追蹤，每個 worktree 都會有同一份，見[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。若還想在某個工作目錄裡做固定時機的自動檢查，見[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ## 保護：lock 與 unlock
 

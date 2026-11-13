@@ -43,7 +43,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 - 它一直跑错测试命令，例如该用 `pnpm test`，却一再执行 `npm test`。
 - 这件事新同事也需要知道，或下次再打开这个 repo 的人也用得上。
 
-不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），参见[把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），参见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
 
 **什么时候用：** 项目规则会反复讲，也会给之后进来的人看。
 

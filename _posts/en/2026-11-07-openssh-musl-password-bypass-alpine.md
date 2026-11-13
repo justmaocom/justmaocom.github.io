@@ -1,5 +1,5 @@
 ---
-title: "OpenSSH Password Authentication Bypass: Which Hosts Are Affected, and How Alpine Users Can Patch"
+title: "CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)"
 description: "I explain who is affected by CVE-2026-123158, how to check an Alpine host, how to update safely, and what to do if patching has to wait."
 date: 2026-11-07 18:00:00 +0800
 categories: [Security]

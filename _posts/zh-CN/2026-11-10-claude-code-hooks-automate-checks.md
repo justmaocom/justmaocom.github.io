@@ -1,5 +1,5 @@
 ---
-title: "把重复检查自动化：用 Claude Code hooks 做排版、测试与敏感文件提醒"
+title: "Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒"
 description: "不想每次改完文件都自己提醒排版、跑测试、留意敏感文件？这篇教你用 Claude Code hooks，在固定时机自动做这些检查，并说明它挡不下什么。"
 date: 2026-11-10 11:00:00 +0800
 categories: [AI, 软件开发]

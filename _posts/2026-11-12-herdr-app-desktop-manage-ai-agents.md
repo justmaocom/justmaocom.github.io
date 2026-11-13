@@ -1,5 +1,5 @@
 ---
-title: "用 Herdr 桌面 App 管好一群 AI：space、分頁和 agent 狀態列入門"
+title: "Herdr 桌面 App 入門：用 space 與分頁管理多個 AI"
 description: "用 Herdr 桌面 App 把每個 repo 放進 space、每件工作放進分頁，從 agents 側邊欄一眼看出哪個 AI 在等你；本文依 v0.1.15 官方文件，說明安裝、四種狀態、關窗後的行為與遙測設定。"
 date: 2026-11-12 17:00:00 +0800
 categories: [AI, 軟體開發]
@@ -43,7 +43,7 @@ herdr.dev 上有兩個名字很像的程式。依官方 FAQ：
 
 兩者**不共用 agent**：依官方 FAQ，在其中一個啟動的 agent，不會出現在另一個裡。手機 App 只支援 herdr-core（隨 Herdr App 附帶），不支援 Herdr TUI。依手機 App 頁面，Herdr TUI 和 herdr-core 可以同時裝在同一台電腦上。
 
-怎麼選：本站建議挑一個當主力。因為 agent 不共用，兩邊各開幾個，又會回到「不知道誰在等你」的老問題。想留在終端機裡用的，看[同時跑好幾個 AI，不再找不到卡住的那個：herdr 入門](/posts/herdr-run-multiple-ai-agents/)；想要一個桌面視窗、或想用手機查看 agent 的，繼續往下讀。
+怎麼選：本站建議挑一個當主力。因為 agent 不共用，兩邊各開幾個，又會回到「不知道誰在等你」的老問題。想留在終端機裡用的，看[herdr 入門：在終端機同時跑多個 AI，找出卡住的那個](/posts/herdr-run-multiple-ai-agents/)；想要一個桌面視窗、或想用手機查看 agent 的，繼續往下讀。
 
 ## 什麼時候適合用
 
@@ -175,7 +175,7 @@ _概念圖：一台機器 → space（通常是一個 repo）→ 分頁（一件
 
 ### 搭配 git worktree
 
-如果你照[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)，替每個 agent 開了一份獨立的工作目錄（worktree），本站建議每個 worktree 開一個 space，或至少給它一個自己的 pane，讓每個 agent 只在自己的那份目錄裡改檔。App 本身也能管理 worktree。依內建指南，space 選單和 + 選單裡有 New worktree（新增）、Open worktree（打開已有的）和 Remove worktree（移除）；新增的 worktree 會放在那台機器的 `~/.herdr/worktrees/<repo 名稱>/<分支名稱>`，Spaces 側邊欄會把這些 worktree 的 space 收在原本 repo 的 space 底下。
+如果你照[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)，替每個 agent 開了一份獨立的工作目錄（worktree），本站建議每個 worktree 開一個 space，或至少給它一個自己的 pane，讓每個 agent 只在自己的那份目錄裡改檔。App 本身也能管理 worktree。依內建指南，space 選單和 + 選單裡有 New worktree（新增）、Open worktree（打開已有的）和 Remove worktree（移除）；新增的 worktree 會放在那台機器的 `~/.herdr/worktrees/<repo 名稱>/<分支名稱>`，Spaces 側邊欄會把這些 worktree 的 space 收在原本 repo 的 space 底下。
 
 ## 步驟 4：看 agents 側邊欄，找出在等你的那個
 
@@ -341,8 +341,8 @@ _概念圖：在 Settings → Privacy，或在 settings.json 加上 `"telemetry"
 
 ## 下一步
 
-- 想在終端機裡管理 agent：[同時跑好幾個 AI，不再找不到卡住的那個：herdr 入門](/posts/herdr-run-multiple-ai-agents/)（Herdr TUI，和 App 是不同的程式）。
-- 讓每個 agent 在自己的工作目錄裡做事：[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)。
+- 想在終端機裡管理 agent：[herdr 入門：在終端機同時跑多個 AI，找出卡住的那個](/posts/herdr-run-multiple-ai-agents/)（Herdr TUI，和 App 是不同的程式）。
+- 讓每個 agent 在自己的工作目錄裡做事：[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)。
 - 操作細節以官方 [herdr-app README（v0.1.15）](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)為準。
 
 延伸閱讀：[README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)、[Security and privacy](https://github.com/herdrdev/herdr-app/blob/v0.1.15/docs/security.md)、[內建指南 AGENTS.md](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/AGENTS.md)、[macOS 預設按鍵](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json)、[Linux／Windows 預設按鍵](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)、[CHANGELOG](https://github.com/herdrdev/herdr-app/blob/v0.1.15/CHANGELOG.md)、[安裝腳本](https://github.com/herdrdev/herdr-app/blob/v0.1.15/distribution/install.sh)、[herdr.dev](https://herdr.dev/)、[下載頁](https://herdr.dev/download/)、[手機 App](https://herdr.dev/mobile/)、[herdr-core](https://herdr.dev/core/)、[隱私](https://herdr.dev/privacy/)、[Herdr TUI](https://herdr.dev/tui/)、[Homebrew cask](https://formulae.brew.sh/cask/herdr-app)。

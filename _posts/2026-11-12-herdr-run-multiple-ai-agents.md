@@ -1,5 +1,5 @@
 ---
-title: "同時跑好幾個 AI，不再找不到卡住的那個：herdr 入門"
+title: "herdr 入門：在終端機同時跑多個 AI，找出卡住的那個"
 description: "用 brew 或 mise 安裝 herdr，為每個 AI 開獨立的 worktree 與 pane，從側欄找出卡住的那個，離開後再接回來。"
 date: 2026-11-12 08:00:00 +0800
 categories: [AI, 軟體開發]
@@ -10,7 +10,7 @@ image:
   alt: "用 herdr 讓每個 AI 各有一個 pane，一眼看出哪個在等你回答，離開後再接回來。"
 ---
 
-如果你讀過[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)，已經讓兩三個 coding agent 同時做事，下一個麻煩通常是：哪個在等你按「允許」、哪個還在跑，得一個視窗一個視窗切過去才知道；而且終端機一關，或 SSH 連線一斷，做到一半的工作也可能跟著停掉。
+如果你讀過[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)，已經讓兩三個 coding agent 同時做事，下一個麻煩通常是：哪個在等你按「允許」、哪個還在跑，得一個視窗一個視窗切過去才知道；而且終端機一關，或 SSH 連線一斷，做到一半的工作也可能跟著停掉。
 
 herdr 是在終端機裡管理多個工作區和分割畫面的工具。它把每個 agent 放進自己的分割畫面（pane），並在側欄用不同顏色的圓點標出每個 agent 是在跑、在等你，還是已經做完。就算關掉你看到的畫面，背景的工作也能繼續。官方的說法是「the runtime your coding agents live on」。
 
@@ -86,7 +86,7 @@ herdr 可以全程用滑鼠操作：點一下就能切換 pane、tab、workspace
 
 ## 步驟 3：每個工作目錄一個 workspace
 
-本站的做法是：每個 worktree 配一個 workspace，讓每個 agent 只改自己的那份工作目錄，兩個 agent 不會同時改到同一個檔案，這和 worktree 篇的原則相同。開法有兩種，選一種即可，底層都是 `git worktree`。做完之後怎麼合併、怎麼刪分支，以及為什麼有 submodule 的 repo 不建議用 worktree，請看[讓兩個 AI 分開工作：用 git worktree 開獨立工作目錄](/posts/git-worktree-parallel-ai-agents/)。
+本站的做法是：每個 worktree 配一個 workspace，讓每個 agent 只改自己的那份工作目錄，兩個 agent 不會同時改到同一個檔案，這和 worktree 篇的原則相同。開法有兩種，選一種即可，底層都是 `git worktree`。做完之後怎麼合併、怎麼刪分支，以及為什麼有 submodule 的 repo 不建議用 worktree，請看[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)。
 
 **做法 A：用 herdr 開。** 在專案的 workspace 裡按 `prefix+shift+g`（側欄的 workspace 那一列也有 `New worktree` 可選），會跳出 new worktree 視窗。分支欄一開始會填好隨機名稱，先按 ctrl+c 清掉，輸入你要的分支名稱（例如 `login-page`），再按 Enter。herdr 會建好 git worktree，並把它開成一個新的 workspace，排在原專案底下；點側欄的名稱就能切換。這個操作等同在專案資料夾內執行：
 
@@ -115,7 +115,7 @@ git worktree add -b login-page ../demo-app-login-page
 
 切到要工作的 workspace，在 pane 裡輸入 `claude` 或 `codex`，就跟在一般終端機啟動一樣。依 Quick start，herdr 會自動認出這是哪個 agent，側欄的 agents 區會多出一列。官方還支援 Cursor Agent CLI、GitHub Copilot CLI、OpenCode 等，完整清單見[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)，這裡不一一列出。
 
-整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。安裝指令是 `herdr integration install claude` 或 `herdr integration install codex`，見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。可用 `herdr integration uninstall claude`（或 `codex`）移除，但 Codex 的 `config.toml` 不會被改回去。hook 是什麼，可參考[把重複檢查自動化：用 Claude Code hooks 做排版、測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
+整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。安裝指令是 `herdr integration install claude` 或 `herdr integration install codex`，見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。可用 `herdr integration uninstall claude`（或 `codex`）移除，但 Codex 的 `config.toml` 不會被改回去。hook 是什麼，可參考[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ## 步驟 5：看狀態，找出卡住的那個
 
@@ -149,7 +149,7 @@ delivery = "herdr"
 
 存檔後執行 `herdr server reload-config`（或按 `prefix+shift+r`），設定就會生效。設成 `herdr`，提示會出現在 herdr 畫面裡；設成 `system`，則改用作業系統的通知。macOS 用 `system` 時會優先透過 terminal-notifier 發通知，官方建議先 `brew install terminal-notifier`，其他選項見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)或[Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/)。
 
-依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意從嚴：herdr 沒見過的新提示畫面，一開始可能顯示成 idle，而不是 blocked；而且「idle status is not authorization to approve an action」，也就是看到 idle，不代表可以直接核准。跳過去之後，要看清楚再按允許。這一點和[拿 OWASP Agentic Top 10 檢查你的 AI 工作流：十項風險逐條對照與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
+依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意從嚴：herdr 沒見過的新提示畫面，一開始可能顯示成 idle，而不是 blocked；而且「idle status is not authorization to approve an action」，也就是看到 idle，不代表可以直接核准。跳過去之後，要看清楚再按允許。這一點和[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
 
 ## 步驟 6：離開，再接回來
 
