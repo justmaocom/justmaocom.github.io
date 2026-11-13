@@ -1,6 +1,6 @@
 ---
 title: 采购法 PDF 题库变成不靠题序记忆的练习网站
-description: 从解析题库、随机组卷，到用跨练习统计找出弱项
+description: 用 Python 与 FastAPI 把政府采购法的官方 PDF 题库做成练习网站。本文说明怎么解析题目、每轮随机出题，以及用跨练习统计找出弱项。
 date: 2026-09-15 13:42:04 +0800
 categories: [软件开发, Web应用]
 tags: [python, fastapi, sqlalchemy, postgresql, pdf-parsing, side-project]
