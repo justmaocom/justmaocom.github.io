@@ -7,3 +7,5 @@
 8c4107ba28ce7b156721760974d40b00e4ff7f12 # feat(posts): 替三篇沒有封面的文章補上封面
 5f9329b0146e2d35a3fb1ffddc7b80a0801d5226 # docs(posts): 其他文章引用的舊標題改成新標題
 eef814591f62b60d99b8332bf18ad53d57a903fa # docs(posts): 簡中與英文的站內連結改回 /posts/<slug>/
+28fab82101b7627906d55936583a787e861a0d10 # docs(posts): 補上文章主角的名稱標籤
+7ccd113aad49511d53039633b62acd6399a59bd6 # docs(posts): OpenSSH 與 npm 兩篇補上第二層分類
