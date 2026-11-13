@@ -1,6 +1,6 @@
 ---
 title: "npm 12 預設擋掉安裝腳本：allowScripts 怎麼核准、怎麼加 7 天冷靜期"
-description: "npm 12 預設不再執行相依套件的安裝腳本。這篇教你用 npm install-scripts 核准真正需要的套件、用 min-release-age 加上 7 天冷靜期，以及裝到惡意套件時，為什麼不能第一步就撤 token。"
+description: "npm 12 預設不再執行相依套件的安裝腳本。這篇教你用 npm install-scripts 核准真正需要的套件、用 min-release-age 加上 7 天冷靜期，並以 tensorlake 事件說明處理惡意套件時，為什麼要先移除常駐服務再撤銷 token。"
 date: 2026-11-13 20:00:00 +0800
 categories: [資訊安全, 供應鏈]
 tags: [supply-chain-security, npm, application-security, incident-response]
@@ -10,38 +10,40 @@ image:
   alt: "npm 12 在安裝時先擋下相依套件的安裝腳本，只放行列在 allowScripts 裡、你核准過的套件。"
 ---
 
-先講結論：升級到 npm 12 之後，相依套件的安裝腳本預設不會再執行。你要做的事只有三件：看哪些套件被擋、核准真正需要的、把名單 commit 進 repo。再花一分鐘在 `.npmrc` 加上 7 天冷靜期，剛發布的版本就不會馬上裝進來。
+升級到 npm 12 之後，你可能會遇到一個有點困惑的情況：`npm install` 順利結束，套件也裝進來了，某個功能卻不能用。原因可能是相依套件的安裝腳本被跳過了。
+
+npm 12 預設不再執行這些腳本。接下來要做的是：看哪些套件需要審查，確認腳本的用途與來源，再核准必要的項目，把名單放進版本控制。你也可以加上 7 天冷靜期，減少第一時間裝到惡意新版本的機會。這兩道防線各有用途，也各有限制。
 
 先認識幾個詞：
 
-- **相依套件**（dependency）：你的專案要用到的別人的套件，以及它們再用到的套件。
-- **安裝腳本**（install script）：套件在被安裝時自動執行的指令，寫在它的 `package.json` 裡，名稱是 `preinstall`、`install`、`postinstall`。它用你的帳號執行，你讀得到的檔案，它都讀得到。
-- **`package.json`**：專案的設定檔，記錄名稱、版本和相依套件。npm 12 核准過的名單也寫在這裡。
-- **lockfile**（`package-lock.json`）：記錄每個相依套件「實際裝了哪一版」的檔案。
-- **`.npmrc`**：npm 的設定檔，放在專案根目錄就只影響這個專案。
-- **token**（權杖）：一串代替帳號密碼的通行碼，誰拿到，就能用你的身分做它允許的事。
+- **相依套件**（dependency）：你的專案用到的套件，以及它們再用到的套件。
+- **安裝腳本**（install script）：套件安裝時自動執行的指令，常見名稱是 `preinstall`、`install`、`postinstall`。它用執行 npm 的帳號權限運作，能接觸該帳號可讀的檔案與憑證。
+- **`package.json`**：記錄專案設定與相依套件的檔案，npm 12 的腳本核准名單也放在這裡。
+- **lockfile**（`package-lock.json`）：記錄解析出的相依套件版本與來源，讓後續安裝能使用同一組版本。
+- **`.npmrc`**：npm 的設定檔。本文把團隊共用的設定放在專案根目錄。
+- **token**（權杖）：一串用來驗證身分的通行碼，拿到的人就能在它的權限範圍內操作。
 
-為什麼要擋？因為攻擊者最常把惡意程式放在安裝腳本裡：你一打 `npm install`，還沒用到那個套件，程式就已經跑完了。2026 年 10 月 8 日的 `tensorlake@0.5.144` 就是這樣，依[官方公告](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2)，它透過 `preinstall` 偷走 GitHub 與 npm token、雲端金鑰，以及 AI 工具和 MCP 的設定。這種事也不罕見：GitHub Advisory Database 幾乎每天都在公告新的惡意 npm 套件，光是 2026 年 10 月 26 日到 28 日這三天，就有 103 筆（2026-11-13 以 `type=malware`、`ecosystem=npm` 查詢 [GitHub Advisory Database](https://github.com/advisories?query=type%3Amalware+ecosystem%3Anpm) 的結果）。
+為什麼需要審查安裝腳本？因為惡意程式可以在這個階段執行，甚至不用等你的程式載入套件。2026 年 10 月 8 日的 `tensorlake@0.5.144` 就是例子：依[官方安全公告](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2)，它透過 `preinstall` 竊取 GitHub 與 npm token、雲端憑證，以及 AI 工具和 MCP 的設定。
 
-另一篇[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)是站在**發布者**這端；這篇站在**安裝套件的人**這端：怎麼核准真正需要的安裝腳本、怎麼避開剛發布的版本，以及萬一裝到惡意套件，第一步該做什麼、不該做什麼。
+另一篇[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)談的是發布者這一端；這篇則從安裝套件的人出發，說明怎麼管理腳本、避開剛發布的版本，以及這次 tensorlake 事件為什麼需要特別注意處理順序。
 
-> **版本說明**：本文依 2026-11-13 讀取的 npm CLI 12.2.2 官方文件〈[npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)〉、〈[npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)〉、〈[config](https://docs.npmjs.com/cli/v12/using-npm/config/)〉，以及 GitHub 的 [npm v12 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)整理，沒有附實測結果。指令與預設值以官方文件為準。
+> **版本說明**：本文依 2026-11-13 讀取的 npm CLI 12.2.2 官方文件〈[npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)〉、〈[npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)〉、〈[config](https://docs.npmjs.com/cli/v12/using-npm/config/)〉，以及 GitHub 的 [npm v12 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)整理，未提供 npm 操作的實測結果。指令與預設值以對應版本的官方文件為準。
 {: .prompt-info }
 
 ## npm 12 改了什麼
 
-GitHub 在 2026-07-08 的[變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)寫明，npm v12 已正式發布，並標成 `latest`（也就是 `npm install -g npm` 預設會裝到的版本）。和安裝腳本有關的改變是：
+GitHub 在 2026-07-08 的[變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)宣布 npm v12 正式發布，並標成 `latest`。與本文有關的改變是：
 
-- **相依套件的安裝腳本預設不跑。** `preinstall`、`install`、`postinstall` 都算在內，沒有寫腳本、但帶有 `binding.gyp` 而會自動用 node-gyp 編譯的套件也一樣。從 git、本機檔案或連結裝進來的相依套件，它們的 `prepare` 腳本也一併擋下。
-- **安裝時不會中斷。** [文件](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)寫，`npm install` 會默默跳過沒被核准的腳本，最後列出被跳過的套件，讓你回頭審查。
-- **放行名單寫在 `package.json` 的 `allowScripts`。** 列在裡面、標成允許的套件，腳本照常執行；標成拒絕的，一律跳過，也不再出現在待審清單裡。
+- **相依套件的安裝腳本預設不跑。** 包括 `preinstall`、`install`、`postinstall`，以及由 `binding.gyp` 隱含觸發的 node-gyp 編譯。從 git、本機檔案或連結安裝的相依套件，其 `prepare` 腳本也受管控。
+- **預設會跳過腳本，讓安裝繼續。** 安裝結束時列出尚未核准的套件，供你審查。這只代表套件裝進來了，不代表它需要的建置或下載步驟已經完成。
+- **核准與拒絕名單放在 `package.json` 的 `allowScripts`。** 符合允許規則的腳本可以執行；明確拒絕的則跳過，也不再列為待審項目。
 
-同一次改版也把兩種來源預設關掉：git 相依套件（`allow-git`）和網址相依套件（`allow-remote`，例如直接指向某個 `.tgz` 網址）。如果你的專案用到這兩種，升級後會裝不起來，要另外放行；本篇不展開。
+同一次改版也預設禁止 git 相依套件（`allow-git`）和遠端網址相依套件（`allow-remote`，例如直接指向 `.tgz`）。來源是否允許、腳本是否允許，是兩個不同的檢查；核准腳本不會順便放行來源。用到這些來源的專案，要另看相關設定。
 
-![npm 12 安裝時，每個帶安裝腳本的套件都要先對照 allowScripts：核准的才執行，拒絕的直接跳過，還沒審查的跳過後列在清單上](gate.webp){: w="1600" h="900" }
-_概念圖：安裝時，每個帶安裝腳本的套件都要先對照 `allowScripts`。核准過、而且版本相符的才會執行；明確拒絕的直接跳過；還沒審查的也跳過，並在安裝結束時列出來。核准預設會釘住版本，套件升級後要重新核准。_
+![npm 12 對照 allowScripts，決定執行、跳過或列出待審的安裝腳本](gate.webp){: w="1600" h="900" }
+_在預設設定下，符合核准規則的腳本才會執行；明確拒絕的直接跳過，尚未審查的也跳過並列出。核准預設會釘住版本，升級後需要重新審查。_
 
-**哪些人會受影響？** 用到「要在安裝時編譯或下載原生程式」的套件的人最常碰到，例如官方文件範例裡的 `canvas`、`sharp` 這類影像處理套件。升級後若一切正常，代表你的專案可能根本不需要安裝腳本；若某個功能壞了，或安裝結束時列出一串被跳過的套件，就照下面的步驟處理。
+影像處理、資料庫驅動等需要編譯或下載原生程式的套件，較容易受到影響。官方文件用 `canvas`、`sharp` 示範核准指令，但這不表示每個專案都需要核准它們；要看實際使用的版本與安裝方式。
 
 ## 步驟 1：確認 npm 版本
 
@@ -51,61 +53,51 @@ _概念圖：安裝時，每個帶安裝腳本的套件都要先對照 `allowScr
 npm -v
 ```
 
-- **顯示 12.x**：預設已經在擋，直接做步驟 2。
-- **顯示 11.16.0 以上的 11.x**：依 GitHub [6 月的預告](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/)，這些版本已經有同樣的機制，只是先以警告提醒。可以先用 `npm approve-scripts --allow-scripts-pending` 看看升級後會被擋的有哪些，把名單準備好再升級。
-- **更舊的版本**：先升級 npm，例如執行 `npm install -g npm@latest`。
+- **12.x**：預設會擋下未核准的安裝腳本，接著檢查待審清單。
+- **11.16.0 以上的 11.x**：依 GitHub [6 月的預告](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/)，這些版本可以先透過警告準備遷移，但還不能當成 npm 12 的預設阻擋。用 `npm approve-scripts --allow-scripts-pending` 檢視清單，再逐一核准或拒絕。
+- **更舊的版本**：先確認 Node.js 符合目標 npm 版本的需求，再升級。若要照本文操作，可指定 npm 12：`npm install -g npm@12`。
 
-團隊裡每個人、還有 CI（程式推上去後自動跑測試與建置的流程）用的 npm 版本最好一致。否則同一份 `package.json`，在 npm 12 上會擋，在舊版上會照跑。
+團隊成員與 CI（自動測試、建置流程）應使用一致的 npm 版本。同一份 `allowScripts`，不能保證舊版 npm 也會照著阻擋；也要檢查是否有覆寫預設行為的設定。
 
-**你會得到：** 確認自己的 npm 已經會擋安裝腳本。
+## 步驟 2：看哪些套件需要審查
 
-## 步驟 2：看哪些套件被擋
-
-在專案資料夾裡執行：
+在已有安裝結果的專案資料夾中執行：
 
 ```bash
 npm install-scripts ls
 ```
 
-這個指令只會列出「有安裝腳本、但還沒寫進 `allowScripts`」的套件，不會改任何檔案，可以放心多跑幾次。
+這個指令只列出「有安裝腳本、但尚未被 `allowScripts` 規則涵蓋」的套件，不會修改檔案。已經明確拒絕的套件不會出現在這份清單裡。新專案可先在 npm 12 的預設設定下執行 `npm install`，再看安裝結尾與這份清單。
 
-接著逐一判斷要不要放行。先看它的腳本到底做什麼：
+接著檢查每個版本的腳本。例如清單中有 `canvas@3.2.0`，可以查：
 
 ```bash
-# 看某個版本的 package.json 裡寫了哪些腳本；套件與版本換成清單上列出的那一個
-npm view <套件>@<版本> scripts
+npm view canvas@3.2.0 scripts
 ```
 
-也可以直接打開 `node_modules/<套件>/package.json` 看同樣的內容，再看腳本呼叫的那支檔案。
+`npm view` 查的是目前設定的 registry。實際審查時，也要對照 `node_modules` 裡該版本的 `package.json`、它呼叫的檔案，以及下載程式的來源。間接相依套件可能在巢狀目錄中，同名套件也可能裝了不只一版，別只看最外層那份。
 
-判斷時可以參考這幾條（本站整理的經驗法則，不是官方規則）：
+判斷時可以參考以下原則：
 
-- **要編譯或下載原生程式**，例如影像處理、資料庫驅動：通常真的需要，核准。
-- **只是送使用統計、印廣告或感謝訊息**：不需要，拒絕。
-- **腳本會從不明網址下載東西，或程式碼被刻意弄得看不懂**：先不要核准，查清楚再說。
-- **看不懂、也不確定**：先不核准，跑一次測試或把程式啟動看看。功能正常，就把它明確拒絕，免得它一直出現在清單上；壞了，再回頭核准。
+- **需要編譯或下載原生程式**：可能確實需要腳本，但仍要確認來源、下載位置與用途，不能只因為「要編譯」就放行。
+- **只是送使用統計、印廣告或感謝訊息**：若不影響需要的功能，可以拒絕。
+- **從不明網址下載內容，或程式碼刻意混淆**：先不要核准，查明原因；若懷疑是惡意套件，也先不要啟動它來測試。
+- **用途還不確定**：先保留待審。對來源可信的套件，可在腳本仍被擋住的情況下測試相關功能；若功能出錯，先查清楚缺了什麼，再決定是否核准。測試通過只能幫助判斷需求，不能證明套件安全。
 
-**你會得到：** 一份「要核准」和「要拒絕」的名單。
+## 步驟 3：核准或拒絕，補跑腳本後再提交
 
-## 步驟 3：核准或拒絕，然後 commit
-
-核准需要的套件，可以一次列好幾個：
+下面沿用官方文件的套件名稱示範，請換成你已經審查過的項目：
 
 ```bash
 npm install-scripts approve canvas sharp
-```
-
-拒絕不需要的套件：
-
-```bash
 npm install-scripts deny telemetry-pkg
 ```
 
-`npm approve-scripts` 和 `npm deny-scripts` 是這兩個指令的簡寫，效果相同。
+`telemetry-pkg` 是拒絕項目的示意名稱。`npm approve-scripts` 與 `npm deny-scripts` 也能完成相同操作。
 
-**核准預設會釘住版本。** [文件](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)寫，`approve` 預設寫入的是 `套件@版本`，只放行你審查過的那一版。之後套件升級，新版本不在名單上，安裝腳本會再被擋下，重新出現在待審清單裡。這正是要的效果：攻擊者若偷偷發了一個加料的新版，不會因為你核准過舊版就自動跑起來。
+**核准預設會釘住版本。** `approve` 寫入 `套件@版本`，讓核准範圍限於已審查的版本。要注意，[文件](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)說明，傳入套件名稱會套用到它所有已安裝的版本；如果專案裡同時有兩版，核准前兩版都要看。
 
-寫進 `package.json` 之後，大致長這樣（npm 文件沒有附完整範例，這是依文件描述整理的寫法，版本號為示意）：
+寫進 `package.json` 後，大致如下。這是依文件整理的片段，版本號僅供示意，實際結果以指令產生的內容為準：
 
 ```json
 {
@@ -117,162 +109,153 @@ npm install-scripts deny telemetry-pkg
 }
 ```
 
-- `true` 是允許，`false` 是拒絕。拒絕一律只寫套件名稱，不分版本。
-- [文件](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)寫明，已經寫成 `false` 的套件永遠以拒絕為準，之後再 `approve` 也不會悄悄改回允許。
-- 加上 `--no-allow-scripts-pin`，會改寫成只有名稱、不分版本的允許。這等於連未來的每一個新版都先放行了，除非你有很好的理由，否則不建議。
-- `npm install-scripts approve --all` 會一次核准清單上的所有套件。文件的範例註解寫的是「審查之後」再用；沒看過就全部放行，等於把這道關卡拆掉。
+- `true` 是允許，`false` 是拒絕；拒絕以名稱記錄，不分版本，既有的拒絕規則優先於核准。
+- `--no-allow-scripts-pin` 會只記名稱，連未來版本也一起放行，一般不建議使用。
+- `approve --all` 會一次核准所有待審項目，應在逐一審查之後才用。
+- 若 lockfile 缺少 `resolved` 下載網址，npm 可能無法驗證版本，改成**只按名稱核准並發出警告**。這會放寬核准範圍，不能忽略。先依[文件](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)修復 lockfile 的來源資訊；若使用了 `omit-lockfile-registry-resolved`，也要先調整該設定。移除過寬的名稱核准後再重新核准，檢查差異，確認留下的是版本限定規則。
 
-核准是寫進 `package.json` 的名單。要讓剛才被跳過的腳本補跑，再執行 `npm rebuild <套件>`，例如 `npm rebuild canvas sharp`。[文件](https://docs.npmjs.com/cli/v12/commands/npm-rebuild/)說明，這個指令會執行套件的 `preinstall`、`install`、`postinstall` 和 `prepare`。
-
-最後把名單 commit 進 repo，讓團隊和 CI 用同一份：
+核准只會更新名單，不會補跑剛才跳過的腳本。接著執行：
 
 ```bash
-git add package.json package-lock.json
+npm rebuild canvas sharp
+```
+
+依 [npm rebuild 文件](https://docs.npmjs.com/cli/v12/commands/npm-rebuild/)，它會處理對應套件的生命週期腳本。完成後，再跑專案的測試與建置，確認實際需要的功能正常。
+
+提交前先看差異，至少保留核准名單；若 lockfile 也有合理變動，再一併提交：
+
+```bash
+git diff -- package.json package-lock.json
+git add package.json
+# 若 package-lock.json 有需要保留的變動，再 git add package-lock.json
 git commit -m "chore(deps): 核准需要的安裝腳本"
 ```
 
-**套件升級之後：** 釘住的版本對不上了，套件會重新出現在 `npm install-scripts ls`。看過新版的腳本沒問題，再 `approve` 一次，npm 會把舊的版本號改成新的。名單裡已經用不到的舊項目，用 `npm install-scripts prune --dry-run` 先預覽，再用 `npm install-scripts prune` 清掉。
+**套件升級之後**，新版本不再符合舊的核准規則，會重新列為待審。看過新版腳本再核准，npm 會更新對應的版本規則。`npm install-scripts prune --dry-run` 可以預覽無用項目，再用 `npm install-scripts prune` 清理；它也會移除不再對應已安裝套件的拒絕規則，清理前要確認仍符合團隊原意。
 
-**CI 要不要直接失敗？** 預設只是跳過並提醒。如果你希望「沒審查過的安裝腳本」讓 CI 直接失敗，在專案的 `.npmrc` 加上：
+**希望 CI 遇到待審項目就失敗？** 在專案的 `.npmrc` 加上：
 
 ```ini
 strict-allow-scripts=true
 ```
 
-依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts)，開了之後，有安裝腳本卻不在名單上的套件會讓安裝失敗；明確拒絕的套件照樣直接跳過，不會報錯。
-
-**你會得到：** 一份放在 repo 裡、每個人和 CI 都照著用的 `allowScripts` 名單。
+依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts)，尚未審查的安裝腳本會讓安裝失敗，明確拒絕的仍直接跳過。設定與名單提交後，建議讓 CI 以相同 npm 版本跑 `npm ci` 和既有測試，確認從乾淨安裝也能正常建置。
 
 ## 步驟 4：在 .npmrc 加上 7 天冷靜期
 
-惡意版本通常很快就會被發現、下架。只要不馬上裝剛發布的版本，就能躲掉很大一部分。npm 的 `min-release-age` 就是做這件事：在專案根目錄的 `.npmrc` 加上：
+安裝腳本審查管的是「哪些程式可以在安裝時跑」，冷靜期管的是「多新的版本可以被選中」。它讓新版本多留一段被發現、通報與下架的時間，但不保證惡意版本一定會在七天內被抓到。
+
+先在專案根目錄的 `.npmrc` 加上：
 
 ```ini
 min-release-age=7
-min-release-age-exclude[]=@你的組織/*
 ```
 
-- `min-release-age=7`：依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#min-release-age)，npm 只會裝「發布超過 7 天」的版本：在 `package.json` 允許的版本範圍內，挑已經滿 7 天的。範圍內一個都沒有，安裝就會失敗。
-- `min-release-age-exclude[]`：列出不受限制的套件，可以寫套件名稱，也可以用 `@你的組織/*` 這種萬用字元。通常拿來排除自家維護的套件，讓它們一發布就能用。可以寫好幾行。
+這裡的單位是**天**。依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#min-release-age)，npm 解析相依套件時，會在允許的版本範圍內選擇發布時間超過七天的版本；找不到符合條件的版本，就會失敗。
+
+如果某個自家套件確實需要立即使用，再加入例外，例如：
+
+```ini
+min-release-age-exclude[]=@your-org/internal-tool
+```
+
+請把示意名稱換成實際套件。也可以用 `@your-org/*` 排除整個 scope，但範圍越大，繞過冷靜期的套件就越多，最好從必要的個別套件開始。
 
 排除有兩個細節：
 
-- **只有被點名的套件不受限。** 它自己用到的其他套件，照樣要等滿 7 天，除非也符合排除規則。
-- **排除不會改變它從哪裡下載。** 文件提醒，你應該在公開的 npm 上也擁有自己組織的 scope（也就是 `@你的組織` 這個名稱），免得別人搶先用同樣的名稱發布套件。
+- **只有符合名稱的套件不受限。** 它的相依套件仍要遵守冷靜期，除非也符合排除規則。
+- **排除不會改變下載來源。** 文件提醒，使用私有 scope 時，也應在公開 npm registry 擁有該 scope，避免同名套件被他人發布；例外名單不會替你設定 registry。
 
-![以 tensorlake 事件為例：惡意版本只在 npm 上約 1 小時 40 分鐘，設了 7 天冷靜期的專案根本不會選到它](cooldown.webp){: w="1600" h="900" }
-_概念圖：以 tensorlake 事件為例。惡意的 0.5.144 在 2026-10-08 只上線約 1 小時 40 分鐘就被移除；設了 7 天冷靜期的專案，要到 10 月 15 日之後才會考慮這個版本，那時它早就不在了。_
+![tensorlake 惡意版本上線與七天冷靜期的時間關係](cooldown.webp){: w="1600" h="900" }
+_以 tensorlake 事件說明原理：若解析新版本時套用七天限制，且沒有例外或覆寫，0.5.144 在上線的那段時間還不符合條件。圖中的組織排除規則只是選配範例，不必照抄。_
 
-以這次事件為例：依公告，`tensorlake@0.5.144` 只在 npm 上待了約 1 小時 40 分鐘（2026-10-08 01:12 到 02:54 UTC，台北時間 09:12 到 10:54）。設了 7 天冷靜期的專案，在那段時間不會選到它，等滿 7 天時，它也已經被移除了。
+依公告，`tensorlake@0.5.144` 在 npm 上存活約 1 小時 40 分鐘（2026-10-08 01:12 到 02:54 UTC，台北時間 09:12 到 10:54）。在正常套用冷靜期的版本解析中，它還沒等滿七天就已被移除。這說明冷靜期可能提供的緩衝，**但不能保證所有安裝情境都能擋住它**；官方文件也未明確交代 lockfile 已鎖定版本是否會重新檢查，不能把它當成既有相依套件的掃毒工具。
 
-**代價是：緊急修補也要等。** 文件寫明，如果冷靜期擋住了 `npm audit fix` 要裝的修補版本，npm 會留在有漏洞的版本、發出警告，並以失敗結束。這時有兩種做法：
+**緊急修補也可能被擋住。** 文件指出，如果限制擋住 `npm audit fix` 要裝的修補版本，npm 會保留有漏洞的版本、警告並以失敗結束。先確認修補版本與來源，再暫時把該套件加入排除名單；完成更新與驗證後，記得移除例外。調小天數也能放寬限制，但會同時影響其他套件。
 
-- 把那個套件暫時加進 `min-release-age-exclude[]`，裝好修補版再拿掉。
-- 暫時把天數調小。
+若同一份設定檔也寫了 `before`（只選某個日期之前的版本），會以 `before` 為準；跨設定來源則依 npm 的優先順序處理。因此也要留意 CI 參數、環境變數或個人設定是否改變了專案預期的限制。
 
-npm 還有一個 `before` 設定，指定「只裝某個日期之前發布的版本」。同一個設定檔裡兩個都寫時，以 `before` 為準。
-
-**你會得到：** 剛發布的版本至少要等 7 天才會進到你的專案。
+最後把不含 token 等機密的 `.npmrc` 設定提交，團隊和 CI 才能使用同一份政策。
 
 ## 步驟 5：全域安裝與 npx 怎麼放行
 
-`npm install -g`（全域安裝，裝成整台電腦都能用的指令）和 `npx`、`npm exec`（下載套件後直接執行一次）沒有專案的 `package.json` 可以寫，所以 `npm install-scripts` 在這些情況不能用，加上 `-g` 執行會出現 `EGLOBAL` 錯誤。
+全域安裝（`npm install -g`）與一次性執行（`npm exec`、`npx`）不使用專案的 `package.json` 記錄核准名單。`npm install-scripts -g` 會得到 `EGLOBAL`，這些情況要用 `allow-scripts`。
 
-這時改用 `allow-scripts` 設定，值是用逗號分隔的套件名稱。[文件](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)的兩種寫法：
+以下的 `your-cli@1.2.3` 是示意工具與版本，請換成實際要安裝或執行的工具；`canvas,sharp` 也要換成它真正需要、你已審查的腳本套件：
 
 ```bash
-# 只在這次全域安裝放行
-npm install -g --allow-scripts=canvas,sharp
+# 指定要安裝的工具，只在這次安裝放行所列套件的腳本
+npm install -g your-cli@1.2.3 --allow-scripts=canvas,sharp
 
-# 寫進你個人的 npm 設定，之後一直有效
+# 一次性執行：-- 後面是工具的命令與參數
+npm exec --allow-scripts=canvas,sharp --package=your-cli@1.2.3 -- your-cli
+
+# 若確實需要長期有效，才存到個人設定
 npm config set allow-scripts=canvas,sharp --location=user
 ```
 
-- 依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#allow-scripts)，這個設定就是給 `npm exec`、`npx` 和 `npm install -g` 用的。在專案裡執行 `npm install`、`npm ci`、`npm update` 或 `npm rebuild` 時，在指令後面加 `--allow-scripts` 會直接報錯，專案請用 `allowScripts`。
-- 名稱比對的是套件實際解析出來的身分，不是套件自己在 `package.json` 裡宣稱的名稱。
-- 寫進個人設定的名單會一直有效，所以越短越好，不再需要的就拿掉。
+- `--allow-scripts` 指定的是**允許跑安裝腳本的套件**，不等於指定要安裝哪個工具。
+- 依[文件](https://docs.npmjs.com/cli/v12/using-npm/config/#allow-scripts)，在專案的 `npm install`、`npm ci`、`npm update` 或 `npm rebuild` 命令列直接傳入這個參數會報錯；專案請維護 `allowScripts`。
+- 這裡的名單按套件名稱比對，不像前面預設會釘住版本。存進個人設定後會持續有效，不需要時可用 `npm config delete allow-scripts --location=user` 移除。
+- 它只管安裝腳本。`npm exec`、`npx` 之後執行的工具本身，仍會用你的權限運作，不能因為腳本被擋就放心執行陌生工具。
 
-**你會得到：** 全域工具和一次性執行，也只放行你點名的套件。
+## 裝到惡意套件之後：tensorlake 事件的特殊處理順序
 
-## 萬一裝到惡意套件：以 tensorlake 事件為例，為什麼不能第一步就撤 token
+輪換憑證是必要的應變措施，但這次事件多了一個陷阱：惡意程式會安裝 `gh-token-monitor` 常駐服務，偵測到被竊的 GitHub token 撤銷時，會刪除使用者家目錄。因此公告要求先隔離機器、移除服務，再撤銷 token。**以下是這次事件的處理方式，不能直接套用成所有事件的固定流程。**
 
-一般的建議是：懷疑中招，就先撤銷 token、換新的。但 tensorlake 這次不能這樣做。下面是這次事件官方公告的步驟，**只適用於這次事件**，不是通用流程；遇到其他事件，請以各自的官方公告為準。
+依[官方公告](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2)，受影響的是 npm 的 `tensorlake@0.5.144` 與同版本的 `tensorlake-native-*` 系列；PyPI、crates.io 上的同名套件與 tensorlake CLI 不受這次事件影響。攻擊者利用被盜的維護者帳號，經專案自己的發布流程發出惡意版本，所以它帶有有效的 npm provenance。來源證明能說明建置來源，不能保證程式碼沒有惡意行為。
 
-**發生了什麼。** 依[官方公告](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2)：
+惡意腳本收集的內容包括 GitHub、npm 與雲端憑證、SSH 與 GPG 金鑰、`.env`、瀏覽器密碼，以及 AI 工具和 MCP 的設定，還會利用竊取的 token 向其他套件與 repo 散播。
 
-- 2026-10-08，攻擊者用被盜的維護者帳號，把 `tensorlake@0.5.144` 發布到 npm。同版本號的 `tensorlake-native-*` 系列套件也受影響。
-- 惡意程式藏在 `preinstall`，安裝時就執行。它會收集 GitHub 與 npm token、AWS 與 GCP 的雲端憑證、Kubernetes 與 Vault token、SSH 與 GPG 金鑰、`.env` 檔、瀏覽器存的密碼、加密貨幣錢包，以及 AI 工具和 MCP 的設定，再用偷到的 token 把自己發布到受害者有權限的其他套件和 repo。
-- 它還會裝一個叫 `gh-token-monitor` 的常駐服務：**偷來的 GitHub token 一被撤銷，它就會刪除使用者的家目錄。**
-- 這個版本是透過 tensorlake 自己的發布流程發出的，所以帶著有效的 npm provenance（來源證明）。這也是[Trusted Publishing 那篇](/posts/npm-trusted-publishing-github-actions/)提醒過的：provenance 只證明「從哪裡建出來」，不保證套件沒有惡意程式。
+### 怎麼確認是否受影響
 
-**先確認有沒有裝到。** 公告提供的方法：
+先查 lockfile 與安裝紀錄，不必執行可疑套件：
 
-- 在專案裡執行 `npm list tensorlake`，顯示 0.5.144 就是受影響。
-- 在 `package-lock.json`、`yarn.lock`、`pnpm-lock.yaml` 裡找 `tensorlake@0.5.144` 或 `tensorlake-native-*@0.5.144`。
-- 翻 CI 的建置紀錄，看 2026-10-08 01:12 到 02:54 UTC 之間，有沒有哪次安裝解析到 0.5.144。
+- 找出 `tensorlake`、`tensorlake-native-*` 的項目，確認對應 `version` 是否為 `0.5.144`。不同 lockfile 的名稱與版本可能分開記錄，只搜尋完整字串 `tensorlake@0.5.144` 可能漏掉。
+- `npm list tensorlake` 可以查目前安裝的版本，但現在已經移除或降版，不能證明過去沒裝過。
+- 回查 CI 紀錄，特別是 2026-10-08 01:12 到 02:54 UTC 之間有沒有解析到該版本；目前的 lockfile 也不能取代歷史紀錄。
 
-公告寫明，只要在「安裝腳本有啟用」的電腦或 CI 上裝過 0.5.144，就要把那台機器，以及它碰得到的所有憑證，都當成已經外洩。
+公告指出，只要在啟用安裝腳本的電腦或 CI 上裝過 0.5.144，就應把機器與它能接觸的憑證視為已遭入侵。找到該版本是調查的起點，是否執行過腳本、能接觸哪些憑證，都要一起確認。
 
-**處理順序（照公告）：**
+### 依公告處理
 
-1. **先斷網**：把那台電腦從網路上拔掉。
-2. **移除 `gh-token-monitor`，而且要在撤銷任何 GitHub token 之前做**：
+1. **先斷網**，隔離受影響的機器。
+2. **在撤銷 GitHub token 前，停止並移除 `gh-token-monitor`**：
    - Linux：執行 `systemctl --user disable --now gh-token-monitor.service`，再刪除 `~/.config/gh-token-monitor/` 和 `~/.local/bin/gh-token-monitor.sh`。
    - macOS：執行 `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.user.gh-token-monitor.plist`，再刪除這個 plist 檔。
    - Windows：刪除名為 `gh-token-monitor` 的排程工作，以及 `%LOCALAPPDATA%\gh-token-monitor\` 資料夾。
-3. **換一台乾淨的電腦輪換憑證**：那台電腦碰得到的所有憑證都要換新，而且要從另一台沒中招的電腦操作。
-4. **檢查你的套件和 repo**：你的 token 能發布或寫入的 npm 套件和 repo，看有沒有不明的新版本、作者顯示為 `claude` 的 commit，或叫 `dependabot/github_actions/format/setup-formatter` 的分支。
-5. **重灌**：用可信的映像檔（乾淨的系統安裝來源）重建那台電腦。
+3. **從另一台乾淨的電腦輪換所有可接觸的憑證**，不要在受影響的機器上輸入新憑證。
+4. **檢查套件與 repo 是否被用來散播**，留意不明發布、作者顯示為 `claude` 的 commit，以及 `dependabot/github_actions/format/setup-formatter` 分支。這些是公告列出的線索，仍要對照內容與紀錄判斷。
+5. **用可信映像重建機器**。
 
-![以 tensorlake 事件為例的處理順序：先斷網、再移除 gh-token-monitor，接著換一台乾淨的電腦輪換憑證、檢查套件與 repo，最後重灌](incident-order.webp){: w="1600" h="900" }
-_概念圖：以 tensorlake 事件為例。先斷網、先移除常駐服務，再從另一台乾淨的電腦換憑證；如果第一步就撤銷 GitHub token，常駐服務會刪掉家目錄。這是這次事件的官方步驟，不是通用流程。_
+![tensorlake 事件的應變順序：隔離、移除常駐服務、輪換憑證、檢查散播與重建](incident-order.webp){: w="1600" h="900" }
+_這是 tensorlake 公告的特殊順序：先移除可能觸發刪檔的常駐服務，再從乾淨機器輪換憑證。處理其他事件時，請依該事件的公告與應變指引判斷。_
 
-為什麼順序這麼重要？撤銷 token 本來是對的，但這次的惡意程式把「token 被撤銷」當成引爆條件。先撤 token，就是自己按下刪除鍵。斷網和移除服務放在前面，是先把它拆掉，再去換鑰匙。
+**專案的相依版本也要處理。** 公告列出 `0.5.143` 與更早版本未受這次事件影響；恢復環境時，應移除惡意版本、更新 lockfile，並確認後續安裝不會再選到 `0.5.144`。只降版或刪掉 `node_modules`，無法撤回已外洩的憑證，也不能取代上面的機器重建與調查。
 
-更一般的「怎麼判斷自己是不是已經中招」，可以看[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的同名段落。
+## 這些設定保護不到什麼
 
-## 限制
-
-> 使用前請先知道這些限制：
->
-> - **它只擋「安裝時」執行的腳本。** 套件本身的程式碼，在你的程式 `require` 或 `import` 它的時候照樣會執行；擋下安裝腳本，不代表這個套件就安全。
-> - **核准等於信任。** 核准過的腳本照樣用你的帳號執行，讀得到你讀得到的檔案。
-> - **釘版本只防「新版本」。** 如果你核准的那一版本身就有問題，釘版本幫不上忙。
-> - **`npm install-scripts` 不認得 workspaces**（同一個 repo 裡管理多個套件的功能），文件寫明它「unaware of workspaces」。
-> - **冷靜期會延後緊急修補。** 需要馬上更新時，要暫時排除那個套件。
-> - **lockfile 裡已經鎖定的版本會不會重新檢查冷靜期，文件沒有寫明。**
-> - **`--dangerously-allow-all-scripts` 會整個略過名單。** 文件寫它只是遷移時的應急手段，強烈不建議使用。
+> - **腳本核准不是沙箱。** 核准後仍用執行 npm 的帳號權限運作，不會自動限制檔案或網路存取。
+> - **套件載入與工具執行仍有風險。** `require`、`import` 或直接執行工具時，惡意程式仍可能執行。
+> - **釘版本只能限制核准範圍。** 如果核准的版本本身有問題，釘住它也不會變安全。
+> - **冷靜期不能代替審查與修補。** 放了很久的惡意版本仍可能被選到，緊急修補則可能需要受控的例外。
+> - **workspaces 要另外確認。** 官方文件註明 `npm install-scripts` 不會辨識 workspaces，不能假設加上 `-w` 就能分別管理每個 workspace 的政策。
+> - **其他設定可能覆寫政策。** `--ignore-scripts` 會讓已核准的腳本也不執行；`--dangerously-allow-all-scripts` 則會繞過核准與拒絕規則。不要把後者當成日常解法。
 {: .prompt-warning }
 
-## 什麼情況怎麼做
+## 常見情況怎麼處理
 
-| 我想… | 怎麼做 |
+| 情況 | 做法 |
 | --- | --- |
-| 知道哪些套件被擋 | `npm install-scripts ls`，只讀不改 |
-| 放行需要的套件 | `npm install-scripts approve <套件>`，預設釘版本；再 `npm rebuild <套件>` 補跑腳本 |
-| 擋掉不需要的套件 | `npm install-scripts deny <套件>`，之後也不會被 `approve --all` 改回來 |
-| 讓 CI 遇到沒審查的腳本就失敗 | 專案 `.npmrc` 加 `strict-allow-scripts=true` |
-| 套件升級後又被擋 | 看過新版腳本，再 `approve` 一次；用 `prune` 清掉舊項目 |
-| 不裝剛發布的版本 | `.npmrc` 加 `min-release-age=7` |
-| 自家套件要馬上能用 | `min-release-age-exclude[]=@你的組織/*` |
-| 緊急修補被冷靜期擋住 | 暫時把該套件加進 `min-release-age-exclude[]`，或暫時調小天數 |
-| 全域安裝或 npx 要跑腳本 | `npm install -g --allow-scripts=<套件>`，或 `npm config set allow-scripts=<套件> --location=user` |
-| 懷疑裝到 tensorlake 0.5.144 | 照公告：斷網、先移除 `gh-token-monitor`、換台乾淨電腦輪換憑證 |
+| 安裝成功，功能卻不能用 | 先查 `npm install-scripts ls`，確認需要的建置步驟是否被跳過 |
+| 核准後功能仍沒恢復 | 確認已執行 `npm rebuild <套件>`，再檢查 `ignore-scripts` 與建置紀錄 |
+| 同名套件有多個版本 | 逐版審查；按名稱核准會匹配所有已安裝版本 |
+| 升級 PR 的 CI 因待審腳本失敗 | 看過新版腳本後重新核准，把名單變動一起提交 |
+| 曾拒絕的套件現在需要放行 | 先移除對應拒絕規則，再審查與核准；`approve --all` 不會覆寫 `false` |
+| 核准時警告無法釘版本 | 檢查 lockfile 的 `resolved` 資訊，修復後重新產生並確認版本限定規則 |
+| 緊急修補被冷靜期擋住 | 確認來源後，暫時只排除該套件，更新與驗證完再移除例外 |
+| 全域安裝或一次性工具需要安裝腳本 | 指定工具與版本，再用 `--allow-scripts` 列出核准的腳本套件 |
 
-## 常見錯誤與處理
+先從現有專案的待審清單開始，讓必要的腳本在審查後恢復運作，再把名單與 `.npmrc` 一起交給團隊和 CI 使用。之後每次升級相依套件，也記得一起審查新版的腳本。
 
-- **升級後某個功能壞了，卻沒有錯誤訊息：** 安裝腳本被跳過時不會中斷安裝。翻一下 `npm install` 最後列出的套件，或執行 `npm install-scripts ls`。
-- **在專案裡加 `--allow-scripts` 結果報錯：** 這個參數只給全域安裝和 `npx` 用。專案請用 `npm install-scripts approve`。
-- **加 `-g` 執行 `npm install-scripts` 出現 `EGLOBAL`：** 全域安裝沒有 `package.json` 可寫，改用 `--allow-scripts` 或 `npm config set allow-scripts=...`。
-- **核准了卻一直出現在待審清單：** [文件](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)寫，lockfile 裡缺少下載網址（例如較舊的 lockfile）時，npm 沒辦法釘版本，會改成只寫名稱並發出警告。執行一次 `npm install` 更新 lockfile，就能恢復釘版本。
-- **Dependabot 等工具開的升級 PR，CI 開始失敗：** 有開 `strict-allow-scripts` 時，升級後的版本不在名單上，這是預期中的提醒。看過新版腳本後重新核准，把 `package.json` 一起 commit 到那個 PR。
-- **加了冷靜期後裝不起來：** 你指定的版本可能還不到 7 天。等幾天、改用較舊的版本，或確認它是不是該被排除的自家套件。
-- **以為拒絕過的套件會被 `approve --all` 放行：** 不會，`false` 永遠優先。真的要放行，先把那一項從 `allowScripts` 拿掉。
-
-## 結論與下一步
-
-升級到 npm 12 之後，先跑 `npm install-scripts ls`，核准真正需要的、拒絕其他的，把 `allowScripts` commit 進 repo；再在 `.npmrc` 加上 `min-release-age=7`。萬一真的裝到惡意套件，先讀那次事件的官方公告再動手，tensorlake 這次就是「先撤 token 反而出事」的例子。
-
-發布者那端怎麼拿掉長期 token，見[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)；AI 工具和 MCP 帶來的供應鏈風險，見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)；想把整條 AI 工作流的風險一次盤點，見[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
-
-官方說明以 [npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)、[npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)、[config](https://docs.npmjs.com/cli/v12/using-npm/config/) 與 GitHub 的 [npm v12 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)為準；tensorlake 事件以[官方安全公告 GHSA-8g63-53c9-65j2](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2) 為準。
+發布者端如何移除長期 token，見[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；AI 工具與 MCP 的相關風險，見[Coding Agent 供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)；更完整的工作流檢查，見[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
