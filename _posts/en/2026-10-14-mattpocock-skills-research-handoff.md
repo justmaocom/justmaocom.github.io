@@ -3,7 +3,7 @@ title: "mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning"
 description: "Not everything that slows a project down is code. Five skills (research, handoff, wizard, teach, and writing-for-agents), shown with a per-seat billing example."
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, research, handoff, documentation]
+tags: [agent-skills, coding-agent, research, handoff, documentation, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.en.webp

@@ -3,7 +3,7 @@ title: "mattpocock/skills 系列（4）：AI 開工寫程式前，先決定要�
 description: "工作單準備好後，AI 會同時寫程式與測試。本文說明 implement、tdd、diagnosing-bugs 與 prototype 各自靠什麼判斷做對了，並用按席次計費的例子實際跑一輪從紅燈到綠燈的測試。"
 date: 2026-09-29 15:32:58 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
+tags: [agent-skills, coding-agent, tdd, debugging, prototyping, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
   path: cover.webp

@@ -3,7 +3,7 @@ title: "Herdr 桌面 App 入门：用 space 与标签页管理多个 AI"
 description: "用 Herdr 桌面 App 把每个 repo 放进 space、每件工作放进标签页，从 agents 侧边栏一眼看出哪个 AI 在等你；本文依 v0.1.15 官方文档，说明安装、四种状态、关窗后的行为与遥测设置。"
 date: 2026-11-12 17:00:00 +0800
 categories: [AI, 软件开发]
-tags: [coding-agent, workflow, claude-code, codex]
+tags: [coding-agent, workflow, claude-code, codex, herdr]
 media_subpath: /assets/img/posts/herdr-app-desktop-manage-ai-agents/
 image:
   path: cover.zh-CN.webp

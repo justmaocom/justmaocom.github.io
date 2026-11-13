@@ -3,7 +3,7 @@ title: "mattpocock/skills 系列（5）：程式寫完之後，誰來看結構�
 description: "測試通過不代表一切都好。本文介紹 codebase-design、improve-codebase-architecture、code-review 與 resolving-merge-conflicts 四個 skill，並用按席次計費的例子實際做出一次合併衝突。"
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, code-review, software-architecture, git]
+tags: [agent-skills, coding-agent, code-review, software-architecture, git, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.webp

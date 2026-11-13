@@ -3,7 +3,7 @@ title: "mattpocock/skills 系列（2）：把模糊需求问清楚，留下共�
 description: "拆解 grill-me 与 grill-with-docs 的访谈流程，说明如何按照问题的先后关系厘清需求，并把确认过的词汇与少数重要决策写回项目。"
 date: 2026-09-21 15:04:43 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, requirements, domain-modeling]
+tags: [agent-skills, coding-agent, requirements, domain-modeling, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
   path: cover.zh-CN.webp

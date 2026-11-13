@@ -3,7 +3,7 @@ title: "pstack, Part 2: Understand the Code, Then Design, Before You Change It"
 description: "Get AI to understand code and compare designs before changing it: when to use pstack's /how, /why, /architect, /interrogate, and /arena, and how to prompt them."
 date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-understand-design/
 image:
   path: cover.en.webp

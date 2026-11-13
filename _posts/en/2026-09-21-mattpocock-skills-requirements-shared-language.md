@@ -3,7 +3,7 @@ title: "mattpocock/skills, Part 2: From Vague Requirements to Shared Terms"
 description: "grill-me and grill-with-docs clarify requirements with questions in dependency order; only grill-with-docs writes agreed terms and decisions into the project."
 date: 2026-09-21 15:04:43 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, requirements, domain-modeling]
+tags: [agent-skills, coding-agent, requirements, domain-modeling, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
   path: cover.en.webp

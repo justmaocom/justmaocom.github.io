@@ -3,7 +3,7 @@ title: "herdr 入門：在終端機同時跑多個 AI，找出卡住的那個"
 description: "用 brew 或 mise 安裝 herdr，為每個 AI 開獨立的 worktree 與 pane，從側欄找出卡住的那個，離開後再接回來。"
 date: 2026-11-12 08:00:00 +0800
 categories: [AI, 軟體開發]
-tags: [coding-agent, workflow, git, claude-code, codex]
+tags: [coding-agent, workflow, git, claude-code, codex, herdr]
 media_subpath: /assets/img/posts/herdr-run-multiple-ai-agents/
 image:
   path: cover.webp

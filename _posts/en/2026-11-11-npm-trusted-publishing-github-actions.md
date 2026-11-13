@@ -2,8 +2,8 @@
 title: "npm Trusted Publishing With GitHub Actions: A Setup Guide"
 description: "How to set up npm trusted publishing with GitHub Actions, what you get after it works, and how to retire old tokens."
 date: 2026-11-11 13:00:00 +0800
-categories: [Security]
-tags: [supply-chain-security, github-actions, ci, application-security]
+categories: [Security, Supply Chain]
+tags: [supply-chain-security, github-actions, ci, application-security, npm]
 media_subpath: /assets/img/posts/npm-trusted-publishing-github-actions/
 image:
   path: cover.en.webp

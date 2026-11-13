@@ -2,8 +2,8 @@
 title: "npm Trusted Publishing 設定教學：發套件不再放長期 token"
 description: "在 GitHub Actions 用 Trusted Publishing 發布 npm 套件，不必放長期 token。這篇教你怎麼設定，以及設好後怎麼收掉舊權杖。"
 date: 2026-11-11 13:00:00 +0800
-categories: [資訊安全]
-tags: [supply-chain-security, github-actions, ci, application-security]
+categories: [資訊安全, 供應鏈]
+tags: [supply-chain-security, github-actions, ci, application-security, npm]
 media_subpath: /assets/img/posts/npm-trusted-publishing-github-actions/
 image:
   path: cover.webp

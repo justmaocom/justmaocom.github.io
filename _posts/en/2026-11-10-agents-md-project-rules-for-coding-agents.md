@@ -3,7 +3,7 @@ title: "How to Write AGENTS.md: Give Coding Agents Your Project Rules"
 description: "How to write AGENTS.md, how Codex and Claude Code each load it, and how to share one file between both tools."
 date: 2026-11-10 18:00:00 +0800
 categories: [AI, Software Development]
-tags: [coding-agent, codex, claude-code, workflow, documentation]
+tags: [coding-agent, codex, claude-code, workflow, documentation, agents-md]
 media_subpath: /assets/img/posts/agents-md-project-rules-for-coding-agents/
 image:
   path: cover.webp

@@ -2,8 +2,8 @@
 title: "CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)"
 description: "I explain who is affected by CVE-2026-123158, how to check an Alpine host, how to update safely, and what to do if patching has to wait."
 date: 2026-11-07 18:00:00 +0800
-categories: [Security]
-tags: [application-security]
+categories: [Security, Vulnerability Patching]
+tags: [application-security, openssh, alpine]
 media_subpath: /assets/img/posts/openssh-musl-password-bypass-alpine/
 image:
   path: cover-en.webp

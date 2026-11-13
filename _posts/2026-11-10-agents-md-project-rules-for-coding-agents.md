@@ -3,7 +3,7 @@ title: "AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則"
 description: "同時用 Codex 和 Claude Code 時，不必維護兩份互相漂移的規則。這篇教你怎麼寫 AGENTS.md、兩個工具各自怎麼讀，以及怎麼讓一份檔案兩邊共用。"
 date: 2026-11-10 18:00:00 +0800
 categories: [AI, 軟體開發]
-tags: [coding-agent, codex, claude-code, workflow, documentation]
+tags: [coding-agent, codex, claude-code, workflow, documentation, agents-md]
 media_subpath: /assets/img/posts/agents-md-project-rules-for-coding-agents/
 image:
   path: cover.webp
