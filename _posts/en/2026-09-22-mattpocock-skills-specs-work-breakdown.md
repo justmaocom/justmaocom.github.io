@@ -3,7 +3,7 @@ title: "mattpocock/skills, Part 3: Spec, Tickets, or More Questions?"
 description: "Spec, tickets, or a questionnaire? Using per-seat billing, this post maps which gap each of to-spec, to-tickets, triage, wayfinder, and to-questionnaire fills."
 date: 2026-09-22 15:05:23 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, requirements, project-planning]
+tags: [agent-skills, coding-agent, requirements, project-planning, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
   path: cover.en.webp

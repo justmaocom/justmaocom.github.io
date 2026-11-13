@@ -3,7 +3,7 @@ title: "mattpocock/skills 系列（6）：查资料、做交接、学新东西�
 description: "写代码之外，还有很多事会拖慢进度：查资料、交接给下一个人、设置只有你能动手的账号、学一个新主题。本文介绍 research、handoff、wizard、teach 与 writing-for-agents 五个 skill，并沿用按席位计费的例子走一遍。"
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, research, handoff, documentation]
+tags: [agent-skills, coding-agent, research, handoff, documentation, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-research-handoff/
 image:
   path: cover.zh-CN.webp

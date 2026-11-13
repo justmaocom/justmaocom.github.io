@@ -3,7 +3,7 @@ title: "pstack, Part 1: Install, Pick Models, Start With /poteto-mode"
 description: "A step-by-step guide to pstack in Claude Code or Cursor: install it, check or pin the version, pick models with /setup-pstack, and write tasks for /poteto-mode."
 date: 2026-10-22 15:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-install-routing/
 image:
   path: cover.en.webp

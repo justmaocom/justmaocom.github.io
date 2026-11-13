@@ -3,7 +3,7 @@ title: "mattpocock/skills, Part 4: Trusting Code When the AI Writes the Tests"
 description: "When the AI writes both code and tests, how do you know it works? What implement, tdd, diagnosing-bugs, and prototype rely on, with a real red-to-green test."
 date: 2026-09-29 15:32:58 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, tdd, debugging, prototyping]
+tags: [agent-skills, coding-agent, tdd, debugging, prototyping, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-implementation-feedback-loops/
 image:
   path: cover.en.webp

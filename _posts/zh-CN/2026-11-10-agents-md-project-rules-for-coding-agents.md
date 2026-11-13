@@ -3,7 +3,7 @@ title: "AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则"
 description: "同时使用 Codex 和 Claude Code 时，不必维护两份互相脱节的规则。这篇文章教你怎么写 AGENTS.md、两个工具各自怎么读，以及怎么让一份文件两边共用。"
 date: 2026-11-10 18:00:00 +0800
 categories: [AI, 软件开发]
-tags: [coding-agent, codex, claude-code, workflow, documentation]
+tags: [coding-agent, codex, claude-code, workflow, documentation, agents-md]
 media_subpath: /assets/img/posts/agents-md-project-rules-for-coding-agents/
 image:
   path: cover.webp

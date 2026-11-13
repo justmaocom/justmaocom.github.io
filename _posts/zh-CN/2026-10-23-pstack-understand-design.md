@@ -3,7 +3,7 @@ title: "pstack 系列（2）：改代码之前，先看懂再设计"
 description: "改代码之前，怎么让 AI 先看懂现有代码、再比较几种设计？这篇教你在 Claude Code 用 pstack 的 /how、/why、/architect、/interrogate 和 /arena：什么时候用、命令怎么写、会拿到什么、下一步怎么接。"
 date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-understand-design/
 image:
   path: cover.zh-CN.webp

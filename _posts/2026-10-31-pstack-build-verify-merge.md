@@ -3,7 +3,7 @@ title: "pstack 系列（3）：寫完程式之後，先證明它能用再合併"
 description: "程式寫完，怎麼證明它真的能用、沒有弄壞別處，再推到可以合併？這篇教你在 Claude Code 用 pstack 的 feature／bug-fix playbook、/tdd、清理、驗證 skill、開 PR 和 babysit。"
 date: 2026-10-31 15:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-build-verify-merge/
 image:
   path: cover.webp

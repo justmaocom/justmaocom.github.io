@@ -3,7 +3,7 @@ title: "OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补"
 description: "我整理了 OpenSSH 密码验证绕过漏洞 CVE-2026-123158 的受影响条件，说明 Alpine 用户如何检查主机、安全更新，以及暂时无法更新时的处理方式。"
 date: 2026-11-07 18:00:00 +0800
 categories: [信息安全]
-tags: [application-security]
+tags: [application-security, openssh, alpine]
 media_subpath: /assets/img/posts/openssh-musl-password-bypass-alpine/
 image:
   path: cover-zh-cn.webp

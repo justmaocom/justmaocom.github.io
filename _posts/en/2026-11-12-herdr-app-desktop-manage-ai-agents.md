@@ -3,7 +3,7 @@ title: "Herdr Desktop App: Manage AI Agents With Spaces and Tabs"
 description: "Keep each repo in a space and each task in a tab in the Herdr desktop app, see which AI agent needs you, and manage telemetry, per the v0.1.15 docs."
 date: 2026-11-12 17:00:00 +0800
 categories: [AI, Software Development]
-tags: [coding-agent, workflow, claude-code, codex]
+tags: [coding-agent, workflow, claude-code, codex, herdr]
 media_subpath: /assets/img/posts/herdr-app-desktop-manage-ai-agents/
 image:
   path: cover.en.webp

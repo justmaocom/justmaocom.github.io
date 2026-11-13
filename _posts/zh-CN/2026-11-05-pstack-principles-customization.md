@@ -3,7 +3,7 @@ title: "pstack 系列（4）：用原则指挥 AI、做出自己的 mode，再�
 description: "怎么用原则名称调整 AI 的做法？怎么把工作习惯整理成自己的 mode？让 AI 无人值守运行前，要设好哪些边界？这篇介绍在 Claude Code 使用 pstack 原则、/automate-me、/reflect、/correct 和 /show-me-your-work 的方法。"
 date: 2026-11-05 10:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, cursor, claude-code]
+tags: [agent-skills, coding-agent, workflow, cursor, claude-code, pstack]
 media_subpath: /assets/img/posts/pstack-principles-customization/
 image:
   path: cover.zh-CN.webp

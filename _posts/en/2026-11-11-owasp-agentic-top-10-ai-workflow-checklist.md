@@ -3,7 +3,7 @@ title: "OWASP Agentic Top 10 Checklist: Audit Your AI Workflow"
 description: "Turn the OWASP Agentic Top 10 into ten yes/no checks for your coding agent, MCP servers, and CI, with a fix for each yes."
 date: 2026-11-11 16:00:00 +0800
 categories: [Security, AI Agents]
-tags: [ai-security, coding-agent, prompt-injection, mcp, claude-code]
+tags: [ai-security, coding-agent, prompt-injection, mcp, claude-code, owasp]
 media_subpath: /assets/img/posts/owasp-agentic-top-10-ai-workflow-checklist/
 image:
   path: cover.en.webp

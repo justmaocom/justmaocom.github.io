@@ -3,7 +3,7 @@ title: "herdr Tutorial: Run Multiple AI Agents in One Terminal"
 description: "Install herdr with brew or mise, give each AI its own worktree and pane, spot the blocked one in the sidebar, then detach and come back."
 date: 2026-11-12 08:00:00 +0800
 categories: [AI, Software Development]
-tags: [coding-agent, workflow, git, claude-code, codex]
+tags: [coding-agent, workflow, git, claude-code, codex, herdr]
 media_subpath: /assets/img/posts/herdr-run-multiple-ai-agents/
 image:
   path: cover.en.webp

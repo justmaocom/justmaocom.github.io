@@ -3,7 +3,7 @@ title: "pstack, Part 4: Steer With Principles, Build Your Own Mode, and Let It R
 description: "Change how the AI works with one principle name, turn your habits into your own mode, and set limits before it runs unattended, using pstack in Claude Code."
 date: 2026-11-05 10:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, cursor, claude-code]
+tags: [agent-skills, coding-agent, workflow, cursor, claude-code, pstack]
 media_subpath: /assets/img/posts/pstack-principles-customization/
 image:
   path: cover.en.webp

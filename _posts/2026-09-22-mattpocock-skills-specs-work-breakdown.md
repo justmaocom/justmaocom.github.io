@@ -3,7 +3,7 @@ title: "mattpocock/skills 系列（3）：先找出缺口，再決定要寫規�
 description: "需求談完後，下一步該寫規格、拆工作單，還是去問握有答案的人？本文以按席次計費為例，說明 to-spec、to-tickets、triage、wayfinder 與 to-questionnaire 各自補上哪一種缺口。"
 date: 2026-09-22 15:05:23 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, requirements, project-planning]
+tags: [agent-skills, coding-agent, requirements, project-planning, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-specs-work-breakdown/
 image:
   path: cover.webp

@@ -3,7 +3,7 @@ title: "mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts"
 description: "Passing tests don't mean you're done. Four skills for checking structure, reviewing changes, and resolving merge conflicts, using the per-seat billing example."
 date: 2026-10-14 10:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, code-review, software-architecture, git]
+tags: [agent-skills, coding-agent, code-review, software-architecture, git, mattpocock]
 media_subpath: /assets/img/posts/mattpocock-skills-design-review-integration/
 image:
   path: cover.en.webp

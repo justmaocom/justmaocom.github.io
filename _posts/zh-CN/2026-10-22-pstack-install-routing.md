@@ -3,7 +3,7 @@ title: "pstack 系列（1）：安装、选模型，再用 /poteto-mode 挑 play
 description: "一步一步教你在 Claude Code 或 Cursor 安装 pstack、检查和固定版本、用 /setup-pstack 选模型，以及怎么写 /poteto-mode 的任务描述，让它替你挑 playbook。"
 date: 2026-10-22 15:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-install-routing/
 image:
   path: cover.zh-CN.webp

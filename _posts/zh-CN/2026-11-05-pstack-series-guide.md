@@ -3,7 +3,7 @@ title: "pstack 系列导读：这套 skill 是什么、四篇该怎么读"
 description: "还在考虑要不要用 pstack，或只想解决其中一个问题？这篇导读说明这套 skill 是什么、四篇怎么串，并依你的情况建议从哪一篇读起。"
 date: 2026-11-05 18:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-series-guide/
 image:
   path: cover.zh-CN.webp

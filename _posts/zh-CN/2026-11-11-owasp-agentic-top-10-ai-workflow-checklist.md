@@ -3,7 +3,7 @@ title: "OWASP Agentic Top 10 检查表：AI 工作流十项风险与修复方法
 description: "把 OWASP Agentic Top 10 整理成十道是／否检查，用来对照你的 coding agent、MCP 与 CI，并附上可着手的修复方法。"
 date: 2026-11-11 16:00:00 +0800
 categories: [信息安全, AI Agent]
-tags: [ai-security, coding-agent, prompt-injection, mcp, claude-code]
+tags: [ai-security, coding-agent, prompt-injection, mcp, claude-code, owasp]
 media_subpath: /assets/img/posts/owasp-agentic-top-10-ai-workflow-checklist/
 image:
   path: cover.zh-CN.webp

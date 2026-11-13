@@ -3,7 +3,7 @@ title: "pstack Series Guide: What It Is and How to Read the Four Parts"
 description: "Still deciding on pstack, or only need one piece? This guide covers what it is, how the four parts connect, and which to read first."
 date: 2026-11-05 18:00:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-series-guide/
 image:
   path: cover.en.webp

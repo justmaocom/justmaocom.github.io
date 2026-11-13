@@ -3,7 +3,7 @@ title: "pstack, Part 3: After the Code Is Written, Prove It Works Before Merging
 description: "Prove a change works before merging with pstack in Claude Code: the feature and bug-fix playbooks, /tdd, cleanup and verification skills, PRs, and babysit."
 date: 2026-10-31 15:30:00 +0800
 categories: [AI, skills]
-tags: [agent-skills, coding-agent, workflow, claude-code, cursor]
+tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
 media_subpath: /assets/img/posts/pstack-build-verify-merge/
 image:
   path: cover.en.webp
