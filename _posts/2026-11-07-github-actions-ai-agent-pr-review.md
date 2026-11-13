@@ -63,7 +63,7 @@ AI 審查的長處是能讀懂文字、比對前後說法，找出需要推理�
 
 ## 案例：PR #29 審完之後，內容又改了
 
-這個 PR 新增三語版本的 [pstack 系列導讀](/posts/pstack-series-guide/)，同時修改四篇文章的導覽連結，涵蓋正體中文、英文與簡體中文。
+這個 PR 新增三語版本的 [pstack 系列導讀](/posts/pstack-series-guide/)，同時修改四篇文章的導覽連結，涵蓋正體中文、英文與簡體中文。本站三個語系怎麼維護，見[Jekyll 多語系部落格：用 polyglot 維護繁簡英三版](/posts/jekyll-blog-three-languages/)。
 
 要判斷「審的是哪一版」，得先認得版本編號。每個 commit 都有一組由英文字母和數字組成的唯一編號，稱為 **SHA**，本文只列出前七碼；PR 當下最新的那個 commit，則稱為 **head**。這個案例只需要看兩個版本：
 

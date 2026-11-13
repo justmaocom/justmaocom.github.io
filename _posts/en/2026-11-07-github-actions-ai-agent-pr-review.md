@@ -63,7 +63,7 @@ AI review is good at reading prose, comparing claims, and spotting issues that t
 
 ## Case Study: PR #29 Changed After Its Review
 
-The PR added the [pstack series guide](/posts/pstack-series-guide/) and updated navigation links in four articles, across Traditional Chinese, English, and Simplified Chinese.
+The PR added the [pstack series guide](/posts/pstack-series-guide/) and updated navigation links in four articles, across Traditional Chinese, English, and Simplified Chinese. For how this site maintains its three language versions, see [Multilingual Jekyll Blog With Polyglot and hreflang](/posts/jekyll-blog-three-languages/).
 
 To tell which version was reviewed, you need version identifiers. Each commit has a unique string of letters and digits called a **SHA**; this article shows only the first seven characters. A PR's latest commit at any given moment is its **head**. Only two versions matter here:
 

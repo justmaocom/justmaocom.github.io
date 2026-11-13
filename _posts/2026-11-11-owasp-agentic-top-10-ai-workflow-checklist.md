@@ -354,6 +354,6 @@ _概念圖：十題是／否自我檢查。這十題是本站依官方十項整�
 
 ## 結論與下一步
 
-今天先做盤點、把十題答完，再從「做了就收不回」的項目開始修。把規則檔和權限設定放進 git，之後每加一個工具，就再跑一輪。自動化檢查可看[hooks 篇](/posts/claude-code-hooks-automate-checks/)，規則檔可看[AGENTS.md 篇](/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期憑證可看[npm Trusted Publishing 篇](/posts/npm-trusted-publishing-github-actions/)。
+今天先做盤點、把十題答完，再從「做了就收不回」的項目開始修。把規則檔和權限設定放進 git，之後每加一個工具，就再跑一輪。自動化檢查可看[hooks 篇](/posts/claude-code-hooks-automate-checks/)，規則檔可看[AGENTS.md 篇](/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期憑證可看[npm Trusted Publishing 篇](/posts/npm-trusted-publishing-github-actions/)，沙箱設定可看[Claude Code 沙箱篇](/posts/claude-code-sandbox-setup/)。
 
 官方來源是 OWASP GenAI Security Project 的〈[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)〉（[PDF](https://genai.owasp.org/download/52117/)，CC BY-SA 4.0）。工具文件可看 [Claude Code permissions](https://code.claude.com/docs/en/permissions)、[permission modes](https://code.claude.com/docs/en/permission-modes)、[sandboxing](https://code.claude.com/docs/en/sandboxing)、[security](https://code.claude.com/docs/en/security)、[Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)、[Cursor Agent Security](https://cursor.com/docs/agent/security)、[MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)，以及 [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use)。
