@@ -18,7 +18,7 @@ image:
 
 这份清单原本是写给构建 agent 系统的组织。我把十项转成个人工作流也能回答的十道题，每题附上修复方法。分组、场景、检查题和修复顺序都是本站整理，**不是** OWASP 官方的“个人开发者检查表”。十项依次编号为 ASI01 到 ASI10；编号只是编号，不代表严重程度。
 
-本文范围是个人开发者的 coding agent 工作流，例如 Claude Code、Codex、Cursor 的 agent，以及接在上面的 MCP（让 agent 连接外部工具的标准）和 GitHub Actions（GitHub 的自动化流程服务）。另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)从“装了什么”讲攻击面（可能被攻击的地方）；这篇则用 OWASP 的十项，把整个工作流扫一遍。那篇已经详细写过的案例，这里不再重讲。
+本文范围是个人开发者的 coding agent 工作流，例如 Claude Code、Codex、Cursor 的 agent，以及接在上面的 MCP（让 agent 连接外部工具的标准）和 GitHub Actions（GitHub 的自动化流程服务）。另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)从“装了什么”讲攻击面（可能被攻击的地方）；这篇则用 OWASP 的十项，把整个工作流扫一遍。那篇已经详细写过的案例，这里不再重讲。
 
 > **版本说明**：本文依 OWASP《OWASP Top 10 for Agentic Applications 2026》（2025 年 12 月发布，2026-11-11 重新核对仍是最新版）与各工具 2026-11-11 的官方文档撰写。Claude Code、Codex、Cursor 的默认权限近期都有调整，设置名称与默认值以官方文档为准。
 {: .prompt-info }
@@ -111,7 +111,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - 读外部内容时，切到不会直接改文件的模式。例如 Codex 的只读沙箱（`--sandbox read-only`）；或 Claude Code 的 plan 模式，官方说明这个模式会读文件、可以跑命令来探索，但在你批准计划之前不改源代码（少数情况例外，见 [permission modes](https://code.claude.com/docs/en/permission-modes) 文档）。各模式实际能做什么，以各工具官方文档为准。
 - 像 `git push`（把代码推送到远程仓库）、删文件这类高影响动作，设成要先问你。Claude Code 的权限规则分三种：`deny`（禁止）、`ask`（先问）、`allow`（直接放行）。规则的格式像官方示例 `Bash(rm *)`，代表以 `rm`（删除）开头的终端命令。
 - 按官方 [permission modes](https://code.claude.com/docs/en/permission-modes) 文档，明确写成 `ask` 的规则，不会被任何模式自动批准；可以对照文档里“Actions no mode auto-approves”那一段。
-- 细节与案例见[供应链篇](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)。
+- 细节与案例见[供应链篇](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ### ASI02 Tool Misuse and Exploitation：合法工具被用在错的地方
 
@@ -127,7 +127,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - 特别留意“整批放行”的写法：`mcp__<server>__*` 代表某个 MCP server 的所有工具。它如果出现在 allow 里，那个 server 的每个工具都不会再问你。只想放行其中一个，就写完整名称 `mcp__<server>__<tool>`。
 - Cursor：检查 MCP allowlist 里，是不是只有你真正需要的工具。
 - OWASP 也建议设用量上限：费用、调用次数或 token 预算。这里的 token 是 AI 计算用量的单位，不是前面说的凭证。
-- 更完整的权限与自动执行说明，见[供应链篇](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)。
+- 更完整的权限与自动执行说明，见[供应链篇](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ### ASI03 Identity and Privilege Abuse：身份与权限滥用
 
@@ -143,7 +143,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - Claude Code 可以用 deny 规则挡住文件工具读取，官方文档的示例有 `Read(./.env)`、`Read(./secrets/**)`，以及 `Read(~/.ssh/**)`。写好后，用 `/permissions` 确认规则已经在列表里。
 - 这里有两个容易卡住的地方。第一，官方文档写明 `.claudeignore` 文件没有作用，要挡就用 deny 规则。第二，`Read` deny 规则不是万能的。按 [permissions](https://code.claude.com/docs/en/permissions) 文档，它挡得住 Claude 的文件工具，以及 `cat`、`head` 这类它认得的读文件命令；但挡不住自己打开文件的程序，例如 Python 或 Node 脚本。要让所有程序都读不到，就要开沙箱（见 ASI05）。
 - Cursor 可以用 `.cursorignore` 挡住 agent 访问特定文件。
-- CI 发布包时如果还在用长期 npm token，可以改用短期凭证。这是本站的对照例子，不是 OWASP 原文提到的做法，说明见[npm Trusted Publishing 设置教程：发布包不再放长期 token](/zh-CN/posts/npm-trusted-publishing-github-actions/)。
+- CI 发布包时如果还在用长期 npm token，可以改用短期凭证。这是本站的对照例子，不是 OWASP 原文提到的做法，说明见[npm Trusted Publishing 设置教程：发布包不再放长期 token](/posts/npm-trusted-publishing-github-actions/)。
 - 在 GitHub Actions 里跑的程序，可以用 workflow 的 `GITHUB_TOKEN` 操作你的 repo。GitHub 建议把它的默认权限设成只能读 repo 内容：在 workflow 顶层写 `permissions: contents: read`，个别 job（workflow 里的一组任务）真正需要时再打开。做法见 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 
 ### ASI04 Agentic Supply Chain Vulnerabilities：供应链
@@ -158,7 +158,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 - 先列清单。Claude Code 的 [security 文档](https://code.claude.com/docs/en/security) 提醒：只看 `.mcp.json`，看不到这个 session（一次工作会话）能加载的全部 server；而且 Anthropic 不替任何 MCP server 做安全审计。
 - 装之前看启动命令。MCP 官方 [Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) 说明，本地 MCP server 是下载到你电脑上运行的程序，权限和你的账号一样大；攻击者也可能把恶意的启动命令塞进配置文件。所以要看完整、没被截断的启动命令，再明确批准。
-- 锁定版本的细节见[供应链篇](/zh-CN/posts/coding-agent-supply-chain-permission-risks/)。
+- 锁定版本的细节见[供应链篇](/posts/coding-agent-supply-chain-permission-risks/)。
 - GitHub Actions 里的第三方 action（别人写好、可以直接放进 workflow 的步骤）也算供应链。GitHub 文档提醒，只要其中一个 action 被入侵，它就拿得到 repo 配置的所有 secrets（加密存放的密码与密钥）。
 - 锁定第三方 action：GitHub 目前最推荐用 workflow 依赖 lockfile（锁定文件，记录每个依赖确切版本的文件）锁定，文件是 `.github/workflows/actions.lock`，由 `gh actions-lock` 生成；还没采用的话，把 action pin（固定）到完整的 commit SHA，也就是每次提交独一无二的编号。说明见 [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)。
 
@@ -172,7 +172,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 **怎么修：** 先说结论：让它跑的命令关在隔离环境里，碰不到生产环境，也读不到你的凭证。
 
-- OWASP 的对策：不要让 agent 直接连到生产环境；不要用 root（系统最高权限账号）运行；能隔离就放进沙箱或容器（和主机隔开的独立运行环境），文件系统尽量只开一个专用工作目录。想把两个任务彻底分开，可以参考[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/zh-CN/posts/git-worktree-parallel-ai-agents/)。
+- OWASP 的对策：不要让 agent 直接连到生产环境；不要用 root（系统最高权限账号）运行；能隔离就放进沙箱或容器（和主机隔开的独立运行环境），文件系统尽量只开一个专用工作目录。想把两个任务彻底分开，可以参考[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)。
 - Claude Code：先用 `/sandbox` 或设置里的 `sandbox.enabled` 确认沙箱有没有开。开了之后，到 [sandboxing 文档](https://code.claude.com/docs/en/sandboxing) 的默认值表确认三件事：能读哪些地方（特别是 `~/.ssh`、`~/.aws/credentials` 这类凭证文件）、能连哪些网站，以及会继承哪些环境变量。读取范围可以用 `filesystem.denyRead` 或 `permissions.blockReadsOutsideWorkingDirectories` 收紧。下面是官方的项目设置示例，放在项目的 `.claude/settings.json`，作用是挡掉整个用户主目录的读取，只开放当前项目：
 
 ```json
@@ -204,9 +204,9 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 **怎么修：** 先说结论：这些文件都放进 git，每次改动都要你看过才算数。
 
-- OWASP 对策 7 是用版本控制和快照，需要时能回退。实际做法：把规则文件放进 git，改动先看 diff 再接受。规则文件怎么写，见[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/zh-CN/posts/agents-md-project-rules-for-coding-agents/)。
+- OWASP 对策 7 是用版本控制和快照，需要时能回退。实际做法：把规则文件放进 git，改动先看 diff 再接受。规则文件怎么写，见[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。
 - OWASP 对策 6：不要让 agent 自动把自己的输出写回“可信的记忆”。
-- Claude Code 可以用 `ConfigChange` hook 审计或挡住 session 中的设置变更。hook 是在特定时机自动执行的检查脚本；`ConfigChange` 会在配置文件被改动时触发。细节见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/zh-CN/posts/claude-code-hooks-automate-checks/)。
+- Claude Code 可以用 `ConfigChange` hook 审计或挡住 session 中的设置变更。hook 是在特定时机自动执行的检查脚本；`ConfigChange` 会在配置文件被改动时触发。细节见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ### ASI07 Insecure Inter-Agent Communication：agent 间通信
 
@@ -234,7 +234,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - OWASP 对策 5 也是这个意思：高风险的输出往下游传之前，要有检查点或人工审查。
 - 别让自动化自己批准自己。GitHub 文档说明可以设置不让 GitHub Actions 创建或批准 pull request（PR，请求把改动合并进来的申请），因为 PR 没经过适当审查就被合并，可能带来安全风险。见 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 - 在 GitHub 上，可以给主分支设置分支保护规则（branch protection rule）：例如开启“Require pull request reviews before merging”（合并前要有人审查）和“Require status checks before merging”（指定的 CI 检查通过才能合并），再开启“Do not allow bypassing the above settings”，连管理员也不能跳过。GitHub Free 方案只能在公开 repo 使用这个功能，说明见 [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
-- 如果你已经在用 AI 帮 PR 做审查，可以一并看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/zh-CN/posts/github-actions-ai-agent-pr-review/)。重点是：审查结果不能自动变成收不回的合并。
+- 如果你已经在用 AI 帮 PR 做审查，可以一并看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。重点是：审查结果不能自动变成收不回的合并。
 - 第三方 action 的版本锁定属于供应链问题，写在 ASI04。
 
 ### ASI09 Human-Agent Trust Exploitation：过度信任 agent
@@ -354,6 +354,6 @@ _概念图：十道是／否自我检查。这十题是本站按官方十项整�
 
 ## 结论与下一步
 
-今天先做盘点、把十题答完，再从“做了就收不回”的项目开始修。把规则文件和权限设置放进 git，之后每加一个工具，就再跑一轮。自动化检查可看[hooks 篇](/zh-CN/posts/claude-code-hooks-automate-checks/)，规则文件可看[AGENTS.md 篇](/zh-CN/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期凭证可看[npm Trusted Publishing 篇](/zh-CN/posts/npm-trusted-publishing-github-actions/)，沙箱设置可看[Claude Code 沙箱篇](/posts/claude-code-sandbox-setup/)。
+今天先做盘点、把十题答完，再从“做了就收不回”的项目开始修。把规则文件和权限设置放进 git，之后每加一个工具，就再跑一轮。自动化检查可看[hooks 篇](/posts/claude-code-hooks-automate-checks/)，规则文件可看[AGENTS.md 篇](/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期凭证可看[npm Trusted Publishing 篇](/posts/npm-trusted-publishing-github-actions/)，沙箱设置可看[Claude Code 沙箱篇](/posts/claude-code-sandbox-setup/)。
 
 官方来源是 OWASP GenAI Security Project 的《[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)》（[PDF](https://genai.owasp.org/download/52117/)，CC BY-SA 4.0）。工具文档可看 [Claude Code permissions](https://code.claude.com/docs/en/permissions)、[permission modes](https://code.claude.com/docs/en/permission-modes)、[sandboxing](https://code.claude.com/docs/en/sandboxing)、[security](https://code.claude.com/docs/en/security)、[Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)、[Cursor Agent Security](https://cursor.com/docs/agent/security)、[MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)，以及 [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use)。

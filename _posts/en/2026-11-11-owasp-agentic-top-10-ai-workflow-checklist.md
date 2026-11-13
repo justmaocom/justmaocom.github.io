@@ -18,7 +18,7 @@ The questions are based on the [OWASP Top 10 for Agentic Applications 2026](http
 
 The list was written for organizations that build agent systems. I turned its ten items into ten questions a personal workflow can answer, each with a fix. The grouping, scenarios, self-check questions, and fix order are this site's own organization, **not** an official OWASP "checklist for individual developers." The ten items are numbered ASI01 through ASI10; the numbers are identifiers only and do not rank severity.
 
-The scope is a personal developer's coding-agent workflow: agents such as Claude Code, Codex, and Cursor, plus the MCP servers (MCP is a standard for connecting agents to external tools) and GitHub Actions (GitHub's automation service) attached to them. [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/en/posts/coding-agent-supply-chain-permission-risks/) starts from what you installed and walks through the attack surface (the places you can be attacked); this post uses OWASP's ten items to scan the whole workflow. Cases already covered there are not retold here.
+The scope is a personal developer's coding-agent workflow: agents such as Claude Code, Codex, and Cursor, plus the MCP servers (MCP is a standard for connecting agents to external tools) and GitHub Actions (GitHub's automation service) attached to them. [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/) starts from what you installed and walks through the attack surface (the places you can be attacked); this post uses OWASP's ten items to scan the whole workflow. Cases already covered there are not retold here.
 
 > **Version note:** This article follows the OWASP Top 10 for Agentic Applications 2026 (published December 2025; rechecked on 2026-11-11 and still the current edition) and each tool's official docs as of 2026-11-11. Default permissions in Claude Code, Codex, and Cursor have shifted recently, so treat names and defaults in the official docs as authoritative.
 {: .prompt-info }
@@ -111,7 +111,7 @@ A few reading notes:
 - While it reads outside content, switch to a mode that does not edit files directly, such as Codex's read-only sandbox (`--sandbox read-only`) or Claude Code's plan mode. The official docs say plan mode reads files and may run commands to explore, but does not edit your source until you approve the plan (with a few exceptions; see the [permission modes](https://code.claude.com/docs/en/permission-modes) docs). What each mode actually allows is defined in each tool's official docs.
 - Set high-impact actions such as `git push` (sending your code to the remote repo) or file deletion to ask first. Claude Code has three kinds of permission rules: `deny` (block), `ask` (ask first), and `allow` (run without asking). Rules look like the official example `Bash(rm *)`, which covers terminal commands that start with `rm` (delete).
 - According to the official [permission modes](https://code.claude.com/docs/en/permission-modes) docs, an explicit `ask` rule is not auto-approved by any mode; see the "Actions no mode auto-approves" section there.
-- Details and cases are in the [supply-chain post](/en/posts/coding-agent-supply-chain-permission-risks/).
+- Details and cases are in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ### ASI02 Tool Misuse and Exploitation: A Legitimate Tool Used in the Wrong Place
 
@@ -127,7 +127,7 @@ A few reading notes:
 - Look especially for blanket approvals: `mcp__<server>__*` matches every tool from one MCP server. If it is in your allow rules, none of that server's tools will ask you. To allow just one tool, write its full name, `mcp__<server>__<tool>`.
 - Cursor: check that your MCP allowlist contains only the tools you actually need.
 - OWASP also recommends usage limits: cost, call counts, or a token budget. Here "token" means the unit AI usage is measured in, not a credential.
-- For a fuller account of permissions and auto-run, see the [supply-chain post](/en/posts/coding-agent-supply-chain-permission-risks/).
+- For a fuller account of permissions and auto-run, see the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ### ASI03 Identity and Privilege Abuse: Your Identity and Keys Doing the Work
 
@@ -143,7 +143,7 @@ A few reading notes:
 - Claude Code can use deny rules to block its file tools from reading; the official examples include `Read(./.env)`, `Read(./secrets/**)`, and `Read(~/.ssh/**)`. After you write them, confirm with `/permissions` that they appear in the list.
 - Two common stumbling points. First, the official docs state that a `.claudeignore` file has no effect; use deny rules instead. Second, `Read` deny rules are not airtight. Per the [permissions](https://code.claude.com/docs/en/permissions) docs, they cover Claude's file tools and file commands it recognizes in Bash, such as `cat` and `head`, but not a program that opens files itself, such as a Python or Node script. To keep every program away from a path, turn on the sandbox (see ASI05).
 - In Cursor, use `.cursorignore` to block agent access to specific files.
-- If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is this site's worked example, not a method named in the OWASP text; see [npm Trusted Publishing With GitHub Actions: A Setup Guide](/en/posts/npm-trusted-publishing-github-actions/).
+- If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is this site's worked example, not a method named in the OWASP text; see [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/).
 - Code running in GitHub Actions can use the workflow's `GITHUB_TOKEN` to act on your repo. GitHub recommends setting its default permission to read-only for repository contents: put `permissions: contents: read` at the top of the workflow, and grant more only in the job (a group of steps in a workflow) that needs it. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
 
 ### ASI04 Agentic Supply Chain Vulnerabilities: What You Installed Is Compromised
@@ -158,7 +158,7 @@ A few reading notes:
 
 - Start with a list. Claude Code's [security docs](https://code.claude.com/docs/en/security) warn that `.mcp.json` alone does not show every server a session (one working session with the agent) can load, and that Anthropic does not security-audit any MCP server.
 - Read the startup command before you install. The official MCP [Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) explain that a local MCP server is a program downloaded and run on your machine, with the same privileges as your account, and that an attacker may slip a malicious startup command into a configuration file. Review the full, untruncated startup command, then approve it explicitly.
-- Pinning details are in the [supply-chain post](/en/posts/coding-agent-supply-chain-permission-risks/).
+- Pinning details are in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 - Third-party actions in GitHub Actions (prebuilt steps you drop into a workflow) are part of your supply chain too. GitHub's docs warn that if one action in a workflow is compromised, it gets access to every secret configured on your repository (encrypted, stored passwords and keys).
 - Pin third-party actions: GitHub's top recommendation is a workflow dependency lockfile (a file that records the exact version of each dependency), stored as `.github/workflows/actions.lock` and generated by `gh actions-lock`. If you have not adopted it, pin each action to a full-length commit SHA (the unique ID of a commit). See [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles).
 
@@ -172,7 +172,7 @@ A few reading notes:
 
 **How to fix it:** Bottom line: keep its commands in an isolated environment where they cannot reach production or read your credentials.
 
-- OWASP's mitigations: do not let the agent connect directly to production; never run it as root (the all-powerful system account); isolate it in a sandbox or container (an execution environment separated from your machine) when you can; and limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [git worktree for AI Agents: Run Two Agents in One Repo](/en/posts/git-worktree-parallel-ai-agents/).
+- OWASP's mitigations: do not let the agent connect directly to production; never run it as root (the all-powerful system account); isolate it in a sandbox or container (an execution environment separated from your machine) when you can; and limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/).
 - Claude Code: first use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on. Once it is on, check three things in the defaults table in the [sandboxing docs](https://code.claude.com/docs/en/sandboxing): what it can read (especially credential files such as `~/.ssh` and `~/.aws/credentials`), which sites it can reach, and which environment variables it inherits. You can narrow reads with `filesystem.denyRead` or `permissions.blockReadsOutsideWorkingDirectories`. Here is the official project-level example. It goes in the project's `.claude/settings.json`, and it blocks reads across your home directory while allowing the current project:
 
 ```json
@@ -204,9 +204,9 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
 
 **How to fix it:** Bottom line: keep these files in Git, and no change counts until you have reviewed it.
 
-- OWASP mitigation 7 calls for version control and snapshots so you can roll back. In practice: keep rule files in Git and read the diff before you accept a change. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/en/posts/agents-md-project-rules-for-coding-agents/).
+- OWASP mitigation 7 calls for version control and snapshots so you can roll back. In practice: keep rule files in Git and read the diff before you accept a change. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
 - OWASP mitigation 6: do not let the agent automatically write its own output back into "trusted memory."
-- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment; `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/en/posts/claude-code-hooks-automate-checks/).
+- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment; `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 ### ASI07 Insecure Inter-Agent Communication: Messages Between Agents Can Be Spoofed or Changed
 
@@ -234,7 +234,7 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
 - OWASP mitigation 5 says the same: put checkpoints or human review in place before high-risk outputs move downstream.
 - Do not let automation approve itself. GitHub's docs describe how to prevent GitHub Actions from creating or approving pull requests (PRs: requests to merge a change), because a PR merged without proper oversight can be a security risk. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
 - On GitHub, set a branch protection rule on your main branch: for example, turn on "Require pull request reviews before merging" (someone must review first) and "Require status checks before merging" (the CI checks you choose must pass), then "Do not allow bypassing the above settings" so that admins cannot skip them either. On GitHub Free, this feature is available only in public repositories; see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
-- If you already use an AI to help review PRs, also see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/en/posts/github-actions-ai-agent-pr-review/). The point is that a review result should never automatically become a merge you cannot take back.
+- If you already use an AI to help review PRs, also see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). The point is that a review result should never automatically become a merge you cannot take back.
 - Pinning third-party actions is a supply-chain issue, so it is covered under ASI04.
 
 ### ASI09 Human-Agent Trust Exploitation: It Sounds Sure, So You Click Allow
@@ -354,6 +354,6 @@ If you find one, handle it in this order:
 
 ## What to Do Next
 
-Start today with the inventory and the ten questions, then fix the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool. For automated checks, see the [hooks post](/en/posts/claude-code-hooks-automate-checks/). For the rule file, see the [AGENTS.md post](/en/posts/agents-md-project-rules-for-coding-agents/). For short-lived credentials in CI, see the [npm Trusted Publishing post](/en/posts/npm-trusted-publishing-github-actions/). For sandbox setup, see the [Claude Code sandbox post](/posts/claude-code-sandbox-setup/).
+Start today with the inventory and the ten questions, then fix the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool. For automated checks, see the [hooks post](/posts/claude-code-hooks-automate-checks/). For the rule file, see the [AGENTS.md post](/posts/agents-md-project-rules-for-coding-agents/). For short-lived credentials in CI, see the [npm Trusted Publishing post](/posts/npm-trusted-publishing-github-actions/). For sandbox setup, see the [Claude Code sandbox post](/posts/claude-code-sandbox-setup/).
 
 The official source is the OWASP GenAI Security Project's [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) ([PDF](https://genai.owasp.org/download/52117/), CC BY-SA 4.0). Tool docs: [Claude Code permissions](https://code.claude.com/docs/en/permissions), [permission modes](https://code.claude.com/docs/en/permission-modes), [sandboxing](https://code.claude.com/docs/en/sandboxing), [security](https://code.claude.com/docs/en/security), [Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), [Cursor Agent Security](https://cursor.com/docs/agent/security), [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), and [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use).
