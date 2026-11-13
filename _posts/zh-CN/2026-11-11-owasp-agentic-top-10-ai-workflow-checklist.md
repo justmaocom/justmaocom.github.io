@@ -160,7 +160,7 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 - 装之前看启动命令。MCP 官方 [Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) 说明，本地 MCP server 是下载到你电脑上运行的程序，权限和你的账号一样大；攻击者也可能把恶意的启动命令塞进配置文件。所以要看完整、没被截断的启动命令，再明确批准。
 - 锁定版本的细节见[供应链篇](/posts/coding-agent-supply-chain-permission-risks/)。
 - GitHub Actions 里的第三方 action（别人写好、可以直接放进 workflow 的步骤）也算供应链。GitHub 文档提醒，只要其中一个 action 被入侵，它就拿得到 repo 配置的所有 secrets（加密存放的密码与密钥）。
-- 锁定第三方 action：GitHub 目前最推荐用 workflow 依赖 lockfile（锁定文件，记录每个依赖确切版本的文件）锁定，文件是 `.github/workflows/actions.lock`，由 `gh actions-lock` 生成；还没采用的话，把 action pin（固定）到完整的 commit SHA，也就是每次提交独一无二的编号。说明见 [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)。
+- 锁定第三方 action：GitHub 目前最推荐用 workflow 依赖 lockfile（锁定文件，记录每个依赖确切版本的文件）锁定，文件是 `.github/workflows/actions.lock`，由 `gh actions-lock` 生成；还没采用的话，把 action pin（固定）到完整的 commit SHA，也就是每次提交独一无二的编号。说明见 [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，分步做法见 [gh actions-lock 教程：锁定 GitHub Actions 用到的每个 action](/posts/gh-actions-lock-workflow-lockfile/)。
 
 ### ASI05 Unexpected Code Execution (RCE)：意外执行代码
 
