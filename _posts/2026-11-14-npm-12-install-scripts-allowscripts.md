@@ -1,7 +1,7 @@
 ---
 title: "npm 12 預設擋掉安裝腳本：怎麼用 allowScripts 核准、怎麼加 7 天冷靜期"
 description: "npm 12 預設不再執行相依套件的安裝腳本。這篇教你用 npm install-scripts 核准真正需要的套件、用 min-release-age 加上 7 天冷靜期，並以 tensorlake 事件說明處理惡意套件時，為什麼要先移除常駐服務再撤銷 token。"
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:00:00 +0800
 categories: [資訊安全, 供應鏈]
 tags: [supply-chain-security, npm, application-security, incident-response]
 media_subpath: /assets/img/posts/npm-12-install-scripts-allowscripts/

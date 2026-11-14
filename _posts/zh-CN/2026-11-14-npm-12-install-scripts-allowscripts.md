@@ -1,7 +1,7 @@
 ---
 title: "npm 12 默认挡掉安装脚本：怎么用 allowScripts 批准、怎么加 7 天冷静期"
 description: "npm 12 默认不再执行依赖包的安装脚本。这篇教你用 npm install-scripts 批准真正需要的包、用 min-release-age 加上 7 天冷静期，并以 tensorlake 事件说明处理恶意包时，为什么要先移除常驻服务再撤销 token。"
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:00:00 +0800
 categories: [信息安全, 供应链]
 tags: [supply-chain-security, npm, application-security, incident-response]
 media_subpath: /assets/img/posts/npm-12-install-scripts-allowscripts/

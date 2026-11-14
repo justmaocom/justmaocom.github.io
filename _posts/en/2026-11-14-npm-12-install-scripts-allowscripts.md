@@ -1,7 +1,7 @@
 ---
 title: "npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown"
 description: "npm 12 no longer runs dependency install scripts by default. This post shows how to approve the packages that really need them with npm install-scripts and add a 7-day cooldown with min-release-age, and explains why the tensorlake advisory requires removing a persistent service before revoking tokens."
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:00:00 +0800
 categories: [Security, Supply Chain]
 tags: [supply-chain-security, npm, application-security, incident-response]
 media_subpath: /assets/img/posts/npm-12-install-scripts-allowscripts/
