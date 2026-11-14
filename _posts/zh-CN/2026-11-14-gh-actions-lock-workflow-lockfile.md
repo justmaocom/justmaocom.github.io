@@ -1,7 +1,7 @@
 ---
 title: "gh actions-lock 教程：用 lockfile 锁定 GitHub Actions 依赖"
 description: "workflow 写 @v3，执行的代码可能随标签移动而改变。这篇说明 GitHub 的 workflow lockfile 怎么运作，并一步步用 gh actions-lock 上锁、看懂 diff、日常维护。"
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:32:00 +0800
 categories: [信息安全, 供应链]
 tags: [supply-chain-security, github-actions, ci, dependabot, gh-actions-lock]
 media_subpath: /assets/img/posts/gh-actions-lock-workflow-lockfile/

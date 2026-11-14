@@ -1,7 +1,7 @@
 ---
 title: "gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile"
 description: "A workflow that says @v3 can run different code when that tag moves. This post explains how GitHub workflow lockfiles work, then walks through locking, reviewing the diff, and day-to-day upkeep with gh actions-lock."
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:32:00 +0800
 categories: [Security, Supply Chain]
 tags: [supply-chain-security, github-actions, ci, dependabot, gh-actions-lock]
 media_subpath: /assets/img/posts/gh-actions-lock-workflow-lockfile/
