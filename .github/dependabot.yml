@@ -20,6 +20,10 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+    # Chirpy 7.6 搭配 mermaid 11；等 Chirpy 改用 12 再移除
+    ignore:
+      - dependency-name: mermaid
+        update-types: ["version-update:semver-major"]
     groups:
       static-assets:
         patterns:
