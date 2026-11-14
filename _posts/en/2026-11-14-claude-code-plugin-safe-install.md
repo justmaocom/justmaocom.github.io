@@ -39,7 +39,7 @@ A plugin is a folder. Each file in it goes in a set location depending on what i
 
 | Location | What it is | Does it run code on its own? |
 | --- | --- | --- |
-| `.claude-plugin/plugin.json` | The plugin's business card: name, version, author, homepage, license | No |
+| `.claude-plugin/plugin.json` | The plugin's business card: name, version, author, homepage, license. It can also declare components such as hooks and MCP servers directly, or point to config files in other locations | Not by itself, but the hooks and servers it declares do |
 | `skills/`, `commands/`, `agents/` | Instructions for Claude (Markdown files) | No, but they affect what Claude does next |
 | `hooks/hooks.json` | Shell commands that run at set moments | **Yes**, as soon as the moment comes |
 | `monitors/monitors.json` | Commands that keep running in the background | **Yes** |
@@ -52,7 +52,7 @@ The one point to remember most comes from the official security docs. Claude Cod
 Also, `plugin.json` isn't required. The official docs say you can leave it out, and even when it exists, only `name` is required. Fields such as author, homepage, and license may all be empty.
 
 ![The files in a plugin fall into two groups. Claude only reads skills, commands, and agents. Hooks, monitors, .mcp.json, and .lsp.json run code outside the sandbox.](plugin-anatomy.en.webp){: w="1600" h="900" }
-_A concept illustration. The left side is text for Claude to read, and the right side is the parts that run code. Open each file on the right before you install._
+_A concept illustration. The left side is text for Claude to read, and the right side is the parts that run code. Open each file on the right before you install, and the yellow `plugin.json` too, since it can declare hooks and MCP servers directly._
 
 ## What "official" means in the official directory
 
@@ -95,6 +95,8 @@ An entry looks roughly like this (the values are examples):
 
 `sha` is the ID of a commit, which is a snapshot of the code at one point in time. According to the marketplace reference, when an entry has both `ref` and `sha`, Claude Code fetches the version at `sha`. So the files to check are the ones at that commit, not the latest version in the other repo. On GitHub, you can open the folder at that version with a URL like `https://github.com/<owner>/<repo>/tree/<sha>/<path>`.
 
+An entry is more than an index card, too. According to the plugins reference, the entry itself can carry component fields such as `hooks`, `mcpServers`, and `commands`, which load along with the plugin. When a plugin has no `plugin.json`, the entry serves as its manifest. If an entry has these fields, read them as well.
+
 ## Step 1: Find the plugin in `/plugin` and read its details first
 
 In the Claude Code input box, type:
@@ -128,11 +130,33 @@ claude plugin marketplace list
 ```
 {: .nolineno }
 
-Then open the files below in order. If a file doesn't exist, the plugin doesn't have that feature, so skip it.
+Then open the files below in order, starting with `plugin.json`. A file missing from its default location doesn't mean the plugin lacks that feature, because `plugin.json` can define hooks, MCP servers, LSP servers, and monitors directly, or point to config files at other paths. Check what `plugin.json` declares first, then decide which files to open.
 
-### `.claude-plugin/plugin.json`: who made it and where it comes from
+### `.claude-plugin/plugin.json`: who made it and what else it declares
 
-Look at `author`, `homepage`, `repository`, and `license`. Do the homepage and repo fields point to the same repo you're looking at? If the name looks alike but the account is different, be extra careful.
+Start with `author`, `homepage`, `repository`, and `license`. Do the homepage and repo fields point to the same repo you're looking at? If the name looks alike but the account is different, be extra careful.
+
+Next, check whether it declares any components or dependencies. For example (the contents are an example):
+
+```json
+{
+  "name": "example-plugin",
+  "author": { "name": "Example Inc." },
+  "homepage": "https://example.com",
+  "hooks": "./config/hooks.json",
+  "mcpServers": {
+    "example-api": { "command": "node", "args": ["${CLAUDE_PLUGIN_ROOT}/server.js"] }
+  },
+  "dependencies": ["example-helper"]
+}
+```
+{: file=".claude-plugin/plugin.json" }
+
+Here's how to read it:
+
+- `hooks` points to `config/hooks.json`, not the default `hooks/hooks.json`. Hooks from both locations are merged, so read both files.
+- `mcpServers` is written right inside `plugin.json`, and it starts `server.js` once installed. `lspServers` and `experimental.monitors` can be written this way too. Read all of these the same way you read `hooks/hooks.json` and `.mcp.json` below.
+- `dependencies` lists other plugins this one depends on. According to the official docs, installing the plugin also installs and enables these dependencies at the same scope. So `example-helper` needs the same checks this post describes. A dependency written as a bare name comes from the same marketplace. One written as `name@marketplace` comes from another marketplace, and by default Claude Code won't install such a cross-marketplace dependency unless the marketplace explicitly allows it.
 
 ### `hooks/hooks.json`: what runs automatically, and when
 
@@ -216,7 +240,7 @@ claude --plugin-dir ./plugins/example-plugin plugin details example-plugin
 ```
 {: .nolineno }
 
-It prints a `Component inventory`, a list of the plugin's components. Compare it with the files you just read, and go back to anything you missed. After you install, you can also run `claude plugin details <plugin-name>` to check the copy that's actually installed.
+It prints a `Component inventory`, a list of the plugin's components. Compare it with the files you just read, and go back to anything you missed. The list covers the components in this folder. Components the marketplace entry adds, and the other plugins in `dependencies`, need their own look. After you install, you can also run `claude plugin details <plugin-name>` to check the copy that's actually installed.
 
 ### A checklist you can copy
 
@@ -227,6 +251,8 @@ You can paste this straight into your notes or team docs:
 
 - [ ] From the marketplace entry's source and sha, confirm which repo and commit the plugin actually lives in
 - [ ] The author, homepage, and repo in plugin.json match the source I'm looking at
+- [ ] Whether plugin.json or the marketplace entry declares hooks, mcpServers, lspServers, or monitors directly, or points to config files at other paths
+- [ ] Every plugin listed in dependencies has passed this same checklist
 - [ ] Will install in the details panel: any hooks, MCP servers, or LSP servers
 - [ ] hooks/hooks.json: each hook's trigger and command, plus the scripts it calls
 - [ ] .mcp.json: the program each server starts (is the version pinned?) or the address it connects to, and the environment variables it needs
@@ -258,9 +284,10 @@ claude plugin install <plugin-name>@claude-plugins-official --scope local
 ```
 {: .nolineno }
 
-Two things to know:
+Three things to know:
 
 - **Installing a plugin turns it on.** Unless the plugin itself sets `defaultEnabled: false`, it starts working as soon as it's installed.
+- **Dependencies come along.** If the plugin declares dependencies, Claude Code installs and enables them at the same scope, and the success message lists them.
 - **Project scope doesn't install it on your teammates' computers.** After the setting is committed to the repo, each collaborator still has to run the install once themselves.
 
 ## Other marketplaces: check the source before you add one
@@ -291,7 +318,7 @@ According to the official docs, Anthropic's official marketplaces (such as `clau
 
 To turn off auto-update for a marketplace, go to the **Marketplaces** tab in `/plugin`, select the marketplace, and choose **Disable auto-update**.
 
-The cost of turning it off is that you won't get fixes automatically. A more practical approach is to turn off auto-update for important projects and update by hand on a regular schedule. Before each update, look at what changed, especially `hooks/hooks.json` and `.mcp.json`. The command to update by hand is `claude plugin update <plugin-name>@<marketplace>`. Restart Claude Code after updating to apply it.
+The cost of turning it off is that you won't get fixes automatically. A more practical approach is to turn off auto-update for important projects and update by hand on a regular schedule. Before each update, look at what changed, especially `plugin.json`, `hooks/hooks.json`, and `.mcp.json`. A new version can also add new dependencies, so check those too. The command to update by hand is `claude plugin update <plugin-name>@<marketplace>`. Restart Claude Code after updating to apply it.
 
 ## After you install: disable, remove, and clean up
 
@@ -304,7 +331,7 @@ claude plugin disable <plugin-name>@<marketplace>
 ```
 {: .nolineno }
 
-After you disable a plugin, its files stay, and you can turn it back on later with `claude plugin enable`. If something odd is going on and you want to stop everything first, `claude plugin disable --all` disables every plugin.
+After you disable a plugin, its files stay, and you can turn it back on later with `claude plugin enable`. If another enabled plugin depends on it, disabling fails and names the plugins to disable first. If something odd is going on and you want to stop everything first, `claude plugin disable --all` disables every plugin.
 
 To **remove** a plugin, type `/plugin uninstall`, or run this in the terminal:
 
@@ -317,6 +344,7 @@ claude plugin uninstall <plugin-name>@<marketplace> --scope <original-scope>
 
 - The plugin's data folder, `~/.claude/plugins/data/<id>/`, is deleted along with it. Add `--keep-data` to keep it.
 - The plugin's code stays in `~/.claude/plugins/cache/` for another 14 days before a background cleanup deletes it. If you're sure you no longer trust it, delete `~/.claude/plugins/cache/<marketplace>/<plugin-name>/` yourself.
+- Dependencies that were installed along with it stay. Add `--prune` to also remove dependencies no other plugin needs, or clean them up later with `claude plugin prune`.
 - When you remove a Project-scope plugin in the interface, it asks you to choose **Disable for me** (turns it off only for you, written to your `.claude/settings.local.json`) or **Uninstall for everyone** (removes it from the shared `.claude/settings.json`, which affects every collaborator).
 
 To **remove a marketplace**, type `/plugin marketplace remove <marketplace>`. This also removes every plugin you installed from that marketplace.
@@ -370,14 +398,15 @@ The first two lines allow only the official marketplace and marketplaces under t
 | --- | --- |
 | Find a plugin | Use the Discover tab in `/plugin`, or open its details first with `/plugin install <name>@claude-plugins-official` |
 | Know where a plugin actually lives | Check `source` and `sha` in its `marketplace.json` entry |
-| Know what runs automatically after I install | Read `hooks/hooks.json`, `.mcp.json`, `bin/`, `monitors/`, `.lsp.json` |
+| Know what runs automatically after I install | Check the components `plugin.json` declares, then read `hooks/hooks.json`, `.mcp.json`, `bin/`, `monitors/`, `.lsp.json` |
+| Know which other plugins come along | Check `dependencies` in `plugin.json`, and run each through the checklist |
 | Make sure I haven't missed a component | Clone the repo, then run `claude --plugin-dir <folder> plugin details <name>` |
 | Try it at a small scope first | Choose Local when you install |
 | Add another marketplace | Confirm `owner/repo` from an official link, and pin a version with `#tag` |
 | Keep reviewed files from being swapped in the background | `/plugin` → Marketplaces → Disable auto-update, then update by hand after reading the diff |
 | Stop using it for now | `claude plugin disable <name>@<marketplace>` |
 | Stop everything when I suspect a problem | `claude plugin disable --all` |
-| Remove it completely | `claude plugin uninstall <name>@<marketplace> --scope <scope>`, and delete the cache folder if needed |
+| Remove it completely | `claude plugin uninstall <name>@<marketplace> --scope <scope> --prune`, and delete the cache folder if needed |
 | Keep the team consistent | Put the checklist into your project rules, and send `.claude/settings.json` through PR review |
 
 ## Common misconceptions
@@ -385,12 +414,13 @@ The first two lines allow only the official marketplace and marketplaces under t
 - **"If it's in the official directory, it's safe."** Most plugins in the official marketplace live in other repos, and the official repo's checks don't cover them. The pre-install warning is the same for every marketplace, too.
 - **"With the sandbox on, I don't need to worry."** Hooks, monitors, MCP servers, and LSP servers all run outside the sandbox.
 - **"Reading Will install is enough."** It tells you there are hooks, not what they run.
+- **"No hooks/hooks.json means no hooks."** Hooks and MCP servers can also be written in `plugin.json` or in the marketplace entry.
 - **"Skills are just text, so I don't need to read them."** Text can tell Claude to run commands.
 - **"Once I've checked it, I'm done."** With auto-update on, the files get replaced in the background.
-- **"Removing it cleans everything up."** The cache stays for another 14 days, and any tokens you gave it still work.
+- **"Removing it cleans everything up."** The cache stays for another 14 days, dependencies installed along with it are still there, and any tokens you gave it still work.
 
 ## Conclusion
 
-A plugin installs several kinds of extensions at once, so before you install, work out what it will do with your permissions, and when. Go in this order: confirm where the plugin actually lives from its marketplace entry, read Will install in the details panel, open the files that run code such as `hooks/hooks.json` and `.mcp.json`, compare against the component list from `plugin details`, and then install at the smallest scope. After you install, remember that auto-update replaces files. When you no longer need a plugin, disable or remove it.
+A plugin installs several kinds of extensions at once, so before you install, work out what it will do with your permissions, and when. Go in this order: confirm where the plugin actually lives from its marketplace entry, read Will install in the details panel, check which components and dependencies `plugin.json` declares, open the files that run code such as `hooks/hooks.json` and `.mcp.json`, compare against the component list from `plugin details`, and then install at the smallest scope. After you install, remember that auto-update replaces files. When you no longer need a plugin, disable or remove it.
 
 To understand what the hooks a plugin brings in actually do, read [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/). To learn how the skills inside a plugin are written, see [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/). To check supply chain risks across your whole AI workflow with the same approach, see [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
