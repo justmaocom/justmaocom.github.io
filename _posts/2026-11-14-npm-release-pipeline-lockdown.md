@@ -1,7 +1,7 @@
 ---
 title: "開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖"
 description: "tensorlake 的惡意版本帶著合法的 provenance。這篇用 GitHub environment、ruleset 和 npm staged publishing 把發布流程上鎖，替程式碼、發布觸發與套件公開各加一道審查關卡。"
-date: 2026-11-13 20:00:00 +0800
+date: 2026-11-14 18:25:00 +0800
 categories: [資訊安全, 供應鏈]
 tags: [supply-chain-security, github-actions, ci, application-security, npm]
 media_subpath: /assets/img/posts/npm-release-pipeline-lockdown/
