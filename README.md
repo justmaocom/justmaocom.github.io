@@ -10,8 +10,9 @@
 - [jekyll-polyglot](https://github.com/untra/polyglot) 多語系，正體中文在網站根目錄，簡體中文在 `/zh-CN/`，英文在 `/en/`
 - `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
-- Giscus 留言
-- 自訂網域 `justmao.com`
+- Giscus 留言，討論串存在本 repository 的 Discussions
+- `llms.txt` 文章索引，以及請求帶 `Accept: text/markdown` 時回傳的 Markdown 版文章
+- 自訂網域 `justmao.com`，前面經過 Cloudflare
 
 ## 主題檔案在 gem 裡
 
@@ -62,13 +63,17 @@ _config.yml      網站與主題設定
 index.html       首頁入口
 ```
 
-文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)，譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。
+文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)，譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。多語系、SEO 與部署的設計細節記在 [`CLAUDE.md`](CLAUDE.md)。
 
 ## 部署
 
 推送到 `main` 或 `master` 後，GitHub Actions 使用 Ruby 3.4 建置網站，執行與 `tools/test.sh` 相同的檢查，並確認 `assets/lib` 與 `package-lock.json` 一致。全部通過後才部署到 GitHub Pages。只改動 `README.md`、`LICENSE` 或 `.gitignore` 的推送不會觸發部署。Pull request 只跑建置與檢查，不部署。工作流程也可從 Actions 頁面手動執行。
 
 建置時，`tools/indexnow.rb` 比對新建置與線上的 sitemap，找出新增、更新或移除的網址。部署完成後，`indexnow` job 把這些網址送給 [IndexNow](https://www.indexnow.org/)，讓 Bing 等搜尋引擎提早重新抓取。根目錄檔名與內容相同的 `<key>.txt` 是 IndexNow 的驗證金鑰，不要改名或修改內容。
+
+文章的最後更新時間來自 Git 歷史。沒有動到文章內容的批次 commit，例如圖片轉檔或全站改路徑，合併進 `main` 後要把它的完整 SHA 加進 `.lastmod-ignore-revs`。否則所有文章都會顯示成剛更新過，sitemap 的 `lastmod` 也跟著失準。SHA 要等合併後再填，因為 rebase 會改變它。
+
+`Accept: text/markdown` 的內容協商由 Cloudflare dashboard 裡的一條 URL Rewrite Rule 處理，不在 repository 內。規則內容寫在 `_plugins/markdown-hook.rb` 開頭的註解。新增語系，或讓這個 plugin 輸出其他頁面時，要同步修改這條規則。
 
 ## 授權
 
