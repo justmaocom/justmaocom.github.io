@@ -4,7 +4,7 @@
 
 Source code for [justmao.com](https://justmao.com), JustMao's personal site. The site covers coding agent skills and workflows, the security problems that agents bring in, and source-code deep dives into open-source tools.
 
-The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme, and GitHub Actions deploys it to GitHub Pages. Every post has three versions: Traditional Chinese, Simplified Chinese, and English. The guides in `docs/` and the code comments are in Traditional Chinese.
+The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) theme, and GitHub Actions deploys it to GitHub Pages. Every post has three versions: Traditional Chinese, Simplified Chinese, and English. The guides in `docs/` are in Traditional Chinese.
 
 ## Tech stack and features
 
@@ -51,7 +51,7 @@ The script builds the site in production mode. It then checks the language prefi
 
 ```text
 _posts/          Posts, with Simplified Chinese and English translations in zh-CN/ and en/
-_drafts/         Drafts
+_drafts/         Drafts, created when needed
 _tabs/           Sidebar pages
 _includes/       Theme partials that this site overrides or adds
 _plugins/        Custom Jekyll plugins, such as localized URL rewriting and SEO fixes
