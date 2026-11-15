@@ -77,4 +77,4 @@ index.html       首頁入口
 
 ## 授權
 
-本專案採用 [MIT License](LICENSE)。
+程式碼採用 [MIT License](LICENSE)。`_posts/` 內的文章採用 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)，與網站上每篇文章頁尾的標示一致。
