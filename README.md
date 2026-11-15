@@ -1,5 +1,7 @@
 # 只是一根毛
 
+正體中文 | [English](README.en.md)
+
 [justmao.com](https://justmao.com) 的原始碼。這是 JustMao 的個人網站，記錄 coding agent 的 skill 與工作流程、agent 帶來的資安問題，以及開源工具的原始碼拆解。
 
 網站以 [Jekyll](https://jekyllrb.com/) 和 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 主題建置，透過 GitHub Actions 部署到 GitHub Pages。每篇文章都有正體中文、簡體中文與英文三個版本。
@@ -63,11 +65,11 @@ _config.yml      網站與主題設定
 index.html       首頁入口
 ```
 
-文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)，譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。多語系、SEO 與部署的設計細節記在 [`CLAUDE.md`](CLAUDE.md)。
+文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)，譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。多語系與 SEO 的實作說明寫在 `_plugins/` 各檔案開頭的註解。
 
 ## 部署
 
-推送到 `main` 或 `master` 後，GitHub Actions 使用 Ruby 3.4 建置網站，執行與 `tools/test.sh` 相同的檢查，並確認 `assets/lib` 與 `package-lock.json` 一致。全部通過後才部署到 GitHub Pages。只改動 `README.md`、`LICENSE` 或 `.gitignore` 的推送不會觸發部署。Pull request 只跑建置與檢查，不部署。工作流程也可從 Actions 頁面手動執行。
+推送到 `main` 或 `master` 後，GitHub Actions 使用 Ruby 3.4 建置網站，執行與 `tools/test.sh` 相同的檢查，並確認 `assets/lib` 與 `package-lock.json` 一致。全部通過後才部署到 GitHub Pages。只改動 `README.md`、`README.en.md`、`LICENSE` 或 `.gitignore` 的推送不會觸發部署。Pull request 只跑建置與檢查，不部署。工作流程也可從 Actions 頁面手動執行。
 
 建置時，`tools/indexnow.rb` 比對新建置與線上的 sitemap，找出新增、更新或移除的網址。部署完成後，`indexnow` job 把這些網址送給 [IndexNow](https://www.indexnow.org/)，讓 Bing 等搜尋引擎提早重新抓取。根目錄檔名與內容相同的 `<key>.txt` 是 IndexNow 的驗證金鑰，不要改名或修改內容。
 
