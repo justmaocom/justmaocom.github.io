@@ -297,7 +297,7 @@ exclude:
   - docs
   - tools
   - README.md
-  - README.en.md
+  - README.zh-TW.md
   - LICENSE
   - CLAUDE.md
   - AGENTS.md

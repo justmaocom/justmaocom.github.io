@@ -7,7 +7,7 @@ on:
     paths-ignore:
       - .gitignore
       - README.md
-      - README.en.md
+      - README.zh-TW.md
       - LICENSE
 
   pull_request:
