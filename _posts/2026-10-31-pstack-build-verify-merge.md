@@ -19,7 +19,7 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 > - 下一篇（第 4 篇）：[用原則指揮 AI、做出自己的 mode，再放心讓它自己跑](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
-> **版本提醒**：本文以 pstack [`0.15.36` 版](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `c742dd6`（2026-10-28 07:12，台北時間），搭配 Claude Code 2.1.316。這比前兩篇用的版本新：寫這篇時官方已經更新了好幾版，我改用最新版查證，本文的操作說明也以這個版本為準。三篇的版本如下：
+> **版本提醒**：本文以 pstack [`0.15.36` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `c742dd6`（2026-10-28 07:12，台北時間），搭配 Claude Code 2.1.316。這比前兩篇用的版本新：寫這篇時官方已經更新了好幾版，我改用最新版查證，本文的操作說明也以這個版本為準。三篇的版本如下：
 >
 > | | 第 1 篇 | 第 2 篇 | 本篇 |
 > | --- | --- | --- | --- |
@@ -29,9 +29,9 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 >
 > 和本篇流程直接相關的差異有兩個。第一，`/poteto-mode` 接到任務後的第一則回覆，會先用自己的話說出你的目標、要解決的問題，以及它預計的最小改動，然後直接開始，不等你確認（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L19)）。它理解錯了，你馬上就看得出來。第二，代替主對話開 PR 的子代理，不再跑 `/interrogate`，只跑 `/deslop` 和 `/no-comments`（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L34)）。
 >
-> **讀第 2 篇時要留意的差異。** 第 2 篇介紹的 `/interrogate` 和 `/arena`，在新版的輸出或規則跟第 2 篇寫的不同。`/interrogate` 現在要每位挑戰者實際執行程式來證明問題，只留下被執行結果證明的發現；報告只列出意圖、驗證過的發現，以及每位挑戰者被捨棄的發現數量和理由，不再分成 Act on、Consider、Noted、Dismissed 四類（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/interrogate/SKILL.md#L9)、[輸出格式](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/interrogate/SKILL.md#L27-L31)）。`/arena` 的評審一定要用和主對話不同家族的模型，找不到就略過評審，由主對話自己選底稿（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/arena/SKILL.md#L28)）。用 0.15.36 讀第 2 篇這兩段時，要記得這些差異。
+> **讀第 2 篇時要留意的差異。** 第 2 篇介紹的 `/interrogate` 和 `/arena`，在新版的輸出或規則跟第 2 篇寫的不同。`/interrogate` 現在要每位挑戰者實際執行程式來證明問題，只留下被執行結果證明的發現；報告只列出意圖、驗證過的發現，以及每位挑戰者被捨棄的發現數量和理由，不再分成 Act on、Consider、Noted、Dismissed 四類（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md#L9)、[輸出格式](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md#L27-L31)）。`/arena` 的評審一定要用和主對話不同家族的模型，找不到就略過評審，由主對話自己選底稿（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/arena/SKILL.md#L28)）。用 0.15.36 讀第 2 篇這兩段時，要記得這些差異。
 >
-> **其他更新與版本確認。** 其餘更新不影響本文介紹的操作流程：新增了 `ketchup-video` 這個 skill，babysit 用的 PR 監看腳本也修了一些細節。Claude Code 對第三方外掛市集預設不自動更新（[README](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/README.md#L28)），所以照第 1 篇裝好的 pstack 會停在當時的版本；怎麼更新或固定版本，見[第 1 篇](/posts/pstack-install-routing/)。我在 2026-10-31 15:59（台北時間）開始寫之前查了一次，開 PR 前在 16:13 又查了一次，兩次 `cursor/plugins` 的 main 都還是 `0.15.36`，`c742dd6` 之後沒有任何 pstack 的改動。
+> **其他更新與版本確認。** 其餘更新不影響本文介紹的操作流程：新增了 `ketchup-video` 這個 skill，babysit 用的 PR 監看腳本也修了一些細節。Claude Code 對第三方外掛市集預設不自動更新（[README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28)），所以照第 1 篇裝好的 pstack 會停在當時的版本；怎麼更新或固定版本，見[第 1 篇](/posts/pstack-install-routing/)。我在 2026-10-31 15:59（台北時間）開始寫之前查了一次，開 PR 前在 16:13 又查了一次，兩次 `cursor/plugins` 的 main 都還是 `0.15.36`，`c742dd6` 之後沒有任何 pstack 的改動。
 {: .prompt-warning }
 
 ## 開始之前
@@ -43,9 +43,9 @@ pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 A
 **這篇的工具分成兩種，叫法不一樣。**
 
 - **playbook**：`/poteto-mode` 裡的固定流程，一個步驟接一個步驟走。這篇用到四個：Feature（新功能）、Bug fix（修 bug）、Opening a PR（開 PR）和 Babysit（照顧 PR 到可以合併）。它們**沒有自己的指令**，你把任務交給 `/pstack:poteto-mode`，它會依任務挑對應的 playbook。
-- **skill**：`/tdd`、`/unslop`、`/no-comments`、`/blast-radius`、`/benchmark-checklist`、`/create-verification-skill`、`/maintain-verification-skill`。這些獨立指令設定為由使用者呼叫，要用時由你輸入。這不妨礙 playbook 直接讀取說明檔：`/poteto-mode` 的 playbook 走到相關步驟時，也會自己去讀那個 skill 的說明檔照做（[Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L12)）：修 bug 時用 `/tdd` 的節奏、審查前跑 `/no-comments`、寫任何文字都套 `/unslop`。`/blast-radius` 和兩個驗證 skill 不在 playbook 的步驟裡，要用就自己叫。
+- **skill**：`/tdd`、`/unslop`、`/no-comments`、`/blast-radius`、`/benchmark-checklist`、`/create-verification-skill`、`/maintain-verification-skill`。這些獨立指令設定為由使用者呼叫，要用時由你輸入。這不妨礙 playbook 直接讀取說明檔：`/poteto-mode` 的 playbook 走到相關步驟時，也會自己去讀那個 skill 的說明檔照做（[Claude Code 對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L12)）：修 bug 時用 `/tdd` 的節奏、審查前跑 `/no-comments`、寫任何文字都套 `/unslop`。`/blast-radius` 和兩個驗證 skill 不在 playbook 的步驟裡，要用就自己叫。
 
-**先把「怎樣算完成」寫進第一個提示。** pstack 指南把這件事放在驗證的第一步（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L9-L27)）。例如：
+**先把「怎樣算完成」寫進第一個提示。** pstack 指南把這件事放在驗證的第一步（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L9-L27)）。例如：
 
 ```text
 /pstack:poteto-mode 幫這個指令加上 JSON 輸出。原本的文字輸出要一個位元組都不變，JSON 要能被解析，兩種格式都要拿範例專案實際跑一次。把證據給我看。
@@ -58,7 +58,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ## 實作：用 playbook 寫程式
 
-[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L5-L31)的原則是：在提示裡寫你觀察到的事，讓 playbook 依流程取得驗證所需的證據。playbook 會補上你沒打的步驟，例如修之前先重現、實作之前先說清楚資料形狀。
+[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L5-L31)的原則是：在提示裡寫你觀察到的事，讓 playbook 依流程取得驗證所需的證據。playbook 會補上你沒打的步驟，例如修之前先重現、實作之前先說清楚資料形狀。
 
 ### 修 bug：先重現，再修
 
@@ -76,7 +76,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:poteto-mode 這個指令在重試之後會寫出兩筆紀錄，應該只有一筆。先重現，再修，修完驗證。
 ```
 
-**它會怎麼做**（[bug-fix playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/bug-fix.md)）：
+**它會怎麼做**（[bug-fix playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md)）：
 
 1. **自己重現。** 在問題發生的同一個介面（指令列、網頁畫面等）實際操作，把 bug 弄出來。只有在它真的碰不到、而且說得出具體原因時，才會請你幫忙重現。直接重現不了，它會自己造出觸發條件，或加上記錄（log）直到 bug 出現。
 2. **用二分法找原因。** 先列出幾個可能的原因，用 `/how` 看懂相關的程式、用 `/why` 查這段程式的修改歷史，再一個一個排除。每一輪挑最能縮小範圍的切法，拿執行時的證據來排除，不用猜的。
@@ -85,7 +85,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 5. **排好 commit 的順序。** commit 是 git 裡的一次修改紀錄。會失敗的重現（例如一個測試）先進 git 歷史，修正排在它後面。bug 有低成本的本機測試路徑時，照 `/tdd` 的節奏做；測試很貴、要動用一大堆環境，或不清楚怎麼測時，就跳過。
 6. **開 PR**（見下面的「送審」）。
 
-整個過程有一條規則：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下；證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
+整個過程有一條規則：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下；證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
 
 **你會拿到**：一則回覆，說明哪裡壞了、根本原因、怎麼修、怎麼驗證，並**原文貼上修之前失敗、修之後通過的重現輸出**。
 
@@ -101,13 +101,13 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:poteto-mode <要加的行為>。<哪些既有的行為不能變>。<怎麼驗證>。
 ```
 
-例如（取自[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L13-L17)）：
+例如（取自[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L13-L17)）：
 
 ```text
 /pstack:poteto-mode 加一個 --json 選項。原本的文字輸出要一個位元組都不變。兩種格式都要驗證。
 ```
 
-**它會怎麼做**（[feature playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/feature.md)）：
+**它會怎麼做**（[feature playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/feature.md)）：
 
 1. 對受影響的部分跑 `/how`，先看懂現況。
 2. 用 `/architect` 平行比較幾種設計（第 2 篇有詳細介紹）。
@@ -124,9 +124,9 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ### /tdd：先寫一個會失敗的測試
 
-**什麼時候用**：你明確想要 TDD（先寫測試再寫程式）、一個會失敗的測試或回歸測試；或是 bug 有明顯又低成本的本機測試可以寫（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
+**什麼時候用**：你明確想要 TDD（先寫測試再寫程式）、一個會失敗的測試或回歸測試；或是 bug 有明顯又低成本的本機測試可以寫（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
 
-**指令怎麼寫**：對話裡已經有 bug 的前後文時，輸入下面這行指令就夠（[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L43-L51)）：
+**指令怎麼寫**：對話裡已經有 bug 的前後文時，輸入下面這行指令就夠（[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L43-L51)）：
 
 ```text
 /pstack:tdd implement
@@ -138,7 +138,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:tdd 修 <bug 的描述>。先寫一個會因為這個 bug 失敗的測試，跑給我看它失敗，再修。
 ```
 
-**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/tdd/SKILL.md#L13-L26)）：
+**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L13-L26)）：
 
 1. **弄懂 bug**：應該怎樣、現在怎樣、走哪條路徑、最小的重現方式。
 2. **挑最窄的可執行檢查**：優先用這段程式本來就在用的那種測試。沒有明顯可行的測試路徑，就不會為了走流程硬造一套。
@@ -167,13 +167,13 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:unslop <要清的文字或檔案>，<你的額外規則>
 ```
 
-例如（取自[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L61-L67)）：
+例如（取自[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L61-L67)）：
 
 ```text
 /pstack:unslop the readme changes, no emdashes
 ```
 
-**它會怎麼做**：先找出文字裡的 AI 寫作習慣，再改寫，同時保留原意和語氣（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/unslop/SKILL.md#L9)）。它的清單分成幾類：內容（空泛的修飾、「專家認為」這種沒有出處的說法）、用詞（AI 愛用的字、硬湊三點）、格式（破折號、粗體太多、每行都加粗體小標）、聊天腔（「希望對你有幫助！」）、贅字、抽象的行話，以及白話原則（主動語態、短句、用平常的字）。清單裡的例子都是英文。
+**它會怎麼做**：先找出文字裡的 AI 寫作習慣，再改寫，同時保留原意和語氣（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/unslop/SKILL.md#L9)）。它的清單分成幾類：內容（空泛的修飾、「專家認為」這種沒有出處的說法）、用詞（AI 愛用的字、硬湊三點）、格式（破折號、粗體太多、每行都加粗體小標）、聊天腔（「希望對你有幫助！」）、贅字、抽象的行話，以及白話原則（主動語態、短句、用平常的字）。清單裡的例子都是英文。
 
 **你會拿到**：改寫後的文字。
 
@@ -181,7 +181,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ### /no-comments：讓沒寫過註解的人來審註解
 
-**什麼時候用**：送審之前。寫註解的 AI 容易替自己的寫法辯護，所以要交給沒參與撰寫的審查者（[指南第 5 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L69-L77)）。
+**什麼時候用**：送審之前。寫註解的 AI 容易替自己的寫法辯護，所以要交給沒參與撰寫的審查者（[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L69-L77)）。
 
 **指令怎麼寫**：
 
@@ -189,7 +189,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:no-comments the diff
 ```
 
-沒指定範圍時，它會用目前分支相對於 `main` 的 diff，連還沒 commit 的修改一起算（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/no-comments/SKILL.md#L13-L15)）。也可以指定檔案：
+沒指定範圍時，它會用目前分支相對於 `main` 的 diff，連還沒 commit 的修改一起算（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/no-comments/SKILL.md#L13-L15)）。也可以指定檔案：
 
 ```text
 /pstack:no-comments <檔案或資料夾>
@@ -197,7 +197,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 **它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/no-comments/SKILL.md#L17-L24)）：
 
-1. **派出 Comment Sicko。** 這是一個只審註解的子代理，它只碰註解、指出該重構的地方，**從不寫應用程式碼**（[Comment Sicko](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/agents/comment-sicko.md#L30)）。它只放過少數幾種註解：授權聲明、定義公開 API 約定的文件註解、程式表達不了的 issue 或規格連結、被外部套件或平台逼出來的不明顯行為，以及 `// prettier-ignore` 這類格式指令。其他都刪。你自己程式裡令人意外的地方，不會因為有註解就過關，它會標成 `MUST KILL`，要求用改名、抽出函式或改型別的方式，讓程式不用註解也看得懂。
+1. **派出 Comment Sicko。** 這是一個只審註解的子代理，它只碰註解、指出該重構的地方，**從不寫應用程式碼**（[Comment Sicko](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/agents/comment-sicko.md#L30)）。它只放過少數幾種註解：授權聲明、定義公開 API 約定的文件註解、程式表達不了的 issue 或規格連結、被外部套件或平台逼出來的不明顯行為，以及 `// prettier-ignore` 這類格式指令。其他都刪。你自己程式裡令人意外的地方，不會因為有註解就過關，它會標成 `MUST KILL`，要求用改名、抽出函式或改型別的方式，讓程式不用註解也看得懂。
 2. **檢查它的報告。** 它越界改了程式、或理由寫錯的標記，會被退回。
 3. **修掉接受的標記。** 小的直接修，例如刪掉死掉的路徑、拿掉沒用的參數；需要重新設計形狀的，先跑一次 `/architect` 畫草稿。
 4. **從根本原因修**，範圍只在這次的改動裡；超出範圍的會列成待辦，不會順手修。
@@ -211,7 +211,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ### /blast-radius：找出改動會弄壞哪裡
 
-**什麼時候用**：一個小 diff 你不太放心，想知道它會不會弄壞**別處**（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L29)）。它可以和 `/how`、`/why` 搭配使用：`/how` 說程式在做什麼，`/why` 說為什麼長這樣，`/blast-radius` 查這次改動可能影響哪些地方。
+**什麼時候用**：一個小 diff 你不太放心，想知道它會不會弄壞**別處**（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L29)）。它可以和 `/how`、`/why` 搭配使用：`/how` 說程式在做什麼，`/why` 說為什麼長這樣，`/blast-radius` 查這次改動可能影響哪些地方。
 
 **指令怎麼寫**：
 
@@ -225,7 +225,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:blast-radius 這個 branch 的改動。我最擔心快取清除那一段，會不會清掉還在用的資料。
 ```
 
-**它會怎麼做**：它不只列出搜尋就能找到的呼叫端，還要追查單靠文字搜尋難以看出的行為影響（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L13)）。
+**它會怎麼做**：它不只列出搜尋就能找到的呼叫端，還要追查單靠文字搜尋難以看出的行為影響（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md#L13)）。
 
 1. **讀懂改動**，包括 diff 沒有直接呈現的間接行為變化。
 2. **找出「它之所以安全」的那一個事實。** 大部分看起來危險的改動，其實都因為某一個事實而安全，例如「這個呼叫只會清掉已經失效的快取，不做別的事」。這個事實成立，大部分風險就一起排除了。
@@ -234,15 +234,15 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 5. **跑程式證明那個事實。** 寫一段腳本或測試，呼叫真正的程式，跑一次，貼上結果。
 6. 改動很大或很廣時，用 `/arena` 讓幾個模型回答同一個問題，再合併。
 
-它會說明每個事實證明到哪個程度：只是說說、指出程式行號、一步步推演出壞情況不會發生、寫程式跑過、在執行中的程式重現過（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L19-L27)）。
+它會說明每個事實證明到哪個程度：只是說說、指出程式行號、一步步推演出壞情況不會發生、寫程式跑過、在執行中的程式重現過（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md#L19-L27)）。
 
-**你會拿到**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md#L40-L46)）：它做了什麼、它之所以安全的那一個事實（附證明；證明不了就寫 unproven）、風險（怎麼壞、在哪一行、機率和代價、怎麼檢查）、已排除的項目，以及「合併之前」成本最低、能抓到真正 bug 的測試或重現方式。
+**你會拿到**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md#L40-L46)）：它做了什麼、它之所以安全的那一個事實（附證明；證明不了就寫 unproven）、風險（怎麼壞、在哪一行、機率和代價、怎麼檢查）、已排除的項目，以及「合併之前」成本最低、能抓到真正 bug 的測試或重現方式。
 
 **下一步**：如果事實被標成 unproven，或列出了確認的風險，先處理再開 PR；「合併之前」那段的測試，可以直接加進這次的改動。
 
 ### /benchmark-checklist：檢查效能數字可不可信
 
-**什麼時候用**：你量了一個效能數字，準備寫進 PR 或依它做決定；或是別人的數字好得不太真實。前後對比的數字最容易不小心弄錯：快取是熱的、有一邊用了除錯版本，或計時的範圍裡根本沒做事（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L31-L49)）。`/poteto-mode` 的效能問題（Perf issue）和持續優化單一指標（Hillclimb）這兩個 playbook，已經會自己跑這份清單，所以只有在這兩個流程之外量到數字時，才需要你自己叫。
+**什麼時候用**：你量了一個效能數字，準備寫進 PR 或依它做決定；或是別人的數字好得不太真實。前後對比的數字最容易不小心弄錯：快取是熱的、有一邊用了除錯版本，或計時的範圍裡根本沒做事（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L31-L49)）。`/poteto-mode` 的效能問題（Perf issue）和持續優化單一指標（Hillclimb）這兩個 playbook，已經會自己跑這份清單，所以只有在這兩個流程之外量到數字時，才需要你自己叫。
 
 **指令怎麼寫**：
 
@@ -250,7 +250,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:benchmark-checklist 在寫進 PR 之前，檢查 <哪個數字，例如匯出變快了多少>
 ```
 
-**它會怎麼做**：開始量之前，先寫下你打算宣稱的那句話（例如「匯出在 6 萬筆的資料集上快了 30%」），讀量測腳本看它計什麼、忽略什麼，再看機器忙不忙（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/benchmark-checklist/SKILL.md#L13-L17)）。接著用執行的證據回答七個問題（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/benchmark-checklist/SKILL.md#L19-L27)）：
+**它會怎麼做**：開始量之前，先寫下你打算宣稱的那句話（例如「匯出在 6 萬筆的資料集上快了 30%」），讀量測腳本看它計什麼、忽略什麼，再看機器忙不忙（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/benchmark-checklist/SKILL.md#L13-L17)）。接著用執行的證據回答七個問題（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/benchmark-checklist/SKILL.md#L19-L27)）：
 
 1. 限制這個數字的是什麼？為什麼不是兩倍？
 2. 每一邊都用正式環境的設定跑嗎？
@@ -266,7 +266,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 ### /create-verification-skill：讓 AI 能像使用者一樣操作你的程式
 
-**什麼時候用**：你的專案還沒有一套寫好的方法，讓 AI 實際啟動程式、像使用者一樣操作、留下證據。改畫面要在執行中的程式裡走一遍，這件事需要的就是它（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L51-L59)）。
+**什麼時候用**：你的專案還沒有一套寫好的方法，讓 AI 實際啟動程式、像使用者一樣操作、留下證據。改畫面要在執行中的程式裡走一遍，這件事需要的就是它（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L51-L59)）。
 
 **指令怎麼寫**：
 
@@ -274,10 +274,10 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 /pstack:create-verification-skill
 ```
 
-**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/create-verification-skill/SKILL.md)）：
+**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md)）：
 
 1. **訪談的是專案，不是你。** 它從程式碼回答這些問題：使用者實際碰到的是什麼（網頁、指令列、桌面程式、API……）、程式在本機怎麼啟動、AI 可以用什麼方式操作它（優先用專案裡能實際操作程式的現成工具，例如 Playwright／Cypress 腳本、終端機輔助腳本、可以用 curl 呼叫的端點、除錯埠，沒有才用瀏覽器、終端機或 HTTP 這類通用做法）、可以留下什麼證據、能不能同時開兩份互不干擾。只有程式碼回答不了的，才問你。專案本身無法建置或啟動時，它會先修好或明確回報，再往下做。
-2. **產生 skill。** 在 Claude Code 裡，它寫進 `.claude/skills/verify-<app>/`（pstack 的說明寫的是 Cursor 的 `.cursor/skills/`，[Claude Code 對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L48-L52)把它換成 `.claude/skills/`）。內容是給 AI 看的操作說明，分成幾段：怎麼啟動（Launch）、確認程式已就緒、可以開始操作的健康檢查（Doctor）、用專案裡真實的選擇器或指令操作（Drive）、要留什麼證據和放在哪（Evidence）、怎麼收拾自己開的東西（Cleanup），以及附帶的腳本怎麼用（Helpers）。
+2. **產生 skill。** 在 Claude Code 裡，它寫進 `.claude/skills/verify-<app>/`（pstack 的說明寫的是 Cursor 的 `.cursor/skills/`，[Claude Code 對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L49-L53)把它換成 `.claude/skills/`）。內容是給 AI 看的操作說明，分成幾段：怎麼啟動（Launch）、確認程式已就緒、可以開始操作的健康檢查（Doctor）、用專案裡真實的選擇器或指令操作（Drive）、要留什麼證據和放在哪（Evidence）、怎麼收拾自己開的東西（Cleanup），以及附帶的腳本怎麼用（Helpers）。
 3. **建立功能地圖。** 在 `features/` 底下放一份索引，加上每個主要功能一個檔案（先挑 3 到 5 個），從使用者的角度寫：功能是什麼、怎麼走到、怎麼操作、看到什麼結果才算成功。
 4. **交出去之前，先自己跑一遍。** 照它剛寫好的說明，啟動、健康檢查、操作一個功能、留證據、收拾，再確認證據在收拾之後還在。沒跑過的 skill 只是草稿。
 5. **提醒你可以用 `/maintain-verification-skill` 維護它。**
@@ -287,7 +287,7 @@ _從寫程式到可以合併的四個階段。開 PR 不會自動開始 babysit�
 
 **你會拿到**：一個專案專屬的驗證 skill，加上一份功能地圖。之後「在程式裡驗證一下」就是任何 AI 在這個專案都能直接做的步驟，不用再從頭交代怎麼啟動。
 
-**下一步**：把它 commit 進專案，讓每個人和每個 AI 用同一套方式操作程式。之後要它用這套方法驗證，就在提示裡點名（取自[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L63-L71)）：
+**下一步**：把它 commit 進專案，讓每個人和每個 AI 用同一套方式操作程式。之後要它用這套方法驗證，就在提示裡點名（取自[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)）：
 
 ```text
 /pstack:poteto-mode 做一個「批次封存」的動作。用 /verify-<app> 驗證你的修改，給我影片和截圖當證據。
@@ -302,7 +302,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 ### /maintain-verification-skill：讓驗證 skill 跟上程式
 
-**什麼時候用**：程式一改，功能地圖就可能過時。指南建議至少每天跑一次（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L86-L94)）。指南說的排程自動化指的是 Cursor Automations；pstack 的 Claude Code 對照說明寫明，在 Claude Code 裡遇到這一步就略過（[對照說明](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/harness/claude-code.md#L58-L64)）。Claude Code 有自己的排程任務，但 pstack 沒有提供設定方式，本篇也不介紹，最簡單的做法是自己定期跑。
+**什麼時候用**：程式一改，功能地圖就可能過時。指南建議至少每天跑一次（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L86-L94)）。指南說的排程自動化指的是 Cursor Automations；pstack 的 Claude Code 對照說明寫明，在 Claude Code 裡遇到這一步就略過（[對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)）。Claude Code 有自己的排程任務，但 pstack 沒有提供設定方式，本篇也不介紹，最簡單的做法是自己定期跑。
 
 **指令怎麼寫**：
 
@@ -310,7 +310,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 /pstack:maintain-verification-skill
 ```
 
-**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/maintain-verification-skill/SKILL.md#L23-L37)）：
+**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md#L23-L37)）：
 
 1. **找到要維護的驗證 skill。** 有好幾個就問你是哪一個；一個都沒有就停下來，叫你先跑 `/create-verification-skill`。
 2. **整理索引**：補上漏掉的、刪掉重複或失效的項目。
@@ -319,7 +319,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 5. **實際操作一遍**：就算原始碼看起來都沒問題，也一定要做。每個功能至少操作一次，操作前先跑健康檢查，證據要在收拾之後還在。
 6. **分類並收尾**：說明寫錯了就改說明；程式明明能用、但操作方法做不到，就修操作方法；程式本身壞了，就記下來告訴你，不會放進這次的修改。
 
-它**只改驗證 skill 自己的資料夾，從不改產品程式**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/maintain-verification-skill/SKILL.md#L19-L21)）。
+它**只改驗證 skill 自己的資料夾，從不改產品程式**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md#L19-L21)）。
 
 **你會拿到**：三種結果之一。`clean`：每個功能都讀過原始碼、也實際操作過，沒有要改的，不開 PR。`changed`：開一個 PR，只放驗證過的修正。`blocked`：沒辦法完成，並寫明卡在哪裡。
 
@@ -327,13 +327,13 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 ### 形式驗證：證明測試很少碰到的情況
 
-驗證 skill 證明的是你實際操作過的路徑。有些 bug 藏在一般操作和測試很少涵蓋的路徑上，例如兩次重試剛好重疊、鎖在寫到一半時過期、狀態變化的順序亂掉。對這種一出錯代價很高的程式，可以跑 `/pstack:create-formal-verification-skill`。它會從程式碼挑出最值得證明的一個性質，依問題選工具（例如判斷事件會不會以錯誤順序發生，預設用 TLA+ 這類模型檢查器），先讓這個性質在故意改壞的程式上失敗一次，證明檢查真的抓得到問題，再留下一個專案專屬的 skill，讓之後的 AI 能用一個指令檢查新的改動（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L96-L116)）。這篇不深入，只要知道有這個選項就好。
+驗證 skill 證明的是你實際操作過的路徑。有些 bug 藏在一般操作和測試很少涵蓋的路徑上，例如兩次重試剛好重疊、鎖在寫到一半時過期、狀態變化的順序亂掉。對這種一出錯代價很高的程式，可以跑 `/pstack:create-formal-verification-skill`。它會從程式碼挑出最值得證明的一個性質，依問題選工具（例如判斷事件會不會以錯誤順序發生，預設用 TLA+ 這類模型檢查器），先讓這個性質在故意改壞的程式上失敗一次，證明檢查真的抓得到問題，再留下一個專案專屬的 skill，讓之後的 AI 能用一個指令檢查新的改動（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L96-L116)）。這篇不深入，只要知道有這個選項就好。
 
 ## 送審：開 PR，推到可以合併
 
 ### 開 PR（Opening a PR playbook）
 
-**什麼時候用**：其他 playbook 結束時都會自動接到它（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L3)）。你也可以自己叫。
+**什麼時候用**：其他 playbook 結束時都會自動接到它（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L3)）。你也可以自己叫。
 
 **指令怎麼寫**（取自[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L128-L134)）：
 
@@ -341,7 +341,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 /pstack:poteto-mode 開 PR。整理成小而有順序的 commit，證據寫進說明。
 ```
 
-**它會怎麼做**（[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md)）：
+**它會怎麼做**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md)）：
 
 1. **在 worktree 裡做**（同一個專案的另一份工作副本），從 main 分出來，避免和你手上的修改混在一起。
 2. **整理 commit**：開 PR 之前，重整成小而有順序的 commit，每一個都能單獨合併，順序要能說出整個故事。
@@ -372,7 +372,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 /pstack:poteto-mode 看一下 PR 123，還有什麼沒處理的？
 ```
 
-**它會怎麼做**（[babysit playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/babysit.md)）：
+**它會怎麼做**（[babysit playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/babysit.md)）：
 
 1. **先宣告模式。** `drive`：一路處理到可以合併（「babysit 這個」「讓它全部通過」）。`background`：不卡住你，在背景整理。`threads-only`：只回審查留言，其他都不碰。`check`：看一次狀態就回報（「看一下 X」「通過了嗎」）。沒說就是 `drive`；小的或只改文件的 PR 用 `check`。
 2. **一次只顧最底下那個還沒合併的 PR。** 有好幾個疊在一起的 PR 時，最底層的合併之前，上面的留言只先讀、先整理。
@@ -385,12 +385,12 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 在 GitHub 上，watch-pr 回報 `READY`（GitHub 判定這個 PR 可以合併）時，`drive` 就結束。**babysit 從不合併，就算全部都綠了也一樣。**只有你明確說「合併」「上線」，才會轉到另一個叫 Shipping 的 playbook（[babysit playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/babysit.md#L21-L23)）。
 
-> `watch-pr` 是用 bun（一個 JavaScript 執行環境）執行的腳本。**第一次執行時**，它會在外掛資料夾裡的 `skills/poteto-mode/scripts/` 執行 `bun install --frozen-lockfile`，依照 lockfile（鎖定每個套件確切版本的檔案）從 npm 下載它需要的套件，裝進那裡的 `node_modules`；之後外掛更新時如果改到套件清單（`package.json`）或 lockfile，會再裝一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。也就是說，叫 babysit 會讓 AI 在你的電腦上從網路下載並安裝套件。lockfile 固定了版本，但你還是應該知道這件事。風險和怎麼收權限，可以參考[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+> `watch-pr` 是用 bun（一個 JavaScript 執行環境）執行的腳本。**第一次執行時**，它會在外掛資料夾裡的 `skills/poteto-mode/scripts/` 執行 `bun install --frozen-lockfile`，依照 lockfile（鎖定每個套件確切版本的檔案）從 npm 下載它需要的套件，裝進那裡的 `node_modules`；之後外掛更新時如果改到套件清單（`package.json`）或 lockfile，會再裝一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。也就是說，叫 babysit 會讓 AI 在你的電腦上從網路下載並安裝套件。lockfile 固定了版本，但你還是應該知道這件事。風險和怎麼收權限，可以參考[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 {: .prompt-warning }
 
 **你會拿到**：`drive` 正常完成時，會回報 PR 已可合併，以及處理過的留言、CI 失敗與判斷依據；遇到需要你處理的衝突或核准，則說明目前卡在哪裡。`check` 則是一份狀態報告。
 
-**下一步**：自己決定要不要合併。要讓 AI 合併，得明確說出來，那會走 Shipping playbook：它會先逐一獨立驗證每個 PR，再從最底下開始一個一個合併（[指南第 6 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
+**下一步**：自己決定要不要合併。要讓 AI 合併，得明確說出來，那會走 Shipping playbook：它會先逐一獨立驗證每個 PR，再從最底下開始一個一個合併（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
 
 ![Babysit 依序處理衝突、審查留言、CI，watch-pr 判定 READY 就停，合併由你決定](babysit-loop.webp){: w="800" h="450" }
 _衝突只回報不自己解；到了可以合併就停，不會替你按下合併。_
@@ -487,10 +487,10 @@ babysit 會處理 CI 和審查留言，到 GitHub 判定可以合併時停下來
 
 ## 延伸閱讀
 
-- [指南：Build the change and clean the diff](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md)：各種實作任務的提示寫法，以及清理的習慣。
-- [指南：Verify the result and open a PR](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md)：完成條件、驗證 skill、形式驗證、開 PR、babysit 和 Shipping。
-- 四個 playbook：[bug-fix](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/bug-fix.md)、[feature](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/feature.md)、[opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md)、[babysit](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/babysit.md)。
-- skill 的說明檔：[tdd](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/tdd/SKILL.md)、[unslop](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/unslop/SKILL.md)、[no-comments](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/no-comments/SKILL.md)、[blast-radius](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/blast-radius/SKILL.md)、[benchmark-checklist](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/benchmark-checklist/SKILL.md)、[create-verification-skill](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/create-verification-skill/SKILL.md)、[maintain-verification-skill](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/maintain-verification-skill/SKILL.md)、[create-formal-verification-skill](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/create-formal-verification-skill/SKILL.md)。
+- [指南：Build the change and clean the diff](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md)：各種實作任務的提示寫法，以及清理的習慣。
+- [指南：Verify the result and open a PR](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md)：完成條件、驗證 skill、形式驗證、開 PR、babysit 和 Shipping。
+- 四個 playbook：[bug-fix](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md)、[feature](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/feature.md)、[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md)、[babysit](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/babysit.md)。
+- skill 的說明檔：[tdd](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md)、[unslop](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/unslop/SKILL.md)、[no-comments](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/no-comments/SKILL.md)、[blast-radius](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md)、[benchmark-checklist](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/benchmark-checklist/SKILL.md)、[create-verification-skill](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md)、[maintain-verification-skill](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md)、[create-formal-verification-skill](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-formal-verification-skill/SKILL.md)。
 - [pstack 系列（1）：安裝、選模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)：怎麼安裝、更新，以及 `/poteto-mode` 怎麼替任務排順序。
 - [pstack 系列（2）：改程式之前，先看懂再設計](/posts/pstack-understand-design/)：`/how`、`/why`、`/architect`、`/interrogate`、`/arena`。
 - [自己寫 Agent Skill](/posts/agent-skill-authoring-guide/)：專案專屬的 skill 放在哪裡、SKILL.md 怎麼寫。

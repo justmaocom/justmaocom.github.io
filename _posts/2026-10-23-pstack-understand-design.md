@@ -19,7 +19,7 @@ AI 程式助理接到「改一下這個功能」，常常直接從第一個看�
 > - 下一篇（第 3 篇）：[寫完程式之後，先證明它能用再合併](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
-> **版本提醒**：本文以 pstack [`0.15.30` 版](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `eb4db2b`（2026-10-22 14:08，台北時間），搭配 Claude Code 2.1.309。之後的版本，行為可能會改變。兩篇查證時用的版本不同，列在下表（第 1 篇正文沒有寫 Claude Code 的版本號）：
+> **版本提醒**：本文以 pstack [`0.15.30` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `eb4db2b`（2026-10-22 14:08，台北時間），搭配 Claude Code 2.1.309。之後的版本，行為可能會改變。兩篇查證時用的版本不同，列在下表（第 1 篇正文沒有寫 Claude Code 的版本號）：
 >
 > | | 第 1 篇 | 本篇 |
 > | --- | --- | --- |
@@ -295,10 +295,10 @@ pstack 指南先講了一句很重要的話：**大部分的改動，這些都�
 
 ## 延伸閱讀
 
-- [指南：Understand the code](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/03-understand.md)：`/how`、`/why`、`/teach`、`/recall` 各自適合的情況。
-- [指南：Design](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/04-design.md)：`/architect`、`/arena`、`/swarm`、`/interrogate` 和試作。
-- [指南：Recipes and pitfalls](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/docs/guide/10-recipes-and-pitfalls.md)：可以直接複製的提示和常見陷阱。
-- 五個 skill 的說明檔：[how](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/how/SKILL.md)、[why](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/why/SKILL.md)、[architect](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/architect/SKILL.md)、[interrogate](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/interrogate/SKILL.md)、[arena](https://github.com/cursor/plugins/blob/eb4db2b55b2b7dec3d9282754cddf0a56bf4ff10/pstack/skills/arena/SKILL.md)。
+- [指南：Understand the code](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md)：`/how`、`/why`、`/teach`、`/recall` 各自適合的情況。
+- [指南：Design](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md)：`/architect`、`/arena`、`/swarm`、`/interrogate` 和試作。
+- [指南：Recipes and pitfalls](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md)：可以直接複製的提示和常見陷阱。
+- 五個 skill 的說明檔：[how](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/how/SKILL.md)、[why](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/why/SKILL.md)、[architect](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/architect/SKILL.md)、[interrogate](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md)、[arena](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/arena/SKILL.md)。
 - [pstack 系列（1）：安裝、選模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)：怎麼安裝，以及 `/poteto-mode` 怎麼替任務排順序。
 - [自己寫 Agent Skill](/posts/agent-skill-authoring-guide/)：從寫 skill 的角度看 SKILL.md 的結構和測試。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：agent 讀得到哪些檔案、權限怎麼收。

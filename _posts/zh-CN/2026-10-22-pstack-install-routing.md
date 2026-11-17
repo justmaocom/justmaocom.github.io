@@ -12,7 +12,7 @@ image:
 
 pstack 能让 AI 编程助手做事更有条理，但打开一看，光是 skill 就有好几十个。这篇教你第一次怎么开始：装好 pstack、确认装到哪个版本、选好模型，之后每个任务都交给 `/poteto-mode`。不用先背下所有名字。
 
-先说明几个名词。AI 编程助手指的是 Cursor、Claude Code 这类能读写项目文件、替你写代码的工具。skill 是一份“告诉 AI 怎么完成某类工作”的操作说明，用斜线命令调用，例如 `/poteto-mode`。pstack 是 Lauren Tan 在 Cursor 官方插件库 [`cursor/plugins`](https://github.com/cursor/plugins/tree/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack) 里维护的一整组 skill。playbook 是针对一种任务写好的固定步骤，例如“修 bug”要先重现、再找原因、修完再验证。subagent 是主对话另外派出去、专门做一小段工作的 AI。token 是 AI 计算用量的单位，读和写的内容越多，用掉的 token 越多。
+先说明几个名词。AI 编程助手指的是 Cursor、Claude Code 这类能读写项目文件、替你写代码的工具。skill 是一份“告诉 AI 怎么完成某类工作”的操作说明，用斜线命令调用，例如 `/poteto-mode`。pstack 是 Lauren Tan 在 Cursor 官方插件库 [`cursor/plugins`](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 里维护的一整组 skill。playbook 是针对一种任务写好的固定步骤，例如“修 bug”要先重现、再找原因、修完再验证。subagent 是主对话另外派出去、专门做一小段工作的 AI。token 是 AI 计算用量的单位，读和写的内容越多，用掉的 token 越多。
 
 整个流程只有四步：安装一次、核对版本、用 `/setup-pstack` 选一次模型，之后每个新任务都用 `/poteto-mode` 开头，写清楚目标和“怎样算完成”，它会自己挑 playbook。不知道该用哪个时，先问 `/poteto-help`。
 
@@ -23,7 +23,7 @@ pstack 能让 AI 编程助手做事更有条理，但打开一看，光是 skill
 > - 系列导读：[这套 skill 是什么、四篇该怎么读](/posts/pstack-series-guide/)
 > - 下一篇（第 2 篇）：[改代码之前，先看懂再设计](/posts/pstack-understand-design/)
 >
-> **版本提醒**：本文以 pstack [`0.15.29` 版](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `88d4751`，也就是本文 2026-10-22 首次发布时的版本；2026-10-24 改写成教学文时，内容仍以这一版为准。Claude Code 的命令和菜单，依 2026-10-24 查阅的[官方文档](https://code.claude.com/docs/en/plugins/install)。之后的版本，命令和行为可能会改变。
+> **版本提醒**：本文以 pstack [`0.15.29` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `88d4751`，也就是本文 2026-10-22 首次发布时的版本；2026-10-24 改写成教学文时，内容仍以这一版为准。Claude Code 的命令和菜单，依 2026-10-24 查阅的[官方文档](https://code.claude.com/docs/en/plugins/install)。之后的版本，命令和行为可能会改变。
 >
 > 2026-10-24 10:51（台北时间）查证时，`cursor/plugins` main 的最新版本是 `0.15.32`（commit `e853501`），skill 增加到 58 个，新增的是 `statechart` 和 `ketchup-video`。和 `0.15.29` 相比，`setup-pstack`、设置指南（01-setup）和 Claude Code 对照说明都没有改；README 在安装段落后新增了一段自动更新与手动更新的说明（和本文第 2 步一致），skill 表也加了两个新 skill；`poteto-mode` 的说明文件和 playbook 没有改，只更新了内部脚本；`poteto-help` 只在对照表里加了这两个新 skill 的两行。
 {: .prompt-info }
@@ -32,14 +32,14 @@ pstack 能让 AI 编程助手做事更有条理，但打开一看，光是 skill
 
 `0.15.29` 版有 56 个 skill，每个 skill 就是一个斜线命令。另外还有 `poteto-agent`、`comment-sicko` 两个专用的 subagent，以及 `poteto-mode` 底下的 23 个 playbook。
 
-在 Claude Code 里，插件的命令前面要加插件名称，所以 Cursor 的 `/poteto-mode`，在 Claude Code 里写成 `/pstack:poteto-mode`（见 [README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L28)）。下文的示例都用 Claude Code 的写法；在 Cursor 里，把 `pstack:` 拿掉就好。两边的其他差异，列在官方的 [Claude Code 对照说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md)。
+在 Claude Code 里，插件的命令前面要加插件名称，所以 Cursor 的 `/poteto-mode`，在 Claude Code 里写成 `/pstack:poteto-mode`（见 [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)）。下文的示例都用 Claude Code 的写法；在 Cursor 里，把 `pstack:` 拿掉就好。两边的其他差异，列在官方的 [Claude Code 对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md)。
 
 ![四步：安装 pstack、核对版本、用 /setup-pstack 选模型、每个任务用 /poteto-mode 开头](install-setup-flow.zh-CN.webp){: width="800" height="450" }
 _第一次使用的流程：安装、核对版本、选模型，再从 /poteto-mode 开始。_
 
 ## 第 1 步：安装
 
-[README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L15-L26) 和[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L5-L15)列出两种装法。在 Cursor 的对话里输入：
+[README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L15-L26) 和[设置指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L5-L15)列出两种装法。在 Cursor 的对话里输入：
 
 ```text
 /add-plugin pstack
@@ -69,7 +69,7 @@ _第一次使用的流程：安装、核对版本、选模型，再从 /poteto-m
 claude plugin list
 ```
 
-把看到的版本号和 [`plugin.json`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/.cursor-plugin/plugin.json) 对一下，就知道自己是不是和文章用的同一版。
+把看到的版本号和 [`plugin.json`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 对一下，就知道自己是不是和文章用的同一版。
 
 ### 更新：默认不会自动更新
 
@@ -108,7 +108,7 @@ claude plugin install pstack@cursor-plugins
 
 ## 第 3 步：用 /setup-pstack 选模型
 
-pstack 会把工作分给不同角色，例如写代码的、做判断的、组成评审小组的，每个角色可以用不同模型。[`/setup-pstack`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/setup-pstack/SKILL.md) 负责替这些角色选模型。
+pstack 会把工作分给不同角色，例如写代码的、做判断的、组成评审小组的，每个角色可以用不同模型。[`/setup-pstack`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/setup-pstack/SKILL.md) 负责替这些角色选模型。
 
 **什么时候用**：装好之后跑一次。之后换了账号、换了方案，或想改用别的模型时，再跑一次。依[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L29)，重跑会保留你改过的角色。
 
@@ -136,16 +136,16 @@ pstack 会把工作分给不同角色，例如写代码的、做判断的、组�
 | medium | `high` |
 | small | `medium` |
 
-**你会拿到**：一份全局的模型设置文件。Cursor 写在 `~/.cursor/rules/pstack-models.mdc`，Claude Code 写在 `~/.claude/rules/pstack-models.md`。两个都在主目录底下，“全局”的意思是对你电脑上每个项目都生效，不是只对目前的项目。依[对照说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md#L37)，Claude Code 会在每个新对话开始时自动加载这份文件。
+**你会拿到**：一份全局的模型设置文件。Cursor 写在 `~/.cursor/rules/pstack-models.mdc`，Claude Code 写在 `~/.claude/rules/pstack-models.md`。两个都在主目录底下，“全局”的意思是对你电脑上每个项目都生效，不是只对目前的项目。依[对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L38)，Claude Code 会在每个新对话开始时自动加载这份文件。
 
-**下一步**：开一个新对话。依[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L43)，模型设置只对新的对话生效。
+**下一步**：开一个新对话。依[设置指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L43)，模型设置只对新的对话生效。
 
-> **只选你的账号实际能用的模型。** 依[对照说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md#L44)，在 Claude Code 里，“检测到的模型”是 subagent 工具允许填的模型名称，不代表你的账号或方案每一个都能用。不确定时，把角色设成 `inherit-parent` 或 `auto`，它就直接用主对话的模型（见[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L31)）。
+> **只选你的账号实际能用的模型。** 依[对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45)，在 Claude Code 里，“检测到的模型”是 subagent 工具允许填的模型名称，不代表你的账号或方案每一个都能用。不确定时，把角色设成 `inherit-parent` 或 `auto`，它就直接用主对话的模型（见[设置指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)）。
 {: .prompt-tip }
 
 ## 不确定时：问 /poteto-help
 
-[`/poteto-help`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md) 是 pstack 的说明台。
+[`/poteto-help`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-help/SKILL.md) 是 pstack 的说明台。
 
 **什么时候用**：不知道该用哪个 skill、不知道第一步做什么，或想知道怎么省 token。
 
@@ -163,7 +163,7 @@ pstack 会把工作分给不同角色，例如写代码的、做判断的、组�
 /pstack:poteto-help 用 pstack 很耗 token，有什么方法可以少用一点？
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L9-L34)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-help/SKILL.md#L9-L34)）：
 
 - 回答你的问题，给你一段可以直接送出的提示，并附上答案出自哪个文件。
 - 如果是“怎么做”的问题，它**不会**自己开始做，而是让你决定要不要送出那段提示，因为真的运行会用掉 token。
@@ -174,11 +174,11 @@ pstack 会把工作分给不同角色，例如写代码的、做判断的、组�
 
 ## 每个任务：用 /poteto-mode 开头
 
-[`/poteto-mode`](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md) 是 pstack 的入口。你只要说清楚要什么，它会挑 playbook、照步骤做，需要时再调用其他 skill。
+[`/poteto-mode`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md) 是 pstack 的入口。你只要说清楚要什么，它会挑 playbook、照步骤做，需要时再调用其他 skill。
 
 ### 任务怎么写
 
-依[指南第 2 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md#L40-L59)，一段好的任务描述最多包含五个部分，每个部分一句话就够：
+依[指南第 2 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md#L40-L59)，一段好的任务描述最多包含五个部分，每个部分一句话就够：
 
 - **目标**：哪里坏了，或你想要什么。也就是“症状”。
 - **怎样算完成**：要能判断“过”或“不过”。“让它更好”“做一小时”都不算。
@@ -208,7 +208,7 @@ pstack 会把工作分给不同角色，例如写代码的、做判断的、组�
 /pstack:poteto-mode 帮这个命令加一个 --json 选项。原本的文本输出要完全不变。两种输出都要验证。
 ```
 
-依[指南第 2 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md#L103)，“先不要改任何代码”这句话会把任务固定在“调查”的 playbook。
+依[指南第 2 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md#L103)，“先不要改任何代码”这句话会把任务固定在“调查”的 playbook。
 
 ### 它会怎么做
 
@@ -228,18 +228,18 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 
 ### 下一步
 
-- **接着做**：对话里已经有前后文时，短短一句就够，例如“do it”“continue”“keep going until done”（[指南第 2 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md#L77-L93)）。
-- **换主题**：在同一段对话里换任务，先说“new task”，它才会重新挑 playbook，不会把新问题当成上一个任务的下一步（[指南第 2 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md#L95-L103)）。
+- **接着做**：对话里已经有前后文时，短短一句就够，例如“do it”“continue”“keep going until done”（[指南第 2 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md#L77-L93)）。
+- **换主题**：在同一段对话里换任务，先说“new task”，它才会重新挑 playbook，不会把新问题当成上一个任务的下一步（[指南第 2 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md#L95-L103)）。
 
 ```text
 /pstack:poteto-mode new task. 查清楚为什么退出登录后缓存还在。先不要改任何代码。
 ```
 
-- **每个新任务都重新叫一次**：包括 Claude Code 在内，每个新任务都用 `/pstack:poteto-mode` 开头。例外是 Cursor 的 Custom Mode：可以从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，把它变成 Custom Mode，也就是在整段对话持续生效的模式。不过依 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文档只在 Agents 窗口和 CLI（在终端里用命令操作的程序）列出 Custom Mode。
+- **每个新任务都重新叫一次**：包括 Claude Code 在内，每个新任务都用 `/pstack:poteto-mode` 开头。例外是 Cursor 的 Custom Mode：可以从 `/` 菜单用 Option+Enter（Mac）或 Alt+Enter（Windows）选 `/poteto-mode`，把它变成 Custom Mode，也就是在整段对话持续生效的模式。不过依 [`poteto-help` 的说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-help/SKILL.md#L54-L58)，Cursor 的文档只在 Agents 窗口和 CLI（在终端里用命令操作的程序）列出 Custom Mode。
 
 ## cursor-team-kit 要不要一起装
 
-[README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md#L255-L263) 写明，`/poteto-mode` 会用到的三样东西不在 pstack 里，而是在另一个插件 `cursor-team-kit`：清理代码的 `/deslop`，以及操作 CLI 和浏览器画面的 `control-cli`、`control-ui`。README 的建议是：想要完整功能，就把 `cursor-team-kit` 一起装。[指南第 5 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59)另外说明，开 PR 前的流程会跑 `/deslop`；没有它的话，就用白话要求同样的清理，例如删掉旁白式注释、没有根据的防御性代码，以及和这次无关的修改。
+[README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L258-L266) 写明，`/poteto-mode` 会用到的三样东西不在 pstack 里，而是在另一个插件 `cursor-team-kit`：清理代码的 `/deslop`，以及操作 CLI 和浏览器画面的 `control-cli`、`control-ui`。README 的建议是：想要完整功能，就把 `cursor-team-kit` 一起装。[指南第 5 章](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59)另外说明，开 PR 前的流程会跑 `/deslop`；没有它的话，就用白话要求同样的清理，例如删掉旁白式注释、没有根据的防御性代码，以及和这次无关的修改。
 
 ## 什么时候用哪个
 
@@ -282,8 +282,8 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 
 ## 注意事项
 
-- **小改动不需要 pstack。** [设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L52)写得很清楚：很小、很明显的修改，直接说就好。
-- **pstack 会多用 token。** 它会派 subagent、组评审小组，这是严谨的代价。[设置指南](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L45-L52)列了几个省 token 的方法：重跑 `/setup-pstack` 选小一点的预算或便宜一点的模型、把角色设成 `auto` 或 `inherit-parent` 让它用主对话的模型、缩短评审小组的模型清单（清单上每多一个模型，就多派一个 subagent），以及只在需要严谨的工作才用 `/poteto-mode`。
+- **小改动不需要 pstack。** [设置指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L52)写得很清楚：很小、很明显的修改，直接说就好。
+- **pstack 会多用 token。** 它会派 subagent、组评审小组，这是严谨的代价。[设置指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L45-L52)列了几个省 token 的方法：重跑 `/setup-pstack` 选小一点的预算或便宜一点的模型、把角色设成 `auto` 或 `inherit-parent` 让它用主对话的模型、缩短评审小组的模型清单（清单上每多一个模型，就多派一个 subagent），以及只在需要严谨的工作才用 `/poteto-mode`。
 - **模型设置是全局的。** 改了会影响这台电脑上的每个项目。
 - **更新前先看改了什么。** Claude Code 对第三方 marketplace 默认不自动更新，这反而让你有机会先检查。
 - **不要在提示里排 skill 的顺序。** 交给 playbook 排。
@@ -296,11 +296,11 @@ _/poteto-mode 先判断任务类型，再照 playbook 的步骤走。_
 
 ## 延伸阅读
 
-- [pstack README](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/README.md)：安装方式，以及不在 pstack 里的组件。
-- [设置指南：Set up pstack](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md)：预算、角色和省 token 的方法。
-- [指南第 2 章：Route work through /poteto-mode](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md)：任务描述的写法和更多示例。
-- [Claude Code 对照说明](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/harness/claude-code.md)：Cursor 和 Claude Code 的差异。
-- [`poteto-mode` 的 SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md)：完整的 playbook 清单和挑选规则。
+- [pstack README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md)：安装方式，以及不在 pstack 里的组件。
+- [设置指南：Set up pstack](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md)：预算、角色和省 token 的方法。
+- [指南第 2 章：Route work through /poteto-mode](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md)：任务描述的写法和更多示例。
+- [Claude Code 对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md)：Cursor 和 Claude Code 的差异。
+- [`poteto-mode` 的 SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md)：完整的 playbook 清单和挑选规则。
 - [Claude Code：Install and manage plugins](https://code.claude.com/docs/en/plugins/install)：marketplace 的加入、版本、更新和移除方式。
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：安装插件前该检查什么。
 - [自己写 Agent Skill](/posts/agent-skill-authoring-guide/)：从写 skill 的角度看 description、测试与维护。

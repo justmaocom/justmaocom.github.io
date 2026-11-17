@@ -16,12 +16,12 @@ Maybe you've heard of pstack, opened the repo, and found nothing but a long list
 >
 > - Start from the beginning (Part 1): [Install, Pick Models, Start With /poteto-mode](/posts/pstack-install-routing/)
 >
-> Parts 3 and 4, along with this guide, are pinned to pstack [`0.15.36`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/.cursor-plugin/plugin.json) (commit `c742dd6`); Part 1 uses `0.15.29` and Part 2 uses `0.15.30`. Details are in the version notes below.
+> Parts 3 and 4, along with this guide, are pinned to pstack [`0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) (commit `c742dd6`); Part 1 uses `0.15.29` and Part 2 uses `0.15.30`. Details are in the version notes below.
 {: .prompt-info }
 
 ## What pstack Is
 
-[pstack](https://github.com/cursor/plugins/tree/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack) is a collection of skills that [Lauren Tan](https://x.com/poteto) (known online as poteto) maintains in Cursor's official plugin repo, [`cursor/plugins`](https://github.com/cursor/plugins), under the MIT license. You can think of a skill as a set of instructions telling an AI coding assistant how to handle one kind of work. By AI coding assistant, I mean tools like Cursor or Claude Code that can read and write your project files and write code for you.
+[pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) is a collection of skills that [Lauren Tan](https://x.com/poteto) (known online as poteto) maintains in Cursor's official plugin repo, [`cursor/plugins`](https://github.com/cursor/plugins), under the MIT license. You can think of a skill as a set of instructions telling an AI coding assistant how to handle one kind of work. By AI coding assistant, I mean tools like Cursor or Claude Code that can read and write your project files and write code for you.
 
 In version `0.15.36`, pstack has **58** skills, **24** principles (each one a short, specific rule named `principle-*`), and **23** playbooks (a fixed set of steps for one kind of task, living under `/poteto-mode`). Also, don't confuse it with the Unix command `pstack` (which prints a process's call stack); here I mean this set of AI skills.
 
@@ -105,7 +105,7 @@ Each post in the series pins a different version, so go by the version box at th
 | Part 2 | `0.15.30` | `eb4db2b` |
 | Parts 3 and 4, and this guide | `0.15.36` | `c742dd6` |
 
-> **Version**: this guide is based on pstack [`0.15.36`](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/.cursor-plugin/plugin.json), which is commit `c742dd6` in `cursor/plugins` (2026-10-28 07:12, Taipei time). When I checked on 2026-11-05, the latest commit on `cursor/plugins` main was `bb68f23` (2026-11-04 15:20, Taipei time), the pstack folder hadn't changed since `c742dd6`, and the latest Claude Code was 2.1.318. The counts and behavior may change in later versions.
+> **Version**: this guide is based on pstack [`0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `c742dd6` in `cursor/plugins` (2026-10-28 07:12, Taipei time). When I checked on 2026-11-05, the latest commit on `cursor/plugins` main was `bb68f23` (2026-11-04 15:20, Taipei time), the pstack folder hadn't changed since `c742dd6`, and the latest Claude Code was 2.1.318. The counts and behavior may change in later versions.
 {: .prompt-info }
 
 If you want the same version as this guide, clone the repo, check out `c742dd6`, and then add it as a marketplace. For the step-by-step details and the risks of not pinning a version, see [Part 1](/posts/pstack-install-routing/) and [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
@@ -116,8 +116,8 @@ pstack is a set of skills in Cursor's official plugin repo; the version this gui
 
 ## Further Reading
 
-- [Official pstack (the commit this guide pins)](https://github.com/cursor/plugins/tree/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack): the README, the guide, and each skill.
-- [Guide directory](https://github.com/cursor/plugins/tree/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/): from install and overnight runs to principles and making it yours.
+- [Official pstack (the commit this guide pins)](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack): the README, the guide, and each skill.
+- [Guide directory](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/): from install and overnight runs to principles and making it yours.
 - [Part 1](/posts/pstack-install-routing/) · [Part 2](/posts/pstack-understand-design/) · [Part 3](/posts/pstack-build-verify-merge/) · [Part 4](/posts/pstack-principles-customization/)
 - [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/) and [Part 1](/posts/mattpocock-skills-setup-routing-guide/): a series about a different set of skills.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
