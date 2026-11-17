@@ -19,7 +19,7 @@ image:
 >
 > - 從頭開始（第 1 篇）：[先設定專案規則，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準，各篇開頭另外註明了之後的版本變動。
+> 這個系列我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準，各篇開頭另外註明了之後的版本變動。
 {: .prompt-info }
 
 ## mattpocock/skills 是什麼

@@ -25,7 +25,7 @@ image:
 > - 上一篇（第 5 篇）：[代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 我写这篇时，以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。这五个 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都还在。按席位计费的 skill 调用流程，是我按原始指令推演的；文中的 wizard 脚本语法检查，则是我实际运行的结果。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。这五个 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都还在。按席位计费的 skill 调用流程，是我按原始指令推演的；文中的 wizard 脚本语法检查，则是我实际运行的结果。
 {: .prompt-info }
 
 > GitHub 上的主线在 `1.3.1` 之后，又替其中三个 skill 加了还没正式发布的小修正：[`wizard` 的脚本模板](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh)修了几个兼容性问题，[`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) 写明临时目录的找法，[`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) 要求测验的正确答案不要老是放在同一个位置。这些修改不影响我在这篇介绍的做法。

@@ -10,7 +10,7 @@ image:
   alt: "把需求問清楚的關鍵是讓同一個詞代表同一件事；問答留在對話裡，定義和少數重要決策才寫進專案。"
 ---
 
-> **版本提醒（2026-10-19 查證）**：我寫這篇時，參考的是 `1.2.3` 版。`mattpocock/skills` 在 2026-10-04 發布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的詞彙表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名為 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 之後只會讀寫新檔名。照本文操作時，請把文中的 `CONTEXT.md` 換成 `GLOSSARY.md`；已經有舊檔的專案，用 `git mv CONTEXT.md GLOSSARY.md` 改名。我查證時，本文介紹的五個 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 都還在。我之後會依新版全面更新這個系列。
+> **版本提醒（2026-10-19 查證）**：這篇我以 `1.2.3` 版為準。`mattpocock/skills` 在 2026-10-04 發布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的詞彙表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名為 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 之後只會讀寫新檔名。照本文操作時，請把文中的 `CONTEXT.md` 換成 `GLOSSARY.md`；已經有舊檔的專案，用 `git mv CONTEXT.md GLOSSARY.md` 改名。我查證時，本文介紹的五個 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 都還在。我之後會依新版全面更新這個系列。
 {: .prompt-warning }
 
 你準備替訂閱服務加入按席次計費功能。會議紀錄裡同時出現「成員」、「使用者」和「席次」，卻沒有人確認三個詞是否代表同一件事。在討論停用成員是否仍要收費前，團隊得先說清楚計費對象到底是人、帳號，還是一份可以指派的資格。
@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 3 篇）：[先找出缺口，再決定要寫規格還是拆工作單](/posts/mattpocock-skills-specs-work-breakdown/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。
 {: .prompt-info }
 
 ## 先看懂五個 skill 的關係

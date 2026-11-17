@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 4 篇）：[AI 开工写代码前，先决定要看哪一种信号](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 这篇的内容，我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。文中的按席位计费流程是我依原始指令推演的，不是实测输出。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。文中的按席位计费流程是我依原始指令推演的，不是实测输出。
 {: .prompt-info }
 
 ## 先认识几个词

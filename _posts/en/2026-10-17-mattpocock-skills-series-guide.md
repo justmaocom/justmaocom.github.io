@@ -19,7 +19,7 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 >
 > - Start here (Part 1): [Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> The series is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Each part also notes changes in later versions at the top.
+> I based this series on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Each part also notes changes in later versions at the top.
 {: .prompt-info }
 
 ## What Is mattpocock/skills?

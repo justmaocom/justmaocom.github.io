@@ -25,7 +25,7 @@ image:
 > - 上一篇（第 5 篇）：[程式寫完之後，誰來看結構、審修改、解衝突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 我寫這篇時，以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。這五個 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都還在。按席次計費的 skill 呼叫流程，是我依原始指令推演的；文中的 wizard 腳本語法檢查，則是我實際執行的結果。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。這五個 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都還在。按席次計費的 skill 呼叫流程，是我依原始指令推演的；文中的 wizard 腳本語法檢查，則是我實際執行的結果。
 {: .prompt-info }
 
 > GitHub 上的主線在 `1.3.1` 之後，又替其中三個 skill 加了還沒正式發佈的小修正：[`wizard` 的腳本範本](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh)修了幾個相容性問題，[`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) 寫明暫存資料夾的找法，[`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) 要求測驗的正確答案不要老是放在同一個位置。這些修改不影響我在這篇介紹的做法。

@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 4 篇）：[AI 開工寫程式前，先決定要看哪一種訊號](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 這篇的資料，我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。文中的按席次計費流程是我依原始指令推演的，不是實測輸出。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。文中的按席次計費流程是我依原始指令推演的，不是實測輸出。
 {: .prompt-info }
 
 ## 先認識幾個詞

@@ -26,7 +26,7 @@ image:
 > - 下一篇（第 6 篇）：[查資料、做交接、學新東西，都有固定做法](/posts/mattpocock-skills-research-handoff/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 這篇的資料，我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程，是我依原始指令推演的；文中的合併衝突與合併後的測試失敗，則是我實際執行的結果。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程，是我依原始指令推演的；文中的合併衝突與合併後的測試失敗，則是我實際執行的結果。
 {: .prompt-info }
 
 > 系列開始之後，`mattpocock/skills` 已經更新到 `1.3.x`。[`v1.3.0` 移除了 `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1)，官方說沒有其他 skill 取代它；同一版也把詞彙表 `CONTEXT.md` 改名為 `GLOSSARY.md`。為了和前四篇一致，這篇我仍以 `1.2.3` 為準。
