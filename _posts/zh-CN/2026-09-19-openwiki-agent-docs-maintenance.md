@@ -10,18 +10,18 @@ image:
   alt: "来源检查全绿只代表引用的代码没过期，叙述对不对仍要人来审。"
 ---
 
-> **版本提醒（2026-10-19 核实）**：本文分析的是 OpenWiki `0.5.2`（commit `715109a`），npm 上的最新版已是 `0.7.2`（2026-10-10）。从 [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同时处理多个页面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。默认值仍是 1，要调高才会并行处理；通过 coding agent 集成运行时也仍然逐页处理。所以下文说 page job“依次处理”、worker“一次只处理目前排到的 page job”，只在调高这个设置时不成立。之后会另行评估是否全面更新。
+> **版本提醒（2026-10-19 核实）**：这篇我分析的是 OpenWiki `0.5.2`（commit `715109a`），npm 上的最新版已是 `0.7.2`（2026-10-10）。从 [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同时处理多个页面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。默认值仍是 1，要调高才会并行处理；通过 coding agent 集成运行时也仍然逐页处理。所以下文说 page job“依次处理”、worker“一次只处理目前排到的 page job”，只在调高这个设置时不成立。是否全面更新这篇，我之后会另行评估。
 {: .prompt-warning }
 
-`AGENTS.md` 适合放构建命令与工作规则，不适合塞进完整的架构说明。coding agent 接手陌生 repo 时，仍得从源代码和测试找出模块关系、数据流与失败处理。OpenWiki 的做法是把这些信息整理到 repo 内的 wiki，让 agent 需要时再读。本文要查的是，代码改变后，它如何找出需要重写的页面，以及更新结果可以信到什么程度。
+`AGENTS.md` 适合放构建命令与工作规则，不适合塞进完整的架构说明。coding agent 接手陌生 repo 时，仍得从源代码和测试找出模块关系、数据流与失败处理。OpenWiki 的做法是把这些信息整理到 repo 内的 wiki，让 agent 需要时再读。我想查的是，代码改变后，它如何找出需要重写的页面，以及更新结果可以信到什么程度。写这篇时，我主要读源代码，只在本地确认过 CLI 能启动，没有运行完整生成。
 
-[LangChain 发布 OpenWiki 时](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation)，主张 agent 指引文件只要指向 repo wiki，coding agent 就能按需求取用文档，不必把大量说明塞进单一指引文件。这种分工让指引文件维持简短，却增加了一份会随代码过期的 wiki。以下分别从更新流程与来源检查，看 OpenWiki 如何处理这个问题。
+[LangChain 发布 OpenWiki 时](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation)，主张 agent 指引文件只要指向 repo wiki，coding agent 就能按需求取用文档，不必把大量说明塞进单一指引文件。这种分工让指引文件维持简短，却增加了一份会随代码过期的 wiki。以下我分别从更新流程与来源检查，看 OpenWiki 如何处理这个问题。
 
 ## OpenWiki 把 repo 文档做成可更新的 wiki
 
-OpenWiki 是产生与维护 repo wiki 的命令行工具。本文查证的是源代码 commit [`715109a`](https://github.com/langchain-ai/openwiki/tree/715109a8ab1cda6d47680fcc8170e203c751bf61)。该版本的 [`package.json`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/package.json) 标注为 `0.5.2`，要求 Node.js `22.22.0` 以上，并采用 [`MIT License`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/LICENSE#L1)。
+OpenWiki 是产生与维护 repo wiki 的命令行工具。我查证的是源代码 commit [`715109a`](https://github.com/langchain-ai/openwiki/tree/715109a8ab1cda6d47680fcc8170e203c751bf61)。该版本的 [`package.json`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/package.json) 标注为 `0.5.2`，要求 Node.js `22.22.0` 以上，并采用 [`MIT License`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/LICENSE#L1)。
 
-本文关注的是 code mode，也就是把生成的文档放回原 repo，一起纳入版本控制。运行初始化后，OpenWiki 会创建 `openwiki/` 目录，并在 `AGENTS.md` 与 `CLAUDE.md` 写入由它管理的指引部分。若 repo 还没有更新 workflow，它也会创建 `.github/workflows/openwiki-update.yml`。因此 `--init` 会读取代码，也会修改 agent 指引，并可能改动 GitHub Actions 配置。这些行为可在 [`ensureCodeModeRepoSetup`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L47) 与 [`writeCodeModeAgentSnippets`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L192) 查到。
+我关注的是 code mode，也就是把生成的文档放回原 repo，一起纳入版本控制。运行初始化后，OpenWiki 会创建 `openwiki/` 目录，并在 `AGENTS.md` 与 `CLAUDE.md` 写入由它管理的指引部分。若 repo 还没有更新 workflow，它也会创建 `.github/workflows/openwiki-update.yml`。因此 `--init` 会读取代码，也会修改 agent 指引，并可能改动 GitHub Actions 配置。这些行为可在 [`ensureCodeModeRepoSetup`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L47) 与 [`writeCodeModeAgentSnippets`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L192) 查到。
 
 OpenWiki 写入的 agent 指引会把 `openwiki/` 定位成按需求查阅的 evidence index。也就是说，agent 先用 wiki 找到相关系统与文件，再回到源代码和测试确认；wiki 本身不是最终依据。这项限制写在 [`createCodeModeAgentsSnippet`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L423) 产生的指引中。
 
@@ -50,7 +50,7 @@ Grounded Claims 的用途是让重要文档描述可以回查源代码。每条 
 
 这项检查只回答两个问题：引用的位置是否仍然存在，以及该位置的内容是否改变。它不会重新判断文档中的自然语言是否正确。假设文档声称“重试三次后会写入失败消息队列”，但被引用的代码其实只重试两次。只要那段代码没有修改，保存的 hash 仍会相同，`stale` 与 `unresolved` 都不会出现。
 
-所以，来源检查全绿只代表 Claim 仍能连到当初引用的内容。审查者仍要读该段代码与相关测试，确认文档没有误解条件、数量或执行顺序。
+所以，来源检查全绿只代表 Claim 仍能连到当初引用的内容。我认为审查者仍要读该段代码与相关测试，确认文档没有误解条件、数量或执行顺序。
 
 ![CI 面板显示来源检查全绿，开发者询问文档是否正确，审查者拿出红笔](claims-green-review-red-pen.webp){: width="800" height="430" }
 _Claims 全绿后，仍需人工核对文档描述。_
@@ -61,7 +61,7 @@ _Claims 全绿后，仍需人工核对文档描述。_
 
 维护个人项目时，你同时是开发者和文档审查者。几个月没碰项目，再回来修登录错误时，你可能还记得功能位于哪个目录，却忘了 session 在哪里续期、超时由哪些测试覆盖，以及部署时读取哪个环境变量。若 wiki 有一页说明登录流程，并用 Claims 连到 session 代码、测试与部署配置，coding agent 就能先读这几个位置，不必从整个 repo 搜索相关关键词。
 
-个人使用也容易省略审查，因为没有人会退回错误的文档 PR。若项目已分成多个模块，或每次维护相隔数月，可以把抽查 Claims 纳入每次更新的例行工作。若项目只有少量文件，而且你每周都在修改，直接读源代码与测试通常更省时间。
+个人使用也容易省略审查，因为没有人会退回错误的文档 PR。若项目已分成多个模块，或每次维护相隔数月，我会建议把抽查 Claims 纳入每次更新的例行工作。若项目只有少量文件，而且你每周都在修改，直接读源代码与测试通常更省时间。
 
 ### 企业值班与跨团队修改
 
@@ -69,24 +69,24 @@ _Claims 全绿后，仍需人工核对文档描述。_
 
 跨团队修改会让文档落后的代价更明显。假设支付团队替事件格式加入必填的版本字段，订单与通知服务都要更新解析程序。OpenWiki 可以依 Git 变更与现有 Claims 找出可能需要改写的页面，并提出文档 PR。审查者仍要确认文档是否写清楚旧版事件能否继续使用，以及测试是否覆盖新旧格式。团队也得先指定文档 PR 的审查人、处理期限，以及生成中断时是否接受部分结果。没有这些安排，自动产生的 PR 只会留在队列里。
 
-项目是个人的还是企业的，并不直接决定它需不需要 repo wiki。若每次接手都要重新找一遍入口、流程与测试，而且有人负责核对文档，wiki 才有机会省下重复查找的时间。
+在我看来，项目是个人的还是企业的，并不直接决定它需不需要 repo wiki。若每次接手都要重新找一遍入口、流程与测试，而且有人负责核对文档，wiki 才有机会省下重复查找的时间。
 
 ## 什么样的 repo 值得承担维护成本
 
-OpenWiki 会增加模型调用、CI 配置与人工审查。导入前至少要确认下列成本由谁承担。
+OpenWiki 会增加模型调用、CI 配置与人工审查。导入前，我至少会确认下列成本由谁承担。
 
-- 每次生成与更新都会调用模型。[README 的 quick start](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 要求设置模型服务商、API 密钥与模型名称。账单、运行时间和输出质量会随模型与 repo 内容改变。本文没有运行完整生成，因此没有这些项目的实测数字。
+- 每次生成与更新都会调用模型。[README 的 quick start](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 要求设置模型服务商、API 密钥与模型名称。账单、运行时间和输出质量会随模型与 repo 内容改变。我写这篇时没有运行完整生成，因此没有这些项目的实测数字。
 - 官方 [`openwiki-update.yml`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/examples/openwiki-update.yml#L1) 会拉取完整 Git history，让 OpenWiki 能比较前后 commit。它也需要模型密钥，以及 `contents: write` 和 `pull-requests: write` 权限，用来提交文档变更与创建 PR。这些权限应和其他能写入 repo 的自动化一样接受审查。
 - `--init` 会创建 `openwiki/`、修改 agent 指引，还可能添加 GitHub Actions workflow。第一次运行后，审查范围应包含所有 diff，而非只有生成的 wiki 页面。
 - Claims 会把文档描述带到确切的源代码位置，但点开链接不等于完成审查。审查者仍要比较描述、引用范围与相关测试。
 
-若 repo 包含多个子系统，coding agent 经常需要修改陌生区域，而且团队愿意审查自动文档 PR，wiki 可以集中记录各系统的入口与交互方式。若小型 repo 只有几个入口，源代码和测试已能直接说明行为，就不必再维护一份内容相近的 wiki。没有审查人力时，也不应启用定时更新，因为每次运行只会再增加一个等待处理的 PR。
+若 repo 包含多个子系统，coding agent 经常需要修改陌生区域，而且团队愿意审查自动文档 PR，wiki 可以集中记录各系统的入口与交互方式。若小型 repo 只有几个入口，源代码和测试已能直接说明行为，就不必再维护一份内容相近的 wiki。没有审查人力时，我也不会启用定时更新，因为每次运行只会再增加一个等待处理的 PR。
 
 企业 repo 还要先排除不应交给模型处理的路径。`.openwikiignore` 会阻止 OpenWiki 的文件工具读取指定内容。启用忽略规则后，OpenWiki 的本地运行后端也会拒绝任意 shell command，因为 shell 可能绕过文件工具直接读取被忽略的文件。这项限制实现在 [`OpenWikiLocalShellBackend.execute`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/agent/docs-only-backend.ts#L481)。`.openwikiignore` 只限制 OpenWiki 的工具，不能取代 repo 访问权限，也不能补救已提交到 Git 的密钥。
 
 ## 先用一个 repo 验证更新流程
 
-先确认 CLI 能在本地启动。以下命令把 OpenWiki 安装到 `/tmp` 下的新目录，不会改动测试 repo 的依赖包，也不会写进 npm 平常使用的全局安装位置。这组命令已在 macOS arm64、Node.js `25.2.1`、npm `11.6.2` 实际运行。OpenWiki 使用 Ink 的交互式终端界面，因此要在 Terminal 这类有 PTY 的环境运行。若 stdin 不支持 raw mode，Ink 会直接打印出错误。
+先确认 CLI 能在本地启动。以下命令把 OpenWiki 安装到 `/tmp` 下的新目录，不会改动测试 repo 的依赖包，也不会写进 npm 平常使用的全局安装位置。这组命令我在 macOS arm64、Node.js `25.2.1`、npm `11.6.2` 实际运行过。OpenWiki 使用 Ink 的交互式终端界面，因此要在 Terminal 这类有 PTY 的环境运行。若 stdin 不支持 raw mode，Ink 会直接打印出错误。
 
 ```bash
 check_prefix="$(mktemp -d /tmp/openwiki-check.XXXXXX)"
@@ -95,7 +95,7 @@ PATH="$check_prefix/bin:$PATH" openwiki --help
 ```
 {: .nolineno }
 
-若 CLI 安装成功，输出会显示版本 `0.5.2` 和 `Usage` 部分。以下省略号代表中间内容已截断。
+若 CLI 安装成功，输出会显示版本 `0.5.2` 和 `Usage` 部分。以下省略号代表我截断的中间内容。
 
 ```console
 >_ OpenWiki v0.5.2 agent docs for codebases
@@ -104,7 +104,7 @@ PATH="$check_prefix/bin:$PATH" openwiki --help
    openwiki [--init|--update] [message]
 ```
 
-本文只验证 CLI 能启动，没有提供模型凭证，也没有运行完整生成。下列 `--init` 与 `--update` 是项目 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始命令。由于 `--init` 会修改 agent 指引并可能添加 workflow，第一次测试应放在可丢弃的 repo 或没有其他变更的测试分支。
+这篇我只验证了 CLI 能启动，没有提供模型凭证，也没有运行完整生成。下列 `--init` 与 `--update` 是项目 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始命令。由于 `--init` 会修改 agent 指引并可能添加 workflow，我建议第一次测试放在可丢弃的 repo 或没有其他变更的测试分支。
 
 ```bash
 openwiki --init
@@ -114,7 +114,7 @@ openwiki --update
 ```
 {: .nolineno }
 
-命令返回成功只代表进程跑完。是否值得采用，还要检查以下结果。
+命令返回成功只代表进程跑完。是否值得采用，我还会检查以下结果。
 
 1. 查看 `openwiki/`、`AGENTS.md`、`CLAUDE.md` 和添加 workflow 的完整 diff，确认 OpenWiki 修改了哪些文件，以及 workflow 取得哪些权限。
 2. 从 wiki 挑一页熟悉的功能，检查它有没有漏掉主要入口、异常处理或代表性测试。
@@ -125,13 +125,13 @@ openwiki --update
 
 前面引用的源代码可以查证 OpenWiki 如何跟踪来源，但不能证明它替每个团队省钱或省时间。我的导入顺序是：先在一个真实 repo 手动运行 `--init` 与 `--update`，保留 wiki 和 Claims 供团队审查，但暂时不启用定时 workflow。确认文档质量和审查时间能接受后，再让 GitHub Actions 定期创建更新 PR。
 
-OpenWiki 会保存每条 Claim 引用的代码位置与内容版本，因此审查者能查出来源是否仍存在。单看文档最后生成时间，无法做这项检查。不过，团队还是要记录抽查时发现多少错误描述、哪些主要流程没有写进 wiki，以及每次文档 PR 需要多少人工修改。若这些审查工作花的时间比原本手动更新文档还多，自动化只是把时间移到 PR review。
+OpenWiki 会保存每条 Claim 引用的代码位置与内容版本，因此审查者能查出来源是否仍存在。单看文档最后生成时间，无法做这项检查。不过，我认为团队还是要记录抽查时发现多少错误描述、哪些主要流程没有写进 wiki，以及每次文档 PR 需要多少人工修改。若这些审查工作花的时间比原本手动更新文档还多，自动化只是把时间移到 PR review。
 
 ## 从一次有来源可查的更新开始
 
 OpenWiki 先比较 Git 变更，再由 planner 读取 repo 结构与测试，决定要处理哪些页面。每页完成时，它检查页面、Claims sidecar 和引用来源，整批完成前再检查索引与内部链接。这些机制可以确认中断时留下了哪些进度，也能确认 Claim 引用的内容版本是否改变。它们不能判断文档是否正确解读了代码。
 
-最小的测试是在可丢弃的 repo 跑一次 `--init`，提交一项有测试的代码变更，再跑 `--update`。接着抽查变更相关页面的 Claims，记录模型用量、错误数量与人工审查时间。只有文档能正确描述这项变更，而且更新成本可以接受，才把定时 workflow 加进正式 repo。
+我建议的最小测试，是在可丢弃的 repo 跑一次 `--init`，提交一项有测试的代码变更，再跑 `--update`。接着抽查变更相关页面的 Claims，记录模型用量、错误数量与人工审查时间。只有文档能正确描述这项变更，而且更新成本可以接受，我才会把定时 workflow 加进正式 repo。
 
 ## 延伸阅读
 
@@ -140,4 +140,4 @@ OpenWiki 先比较 Git 变更，再由 planner 读取 repo 结构与测试，决
 - [Claims preflight 实现](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/brains/code/preflight.ts)：核对 `stale` 与 `unresolved` 的实际判定。
 - [Repository evidence resolver](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/evidence/repository/resolver.ts)：追查行号移动后如何用内容 hash 与上下文重新定位 evidence。
 - [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：OpenWiki 会写入指引部分的那份文件，本身该放什么、不该放什么。
-- [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：自动生成的文档 PR 一样要有人审；这篇整理自动检查、AI 审查与人工批准各看什么。
+- [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：自动生成的文档 PR 一样要有人审；我在这篇整理了自动检查、AI 审查与人工批准各看什么。

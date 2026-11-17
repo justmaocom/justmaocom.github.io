@@ -10,10 +10,10 @@ image:
   alt: "A green source check only means the cited code hasn't gone stale; whether the statement is right still needs a human review."
 ---
 
-> **Version note (checked 2026-10-19):** This post analyzes OpenWiki `0.5.2` (commit `715109a`); the latest on npm is now `0.7.2` (2026-10-10). Since [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0), the native CLI can [work on several pages at once](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers) via `OPENWIKI_PAGE_CONCURRENCY`. The default is still 1, so you have to raise it to get parallel processing, and runs through coding-agent integrations still go page by page. So when this post says page jobs are processed in order and the worker handles only the page job at the front of the queue, those statements only stop being true once you raise that setting. Whether to fully update this post will be decided separately.
+> **Version note (checked 2026-10-19):** The version I analyze here is OpenWiki `0.5.2` (commit `715109a`); the latest on npm is now `0.7.2` (2026-10-10). Since [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0), the native CLI can [work on several pages at once](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers) via `OPENWIKI_PAGE_CONCURRENCY`. The default is still 1, so you have to raise it to get parallel processing, and runs through coding-agent integrations still go page by page. So when this post says page jobs are processed in order and the worker handles only the page job at the front of the queue, those statements only stop being true once you raise that setting. I'll decide separately whether to fully update this post.
 {: .prompt-warning }
 
-`AGENTS.md` is a good place for build commands and working rules, but not for a full architecture write-up. When a coding agent takes over an unfamiliar repo, it still has to work out module relationships, data flow, and failure handling from the source code and tests. OpenWiki's approach is to organize that information into a wiki inside the repo, which the agent reads when it needs to. In this post, I want to find out how it decides which pages need rewriting after the code changes, and how far you can trust the updated result.
+`AGENTS.md` is a good place for build commands and working rules, but not for a full architecture write-up. When a coding agent takes over an unfamiliar repo, it still has to work out module relationships, data flow, and failure handling from the source code and tests. OpenWiki's approach is to organize that information into a wiki inside the repo, which the agent reads when it needs to. In this post, I want to find out how it decides which pages need rewriting after the code changes, and how far you can trust the updated result. I mainly read the source code, and only confirmed locally that the CLI starts; I didn't run a full generation.
 
 [When LangChain announced OpenWiki](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation), it argued that as long as the agent instruction file points to a repo wiki, a coding agent can pull in documentation on demand, without cramming a lot of explanation into a single instruction file. This split keeps the instruction file short, but it adds a wiki that goes stale as the code changes. Below, I look at how OpenWiki deals with that problem from two angles: the update flow and the source checks.
 
@@ -21,7 +21,7 @@ image:
 
 OpenWiki is a command-line tool that generates and maintains a repo wiki. The source I checked for this post is commit [`715109a`](https://github.com/langchain-ai/openwiki/tree/715109a8ab1cda6d47680fcc8170e203c751bf61). At that commit, [`package.json`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/package.json) lists version `0.5.2`, requires Node.js `22.22.0` or later, and is released under the [`MIT License`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/LICENSE#L1).
 
-This post focuses on code mode, where the generated docs go back into the original repo and are version-controlled alongside the code. When you run initialization, OpenWiki creates an `openwiki/` directory and writes OpenWiki-managed instruction blocks into `AGENTS.md` and `CLAUDE.md`. If the repo doesn't have an update workflow yet, it also creates `.github/workflows/openwiki-update.yml`. So `--init` doesn't just read your code; it also modifies your agent instructions and may change your GitHub Actions configuration. You can find this behavior in [`ensureCodeModeRepoSetup`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L47) and [`writeCodeModeAgentSnippets`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L192).
+Here I focus on code mode, where the generated docs go back into the original repo and are version-controlled alongside the code. When you run initialization, OpenWiki creates an `openwiki/` directory and writes OpenWiki-managed instruction blocks into `AGENTS.md` and `CLAUDE.md`. If the repo doesn't have an update workflow yet, it also creates `.github/workflows/openwiki-update.yml`. So `--init` doesn't just read your code; it also modifies your agent instructions and may change your GitHub Actions configuration. You can find this behavior in [`ensureCodeModeRepoSetup`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L47) and [`writeCodeModeAgentSnippets`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L192).
 
 The agent instructions OpenWiki writes position `openwiki/` as an evidence index to consult on demand. In other words, the agent uses the wiki to locate the relevant systems and files, then goes back to the source code and tests to confirm; the wiki itself is not the final authority. This constraint is spelled out in the instructions generated by [`createCodeModeAgentsSnippet`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/ingestion/code-mode.ts#L423).
 
@@ -50,7 +50,7 @@ Before each update, `runClaimsPreflight` resolves the code each Claim cites. If 
 
 This check answers only two questions: does the cited location still exist, and has the content at that location changed? It does not re-evaluate whether the natural-language statement in the docs is correct. Suppose the docs claim "after three retries, the message is written to the dead-letter queue," but the cited code actually retries only twice. As long as that code hasn't been modified, the stored hash stays the same, and neither `stale` nor `unresolved` will show up.
 
-So an all-green source check only means each Claim can still reach the content it originally cited. Reviewers still need to read that code and the related tests to make sure the docs haven't misunderstood a condition, a count, or an execution order.
+So an all-green source check only means each Claim can still reach the content it originally cited. I think reviewers still need to read that code and the related tests to make sure the docs haven't misunderstood a condition, a count, or an execution order.
 
 ![A CI panel shows all-green source checks, a developer asks whether the docs are correct, and a reviewer pulls out a red pen](claims-green-review-red-pen.webp){: width="800" height="430" }
 _Even with all Claims green, the doc statements still need a human check._
@@ -61,7 +61,7 @@ _Even with all Claims green, the doc statements still need a human check._
 
 When you maintain a personal project, you're both the developer and the doc reviewer. Coming back after a few months away to fix a login bug, you might still remember which directory the feature lives in, but forget where the session gets renewed, which tests cover timeouts, and which environment variable the deployment reads. If the wiki has a page explaining the login flow, with Claims linking to the session code, the tests, and the deployment config, a coding agent can read those few locations first instead of searching the whole repo for related keywords.
 
-It's also easy to skip review on a personal project, since nobody will reject an incorrect docs PR. If the project is already split into several modules, or you only touch it every few months, consider making spot-checking Claims a routine part of every update. If the project has only a handful of files and you're changing it every week, reading the source and tests directly usually saves more time.
+It's also easy to skip review on a personal project, since nobody will reject an incorrect docs PR. If the project is already split into several modules, or you only touch it every few months, I'd suggest making spot-checking Claims a routine part of every update. If the project has only a handful of files and you're changing it every week, reading the source and tests directly usually saves more time.
 
 ### On-Call and Cross-Team Changes at a Company
 
@@ -69,18 +69,18 @@ Say the on-call engineer gets an alert about duplicate orders being created, but
 
 Cross-team changes make the cost of outdated docs more obvious. Suppose the payments team adds a required version field to the event format, and both the order and notification services need to update their parsing code. OpenWiki can use Git changes and existing Claims to find pages that may need rewriting and open a docs PR. Reviewers still need to check whether the docs clearly state if old-format events will keep working, and whether the tests cover both the old and new formats. The team also has to decide up front who reviews docs PRs, how quickly they must be handled, and whether partial results are acceptable when a generation run is interrupted. Without those arrangements, auto-generated PRs will just sit in the queue.
 
-Whether a project is personal or corporate doesn't directly determine whether it needs a repo wiki. A wiki only has a chance to save repeated lookup time if everyone who takes over has to rediscover the entry points, flows, and tests each time, and if someone is responsible for checking the docs.
+In my view, whether a project is personal or corporate doesn't directly determine whether it needs a repo wiki. A wiki only has a chance to save repeated lookup time if everyone who takes over has to rediscover the entry points, flows, and tests each time, and if someone is responsible for checking the docs.
 
 ## Which Repos Are Worth the Maintenance Cost
 
-OpenWiki adds model calls, CI configuration, and human review. Before adopting it, at least confirm who bears the following costs.
+OpenWiki adds model calls, CI configuration, and human review. Before adopting it, I'd at least confirm who bears the following costs.
 
 - Every generation and update calls a model. The [README quick start](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) requires you to configure a model provider, API key, and model name. Cost, run time, and output quality vary with the model and the repo's contents. I didn't run a full generation for this post, so I have no measured numbers for these.
 - The official [`openwiki-update.yml`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/examples/openwiki-update.yml#L1) fetches the full Git history so OpenWiki can compare commits. It also needs a model key, plus `contents: write` and `pull-requests: write` permissions to commit doc changes and open PRs. These permissions should get the same scrutiny as any other automation that can write to the repo.
 - `--init` creates `openwiki/`, modifies agent instructions, and may add a GitHub Actions workflow. After the first run, your review should cover the entire diff, not just the generated wiki pages.
 - Claims link a doc statement to an exact source location, but clicking the link isn't the same as finishing the review. Reviewers still need to compare the statement, the cited range, and the related tests.
 
-If a repo contains multiple subsystems, coding agents often need to modify unfamiliar areas, and the team is willing to review automated docs PRs, a wiki can centralize each system's entry points and how the systems interact. If a small repo has only a few entry points and the source code and tests already explain the behavior directly, there's no need to maintain a wiki that says much the same thing. And if you don't have people to review, don't turn on scheduled updates, because each run just adds another PR waiting to be handled.
+If a repo contains multiple subsystems, coding agents often need to modify unfamiliar areas, and the team is willing to review automated docs PRs, a wiki can centralize each system's entry points and how the systems interact. If a small repo has only a few entry points and the source code and tests already explain the behavior directly, there's no need to maintain a wiki that says much the same thing. And without people to review, I wouldn't turn on scheduled updates, because each run just adds another PR waiting to be handled.
 
 Company repos also need to exclude paths that shouldn't be handed to a model. `.openwikiignore` blocks OpenWiki's file tools from reading the specified content. Once ignore rules are enabled, OpenWiki's local execution backend also rejects arbitrary shell commands, because a shell could bypass the file tools and read ignored files directly. This restriction is implemented in [`OpenWikiLocalShellBackend.execute`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/agent/docs-only-backend.ts#L481). `.openwikiignore` only restricts OpenWiki's tools; it doesn't replace repo access controls, and it can't undo secrets that have already been committed to Git.
 
@@ -104,7 +104,7 @@ If the CLI installed successfully, the output shows version `0.5.2` and a `Usage
    openwiki [--init|--update] [message]
 ```
 
-For this post I only verified that the CLI starts; I didn't provide model credentials or run a full generation. The `--init` and `--update` commands below are the commands as listed in the project's [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start). Because `--init` modifies agent instructions and may add a workflow, do your first test in a throwaway repo or on a test branch with no other changes.
+For this post I only verified that the CLI starts; I didn't provide model credentials or run a full generation. The `--init` and `--update` commands below are the commands as listed in the project's [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start). Because `--init` modifies agent instructions and may add a workflow, I'd recommend doing your first test in a throwaway repo or on a test branch with no other changes.
 
 ```bash
 openwiki --init
@@ -114,7 +114,7 @@ openwiki --update
 ```
 {: .nolineno }
 
-A successful exit only means the process finished. Whether it's worth adopting depends on the following checks.
+A successful exit only means the process finished. To decide whether it's worth adopting, I'd go through the following checks.
 
 1. Review the full diff of `openwiki/`, `AGENTS.md`, `CLAUDE.md`, and the new workflow to confirm which files OpenWiki changed and which permissions the workflow gets.
 2. Pick a wiki page about a feature you know well, and check whether it misses any major entry points, error handling, or representative tests.
@@ -125,13 +125,13 @@ A successful exit only means the process finished. Whether it's worth adopting d
 
 The source code cited above lets you verify how OpenWiki tracks its sources, but it can't prove that it saves every team money or time. The adoption order I'd use: first run `--init` and `--update` manually on one real repo, keep the wiki and Claims for the team to review, but hold off on enabling the scheduled workflow. Once doc quality and review time are acceptable, let GitHub Actions open update PRs on a schedule.
 
-OpenWiki stores the code location and content version each Claim cites, so reviewers can find out whether a source still exists. You can't do that check by looking only at when the docs were last generated. Even so, the team still needs to record how many incorrect statements spot-checks turn up, which major flows are missing from the wiki, and how much manual editing each docs PR requires. If this review work takes more time than updating the docs by hand did, automation has just moved that time into PR review.
+OpenWiki stores the code location and content version each Claim cites, so reviewers can find out whether a source still exists. You can't do that check by looking only at when the docs were last generated. Even so, I think the team still needs to record how many incorrect statements spot-checks turn up, which major flows are missing from the wiki, and how much manual editing each docs PR requires. If this review work takes more time than updating the docs by hand did, automation has just moved that time into PR review.
 
 ## Start With One Update Whose Sources You Can Check
 
 OpenWiki first compares Git changes, then has the planner read the repo structure and tests to decide which pages to handle. As each page finishes, it checks the page, the Claims sidecar, and the cited sources, and before the batch completes it checks the index and internal links. These mechanisms can confirm what progress was saved when a run was interrupted, and whether the content version a Claim cites has changed. They can't tell whether the docs interpreted the code correctly.
 
-The smallest test is to run `--init` once in a throwaway repo, commit a code change that has tests, then run `--update`. After that, spot-check the Claims on the pages related to the change, and record model usage, the number of errors, and human review time. Only add the scheduled workflow to a production repo if the docs describe the change correctly and the update cost is acceptable.
+The smallest test I'd suggest is to run `--init` once in a throwaway repo, commit a code change that has tests, then run `--update`. After that, spot-check the Claims on the pages related to the change, and record model usage, the number of errors, and human review time. I'd only add the scheduled workflow to a production repo if the docs describe the change correctly and the update cost is acceptable.
 
 ## Further Reading
 
@@ -140,4 +140,4 @@ The smallest test is to run `--init` once in a throwaway repo, commit a code cha
 - [Claims preflight implementation](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/brains/code/preflight.ts): check the actual logic behind `stale` and `unresolved`.
 - [Repository evidence resolver](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/src/claims/evidence/repository/resolver.ts): trace how evidence is relocated using content hashes and context after line numbers shift.
 - [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): what belongs, and what doesn't, in the file OpenWiki writes its managed instruction block into.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): auto-generated docs PRs still need a reviewer; this post lays out what automated checks, AI review, and human approval each look at.
+- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): auto-generated docs PRs still need a reviewer; in that post I lay out what automated checks, AI review, and human approval each look at.
