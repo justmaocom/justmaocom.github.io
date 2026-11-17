@@ -10,18 +10,18 @@ image:
   alt: "把官方 PDF 题库解析成题目、每次随机组卷，再用跨练习的统计找出弱项。"
 ---
 
-做这个项目，是因为老婆报名了采购法资格考试。
+我做这个项目，是因为老婆报名了采购法资格考试。
 
 直接照着 PDF 题库练习几次，很容易连题目顺序和答案一起记住。下一页还没翻，答案已经先浮出来。这种熟悉感让人无法分辨记住的是题目内容，还是答案在 PDF 里的位置。
 
-要解的问题是：怎么把固定题库改造成每轮顺序不同、还能留下弱项记录的练习？
+我要解的问题是：怎么把固定题库改造成每轮顺序不同、还能留下弱项记录的练习？
 
 ![左侧照固定题序能预告答案，右侧题序洗牌后显示理解度重新加载中](pdf-order-memory.webp){: width="800" height="430" }
 _题序一洗牌，熟悉感就不能代替理解。_
 
 ## 这是一套把官方题库变成练习记录的 Web App
 
-[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) 是一套政府采购法题库练习网站。本文检查的版本是 commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb)。项目声明的版本是 `0.1.0`，需要 Python `3.11` 以上，并使用 FastAPI、SQLAlchemy、Jinja2、pdfplumber 与 python-docx。这些信息都写在 [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21)。项目采用 [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20)。
+[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) 是一套政府采购法题库练习网站。这篇我检查的版本是 commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb)。项目声明的版本是 `0.1.0`，需要 Python `3.11` 以上，并使用 FastAPI、SQLAlchemy、Jinja2、pdfplumber 与 python-docx。这些信息都写在 [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21)。项目采用 [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20)。
 
 它接手已下载到本地的官方 PDF 或 DOCX，通过 [`parse_command`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L86) 将题目写进数据库。浏览器端的路由覆盖随机练习、立即对答案、单次成绩与跨练习弱项统计，入口集中在 [`src/api/main.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/main.py#L5-L40)。
 
@@ -57,7 +57,7 @@ def source_hash(self) -> str:
 
 ## 弱项不是猜的，是按类别累积出来
 
-这里最需要确认的是“跨练习弱项”到底算了什么。
+这里我认为最需要确认的是“跨练习弱项”到底算了什么。
 
 [`get_weakness`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L173-L225) 先用 `anonymous_id` 找出练习记录，再把所有作答依题目类别分组。各类别的正确率是答对笔数除以总作答笔数，结果按正确率由低到高排列。前端再筛出低于 `80%` 的类别，最多取五类组成“针对弱项练习”按钮，判断逻辑位于 [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L48-L69)。
 
@@ -67,7 +67,7 @@ const weakIds = weakCats.map(c => c.category_id).join(',');
 ```
 {: file="src/templates/weakness.html" }
 
-所以这个判定有明确分母、门槛与排序方式。它算的是各类别历次作答的累积正确率，不是能力测验模型，也不会替近期成绩加权。同一题做过多次，每次作答都会进入统计。这些界线来自 `SessionAnswer.id` 的笔数汇总方式，不是 README 对功能的自我描述。
+所以这个判定有明确分母、门槛与排序方式。它算的是各类别历次作答的累积正确率，不是能力测验模型，也不会替近期成绩加权。同一题做过多次，每次作答都会进入统计。这些界线是我从 `SessionAnswer.id` 的笔数汇总方式看出来的，不是来自 README 对功能的自我描述。
 
 ## 方便的代价是格式耦合与匿名识别
 
@@ -75,17 +75,17 @@ const weakIds = weakCats.map(c => c.category_id).join(',');
 
 运行环境也不是单一静态网页。[`docker-compose.yml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/docker-compose.yml#L1-L29) 会启动应用程序与 PostgreSQL 16，并用 `pgdata` volume 保存数据。如果练习记录需要在磁盘故障后恢复，部署时还要另外安排备份。
 
-目前的跨练习识别使用浏览器 `localStorage` 里的 `gpa_anonymous_id`，前端把它放进 `/api/weakness` 查询参数。这段流程写在 [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36)。对应路由只接收 `anonymous_id`，没有账号验证依赖。这对家用工具很省事，但它不是存放正式测验成绩的权限设计。
+目前的跨练习识别使用浏览器 `localStorage` 里的 `gpa_anonymous_id`，前端把它放进 `/api/weakness` 查询参数。这段流程写在 [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36)。对应路由只接收 `anonymous_id`，没有账号验证依赖。我觉得这对家用工具很省事，但它不是存放正式测验成绩的权限设计。
 
 ## 适合家用练习，不适合直接当正式考试系统
 
 如果题库来源固定、用户范围明确，需求是打乱题序并找出常错类别，这个项目已经把必要流程接起来。题库有变动时，[`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) 也能更新、保留或软删除现有题目，不必每次清空数据库。
 
-如果要公开提供多人使用，还需要先处理账号、授权、数据隔离与备份策略。若题库布局经常改动，也要替解析器准备失败报告与新格式测试。现有代码适合当成自用练习工具，不能直接视为正式考试平台。
+如果要公开提供多人使用，还需要先处理账号、授权、数据隔离与备份策略。若题库布局经常改动，也要替解析器准备失败报告与新格式测试。在我看来，现有代码适合当成自用练习工具，不能直接视为正式考试平台。
 
 ## 先跑测试，再接自己的题库
 
-先确认依赖、CLI 入口与核心行为，再处理官方题库文件。以下命令已在 macOS、Python `3.14.2`、uv `0.9.17` 上实际运行。
+我会先确认依赖、CLI 入口与核心行为，再处理官方题库文件。以下命令我在 macOS、Python `3.14.2`、uv `0.9.17` 上实际运行过。
 
 ```bash
 git clone https://github.com/7a6ac0/gpa-question-webapp.git
@@ -96,21 +96,21 @@ uv run pytest -q
 ```
 {: .nolineno }
 
-实测结果为 `34 passed in 1.05s`，CLI 也列出了 `parse` 子命令。这只确认目前 commit 的安装与测试可以完成，不代表任何版本的官方 PDF 都能成功解析。下一步可从[公共工程委员会题库页面](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion)下载一个类别的文件，放进 `data/`，再依[项目 README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58) 的导入命令处理。
+我实测的结果是 `34 passed in 1.05s`，CLI 也列出了 `parse` 子命令。这只确认目前 commit 的安装与测试可以完成，不代表任何版本的官方 PDF 都能成功解析。下一步可从[公共工程委员会题库页面](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion)下载一个类别的文件，放进 `data/`，再依[项目 README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58) 的导入命令处理。
 
 ## 真正有用的是留下可回头查的练习记录
 
 上面的可查证内容只能确认功能确实存在，无法证明它会提高考试成绩。我仍判断这个项目的价值在于完成一个复习循环。
 
-固定 PDF 能提供题目和答案，网站则把每次答题留成数据。随机组卷切断题序提示，类别统计指出下一轮该练哪里。对这个家庭需求而言，技术选型只是手段，能持续完成“作答、发现弱项、再练一次”才是成品。
+固定 PDF 能提供题目和答案，网站则把每次答题留成数据。随机组卷切断题序提示，类别统计指出下一轮该练哪里。对我家这个需求而言，技术选型只是手段，能持续完成“作答、发现弱项、再练一次”才是成品。
 
 ## 把第一份题库跑通
 
 开头的问题是：怎么把固定题库改造成每轮顺序不同、还能留下弱项记录的练习？
 
-这个项目的答案很具体。解析器把 PDF 变成可查询的题目，session 每次重新抽题，作答记录再按类别累积。它处理的是固定题序造成的熟悉感，适用范围是自用或小范围练习，不包含正式测验需要的权限与管理机制。
+这个项目就是我的答案，做法很具体。解析器把 PDF 变成可查询的题目，session 每次重新抽题，作答记录再按类别累积。它处理的是固定题序造成的熟悉感，适用范围是自用或小范围练习，不包含正式测验需要的权限与管理机制。
 
-最小的下一步是 clone 项目并跑完测试。确认本地环境正常后，再拿一份官方题库验证解析结果。
+我建议的最小下一步，是 clone 项目并跑完测试。确认本地环境正常后，再拿一份官方题库验证解析结果。
 
 ## 延伸阅读
 
