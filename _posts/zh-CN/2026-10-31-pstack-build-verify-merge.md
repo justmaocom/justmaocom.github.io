@@ -337,7 +337,7 @@ _生成一次，commit 进项目；代码改了，用 /maintain-verification-ski
 2. **整理 commit**：开 PR 之前，重整成小的 commit，每一个都能单独合并。
 3. **清理**：commit 之前对 diff 跑 `/deslop`。送审之前跑 `/no-comments`，以及 PR 标题、说明和 commit 说明用 `/technical-writing` 写、再应用 `/unslop`，是 `/poteto-mode` 对所有工作的固定规则（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L23-L24)），开 PR 时一样会做。
 4. **标题**用 Conventional Commits 格式（一种固定的 commit 标题写法：类型、括号里的范围、冒号，再接说明），例如 `fix(export): ...`。
-5. **说明**是给审查者一分钟看完的摘要，不超过 40 行，依序是：Why（为什么）、What changed（改了什么）、Scope（范围）、Tradeoffs（取舍，只写审查者会问到、但没有采用的做法）、Blast Radius（影响范围）、Verification（验证）。没有内容的段落就省略。
+5. **说明**是给审查者一分钟看完的摘要，不到 40 行，依序是：Why（为什么）、What changed（改了什么）、Scope（范围）、Tradeoffs（取舍，只写审查者会问到、但没有采用的做法）、Blast Radius（影响范围）、Verification（验证）。没有内容的段落就省略。
 6. **默认用 `gh`（GitHub 的命令行工具）开 PR**，而且直接开成可以审查的状态，不开草稿。
 
 **它不会在开完 PR 之后自动开始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI（每次推上去就自动跑的检查）失败或有审查留言要处理时，要由你开口调用 babysit。指南也建议：后续的修改另开一个叠在上面的 PR，不要让同一个分支越长越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
