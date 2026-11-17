@@ -10,12 +10,12 @@ image:
   alt: "AI 自己写代码也写测试时，要看它改不了的东西：你确认过的测试位置，以及来自规格的预期值。"
 ---
 
-> **版本提醒（2026-10-19 核实）**：本文以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介绍的四个 skill 都还在，但有三点不同：原本仍在试验中的 `implement-spec` 移入了官方插件，它会一次实现整份规格，用 worktree（同一个 repo 的多个工作目录）并行处理多张工作单，是逐张使用 `implement` 之外的另一种做法；同样移入官方插件的 `retro` 是主线的最后一步，在 `code-review` 之后回顾这次工作；`tdd`、`diagnosing-bugs` 读取的词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`。从 `1.3.1` 起，`ask-matt` 会在修完 bug 后建议运行 `retro`。本系列之后会按新版全面更新。
+> **版本提醒（2026-10-19 核实）**：这篇我以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介绍的四个 skill 都还在，但有三点不同：原本仍在试验中的 `implement-spec` 移入了官方插件，它会一次实现整份规格，用 worktree（同一个 repo 的多个工作目录）并行处理多张工作单，是逐张使用 `implement` 之外的另一种做法；同样移入官方插件的 `retro` 是主线的最后一步，在 `code-review` 之后回顾这次工作；`tdd`、`diagnosing-bugs` 读取的词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`。从 `1.3.1` 起，`ask-matt` 会在修完 bug 后建议运行 `retro`。这个系列之后我会按新版全面更新。
 {: .prompt-warning }
 
-上一篇用 `to-tickets` 把按席位计费切成三张工作单，每张都打上了 `ready-for-agent`，表示信息已经齐全，可以交给 AI 接手。现在要开一个新的对话，让 AI 实现其中一张“禁用成员并释放席位”。它会自己改代码，也会自己写测试，最后报告“测试全部通过”。
+在我上一篇的推演里，`to-tickets` 把按席位计费切成三张工作单，每张都打上了 `ready-for-agent`，表示信息已经齐全，可以交给 AI 接手。现在要开一个新的对话，让 AI 实现其中一张“禁用成员并释放席位”。它会自己改代码，也会自己写测试，最后报告“测试全部通过”。
 
-可是这些测试也是 AI 写的。它可能只是在替自己刚写的代码背书，根本没对照需求。代码和测试都由 AI 写，你要看什么才知道它做对了？
+可是这些测试也是 AI 写的。我担心的是，它可能只是在替自己刚写的代码背书，根本没对照需求。代码和测试都由 AI 写，你要看什么才知道它做对了？
 
 `mattpocock/skills` 把这一段交给四个 skill：`implement`、`tdd`、`diagnosing-bugs` 与 `prototype`，每个 skill 看的信号都不一样。
 
@@ -25,7 +25,7 @@ image:
 > - 下一篇（第 5 篇）：[代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 本文内容以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。按席位计费的 skill 调用流程依原始指令推演；文中的红灯与绿灯测试输出则是实际运行结果。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。按席位计费的 skill 调用流程是我依原始指令推演的；文中的红灯与绿灯测试输出，则是我实际运行的结果。
 {: .prompt-info }
 
 ## 先认识几个词
@@ -43,7 +43,7 @@ image:
 
 这四个 skill 都放在 repo 的 `skills/engineering/` 底下，许可证是 [MIT](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L10)。它们在 `ask-matt` 的路线图里位置不同。
 
-`implement` 位于主流程的最后一段。[`ask-matt` 的主流程](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L22-L26)写明，它在实现每张工作单时会搭配 `tdd`，完成后再跑 `code-review`。`code-review` 负责审查这次修改的代码，第 5 篇会介绍。`diagnosing-bugs` 是另一个入口，[专门处理“东西坏了”](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)。`prototype` 则是需求讨论中的岔路，[遇到只靠对话谈不定的设计问题时才走](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)。
+`implement` 位于主流程的最后一段。[`ask-matt` 的主流程](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L22-L26)写明，它在实现每张工作单时会搭配 `tdd`，完成后再跑 `code-review`。`code-review` 负责审查这次修改的代码，第 5 篇我会介绍。`diagnosing-bugs` 是另一个入口，[专门处理“东西坏了”](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)。`prototype` 则是需求讨论中的岔路，[遇到只靠对话谈不定的设计问题时才走](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)。
 
 | skill | 什么时候出场 | 靠什么判断做对了 |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ Commit your work to the current branch.
 ```
 {: file="skills/engineering/implement/SKILL.md" }
 
-逐行看，AI 会做下面五件事：
+我逐行看下来，AI 会做下面五件事：
 
 1. 读你指定的规格或工作单，依照内容实现。
 2. 能用 `tdd` 的地方就用，而且只在事先谈好的测试接缝上写测试。
@@ -77,7 +77,7 @@ Commit your work to the current branch.
 4. 做完后调用 `code-review` 审查这次的修改。
 5. 把成果 commit 到当前分支。
 
-要注意第 3 点：整套测试只在最后跑一次，所以这张工作单没有改到的测试文件，要到最后才会运行。如果这次修改不小心弄坏了别处的功能，也要到那时才会发现。
+我会注意第 3 点：整套测试只在最后跑一次，所以这张工作单没有改到的测试文件，要到最后才会运行。如果这次修改不小心弄坏了别处的功能，也要到那时才会发现。
 
 `implement` 不会自己启动。它的 front matter 设置了 [`disable-model-invocation: true`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/SKILL.md#L4)，`agents/openai.yaml` 也写了 [`allow_implicit_invocation: false`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/agents/openai.yaml#L5)。AI 不会因为聊到“开始写吧”就自行运行它，要由你明确调用。
 
@@ -135,9 +135,9 @@ _还没有会亮红灯的命令，推测再多也无法确认哪一个对。_
 4. **修复并补回归测试。** 回归测试用来确认同一个 bug 不会再出现。先写一个会失败的回归测试，再修复。前提是[找得到正确的测试接缝](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L114-L128)；如果找不到，也说明了一件事：现在的代码结构没办法用测试挡住这个 bug 再次出现。
 5. **[清理](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L130-L138)。** 重跑原本的回路、确认回归测试通过、删掉 `[DEBUG-` 开头的输出，并把最后证实的假设写进 commit 或 PR 说明。
 
-第 2 步的假设要写成“如果原因是 X，那么改变 Y 会让 bug 消失”。套在席位上，可以写成“如果原因是禁用时没有把成员移出已分配名单，那么在禁用流程补上移除动作，可用席位就会正确增加”。写不出预测的假设要丢掉或改写。
+第 2 步的假设要写成“如果原因是 X，那么改变 Y 会让 bug 消失”。套在席位上，我会写成“如果原因是禁用时没有把成员移出已分配名单，那么在禁用流程补上移除动作，可用席位就会正确增加”。写不出预测的假设要丢掉或改写。
 
-第 4 步找不到测试接缝时，[`ask-matt` 把后续交给 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇会介绍。
+第 4 步找不到测试接缝时，[`ask-matt` 把后续交给 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇我会介绍。
 
 ## `prototype` 用一次性程序回答一个设计问题
 
@@ -163,9 +163,9 @@ _版本之间要在布局与操作方式上有所不同，只换颜色看不出�
 
 ## 测试由 AI 自己写，靠两条规则才算数
 
-开头问过：AI 自己写代码也自己写测试，测试会不会只是在替程序背书？`tdd` 靠两条规则防止这种情况。
+我在开头问过：AI 自己写代码也自己写测试，测试会不会只是在替程序背书？`tdd` 靠两条规则防止这种情况。
 
-**第一条是测试位置由你确认。** 上面提过，AI 列出的接缝要经过你同意，才能在那里写测试。你可以趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
+**第一条是测试位置由你确认。** 上面提过，AI 列出的接缝要经过你同意，才能在那里写测试。我建议趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
 
 **第二条是预期值要有独立来源。** `tdd` 在说明[同义反复这个反模式](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31)时，要求预期值来自程序以外的依据，例如已知正确的数值、手算过的例子或规格。`tests.md` 用同一个求和函数示范了两种写法：
 
@@ -186,16 +186,16 @@ test("calculateTotal sums line items", () => {
 
 第一种写法的 `expected` 用 `reduce` 重算一次。程序怎么算，测试就怎么算，所以它永远会通过。第二种写法直接写 `15`，这个数字可以拿规格或手算核对，程序算错时测试就会失败。
 
-不过，这两条规则都只是写在 Markdown 里的指令，没有机制强制执行。[`tdd` 文件夹](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)里只有 `SKILL.md`、`tests.md`、`mocking.md` 与一份 `agents/openai.yaml`，没有任何检查脚本。AI 列出接缝时，你若没细看就按同意，第一条规则等于没有作用。
+不过，这两条规则都只是写在 Markdown 里的指令，没有机制强制执行。我看过 [`tdd` 文件夹](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)，里面只有 `SKILL.md`、`tests.md`、`mocking.md` 与一份 `agents/openai.yaml`，没有任何检查脚本。AI 列出接缝时，你若没细看就按同意，第一条规则等于没有作用。
 
-所以测试算不算数，要你自己看两样东西：你确认过的接缝清单，以及每个预期值能不能在规格里找到出处。
+所以我认为，测试算不算数，要你自己看两样东西：你确认过的接缝清单，以及每个预期值能不能在规格里找到出处。
 
 ![左侧试卷的出题、作答、批改都是 AI，标准答案栏写着“照作答算一遍”，盖着 100 分；右侧试卷由你确认的接缝出题，标准答案写着“15，出自规格”，由 node --test 批改；底部写着“自己出题、自己作答、自己打分”](tautological-test-exam.webp){: width="800" height="450" }
 _预期值若照程序的算法重算，测试就会永远通过。_
 
 ## 哪些地方要花你的时间
 
-用了这四个 skill，就不必再凭感觉判断做完了没：前三个可以看能重跑的测试或命令，`prototype` 则看人实际试过之后的反应。不过下面这些环节都要有人付出心力，多半落在你身上：
+用了这四个 skill，就不必再凭感觉判断做完了没：前三个可以看能重跑的测试或命令，`prototype` 则看人实际试过之后的反应。不过照我的整理，下面这些环节都要有人付出心力，多半落在你身上：
 
 | 环节 | 由谁付出 | 付出什么 |
 | --- | --- | --- |
@@ -207,11 +207,11 @@ _预期值若照程序的算法重算，测试就会永远通过。_
 | `prototype` 交付后 | 你或领域专家 | 实际点过每个场景或每个版本，并说出哪里不对 |
 | `prototype` 收尾 | 团队 | 维护 `prototype/<name>` 分支，并在工作单上留下指向它的说明 |
 
-最花时间的是 `diagnosing-bugs` 的第一阶段。原文认为[回路做对了，bug 就等于修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以时间都花在这里；做不出回路，就不进下一阶段。
+在我看来，最花时间的是 `diagnosing-bugs` 的第一阶段。原文认为[回路做对了，bug 就等于修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以时间都花在这里；做不出回路，就不进下一阶段。
 
 ## 什么情况用哪一个
 
-照你手上的状况挑：
+我建议照你手上的状况挑：
 
 | 你手上的状况 | 使用的 skill | 不适用的时候 |
 | --- | --- | --- |
@@ -224,7 +224,7 @@ _预期值若照程序的算法重算，测试就会永远通过。_
 
 ## 模拟场景：实现“禁用成员并释放席位”
 
-以下的 skill 调用没有实际运行，因为 `implement` 会修改项目并 commit。流程依 `1.2.3` 版的原始指令推演。其中的红灯与绿灯测试在 Node.js v25.2.1 上实际跑过，程序是为本文写的最小示例，并非取自 `mattpocock/skills`。
+以下的 skill 调用我没有实际运行，因为 `implement` 会修改项目并 commit。流程是我依 `1.2.3` 版的原始指令推演的。其中的红灯与绿灯测试，我在 Node.js v25.2.1 上实际跑过，程序是我为这篇写的最小示例，并非取自 `mattpocock/skills`。
 
 假设前两张工作单“显示工作区已购买与可用席位”与“把可用席位分配给成员”都已完成。你开一个新的对话，附上第三张工作单：
 
@@ -339,11 +339,11 @@ export function deactivateMember(workspace, memberId) {
 
 ## 小结
 
-代码和测试都由 AI 写的时候，判断做对了没，要看 AI 自己改不了的东西。写新功能时，看测试是不是写在你确认过的接缝上、预期值是不是出自规格；修 bug 时，看有没有一条对这个症状亮过红灯的命令；设计还没定时，就让你或熟悉业务的人实际点过原型再说。
+代码和测试都由 AI 写的时候，要判断做对了没，我会看 AI 自己改不了的东西。写新功能时，看测试是不是写在你确认过的接缝上、预期值是不是出自规格；修 bug 时，看有没有一条对这个症状亮过红灯的命令；设计还没定时，就让你或熟悉业务的人实际点过原型再说。
 
-这篇只谈把工作单变成代码的这一段。审查代码结构与这次的修改、解决合并冲突，下一篇会介绍 `codebase-design`、`improve-codebase-architecture`、`code-review` 与 `resolving-merge-conflicts`。
+这篇我只谈把工作单变成代码的这一段。审查代码结构与这次的修改、解决合并冲突，下一篇我会介绍 `codebase-design`、`improve-codebase-architecture`、`code-review` 与 `resolving-merge-conflicts`。
 
-换到你自己的项目，接下来可以开一个新的对话，对一张已贴上 `ready-for-agent`、没有前置工作的工作单运行 `$implement`。AI 列出测试接缝时逐一确认；它写出测试后，再核对每个预期值都能在规格里找到。
+换到你自己的项目，我建议接下来开一个新的对话，对一张已贴上 `ready-for-agent`、没有前置工作的工作单运行 `$implement`。AI 列出测试接缝时逐一确认；它写出测试后，再核对每个预期值都能在规格里找到。
 
 ## 延伸阅读
 
