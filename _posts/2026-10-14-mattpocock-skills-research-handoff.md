@@ -10,7 +10,7 @@ image:
   alt: "從查資料、交接、設定金鑰到寫給 AI 的文件，背後是同一個原則：每件事只留一份正本，其他地方附連結。"
 ---
 
-前五篇談的都是「把功能做出來」：問清楚需求、寫規格、拆工作單、寫程式、審查與合併。但實際做按席次計費時，還會遇到另一類事情：
+前五篇我談的都是「把功能做出來」：問清楚需求、寫規格、拆工作單、寫程式、審查與合併。但實際做按席次計費時，還會遇到另一類事情：
 
 - 付款服務的按比例收費規則怎麼算？得有人去查官方文件。
 - 原型要在另一個資料夾做，現在這段對話裡談好的東西，要怎麼帶過去？
@@ -18,17 +18,17 @@ image:
 - 你自己對「按比例計費」一知半解，想好好學一次。
 - 專案給 AI 看的說明文件越寫越長，AI 卻常常沒照著做。
 
-這些事都不是寫程式，卻常常卡住進度。`mattpocock/skills` 用五個 skill 處理它們：`research`、`handoff`、`wizard`、`teach` 和 `writing-for-agents`。
+這些事都不是寫程式，卻常常卡住進度。這篇我要介紹 `mattpocock/skills` 處理它們的五個 skill：`research`、`handoff`、`wizard`、`teach` 和 `writing-for-agents`。
 
 > mattpocock/skills 系列｜第 6 篇
 >
 > - 上一篇（第 5 篇）：[程式寫完之後，誰來看結構、審修改、解衝突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。這五個 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都還在。按席次計費的 skill 呼叫流程依原始指令推演；文中的 wizard 腳本語法檢查則是實際執行結果。
+> 我寫這篇時，以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。這五個 skill 在 `1.2.3` 都已存在，到目前最新的 `1.3.1` 也都還在。按席次計費的 skill 呼叫流程，是我依原始指令推演的；文中的 wizard 腳本語法檢查，則是我實際執行的結果。
 {: .prompt-info }
 
-> GitHub 上的主線在 `1.3.1` 之後，又替其中三個 skill 加了還沒正式發佈的小修正：[`wizard` 的腳本範本](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh)修了幾個相容性問題，[`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) 寫明暫存資料夾的找法，[`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) 要求測驗的正確答案不要老是放在同一個位置。這些修改不影響本文介紹的做法。
+> GitHub 上的主線在 `1.3.1` 之後，又替其中三個 skill 加了還沒正式發佈的小修正：[`wizard` 的腳本範本](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh)修了幾個相容性問題，[`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) 寫明暫存資料夾的找法，[`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) 要求測驗的正確答案不要老是放在同一個位置。這些修改不影響我在這篇介紹的做法。
 {: .prompt-tip }
 
 ## 先認識三個詞
@@ -49,7 +49,7 @@ image:
 | `teach` | 在一個資料夾裡，分好幾次教你一個新主題 | 想真正學會某件事時 | 不會，要你手動叫它 |
 | `writing-for-agents` | 一份「怎麼寫給 AI 看的文件」的參考手冊 | 寫 skill 或專案說明文件 `AGENTS.md` 時 | 會 |
 
-`handoff` 和 `teach` 都[設定成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5)[AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4)。交接和上課都是你決定要開始的事，AI 不該在聊天聊到一半時突然幫你做。
+`handoff` 和 `teach` 都[設定成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5)[AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4)。在我看來，交接和上課都是你決定要開始的事，AI 不該在聊天聊到一半時突然幫你做。
 
 在 `ask-matt` 的路線圖裡，[`handoff` 被放在「階段交界」](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L61-L69)，其他四個都在[不屬於任何流程的單獨區塊](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L73-L86)，需要時才拿出來用。
 
@@ -61,7 +61,7 @@ image:
 2. 只查第一手資料，例如官方文件、原始碼、規格書，每個說法都要追到真正的出處，不能引用別人的轉述。
 3. 把結果寫成一份 Markdown 筆記（一種用簡單符號排版的純文字檔），每一句都附上出處，存在專案裡習慣放筆記的地方；沒有慣例就自己找個合理的位置，並告訴你放在哪。
 
-為什麼堅持第一手資料？想像你問路，路人說「前面左轉應該就到了」，和你自己打開地圖看，可信度差很多。網路上的教學文章常常是某個版本的寫法，換了版本就不準；官方文件和原始碼才是現在真正的規則。
+為什麼堅持第一手資料？我會拿問路來比喻。路人說「前面左轉應該就到了」，和你自己打開地圖看，可信度差很多。網路上的教學文章常常是某個版本的寫法，換了版本就不準；官方文件和原始碼才是現在真正的規則。
 
 ![左側是一串「聽說」：論壇心得引用部落格、部落格引用另一篇教學，越傳越走樣；右側直接讀官方文件、原始碼和規格書，整理成一份每句都附出處的筆記；底部寫著「每句話都追到原始出處」](research-primary-sources.webp){: width="800" height="450" }
 _二手文章一層一層轉述，越傳越走樣；第一手資料才是現在的規則。_
@@ -72,7 +72,7 @@ _二手文章一層一層轉述，越傳越走樣；第一手資料才是現在�
 
 `handoff` 處理的是「換人接手」的情況。這個「人」可以是另一個 AI 對話，也可以是同事。
 
-用醫院交班來比喻。下班的護理師不會把整天的經過從頭講一遍，而是交一張單子：病人現在狀況如何、還有什麼要做、哪些紀錄可以去哪裡查。`handoff` 做的就是這張單子。
+我會用醫院交班來比喻。下班的護理師不會把整天的經過從頭講一遍，而是交一張單子：病人現在狀況如何、還有什麼要做、哪些紀錄可以去哪裡查。`handoff` 做的就是這張單子。
 
 它的規則只有[五條](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L8-L16)：
 
@@ -82,7 +82,7 @@ _二手文章一層一層轉述，越傳越走樣；第一手資料才是現在�
 4. 把敏感資料遮掉，例如密碼、金鑰和個人資料。
 5. 你叫它時如果順便說了「下一段要做什麼」，交接單就針對那件事來寫。
 
-第 3 條最重要。交接單要短，才有人會看；重抄一遍規格，不但變長，兩份內容之後還可能對不上。
+我認為第 3 條最重要。交接單要短，才有人會看；重抄一遍規格，不但變長，兩份內容之後還可能對不上。
 
 ![左側是一長串對話紀錄，從頭捲到尾都還沒看到重點；右側是一張交接單，只列出「做到哪」、「下一步」、「建議使用的 skill」、「參考連結」四欄，密碼已遮掉；底部寫著「交接單只寫下一位需要的，其餘附上連結」](handoff-note.webp){: width="800" height="450" }
 _下一位不需要整段對話，只需要一張寫清楚現況和下一步的單子。_
@@ -91,7 +91,7 @@ _下一位不需要整段對話，只需要一張寫清楚現況和下一步的�
 
 `ask-matt` 對它的使用時機[寫得很窄](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L67)：只有在換了一套 AI 工具、換了一個資料夾、交給同事，或是做到一半要分出一件旁支工作時才用。
 
-其他時候有更省事的選擇，例如直接在原對話繼續，或讓工具自動把對話濃縮成摘要後接著做。第 4 篇的 `prototype` 就是典型的使用時機：原型放在另一個資料夾，所以[去的時候交接一次，回來時再交接一次](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)，把原型學到的東西帶回原本的討論。
+其他時候有更省事的選擇，例如直接在原對話繼續，或讓工具自動把對話濃縮成摘要後接著做。我在第 4 篇介紹過的 `prototype` 就是典型的使用時機：原型放在另一個資料夾，所以[去的時候交接一次，回來時再交接一次](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)，把原型學到的東西帶回原本的討論。
 
 ## `wizard`：只有你能做的步驟，讓程式帶你做
 
@@ -167,7 +167,7 @@ _AI 寫好步驟，你只要照著畫面操作、貼上數值。_
 | 上課 | 你 | 每堂課都要動手練習、做測驗，看不懂就直接問 |
 | 改 `AGENTS.md` | 你和 AI | 每加一行都問自己：拿掉它，AI 的行為會不會變？ |
 
-最花你時間的是 `teach`，因為學習本來就得自己花力氣，這部分 AI 替代不了。其次是 `wizard`，但它省下的是「每次都要重新跟 AI 解釋一遍」的時間，跑過一次就值得。
+在我看來，最花你時間的是 `teach`，因為學習本來就得自己花力氣，這部分 AI 替代不了。其次是 `wizard`，但它省下的是「每次都要重新跟 AI 解釋一遍」的時間，跑過一次就值得。
 
 ## 什麼情況用哪一個
 
@@ -181,11 +181,11 @@ _AI 寫好步驟，你只要照著畫面操作、貼上數值。_
 
 ## 模擬情境：替按席次計費查資料、交接、設定金鑰
 
-以下的 skill 呼叫沒有實際執行，流程依 `1.2.3` 版的原始指令推演。其中的 wizard 腳本是用 `1.2.3` 版的範本，為本文寫的最小範例；我只用 bash 5.2.37 做了語法檢查，沒有實際執行，這也是 `wizard` 自己的規定。
+以下的 skill 呼叫我沒有實際執行，流程是我依 `1.2.3` 版的原始指令推演的。其中的 wizard 腳本，是我用 `1.2.3` 版的範本為這篇寫的最小範例；我只用 bash 5.2.37 做了語法檢查，沒有實際執行，這也是 `wizard` 自己的規定。
 
 ### 先查清楚按比例收費的規則
 
-第 3 篇示範過用 `to-questionnaire` 準備問財務負責人的問卷：月中新增席次後，要不要按剩餘天數比例收費？假設財務選了按比例收費，接下來就要確認付款服務實際怎麼算。你決定先查官方文件：
+我在第 3 篇示範過用 `to-questionnaire` 準備問財務負責人的問卷：月中新增席次後，要不要按剩餘天數比例收費？假設財務選了按比例收費，接下來就要確認付款服務實際怎麼算。你決定先查官方文件：
 
 ```text
 $research 付款服務在訂閱中途增加數量時，怎麼按比例計算費用？只用官方文件與 API 參考。
@@ -244,7 +244,7 @@ finish
 
 第一步照抄了範本裡的 Stripe 範例，第二步是為按席次計費加的。`ask_secret` 是隱藏輸入，你貼上的金鑰不會顯示在畫面上；`set_secret` 只用在自動化流程真正需要的那一個金鑰上。
 
-接著做語法檢查：
+接著我做了語法檢查：
 
 ```bash
 bash -n setup-billing.sh
@@ -267,7 +267,7 @@ bash -n setup-billing.sh
 
 ## 小結
 
-寫程式之外的事，也可以有固定做法：
+寫程式之外的事，我認為也可以有固定做法：
 
 - 要查事實，用 `research` 派助手去讀第一手資料，帶回附出處的筆記。
 - 要換地方或換人，用 `handoff` 寫一張只列重點、其他附連結的交接單。

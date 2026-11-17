@@ -10,7 +10,7 @@ image:
   alt: "Research notes, handoffs, API key setup, and docs for AI share one rule: keep a single source of truth and link to it everywhere else."
 ---
 
-The first five parts were all about getting a feature built: clarifying requirements, writing a spec, splitting tickets, writing code, reviewing and merging. But building per-seat billing for real also brings a different kind of task:
+In the first five parts, I wrote about getting a feature built: clarifying requirements, writing a spec, splitting tickets, writing code, reviewing and merging. But building per-seat billing for real also brings a different kind of task:
 
 - How does the payment service calculate a prorated charge? Someone has to read the official docs.
 - The prototype lives in another folder. How do you carry over what was agreed in this conversation?
@@ -18,17 +18,17 @@ The first five parts were all about getting a feature built: clarifying requirem
 - You only half understand "prorated billing" yourself and want to learn it properly.
 - The project's instructions for the AI keep getting longer, yet the AI often doesn't follow them.
 
-None of this is coding, yet it often holds everything up. `mattpocock/skills` handles them with five skills: `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`.
+None of this is coding, yet it often holds everything up. In this post I cover the five skills `mattpocock/skills` uses for them: `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`.
 
 > mattpocock/skills Series | Part 6
 >
 > - Previous (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). All five skills already exist in `1.2.3` and are still there in the latest release, `1.3.1`. The skill invocations in the per-seat billing example are inferred from the original instructions; the syntax check on the wizard script is a real execution result.
+> When I wrote this post, I worked from [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). All five skills already exist in `1.2.3` and are still there in the latest release, `1.3.1`. I inferred the skill invocations in the per-seat billing example from the original instructions; the syntax check on the wizard script is one I actually ran.
 {: .prompt-info }
 
-> After `1.3.1`, the main branch on GitHub picked up small, not-yet-released fixes to three of these skills: [the `wizard` script template](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh) fixed a few compatibility issues, [`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) spells out how to find the temporary folder, and [`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) asks that a quiz's correct answer not always sit in the same position. None of this changes what this post describes.
+> After `1.3.1`, the main branch on GitHub picked up small, not-yet-released fixes to three of these skills: [the `wizard` script template](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/engineering/wizard/template.sh) fixed a few compatibility issues, [`handoff`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/handoff/SKILL.md#L8) spells out how to find the temporary folder, and [`teach`](https://github.com/mattpocock/skills/blob/49dd158d1076134a641b33efb035946536778336/skills/productivity/teach/SKILL.md#L110) asks that a quiz's correct answer not always sit in the same position. None of this changes what I describe in this post.
 {: .prompt-tip }
 
 ## Three Terms First
@@ -49,7 +49,7 @@ None of this is coding, yet it often holds everything up. `mattpocock/skills` ha
 | `teach` | Teaches you a new topic over several sessions, inside one folder | When you want to really learn something | No, you start it yourself |
 | `writing-for-agents` | A reference manual for writing documents the AI reads | When writing a skill or the project instructions file `AGENTS.md` | Yes |
 
-Both `handoff` and `teach` are [set](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5) [so the AI can't start them on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4). Handing off and taking a lesson are things you decide to begin; the AI shouldn't spring them on you mid-chat.
+Both `handoff` and `teach` are [set](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5) [so the AI can't start them on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4). As I see it, handing off and taking a lesson are things you decide to begin; the AI shouldn't spring them on you mid-chat.
 
 On the `ask-matt` roadmap, [`handoff` sits under "phase boundaries"](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L61-L69), while the other four are in [a standalone section outside every flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L73-L86), used only when needed.
 
@@ -61,7 +61,7 @@ On the `ask-matt` roadmap, [`handoff` sits under "phase boundaries"](https://git
 2. Use only primary sources, such as official docs, source code, and specs. Every claim has to be traced back to where it really comes from, not to someone's retelling.
 3. Write the results as a Markdown note (a plain-text file formatted with simple symbols), with a source for every claim, saved where the project usually keeps notes; if there's no such place, pick a sensible one and say where.
 
-Why insist on primary sources? Think of asking for directions. A passer-by saying "turn left up ahead, I think" is far less reliable than opening the map yourself. Tutorials online are often written for one particular version and go stale when the version changes; official docs and source code are the rules as they stand now.
+Why insist on primary sources? I think of it like asking for directions. A passer-by saying "turn left up ahead, I think" is far less reliable than opening the map yourself. Tutorials online are often written for one particular version and go stale when the version changes; official docs and source code are the rules as they stand now.
 
 ![On the left, a chain of hearsay: a forum post cites a blog, which cites another tutorial, drifting further with each retelling; on the right, official docs, source code, and a spec are read directly and turned into a note with a source for every line; the bottom reads "Trace every claim to its original source"](research-primary-sources.webp){: width="800" height="450" }
 _Second-hand articles drift with every retelling; primary sources are the current rules._
@@ -72,7 +72,7 @@ The note isn't the end of the road. [As `ask-matt` explains](https://github.com/
 
 `handoff` covers the moment someone else takes over. That "someone" can be another AI conversation or a colleague.
 
-Think of a hospital shift change. The nurse going off shift doesn't retell the whole day; they hand over a sheet: how the patient is doing, what still needs doing, where to find the records. `handoff` writes that sheet.
+I'd compare it to a hospital shift change. The nurse going off shift doesn't retell the whole day; they hand over a sheet: how the patient is doing, what still needs doing, where to find the records. `handoff` writes that sheet.
 
 It has just [five rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L8-L16):
 
@@ -82,7 +82,7 @@ It has just [five rules](https://github.com/mattpocock/skills/blob/c55ee46073ed9
 4. Redact anything sensitive, such as passwords, keys, and personal data.
 5. If you said what the next session is for when calling it, tailor the sheet to that.
 
-Rule 3 matters most. A handoff sheet has to be short for anyone to read it; copying the spec in not only makes it longer, the two copies can later drift apart.
+I think rule 3 matters most. A handoff sheet has to be short for anyone to read it; copying the spec in not only makes it longer, the two copies can later drift apart.
 
 ![On the left, a long conversation log that still hasn't reached the point after scrolling top to bottom; on the right, a handoff sheet with just four parts: "where we are," "next step," "suggested skills," and "links," with passwords blacked out; the bottom reads "The handoff sheet holds only what the next person needs; link the rest"](handoff-note.webp){: width="800" height="450" }
 _The next person doesn't need the whole conversation, just a sheet that states where things are and what's next._
@@ -91,7 +91,7 @@ _The next person doesn't need the whole conversation, just a sheet that states w
 
 `ask-matt` keeps its use [very narrow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L67): only when switching to a different AI tool, moving to a different folder, handing to a colleague, or splitting off a side task midway.
 
-Other times there are easier options, such as simply continuing in the same conversation, or letting the tool automatically condense the conversation into a summary and carry on. `prototype` from part 4 is the classic case: the prototype lives in a separate folder, so you [hand off once on the way there and once on the way back](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21), bringing what the prototype taught you back into the original discussion.
+Other times there are easier options, such as simply continuing in the same conversation, or letting the tool automatically condense the conversation into a summary and carry on. `prototype`, which I covered in part 4, is the classic case: the prototype lives in a separate folder, so you [hand off once on the way there and once on the way back](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21), bringing what the prototype taught you back into the original discussion.
 
 ## `wizard`: For Steps Only You Can Do, Let a Program Walk You Through
 
@@ -143,7 +143,7 @@ Two more details: knowledge always [comes from trustworthy sources, not the AI's
 
 The skills above, and the project's `AGENTS.md` (a file in the project that tells the AI how to work on it), are all "documents written for AI." `writing-for-agents` is the reference manual for writing them, with the goal of getting the AI to [work the same way every time](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L6).
 
-The manual is long, so here are the six most practical points:
+The manual is long, so I picked out the six most practical points:
 
 1. **How a pointer sentence is worded decides whether the AI reads the document.** For example, `AGENTS.md` says "Before changing billing, read `docs/billing.md`." [According to the skill](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L12), whether the AI goes and reads it depends on how clear that sentence is, not on how good the target document is.
 2. **Text that's always loaded has a cost.** The AI reads every line of `AGENTS.md` in every conversation. [The skill splits the cost into two kinds](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/writing-for-agents/SKILL.md#L20-L27): words the AI must always hold, and documents a person must remember exist.
@@ -167,7 +167,7 @@ If you're writing a skill, a second file, [`SKILL-MECHANICS.md`](https://github.
 | Lessons | You | Practice and take the quiz in every lesson; ask whenever something's unclear |
 | Editing `AGENTS.md` | You and the AI | For every line added, ask: if I removed it, would the AI behave differently? |
 
-The biggest time cost is `teach`, because learning takes your own effort, and no AI can do that part for you. Next is `wizard`, but what it saves is the time spent re-explaining things to the AI every time, so it pays off after one run.
+As I see it, the biggest time cost is `teach`, because learning takes your own effort, and no AI can do that part for you. Next is `wizard`, but what it saves is the time spent re-explaining things to the AI every time, so it pays off after one run.
 
 ## Which One to Use When
 
@@ -181,11 +181,11 @@ The biggest time cost is `teach`, because learning takes your own effort, and no
 
 ## Walkthrough: Research, Handoff, and Key Setup for Per-Seat Billing
 
-The skill invocations below were not actually run; the flow is inferred from the `1.2.3` instructions. The wizard script uses the `1.2.3` template and is a minimal example written for this post; I only ran a syntax check on it with bash 5.2.37 and did not actually run it, which is also what `wizard` itself requires.
+I didn't actually run the skill invocations below; I inferred the flow from the `1.2.3` instructions. The wizard script is a minimal example I wrote for this post from the `1.2.3` template; I only ran a syntax check on it with bash 5.2.37 and did not actually run it, which is also what `wizard` itself requires.
 
 ### First, Pin Down the Proration Rules
 
-Part 3 showed how to use `to-questionnaire` to prepare a questionnaire asking the finance lead whether a seat added mid-month should be charged in proportion to the days left. Suppose finance chose prorated charging; the next thing to confirm is how the payment service actually calculates it. You decide to read the official docs first:
+In part 3, I showed how to use `to-questionnaire` to prepare a questionnaire asking the finance lead whether a seat added mid-month should be charged in proportion to the days left. Suppose finance chose prorated charging; the next thing to confirm is how the payment service actually calculates it. You decide to read the official docs first:
 
 ```text
 $research How does the payment service prorate charges when quantity increases mid-subscription? Use only official docs and the API reference.
@@ -244,7 +244,7 @@ finish
 
 The first step copies the Stripe example from the template; the second was added for per-seat billing. `ask_secret` is hidden entry, so the key you paste doesn't show on screen; `set_secret` is used only for the one key the automation actually needs.
 
-Then the syntax check:
+Then I ran the syntax check:
 
 ```bash
 bash -n setup-billing.sh
@@ -267,7 +267,7 @@ That said, the habit has a precondition: the originals have to actually exist an
 
 ## Wrapping Up
 
-Work that isn't coding can follow a repeatable process too:
+I think work that isn't coding can follow a repeatable process too:
 
 - To check facts, use `research` to send a helper to primary sources and bring back a note with citations.
 - To change place or person, use `handoff` to write a sheet with just the key points and links to the rest.
