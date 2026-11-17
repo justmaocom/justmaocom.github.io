@@ -10,7 +10,7 @@ image:
   alt: "Reproduce before fixing, clean the diff, verify by driving the app, then let babysit get the PR to mergeable. Merging is your call."
 ---
 
-When an AI coding assistant finishes a change, it often says "Done, this should work." But a successful build only shows that the code passes compilation checks; it does not establish that the feature meets its requirements. "Should work" offers even less assurance. This post shows you how to make "prove it works" part of the process with pstack: reproduce the problem before fixing it, clean out extra code and comments, find what else the change could break, have the AI drive your app the way a user does, and finally open a PR and get it to mergeable. For each playbook and skill, I cover when to use it, how to write the command (with an example you can copy and adapt), what it does step by step, what you get back, and where to go next. At the end, a made-up example ties them together, followed by a "which one when" table.
+When an AI coding assistant finishes a change, it often says "Done, this should work." But as I see it, a successful build only shows that the code passes compilation checks; it does not establish that the feature meets its requirements. "Should work" offers even less assurance. This post shows you how to make "prove it works" part of the process with pstack: reproduce the problem before fixing it, clean out extra code and comments, find what else the change could break, have the AI drive your app the way a user does, and finally open a PR and get it to mergeable. For each playbook and skill, I cover when to use it, how to write the command (with an example you can copy and adapt), what it does step by step, what you get back, and where to go next. At the end, I tie them together with a made-up example, followed by a "which one when" table.
 
 > pstack Series | Part 3
 >
@@ -19,14 +19,14 @@ When an AI coding assistant finishes a change, it often says "Done, this should 
 > - Next (Part 4): [Steer with principles, build your own mode, and let it run unattended](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
-> **Version note:** This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently. Claude Code leaves auto-update off for third-party marketplaces by default ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28)), so a pstack you installed by following Part 1 stays at the version you installed. For how to update or pin it, see [Part 1](/posts/pstack-install-routing/).
+> **Version note:** I based this post on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently. Claude Code leaves auto-update off for third-party marketplaces by default ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28)), so a pstack you installed by following Part 1 stays at the version you installed. For how to update or pin it, see [Part 1](/posts/pstack-install-routing/).
 {: .prompt-warning }
 
 ## Before You Start
 
-pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. Installing it is covered in [Part 1](/posts/pstack-install-routing/), and understanding and designing before you change code is covered in [Part 2](/posts/pstack-understand-design/). This post assumes it is already installed.
+pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. I cover installing it in [Part 1](/posts/pstack-install-routing/), and understanding and designing before you change code in [Part 2](/posts/pstack-understand-design/). This post assumes it is already installed.
 
-**Commands take a prefix.** In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, such as `/pstack:tdd`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+**Commands take a prefix.** In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, such as `/pstack:tdd`. I write the examples below in the Claude Code form; in Cursor, just drop the `pstack:`.
 
 **This post uses two kinds of tools, and you call them differently.**
 
@@ -39,7 +39,7 @@ pstack is a set of skills in Cursor's official plugin repository. A skill is a s
 /pstack:poteto-mode Add JSON output to this command. The existing text output must stay byte-for-byte the same, the JSON must parse, and run both formats on the sample project. Show me the evidence.
 ```
 
-That gives the AI three concrete acceptance requirements it can check one by one. Its reply should include the exact commands and their output. When a check can't run, a good reply says "inconclusive." **A confident reply with no evidence is a warning sign.** The check also has to match the change: for a command change, run the command; for a UI change, walk the changed flow in the running app; for a parser or data migration, replay a saved input; for performance, compare profiles from before and after; for a change to saving data, read the stored value back.
+That gives the AI three concrete acceptance requirements it can check one by one. Its reply should include the exact commands and their output. When a check can't run, a good reply says "inconclusive." **I would treat a confident reply with no evidence as a warning sign.** The check also has to match the change: for a command change, run the command; for a UI change, walk the changed flow in the running app; for a parser or data migration, replay a saved input; for performance, compare profiles from before and after; for a change to saving data, read the stored value back.
 
 On its first reply, `/poteto-mode` restates your goal and the smallest change it plans, then starts right away without waiting for you to confirm ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L19)). If it misread you, you can tell at once.
 
@@ -75,11 +75,11 @@ For example:
 5. **Orders the commits.** A commit is one recorded change in git. The failing reproduction (for example, a test) goes into git history first, and the fix comes after it. When the bug has a cheap local test path, it follows the `/tdd` cadence; when testing is expensive, needs a lot of setup, or the test path is unclear, it skips that.
 6. **Opens a PR** (see "Prepare for Review" below).
 
-One rule runs through the whole process: **every line of the change that stays must trace back to runtime evidence.** A "might help" defensive tweak is only a hypothesis and doesn't stay. If evidence disproves a hypothesis, the code changed because of it gets reverted too ([bug-fix playbook, line 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)).
+One rule runs through the whole process, and I think it's the one most worth remembering: **every line of the change that stays must trace back to runtime evidence.** A "might help" defensive tweak is only a hypothesis and doesn't stay. If evidence disproves a hypothesis, the code changed because of it gets reverted too ([bug-fix playbook, line 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)).
 
 **What you get**: a reply that explains what was broken, the root cause, the fix, and how it was verified, with **the reproduction output pasted verbatim, failing before the fix and passing after it**.
 
-**Next step**: read that before-and-after output yourself and confirm the failure is really the bug you reported. The default flow opens a PR next. If you asked it to pause, review the evidence before asking it to continue.
+**Next step**: I recommend reading that before-and-after output yourself and confirming the failure is really the bug you reported. The default flow opens a PR next. If you asked it to pause, review the evidence before asking it to continue.
 
 ### New Feature: State the Data Shapes First
 
@@ -145,7 +145,7 @@ When a failing test isn't worth writing, it uses the closest runnable check inst
 
 ## Clean: Make the Diff Easy to Review
 
-Before each commit, the PR-opening playbook runs `/deslop` on the diff, and `/poteto-mode` applies `/unslop` to the PR description and commit messages ([chapter 5 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L57-L59)). `/deslop` lives in the `cursor-team-kit` plugin, not in pstack (Part 1 covers whether to install it as well). If you don't have it, ask for the same result in plain words: delete narrating comments, unjustified defensive checks, compatibility code nobody uses anymore, and changes unrelated to this one. The three tools split the work like this: `/deslop` cleans code, `/unslop` cleans prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
+Before each commit, the PR-opening playbook runs `/deslop` on the diff, and `/poteto-mode` applies `/unslop` to the PR description and commit messages ([chapter 5 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L57-L59)). `/deslop` lives in the `cursor-team-kit` plugin, not in pstack (Part 1 covers whether to install it as well). Without it, I would ask for the same result in plain words: delete narrating comments, unjustified defensive checks, compatibility code nobody uses anymore, and changes unrelated to this one. The three tools split the work like this: `/deslop` cleans code, `/unslop` cleans prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
 
 ### /unslop: Strip the AI Tone From Prose
 
@@ -167,7 +167,7 @@ For example (from [chapter 5 of the guide](https://github.com/cursor/plugins/blo
 
 **What you get**: the rewritten prose.
 
-**Next step**: read it once more yourself and make sure the meaning didn't change.
+**Next step**: I would read it once more myself to make sure the meaning didn't change.
 
 ### /no-comments: Have Someone Who Didn't Write the Comments Review Them
 
@@ -228,7 +228,7 @@ For each fact it states how far it proved it: just asserted, pointed to a line o
 
 **What you get** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/blast-radius/SKILL.md#L40-L46)): what it did, the key fact that makes the change safe (with proof, or marked unproven if it couldn't prove it), the risks (how it breaks, on which line, likelihood and cost, how to check), what it ruled out, and a "before merging" section with the cheapest test or reproduction that would catch a real bug.
 
-**Next step**: if the fact is marked unproven or there are confirmed risks, deal with them before opening the PR. The tests in "before merging" can go straight into this change.
+**Next step**: if the fact is marked unproven or there are confirmed risks, I recommend dealing with them before opening the PR. The tests in "before merging" can go straight into this change.
 
 ### /benchmark-checklist: Check Whether a Performance Number Holds Up
 
@@ -272,12 +272,12 @@ For each fact it states how far it proved it: just asserted, pointed to a line o
 4. **Runs it once before handing it over.** Following the instructions it just wrote, it launches the app, runs the health check, drives one feature, keeps evidence, cleans up, and confirms the evidence is still there after cleanup. A skill that hasn't been run is only a draft.
 5. **Reminds you that `/maintain-verification-skill` can keep it up to date.**
 
-> Claude Code treats the project's `.claude/` folder as a protected location and, in the default mode, asks you before writing to it ([Claude Code docs](https://code.claude.com/docs/en/permission-modes)). When it asks, check that the path is `.claude/skills/verify-<app>/` before you approve.
+> Claude Code treats the project's `.claude/` folder as a protected location and, in the default mode, asks you before writing to it ([Claude Code docs](https://code.claude.com/docs/en/permission-modes)). When it asks, I recommend checking that the path is `.claude/skills/verify-<app>/` before you approve.
 {: .prompt-tip }
 
 **What you get**: a verification skill for your project, plus a feature map. From then on, "verify it in the app" is a step any AI can take in this project, without you explaining again how to start it.
 
-**Next step**: commit it to the project so every person and every AI drives the app the same way. To have the AI verify with it, name it in your prompt (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)):
+**Next step**: I recommend committing it to the project so every person and every AI drives the app the same way. To have the AI verify with it, name it in your prompt (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)):
 
 ```text
 /pstack:poteto-mode Add a "bulk archive" action. Verify your changes with /verify-<app> and give me a video and screenshots as evidence.
@@ -292,7 +292,7 @@ _Generate it once and commit it to the project. When the code changes, /maintain
 
 ### /maintain-verification-skill: Keep the Verification Skill in Step With the Code
 
-**When to use it**: every code change can make the feature map go stale. The guide suggests running it at least once a day ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L86-L94)). The scheduled automation in the guide means Cursor Automations, which pstack's Claude Code adapter notes say to skip in Claude Code ([adapter notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)). Claude Code has its own scheduled tasks, but pstack doesn't set them up and this post doesn't cover them; the simplest option is to run it yourself on a regular schedule.
+**When to use it**: every code change can make the feature map go stale. The guide suggests running it at least once a day ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L86-L94)). The scheduled automation in the guide means Cursor Automations, which pstack's Claude Code adapter notes say to skip in Claude Code ([adapter notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)). Claude Code has its own scheduled tasks, but pstack doesn't set them up and I don't cover them in this post. I think the simplest option is to run it yourself on a regular schedule.
 
 **How to write the command**:
 
@@ -317,7 +317,7 @@ It **edits only the verification skill's own folder, never product code** ([SKIL
 
 ### Formal Verification: Prove the Cases Tests Rarely Reach
 
-A verification skill proves the paths you actually drove. Some bugs hide on paths that ordinary use and tests rarely cover, such as two retries that overlap, a lock that expires halfway through a write, or state changes that happen out of order. For code where a mistake is that costly, you can run `/pstack:create-formal-verification-skill`. It picks the one property in the code most worth proving, chooses a tool to fit the problem (for example, a model checker like TLA+ by default for whether events can happen in the wrong order), first makes the property fail once against deliberately broken code to prove the check can catch a problem, then leaves a project-specific skill so later AIs can check new changes with one command ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L96-L116)). This post doesn't go deeper; it's enough to know the option exists.
+A verification skill proves the paths you actually drove. Some bugs hide on paths that ordinary use and tests rarely cover, such as two retries that overlap, a lock that expires halfway through a write, or state changes that happen out of order. For code where a mistake is that costly, you can run `/pstack:create-formal-verification-skill`. It picks the one property in the code most worth proving, chooses a tool to fit the problem (for example, a model checker like TLA+ by default for whether events can happen in the wrong order), first makes the property fail once against deliberately broken code to prove the check can catch a problem, then leaves a project-specific skill so later AIs can check new changes with one command ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L96-L116)). I don't go deeper in this post; it's enough to know the option exists.
 
 ## Prepare for Review: Open a PR and Get It to Mergeable
 
@@ -344,7 +344,7 @@ A verification skill proves the paths you actually drove. Some bugs hide on path
 
 **What you get**: an open PR, ready for review, not a draft.
 
-**Next step**: read the Verification section of the PR description yourself first. When CI fails or review comments need handling, call babysit.
+**Next step**: I recommend reading the Verification section of the PR description yourself first. When CI fails or review comments need handling, call babysit.
 
 ### Babysit: Get the PR to Mergeable, Without Merging for You
 
@@ -375,7 +375,7 @@ When you only want the current status and don't want it to change anything, ask 
 
 On GitHub, `drive` ends when watch-pr reports `READY` (no merge conflicts, no unresolved review threads, and no failing or pending checks) ([watch-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/watch-pr/render.ts#L149-L154)). **Babysit never merges, even when everything is green** ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L150)). Only when you clearly say "merge" or "ship" does it move to a separate playbook called Shipping ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L27)).
 
-> `watch-pr` is a script that runs on bun (a JavaScript runtime). **The first time it runs**, it runs `bun install --frozen-lockfile` in `skills/poteto-mode/scripts/` inside the plugin folder, downloading the packages it needs from npm according to the lockfile (a file that pins the exact version of every package) and installing them into `node_modules` there. Later, if a plugin update changes the package list (`package.json`) or the lockfile, it installs again ([bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)). In other words, calling babysit makes the AI download and install packages from the internet on your computer. The lockfile pins the versions, but you should still know this happens. For the risks and how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+> `watch-pr` is a script that runs on bun (a JavaScript runtime). **The first time it runs**, it runs `bun install --frozen-lockfile` in `skills/poteto-mode/scripts/` inside the plugin folder, downloading the packages it needs from npm according to the lockfile (a file that pins the exact version of every package) and installing them into `node_modules` there. Later, if a plugin update changes the package list (`package.json`) or the lockfile, it installs again ([bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)). In other words, calling babysit makes the AI download and install packages from the internet on your computer. The lockfile pins the versions, but I think you should still know this happens. I covered the risks and how to tighten permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-warning }
 
 **What you get**: when `drive` completes normally, confirmation that the PR can merge, plus the comments it handled, the CI failures it saw, and its reasoning. If a conflict or required approval needs your attention, it reports what is holding up the PR. `check` gives you a status report.
@@ -387,7 +387,7 @@ _It reports conflicts instead of resolving them, and stops at mergeable without 
 
 ## A Complete Example (Made Up)
 
-> **The following scenario is made up.** It only shows how these playbooks and skills fit together. It isn't a record of a real run, and it includes no output.
+> **I made up the following scenario.** It only shows how these playbooks and skills fit together. It isn't a record of a real run, and it includes no output.
 {: .prompt-info }
 
 Say you maintain a command-line tool that exports data. A user reports that when the network is flaky and the command retries on its own, the same record appears twice in the output file.
@@ -438,7 +438,7 @@ Check whether it proved the key fact that makes the change safe, and read the te
 
 Babysit handles CI and review comments and stops when GitHub judges the PR mergeable. You press merge.
 
-> This example calls each step **by hand, one at a time**, so you can see every link in the chain. Step 1 explicitly pauses the flow, so step 2 starts the fix separately. Day to day, you can hand the goal and the done criteria to `/pstack:poteto-mode` and let its playbooks decide which skills to use. Name a skill only when you want to change the default.
+> I wrote this example to call each step **by hand, one at a time**, so you can see every link in the chain. Step 1 explicitly pauses the flow, so step 2 starts the fix separately. Day to day, you can hand the goal and the done criteria to `/pstack:poteto-mode` and let its playbooks decide which skills to use. Name a skill only when you want to change the default.
 {: .prompt-tip }
 
 ## Which One When
@@ -469,11 +469,11 @@ Babysit handles CI and review comments and stops when GitHub judges the PR merge
 - **Babysit doesn't merge**: it stops at mergeable; merging is a separate decision.
 - **Babysit's first run downloads packages**: see the warning above.
 - **Verification skills need upkeep**: when the code changes, remember to run `/maintain-verification-skill`.
-- **Version**: all of this is based on the pstack `0.15.43` instructions, and later versions may change how things work.
+- **Version**: I based all of this on the pstack `0.15.43` instructions, and later versions may change how things work.
 
 ## Conclusion
 
-Getting code to mergeable with pstack comes down to leaving evidence at every step. When building, reproduce bugs before fixing them, state the data shapes before adding a feature, and verify each result on the matching surface. If there's a cheap test path, use `/tdd` so the failing test goes into git history first. Before review, clean the prose with `/unslop` and the comments with `/no-comments`. When you're unsure, use `/blast-radius` to prove the key fact that makes the change safe. If you have a performance number, run it through `/benchmark-checklist` first. If the AI can't drive your app on its own, give it a method with `/create-verification-skill`, and keep it maintained. Finally, let the PR-opening playbook organize the commits and description, and let babysit handle CI and comments until GitHub judges the PR mergeable. Pressing merge is always up to you.
+The way I read it, getting code to mergeable with pstack comes down to leaving evidence at every step. When building, reproduce bugs before fixing them, state the data shapes before adding a feature, and verify each result on the matching surface. If there's a cheap test path, use `/tdd` so the failing test goes into git history first. Before review, clean the prose with `/unslop` and the comments with `/no-comments`. When you're unsure, use `/blast-radius` to prove the key fact that makes the change safe. If you have a performance number, run it through `/benchmark-checklist` first. If the AI can't drive your app on its own, give it a method with `/create-verification-skill`, and keep it maintained. Finally, let the PR-opening playbook organize the commits and description, and let babysit handle CI and comments until GitHub judges the PR mergeable. Pressing merge is always up to you.
 
 ## Further Reading
 
