@@ -10,12 +10,12 @@ image:
   alt: "Work out which information is missing before picking a skill; running all five planning skills just piles up documents nobody uses."
 ---
 
-> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All five skills covered here are still there, but [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) renamed the glossary file this post uses, `CONTEXT.md`, to `GLOSSARY.md` (`triage` and other skills now only read the new name). It also moved `implement-spec`, previously an experimental skill, into the official plugin; it can implement all the split-up tickets in one go, in parallel (see the note in [Part 4](/posts/mattpocock-skills-implementation-feedback-loops/)). A full update of this series is planned.
+> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. `mattpocock/skills` released [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All five skills covered here are still there, but [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) renamed the glossary file this post uses, `CONTEXT.md`, to `GLOSSARY.md` (`triage` and other skills now only read the new name). It also moved `implement-spec`, previously an experimental skill, into the official plugin; it can implement all the split-up tickets in one go, in parallel (see the note in [Part 4](/posts/mattpocock-skills-implementation-feedback-loops/)). I plan to update this whole series for the new version.
 {: .prompt-warning }
 
-In the previous post, we finished talking through the per-seat billing requirements. `CONTEXT.md` now records the difference between a "billable seat" and a "member", and the conversation also settled what happens when a member is deactivated. The next step is to turn those conclusions into work someone can actually start on, but there are five skills in front of us that all seem to have something to do with "planning": `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire`.
+In the previous post, I walked you through settling the per-seat billing requirements. `CONTEXT.md` now records the difference between a "billable seat" and a "member", and the conversation also settled what happens when a member is deactivated. The next step is to turn those conclusions into work someone can actually start on, but there are five skills in front of you that all seem to have something to do with "planning": `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire`.
 
-All five skills produce documents, but each fills a different gap. Pick the wrong one and the AI will still follow the instructions to the end, but all you get is one more document that nobody needs yet.
+All five skills produce documents, but each fills a different gap. Pick the wrong one and the AI will still follow the instructions to the end, but all you get is one more document that nobody needs yet. In this post, I go through the original instructions to show which gap each skill fills in this scenario.
 
 > mattpocock/skills Series | Part 3
 >
@@ -23,12 +23,12 @@ All five skills produce documents, but each fills a different gap. Pick the wron
 > - Next (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The per-seat billing walkthrough is inferred from the original instructions, not taken from an actual test run.
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the per-seat billing walkthrough from the original instructions; it isn't from an actual test run.
 {: .prompt-info }
 
 ## A Few Terms First
 
-Most of these five skills revolve around the team's issue tracker. The following terms come up again and again:
+Most of these five skills revolve around the team's issue tracker. I'll be using the following terms throughout:
 
 | Term used in this post | Original | Meaning |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ Short tasks don't necessarily need a spec. If the whole feature can be finished 
 
 ### `to-spec` Example
 
-Suppose the team has confirmed two things: when a member is deactivated, their seat is reclaimed immediately; and there's no refund on the current bill, with the reduced seat count taking effect from the next one. `to-spec` could turn the conversation into the following spec (excerpt):
+Suppose the team has confirmed two things: when a member is deactivated, their seat is reclaimed immediately; and there's no refund on the current bill, with the reduced seat count taking effect from the next one. Below is an example I wrote of the spec `to-spec` could turn the conversation into (excerpt):
 
 ```markdown
 ## Problem
@@ -94,7 +94,7 @@ Workspace admins don't know when a seat is freed up after they deactivate a memb
 - Prorated refunds based on days of usage are not handled this time.
 ```
 
-This spec only contains confirmed answers. If "takes effect from the next bill" hasn't been confirmed by finance yet, `to-spec` shouldn't write it in on the team's behalf. In that case, use `to-questionnaire` (covered later) to get the answer first.
+This spec only contains confirmed answers. If "takes effect from the next bill" hasn't been confirmed by finance yet, `to-spec` shouldn't write it in on the team's behalf. In that case, I would first use `to-questionnaire` (covered later) to get the answer.
 
 ## `to-tickets` Makes Every Ticket a Small, Complete Slice of the Feature
 
@@ -212,7 +212,7 @@ _Decision tickets are opened separately under the map; the answer to one decisio
 
 ## `to-questionnaire` Goes to the Person Who Holds the Answer
 
-Some questions can't be looked up, and shouldn't be decided by whoever is in the current conversation. Let's switch scenarios: suppose the finance lead hasn't yet confirmed in which billing period seat changes should take effect. `to-questionnaire` turns questions like this into a questionnaire that the other person can fill out when they have time, or that you fill out together in a meeting.
+Some questions can't be looked up, and shouldn't be decided by whoever is in the current conversation. I'll switch scenarios here: suppose the finance lead hasn't yet confirmed in which billing period seat changes should take effect. `to-questionnaire` turns questions like this into a questionnaire that the other person can fill out when they have time, or that you fill out together in a meeting.
 
 It [only asks you two things](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/to-questionnaire/SKILL.md#L7-L20): who the questionnaire is for (their role, expertise, and relationship to you), and which answers you need to bring back. It won't ask you to answer expert questions on their behalf. After that, it generates a questionnaire file in the current folder, named after the topic, such as `to-questionnaire-seat-billing.md`.
 
@@ -258,7 +258,7 @@ Only after the recipient fills in the answers can the team write conclusions lik
 
 ## They All Leave Documents, but for Different Purposes
 
-All five skills leave text behind. Look at who each artifact goes to next, and the differences become clear.
+All five skills leave text behind. I tell them apart by looking at who each artifact goes to next.
 
 | Artifact | Content | Who it goes to next |
 | --- | --- | --- |
@@ -272,15 +272,15 @@ Specs and tickets can both carry `ready-for-agent`, but they differ in size: a s
 
 ## Every Extra Layer of Planning Adds Another Round of Human Review
 
-This process doesn't skip human review; it moves the review to before the documents are published.
+As I see it, this process doesn't skip human review; it moves the review to before the documents are published.
 
 With `to-spec`, you confirm the checkpoints; with `to-tickets`, you confirm how coarse or fine the slicing is and the blocking relationships. `triage` makes a recommendation first and then waits for the maintainer's instructions; `to-questionnaire` needs you to explain who the recipient is and what answers to bring back.
 
-`wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets. Each session usually resolves only one, so all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
+I think `wayfinder` takes the most human effort. It breaks work that can't be talked through in one go into many decision tickets. Each session usually resolves only one, so all that time comes out of the decision-makers' schedules. If the questions could have been laid out clearly in a single session to begin with, building a map just leaves the issue tracker with a pile of extra items to maintain.
 
 ## First Look at Where the Information Is Missing
 
-When choosing, start by looking at the situation in front of you:
+When choosing, I'd start by looking at the situation in front of you:
 
 | Current situation | Next step | What you can skip |
 | --- | --- | --- |
@@ -294,7 +294,7 @@ This table only decides where to start right now. After `wayfinder` finishes, th
 
 ## Simulated Scenario: Cutting Per-Seat Billing Into Work You Can Start On
 
-The walkthrough below doesn't actually run these skills, because they would write to the project's issue tracker or the current folder. It is inferred from the original rules in version `1.2.3`; actual results will vary with the project's content, existing decision records, and the conversation.
+I didn't actually run these skills for the walkthrough below, because they would write to the project's issue tracker or the current folder. I inferred it from the original rules in version `1.2.3`; actual results will vary with the project's content, existing decision records, and the conversation.
 
 Continuing the scenario from the previous post: `CONTEXT.md` already defines billable seats, members, and seat assignments, and deactivation, assignment, and billing timing have all been confirmed in the conversation. The team estimates that this feature will take several sessions to finish, so, still in the same conversation, they run:
 
@@ -318,7 +318,7 @@ The AI first lists a draft breakdown, for example:
 | Assign an available seat to a member | After an admin completes the assignment, the member can use paid features | Show the workspace's purchased and available seats |
 | Deactivate a member and free their seat | After deactivation, the seat is reclaimed and the billing system receives the new seat count | Assign an available seat to a member |
 
-At this point, check three things: whether each ticket can be verified on its own, whether each fits in one fresh session, and whether the blocking relationships are really necessary. For example, the acceptance criteria for "assign a seat" require seeing available seats drop by one, so it genuinely has to wait for "show seats" to be done first. Only after you agree does the AI write the tickets into the issue tracker. These tickets already carry `ready-for-agent`, so they don't need to go through `triage`. During implementation, each ticket gets its own new session; the tickets already contain the information needed, so there's no need to rely on the earlier conversation.
+At this point, I'd suggest checking three things: whether each ticket can be verified on its own, whether each fits in one fresh session, and whether the blocking relationships are really necessary. For example, the acceptance criteria for "assign a seat" require seeing available seats drop by one, so it genuinely has to wait for "show seats" to be done first. Only after you agree does the AI write the tickets into the issue tracker. These tickets already carry `ready-for-agent`, so they don't need to go through `triage`. During implementation, each ticket gets its own new session; the tickets already contain the information needed, so there's no need to rely on the earlier conversation.
 
 If finance hasn't yet confirmed when seat changes show up on the bill, first use `to-questionnaire` to get the answer from the person responsible, then come back and finish the spec. If you can't even list up front which decisions the migration period requires, use `wayfinder` to build a map instead. Different gaps mean different starting points.
 
@@ -330,15 +330,15 @@ I start by asking myself: what's missing right now? A spec, work that's ready to
 
 Running all five skills produces more documents, but doesn't necessarily make the problem any clearer. `triage` doesn't need to process tickets you just cut yourself, and work whose questions can already be listed clearly doesn't need `wayfinder`. Filling only the gap in front of you each time ensures that every document you produce has a clear next reader.
 
-This judgment applies to team projects that hand off work through an issue tracker, where the work spans several sessions. If you just want to make a small change within this session, implement it directly.
+This judgment applies to team projects that hand off work through an issue tracker, where the work spans several sessions. If I only wanted a small change within this session, I'd implement it directly.
 
 ## First Decide Who the Next Document Is For
 
-Once the requirements are talked through, which skill should you start with? First look at who the next document is for, and what kind of information is currently missing.
+Once the requirements are talked through, which skill should you start with? I'd look first at who the next document is for, and at what kind of information is currently missing.
 
 If you need a complete requirements write-up to hand off for further planning, use `to-spec`; if the work needs to be split across several new sessions, follow up with `to-tickets`. Send reports from others to `triage`, hand large decisions you can't fully list to `wayfinder`, and use `to-questionnaire` to ask for answers only someone else knows.
 
-Back to the per-seat billing scenario: the smallest next step is to stay in the same conversation, run `to-spec`, confirm the checkpoints, and then decide based on the amount of work whether to cut it into tickets.
+Back to the per-seat billing scenario: I think the smallest next step is to stay in the same conversation, run `to-spec`, confirm the checkpoints, and then decide based on the amount of work whether to cut it into tickets.
 
 ## Further Reading
 
