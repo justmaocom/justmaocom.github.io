@@ -10,7 +10,7 @@ image:
   alt: "用 Trusted Publishing 在 GitHub Actions 發 npm 套件，不必再放長期 token。"
 ---
 
-先講結論：用 GitHub Actions 自動發布 npm 套件時，可以改用 npm 的 Trusted Publishing，不必再把長期 token 存在 CI 裡。設好之後，還要另外收掉舊 token，風險才算真的降下來。
+先講結論：用 GitHub Actions 自動發布 npm 套件時，我建議改用 npm 的 Trusted Publishing，不必再把長期 token 存在 CI 裡。設好之後，還要另外收掉舊 token，風險才算真的降下來。
 
 先認識幾個詞：
 
@@ -23,11 +23,11 @@ image:
 
 為什麼要換？token（權杖）是一串代替帳號密碼的通行碼，誰拿到，就能用你的身分做它允許的事。如果你的自動發布，是把一個 `NPM_TOKEN` 放進 GitHub Actions 的 secrets（GitHub 存放密碼等機密資料的地方），這就是長期 token：在撤銷或到期前一直有效。一旦外洩，別人就能冒你的名發新版。
 
-另一篇[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)是從使用者那端看這個風險：文中的 Nx 案例，依 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻擊者是透過 GitHub Actions 的注入漏洞取得 npm 發布權杖。本篇改從**發布者**這端，拿掉「長期 token 放在 CI」這個風險。但要先說清楚：Trusted Publishing 擋不下那類事件本身。workflow 若已被注入惡意指令，它照樣可以發布。想讓每個版本多一道人工把關，見後面的〈進階：更嚴格的做法〉。
+我在另一篇[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)裡，從使用者那端看過這個風險：文中的 Nx 案例，依 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻擊者是透過 GitHub Actions 的注入漏洞取得 npm 發布權杖。這篇我改從**發布者**這端，拿掉「長期 token 放在 CI」這個風險。但要先說清楚：Trusted Publishing 擋不下那類事件本身。workflow 若已被注入惡意指令，它照樣可以發布。想讓每個版本多一道人工把關，見後面的〈進階：更嚴格的做法〉。
 
-本篇只談 GitHub 代管的 runner（由 GitHub 提供的機器），搭配 npmjs.com 上的設定。若想幫 workflow 加上自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
+這篇我只談 GitHub 代管的 runner（由 GitHub 提供的機器），搭配 npmjs.com 上的設定。若想幫 workflow 加上自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
 
-> **版本說明**：本文依 2026-11-11 讀取的 npm 官方文件〈[Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers)〉撰寫；npm 近幾個月仍在調整這項功能（例如 2026-09-03 之後新建的設定，預設只允許 stage publish），設定畫面與預設值以官方文件為準。
+> **版本說明**：我寫這篇時，參考的是 2026-11-11 當天的 npm 官方文件〈[Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers)〉；npm 近幾個月仍在調整這項功能（例如 2026-09-03 之後新建的設定，預設只允許 stage publish），設定畫面與預設值以官方文件為準。
 {: .prompt-info }
 
 ## Trusted Publishing 是什麼、怎麼運作
@@ -36,25 +36,25 @@ image:
 
 它靠的是 OIDC（OpenID Connect），一套讓系統之間出示身分證明的標準。每次發布時，GitHub 會簽發一張短期身分證明（技術上叫 JWT），寫明這是哪個 repo、哪個 workflow。npm 核對它和你事先在 npmjs.com 填好的設定相符，才換發這次發布用的短期憑證。依文件，這種憑證經過加密簽署，只給你的 workflow 用，無法取出，也不能重複使用。
 
-流程可以想成四步：
+我會把流程想成四步：
 
 1. workflow 在 GitHub 代管的 runner 上開始跑。執行發布的 job（workflow 裡的一組步驟）要有 `id-token: write` 權限，才能申請身分證明。
 2. GitHub 簽發 OIDC 身分證明，寫明 repo 與 workflow。
 3. npm 核對組織或使用者名稱、repo、workflow 檔名都相符，才換發短期憑證。
 4. 執行 `npm publish`。若是公開 repo 加上公開套件，npm 還會自動附上 provenance（來源證明：公開記錄這個版本是從哪個 repo、哪個 workflow 建出來的）。
 
-要注意：npm 是**額外**接受 trusted publisher，原本的 token 和手動發布照樣有效。npm CLI 會自動偵測 OIDC 環境，有就優先用它，沒有才退回傳統 token。所以設好之後，舊 token 仍然能發布，要到步驟 4 另外收掉。
+我要特別提醒：npm 是**額外**接受 trusted publisher，原本的 token 和手動發布照樣有效。npm CLI 會自動偵測 OIDC 環境，有就優先用它，沒有才退回傳統 token。所以設好之後，舊 token 仍然能發布，要到步驟 4 另外收掉。
 
 ![GitHub Actions 用 OIDC 向 npm 換一次性的短期憑證來發布，不必存放 npm token](flow.webp){: w="1600" h="900" }
 _概念圖：GitHub Actions 先出示身分證明，npm 核對設定後才換發這次發布用的短期憑證。公開 repo 加上公開套件時，會自動附上 provenance。發布這一步不需要 npm token；安裝私有相依套件仍要 read-only token。_
 
 ## 什麼時候該用、什麼時候還不行
 
-**先講結論：** 用 GitHub Actions（GitHub 代管的 runner）自動發布的套件，適合現在就換；自己架的 runner 目前還不行。
+**先講結論：** 用 GitHub Actions（GitHub 代管的 runner）自動發布的套件，我認為適合現在就換；自己架的 runner 目前還不行。
 
-**為什麼是現在。** [npm 文件寫明](https://docs.npmjs.com/about-access-tokens)，舊式（legacy）token 已在 2025 年 11 月移除，現在只剩 granular access token（細粒度 token：可以限定它能碰哪些套件、有哪些權限、何時到期）。而用 granular token 直接發布新版本的能力，文件寫將於 2027 年 1 月移除。也就是說，CI 若靠 token 直接發布，到時候就得換方法。npm 在 [CI/CD 說明](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow)裡也建議：從 CI 發布套件，用 trusted publishing，不要用 access token。
+**為什麼是現在。** [npm 文件寫明](https://docs.npmjs.com/about-access-tokens)，舊式（legacy）token 已在 2025 年 11 月移除，現在只剩 granular access token（細粒度 token：可以限定它能碰哪些套件、有哪些權限、何時到期）。而用 granular token 直接發布新版本的能力，文件寫將於 2027 年 1 月移除。我的理解是，CI 若靠 token 直接發布，到時候就得換方法。npm 在 [CI/CD 說明](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow)裡也建議：從 CI 發布套件，用 trusted publishing，不要用 access token。
 
-**適合用在：** 以 GitHub Actions、GitHub 代管 runner 自動發布的套件。官方也支援 GitLab.com 的 shared runner 和 CircleCI cloud，設定方式見[同一份文件](https://docs.npmjs.com/trusted-publishers)；本篇不展開這兩種平台。
+**適合用在：** 以 GitHub Actions、GitHub 代管 runner 自動發布的套件。官方也支援 GitLab.com 的 shared runner 和 CircleCI cloud，設定方式見[同一份文件](https://docs.npmjs.com/trusted-publishers)；這篇我不展開這兩種平台。
 
 **目前還不行：** self-hosted runner（自己架的執行機器）。[文件寫](https://docs.npmjs.com/trusted-publishers)目前不支援，未來規劃會支援。文件目前列出的支援平台只有上面這三種。
 
@@ -85,7 +85,7 @@ _概念圖：GitHub Actions 先出示身分證明，npm 核對設定後才換發
 - **Multiple trusted publishers**：一個套件最多可設 10 個 trusted publisher。
 - **Single trusted publisher**：一個套件一次只能設 1 個。
 
-兩種介面的預設值、期限和能不能修改都不一樣，下面分開說明。請對照你在 npmjs.com 看到的畫面，讀文件對應的那一版。
+兩種介面的預設值、期限和能不能修改都不一樣，下面我分開說明。請對照你在 npmjs.com 看到的畫面，讀文件對應的那一版。
 
 要填的欄位：
 
@@ -100,14 +100,14 @@ _概念圖：GitHub Actions 先出示身分證明，npm 核對設定後才換發
 - Multiple 介面：`npm stage publish` 一律允許，`npm publish` 要另外勾。依文件，2026-09-03 之後新建的設定，**預設只允許 `npm stage publish`**。
 - Single 介面：這一欄必填，兩項至少勾一項。
 
-不管哪一種介面，要讓步驟 2 範例裡的 `npm publish` 成功，**都要勾選 `npm publish`**。只允許 `npm stage publish` 是更嚴格的做法，留到後面的〈進階〉。
+不管哪一種介面，要讓步驟 2 範例裡的 `npm publish` 成功，**都要勾選 `npm publish`**。只允許 `npm stage publish` 是更嚴格的做法，我留到後面的〈進階〉再談。
 
 **存檔前要知道：**
 
 1. 所有欄位都分大小寫，必須完全一致。
 2. npm 存檔時**不會驗證**設定。填錯不會當場報錯，要到真正發布時才會失敗。
 3. Multiple 介面的既有設定不能修改，填錯只能刪掉重建；Single 介面則可以隨時修改或移除。
-4. Multiple 介面的新設定[必須在 2 天內完成第一次成功發布](https://docs.npmjs.com/trusted-publishers)，否則會過期，之後不能再使用或編輯，只能刪掉重建。所以建議先看完步驟 2、把 workflow 準備好，再回來存這張表。
+4. Multiple 介面的新設定[必須在 2 天內完成第一次成功發布](https://docs.npmjs.com/trusted-publishers)，否則會過期，之後不能再使用或編輯，只能刪掉重建。所以我建議先看完步驟 2、把 workflow 準備好，再回來存這張表。
 
 **你會得到：** npm 上的一筆 Trusted Publisher 設定，等 workflow 來對。
 
@@ -145,16 +145,16 @@ jobs:
       - run: npm publish  # Or: npm stage publish
 ```
 
-逐行對照：
+我逐行說明：
 
 - `on: push: tags: v*`：只有推上 `v1.2.3` 這類 tag 才會發布。tag（標籤）是替某次 commit（提交）標上的名稱，常用來標記版本；一般的 commit 不會觸發發布。
-- `permissions: id-token: write`：最關鍵的一行，讓 GitHub 能為這個 job 簽發 OIDC 身分證明。[GitHub 文件](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)寫，它只允許取得 OIDC token，不會因此給其他資源寫入權限。
+- `permissions: id-token: write`：我認為這是最關鍵的一行，讓 GitHub 能為這個 job 簽發 OIDC 身分證明。[GitHub 文件](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)寫，它只允許取得 OIDC token，不會因此給其他資源寫入權限。
 - `contents: read`：讓 job 能讀取 repo 內容。[GitHub 文件](https://docs.github.com/en/actions/reference/security/oidc)的範例註明，`actions/checkout` 取出程式碼需要這個權限。
 - `runs-on: ubuntu-latest`：使用 GitHub 代管的 runner。
 - `setup-node` 的 `registry-url` 指向 npm 官方登錄庫；`package-manager-cache: false` 照官方註解：release 建置不要用快取。
 - 最後依序安裝相依（`npm ci`）、建置、測試，再 `npm publish`。如果你在 Allowed actions 只允許 stage publish，這一行要改用註解裡的 `npm stage publish`。
 
-發布這一步**不需要** `NODE_AUTH_TOKEN`，也**不需要**加 `--provenance`：只要是公開 repo、公開套件，又是用 Trusted Publishing 發布，npm 會自動產生 provenance。`actions/checkout`、`actions/setup-node` 若出了更新的主版本，以各自 README 為準；本文範例照 npm 官方文件，使用 `@v6`。
+發布這一步**不需要** `NODE_AUTH_TOKEN`，也**不需要**加 `--provenance`：只要是公開 repo、公開套件，又是用 Trusted Publishing 發布，npm 會自動產生 provenance。`actions/checkout`、`actions/setup-node` 若出了更新的主版本，以各自 README 為準；這篇的範例我照 npm 官方文件，使用 `@v6`。
 
 **有私有相依套件時**，在 `npm ci` 那一步加上：
 
@@ -188,7 +188,7 @@ jobs:
 
 ## 步驟 4：收掉舊 token
 
-設好 Trusted Publishing，舊 token 不會自動失效。npm 是在原本的 token 和手動發布之外，**額外**接受 trusted publisher。所以要照文件的 Migration tip（遷移建議）依序收尾：
+設好 Trusted Publishing，舊 token 不會自動失效。npm 是在原本的 token 和手動發布之外，**額外**接受 trusted publisher。所以我會照文件的 Migration tip（遷移建議）依序收尾：
 
 1. 先設好 Trusted Publishing，並確認發布成功。
 2. 到套件的 **Settings → Publishing access**，選 **Require two-factor authentication and disallow tokens**，再按 **Update Package Settings**。之後 granular token 一律不能發布這個套件；trusted publisher 用的是 OIDC，不受影響。
@@ -255,14 +255,14 @@ _概念圖：左邊是呼叫端 release.yml，右邊是被呼叫端 publish.yml�
 
 ## 進階：更嚴格的做法
 
-Trusted Publishing 拿掉了長期 token，但 workflow 本身若被攻破，仍然可以發布。想多加關卡，文件建議這幾種，不必一次全做：
+Trusted Publishing 拿掉了長期 token，但 workflow 本身若被攻破，仍然可以發布。想多加關卡，文件建議這幾種，我認為不必一次全做：
 
 - **environment 加人工核准：** 在 GitHub 為發布 job 指定 environment，並設定需要人工核准；npmjs.com 的 **Environment name** 要填同一個名稱。
 - **tag protection rules：** 限制誰能推送發布用的 tag。
 - **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 帳號設定的 **Staged Packages** 分頁按 **Approve**，或用 `npm stage approve <stage-id>`。文件把「trusted publisher 只允許 stage publish」視為更強的組合；若有多筆 publisher，也要逐筆檢查是否仍允許直接發布。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期檢查：** 定期稽核套件的 trusted publisher 設定，刪掉沒在用的發布 token。
 
-這幾道關卡怎麼一步步設定，以及為什麼帶著 provenance 的版本仍可能是惡意的，見續篇[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)。
+這幾道關卡怎麼一步步設定，以及為什麼帶著 provenance 的版本仍可能是惡意的，我在續篇[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)裡說明。
 
 ## 限制
 
@@ -313,6 +313,6 @@ _概念圖：左邊把本文步驟 0 到步驟 4 整理成六項清單，右邊�
 
 ## 結論與下一步
 
-把 GitHub Actions 的發布從「放一把長期鑰匙」改成「每次當場換短期憑證」之後，記得收掉舊 token，必要時再加上核准或 stage publish。使用者那一端還能怎麼降低風險，見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)；若要幫這些 workflow 加自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
+我建議把 GitHub Actions 的發布從「放一把長期鑰匙」改成「每次當場換短期憑證」，之後記得收掉舊 token，必要時再加上核准或 stage publish。使用者那一端還能怎麼降低風險，我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)裡整理過；若要幫這些 workflow 加自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
 
-官方說明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 為準，並可參閱 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 說明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他資安文章，也可看 [OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補](/posts/openssh-musl-password-bypass-alpine/)。
+官方說明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 為準，並可參閱 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 說明](https://docs.github.com/en/actions/concepts/security/openid-connect)。我寫過的其他資安文章，也可看 [OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補](/posts/openssh-musl-password-bypass-alpine/)。
