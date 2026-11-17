@@ -16,14 +16,14 @@ image:
 >
 > - 從頭開始（第 1 篇）：[安裝、選模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)
 >
-> 本系列第 3、4 篇和這篇導讀都以 pstack [`0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)（commit `c742dd6`）為準；第 1 篇用的是 `0.15.29`，第 2 篇是 `0.15.30`，細節見下方的版本說明。
+> 系列五篇都以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)（commit `2f87c85`）為準，細節見下方的版本說明。
 {: .prompt-info }
 
 ## pstack 是什麼
 
 [pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 是 [Lauren Tan](https://x.com/poteto)（網路暱稱 poteto）在 Cursor 官方外掛庫 [`cursor/plugins`](https://github.com/cursor/plugins) 裡維護的一整組 skill，採 MIT 授權。skill 可以想成一份操作說明，告訴 AI 程式助理怎麼完成某一類工作；這裡的 AI 程式助理，指的是 Cursor、Claude Code 這類能讀寫專案檔案、替你寫程式的工具。
 
-在 `0.15.36` 這一版，pstack 有 **58** 個 skill、**24** 條原則（每條都是簡短而具體的規則，名稱都是 `principle-*`），以及 **23** 個 playbook（針對某一種任務寫好的固定步驟，掛在 `/poteto-mode` 底下）。另外，別把它和 Unix 指令 `pstack`（用來印出行程的呼叫堆疊）搞混；這裡說的是這套 AI skill。
+在 `0.15.43` 這一版，pstack 有 **58** 個 skill、**24** 條原則（每條都是簡短而具體的規則，名稱都是 `principle-*`），以及 **22** 個 playbook（針對某一種任務寫好的固定步驟，掛在 `/poteto-mode` 底下）。另外，別把它和 Unix 指令 `pstack`（用來印出行程的呼叫堆疊）搞混；這裡說的是這套 AI skill。
 
 有兩件事先知道，後面會比較好讀：
 
@@ -97,22 +97,14 @@ _先找出你現在卡在哪一步，再點進對應的那一篇；不必把四�
 
 ## 版本說明
 
-這個系列每篇釘的版本不一樣，讀的時候請以該篇開頭的版本框為準：
-
-| 篇 | pstack | commit |
-| --- | --- | --- |
-| 第 1 篇 | `0.15.29` | `88d4751` |
-| 第 2 篇 | `0.15.30` | `eb4db2b` |
-| 第 3 篇、第 4 篇、本導讀 | `0.15.36` | `c742dd6` |
-
-> **版本**：本導讀以 pstack [`0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 為準，對應 `cursor/plugins` 的 commit `c742dd6`（2026-10-28 07:12，台北時間）。我在 2026-11-05 查證時，`cursor/plugins` main 最新的 commit 是 `bb68f23`（2026-11-04 15:20，台北時間），`c742dd6` 之後 pstack 資料夾都沒有變動；Claude Code 最新是 2.1.318。之後的版本，數量和行為都可能改變。
+> **版本**：本導讀以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 為準，對應 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北時間），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以這一版查證；我查證時，`cursor/plugins` 的 main 在 `2f87c85` 之後沒有改動 pstack。之後的版本，數量和行為都可能改變。
 {: .prompt-info }
 
-如果想裝和這篇導讀相同的版本，請先 clone 下來、checkout 到 `c742dd6`，再加進 marketplace；詳細步驟和不釘版本的風險，見[第 1 篇](/posts/pstack-install-routing/)和[供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)。
+如果想裝和這篇導讀相同的版本，請先 clone 下來、checkout 到 `2f87c85`，再加進 marketplace；詳細步驟和不釘版本的風險，見[第 1 篇](/posts/pstack-install-routing/)和[供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 結論
 
-pstack 是 Cursor 官方外掛庫裡的一套 skill，在本導讀釘的版本裡有 58 個 skill、24 條原則、23 個 playbook。先跑一次 `/setup-pstack`，平常記住 `/poteto-mode`，卡住時問 `/poteto-help`。四篇依序處理安裝與挑 playbook、看懂再設計、證明能用再送審、用原則指揮並在界線內自己跑；你不必照順序讀完，找出自己卡在哪一步，從那一篇開始就好。
+pstack 是 Cursor 官方外掛庫裡的一套 skill，在本導讀釘的版本裡有 58 個 skill、24 條原則、22 個 playbook。先跑一次 `/setup-pstack`，平常記住 `/poteto-mode`，卡住時問 `/poteto-help`。四篇依序處理安裝與挑 playbook、看懂再設計、證明能用再送審、用原則指揮並在界線內自己跑；你不必照順序讀完，找出自己卡在哪一步，從那一篇開始就好。
 
 ## 延伸閱讀
 
