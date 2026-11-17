@@ -10,18 +10,18 @@ image:
   alt: "skill 好不好用，先看 description 能否在對的時候被選中，再用腳本與測試確認輸出，每次改版都重跑。"
 ---
 
-每次請 AI 幫忙寫 commit 訊息，我都要再交代一次同一串規則：開頭要標 `fix:` 或 `feat:` 這種類型、第一行不要太長、結尾不加句號、只寫已經加進暫存區的改動……交代到第五次，就會開始想：能不能讓它自己記得？
+每次請 AI 幫忙寫 commit 訊息，我都要再交代一次同一串規則：開頭要標 `fix:` 或 `feat:` 這種類型、第一行不要太長、結尾不加句號、只寫已經加進暫存區的改動……交代到第五次，我就會開始想：能不能讓它自己記得？
 
-Agent Skill 就是做這件事的。這篇從「寫 skill 的人」的角度出發：什麼時候值得寫、檔案怎麼放、description 怎麼寫才會在對的時候被叫出來、怎麼測、換一個 agent 還能不能用，以及之後怎麼維護。過程中我會實際做兩個 skill：
+Agent Skill 就是做這件事的。這篇我從「寫 skill 的人」的角度出發：什麼時候值得寫、檔案怎麼放、description 怎麼寫才會在對的時候被叫出來、怎麼測、換一個 agent 還能不能用，以及之後怎麼維護。過程中我會實際做兩個 skill：
 
-- **A：`writing-commit-messages`**。讀 git 暫存區的改動，寫出符合 Conventional Commits 格式的 commit 訊息，再用一支小腳本檢查格式。這是主線範例，用來示範怎麼建立、怎麼寫腳本、怎麼分三層測試。
-- **B：`meeting-notes-to-todos`**。把會議紀錄整理成有負責人和期限的待辦清單。它只有說明檔和一份輸出範本，沒有任何程式，用來對照「不寫程式的 skill」長什麼樣，以及 description 怎麼寫才不會被誤叫出來。
+- **A：`writing-commit-messages`**。讀 git 暫存區的改動，寫出符合 Conventional Commits 格式的 commit 訊息，再用一支小腳本檢查格式。這是主線範例，我用它示範怎麼建立、怎麼寫腳本、怎麼分三層測試。
+- **B：`meeting-notes-to-todos`**。把會議紀錄整理成有負責人和期限的待辦清單。它只有說明檔和一份輸出範本，沒有任何程式，我用它對照「不寫程式的 skill」長什麼樣，以及 description 怎麼寫才不會被誤叫出來。
 
-這篇不教怎麼安裝別人寫好的 skill。想先用現成的，可以從 [mattpocock/skills 系列導讀](/posts/mattpocock-skills-series-guide/)開始。
+這篇我不教怎麼安裝別人寫好的 skill。想先用現成的，可以從我寫的 [mattpocock/skills 系列導讀](/posts/mattpocock-skills-series-guide/)開始。
 
-> 規範和各家工具的說法，依 2026 年 10 月 17 日查閱的官方文件；Conventional Commits、commitlint 和 git 的說明，依 2026 年 10 月 18 日查閱的版本。這些文件網址沒有版本號，內容會更新，用之前請再對照一次。
+> 我寫這篇時，規範和各家工具的說法參考的是 2026 年 10 月 17 日當天的官方文件；Conventional Commits、commitlint 和 git 的說明，參考的是 2026 年 10 月 18 日當天的版本。這些文件網址沒有版本號，內容會更新，用之前請再對照一次。
 >
-> 範例的檢查在 2026 年 10 月 18 日實際執行，使用 skills-ref 0.1.0（agentskills/agentskills commit `69ef37e`）、git 2.47.3 與 Python 3.13.5，文中的指令和輸出都是當時跑出來的。**觸發率測試和輸出品質評測沒有實跑**，兩個 skill 也都沒有在任何 agent 裡跑過，原因寫在「分三層測試」一節。
+> 我在 2026 年 10 月 18 日實際執行了範例的檢查，使用 skills-ref 0.1.0（agentskills/agentskills commit `69ef37e`）、git 2.47.3 與 Python 3.13.5，文中的指令和輸出都是當時跑出來的。**觸發率測試和輸出品質評測我沒有實跑**，兩個 skill 也都沒有在任何 agent 裡跑過，原因寫在「分三層測試」一節。
 {: .prompt-info }
 
 ## 先認識幾個詞
@@ -38,15 +38,15 @@ Agent Skill 就是做這件事的。這篇從「寫 skill 的人」的角度出�
 
 ## 什麼時候值得寫成 Skill
 
-Claude Code 的文件給了一個很實際的判準：你一直把[同一段指示、檢查清單或多步驟流程貼進對話](https://code.claude.com/docs/en/skills)，或是 `CLAUDE.md` 裡某一段已經從「事實」長成了「流程」，就該寫成 skill。
+Claude Code 的文件給了一個我覺得很實際的判準：你一直把[同一段指示、檢查清單或多步驟流程貼進對話](https://code.claude.com/docs/en/skills)，或是 `CLAUDE.md` 裡某一段已經從「事實」長成了「流程」，就該寫成 skill。
 
-差別在載入的時機。`CLAUDE.md` 每次對話都會讀進去；skill 的本文只在用到時才載入。同一份文件也寫明，長篇參考資料在用到之前幾乎不佔成本。`AGENTS.md` 也是常駐的，每一行都有成本，[系列第 6 篇](/posts/mattpocock-skills-research-handoff/)談過這一點。
+差別在載入的時機。`CLAUDE.md` 每次對話都會讀進去；skill 的本文只在用到時才載入。同一份文件也寫明，長篇參考資料在用到之前幾乎不佔成本。`AGENTS.md` 也是常駐的，每一行都有成本，我在[系列第 6 篇](/posts/mattpocock-skills-research-handoff/)談過這一點。
 
 反過來，也有不必寫的時候。agentskills.io 的[最佳實踐](https://agentskills.io/skill-creation/best-practices)講得很直接：如果 agent 沒有這個 skill 也能把整件事做好，這個 skill 可能沒有價值。Anthropic 的[撰寫指南](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices)建議先做評測：讓 AI 在沒有 skill 的情況下做幾次代表性的任務，記下它具體錯在哪裡，再寫剛好能補上這些缺口的指示。
 
 拿 A 來說，AI 本來就會寫 commit 訊息，也懂 git，但它不知道你的團隊用哪幾種類型、第一行最多幾個字元，也不知道「沒加進暫存區的東西，不要自己 `git add`」這種你在意的規矩。B 也一樣：AI 讀得懂會議紀錄，但每次整理出來的格式都不同，有時還會替沒人認領的事情猜一個負責人。這些正是 skill 該補的東西。
 
-至於「寫給 AI 看的文件」通用的寫作原則，像是指引句怎麼寫、常用的放前面、刪掉多餘的句子，系列第 6 篇的 [`writing-for-agents` 一節](/posts/mattpocock-skills-research-handoff/)已經整理過，這裡不再重複，只談 skill 特有的機制。
+至於「寫給 AI 看的文件」通用的寫作原則，像是指引句怎麼寫、常用的放前面、刪掉多餘的句子，我在系列第 6 篇的 [`writing-for-agents` 一節](/posts/mattpocock-skills-research-handoff/)整理過，這裡不再重複，只談 skill 特有的機制。
 
 ## 一個 Skill 的最小結構
 
@@ -82,7 +82,7 @@ description: A description of what this skill does and when to use it.
 Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
 ```
 
-把這三條放在一起看就知道麻煩在哪：在 Claude Code 裡寫錯，沒有人會提醒你；等你想把同一個 skill 上傳到別的地方，才會出錯。所以最穩的做法是**只用規範的六個欄位**，這也是後面「換一個 agent 還能用嗎」的基礎。
+把這三條放在一起看就知道麻煩在哪：在 Claude Code 裡寫錯，沒有人會提醒你；等你想把同一個 skill 上傳到別的地方，才會出錯。所以我認為最穩的做法是**只用規範的六個欄位**，這也是後面「換一個 agent 還能用嗎」的基礎。
 
 ## Description 決定它會不會被叫出來
 
@@ -103,17 +103,17 @@ agent 啟動時，不會把每個 skill 都讀完。依[規範的漸進式揭露
 description: "Writes a git commit message for the currently staged changes, in Conventional Commits format (type(scope): summary, optional body and footers). Use this skill when the user asks for a commit message, asks you to commit what they staged, or asks how to describe their changes, even if they don't say 'Conventional Commits'. Do not use it to explain git commands, to edit commits that were already pushed, or to write changelogs or release notes."
 ```
 
-整段用雙引號包起來不是習慣問題，原因在後面的「格式檢查」裡會看到。最後那句「Do not use it to...」也有出處：最佳化指南建議，如果不該觸發的查詢一直誤觸發，就補上 skill **不**做什麼，把它和相鄰的能力分開。
+我把整段用雙引號包起來不是習慣問題，原因在後面的「格式檢查」裡會看到。最後那句「Do not use it to...」也有出處：最佳化指南建議，如果不該觸發的查詢一直誤觸發，就補上 skill **不**做什麼，把它和相鄰的能力分開。
 
 ### 用 B 看怎麼避免誤觸發
 
-會議紀錄很容易和其他請求混在一起：「幫我摘要這場會」「把待辦排個優先順序」「幫我約下次開會」聽起來都和會議有關，但要的東西不一樣。B 的 description 是這樣寫的：
+會議紀錄很容易和其他請求混在一起：「幫我摘要這場會」「把待辦排個優先順序」「幫我約下次開會」聽起來都和會議有關，但要的東西不一樣。B 的 description 我是這樣寫的：
 
 ```yaml
 description: Turns meeting notes or a meeting transcript into a to-do list of tasks with owners and due dates, in a fixed Markdown format. Use this skill when the user shares notes, minutes or a transcript of a meeting or call and asks what needs to be done, who is doing what, or for the follow-ups, even if they don't say "action items". Do not use it for a plain meeting summary with no tasks, for editing or prioritizing an existing to-do list, or for scheduling a meeting.
 ```
 
-它做了三件事：第一句講清楚產出是「有負責人和期限的待辦」，不是摘要；第二句列出使用者實際會怎麼說（筆記、逐字稿、誰要做什麼、後續追蹤），包括沒講「action items」這個詞的時候；最後一句把三個最像的請求排除掉。拿幾條查詢來對照：
+它做了三件事：第一句講清楚產出是「有負責人和期限的待辦」，不是摘要；第二句列出使用者實際會怎麼說（筆記、逐字稿、誰要做什麼、後續追蹤），包括沒講「action items」這個詞的時候；最後一句把三個最像的請求排除掉。我拿幾條查詢來對照：
 
 | 查詢 | 該觸發嗎 | 為什麼 |
 | --- | --- | --- |
@@ -133,15 +133,15 @@ description 上限是 1024 字元，但實際能用的空間通常更小，因�
 | Claude Code | 整份清單佔 context window 的 1%；每個 skill 的 `description` 加 `when_to_use` 在清單裡截在 1,536 字元（[文件](https://code.claude.com/docs/en/skills)） | 從最少用到的 skill 開始拿掉 description |
 | Codex | 初始清單最多佔 context window 的 2%，不知道 context window 大小時是 8,000 字元（[文件](https://learn.chatgpt.com/docs/build-skills)） | 先縮短 description；skill 很多時可能整個略過，並顯示警告 |
 
-兩家都建議**把關鍵用途放在最前面**，被截斷時還留得住最重要的那幾個字。A 的 description 是 444 字元，B 是 464 字元，三句的順序都是照這個原則排的。
+兩家都建議**把關鍵用途放在最前面**，被截斷時還留得住最重要的那幾個字。A 的 description 是 444 字元，B 是 464 字元，三句的順序我都是照這個原則排的。
 
 ## 一個 Skill 只做一件事
 
 [agentskills.io](https://agentskills.io/skill-creation/best-practices#design-coherent-units) 用函式來比喻：一個 skill 應該是一個完整的工作單位。切得太細，一個任務要同時載入好幾個 skill，指示可能互相打架；切得太粗，就很難在對的時候被精準叫出來。Codex 的文件也只寫了一句：[Keep each skill focused on one job](https://learn.chatgpt.com/docs/build-skills#best-practices)。
 
-A 只管寫 commit 訊息：看暫存區、選類型、寫摘要、檢查格式。寫 PR 說明、整理 release notes、改已經推上去的 commit，都不在它的範圍裡。B 只把會議紀錄變成待辦，不做會議摘要，也不管待辦之後怎麼排。
+我讓 A 只管寫 commit 訊息：看暫存區、選類型、寫摘要、檢查格式。寫 PR 說明、整理 release notes、改已經推上去的 commit，都不在它的範圍裡。B 只把會議紀錄變成待辦，不做會議摘要，也不管待辦之後怎麼排。
 
-命名方面，Anthropic [建議用動名詞](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#naming-conventions)，例如 `processing-pdfs`；名詞片語（`pdf-processing`）和動作導向（`process-pdfs`）也可以接受；要避開 `helper`、`utils` 這種看不出在做什麼的名字。A 叫 `writing-commit-messages`，是動名詞。B 的 `meeting-notes-to-todos` 是「輸入 → 輸出」的寫法，不在上面三種裡。同一份指南也提醒，同一組 skill 的命名方式要一致；如果你要把這兩個放在同一個專案，最好統一成一種，例如都改成動名詞。
+命名方面，Anthropic [建議用動名詞](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#naming-conventions)，例如 `processing-pdfs`；名詞片語（`pdf-processing`）和動作導向（`process-pdfs`）也可以接受；要避開 `helper`、`utils` 這種看不出在做什麼的名字。A 叫 `writing-commit-messages`，是動名詞。B 的 `meeting-notes-to-todos` 是「輸入 → 輸出」的寫法，不在上面三種裡。同一份指南也提醒，同一組 skill 的命名方式要一致；如果你要把這兩個放在同一個專案，我建議統一成一種，例如都改成動名詞。
 
 ### 誰能啟動它
 
@@ -158,7 +158,7 @@ Claude Code 的文件建議，有副作用或你想自己控制時機的流程�
 
 A 剛好站在這條線上，因為 commit 就是有副作用的動作。我的處理是讓 A 只寫訊息、檢查格式，**只有使用者在對話裡要求 commit 時才執行 `git commit`**（寫在步驟 5）。要注意，這是寫在指示裡的約定，不是技術上擋得住的限制。如果你想要的是「一叫它就直接 commit」，那就該設成只能手動。
 
-這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 有效（Cursor 只支援 `disable-model-invocation`），但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。兩個範例都沒有設這兩種開關。
+這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 有效（Cursor 只支援 `disable-model-invocation`），但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。兩個範例我都沒有設這兩種開關。
 
 ## 把細節拆到參考檔與腳本
 
@@ -173,7 +173,7 @@ _同一個 skill 分三層載入：越往下越大，但越晚才進入 context 
 
 規範也建議 `SKILL.md` 主檔控制在 500 行以內，檔案引用只往下一層。Anthropic 的撰寫指南解釋了原因：Claude 讀到「被引用的檔案裡又引用了別的檔案」時，[可能只用 `head -100` 這類指令看前幾行](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-deeply-nested-references)，結果讀到不完整的資訊。所以參考檔都要直接從 `SKILL.md` 連過去；超過 100 行的參考檔，開頭要放一份目錄。
 
-光把檔案拆開還不夠，還要寫明**什麼時候**讀哪個檔。agentskills.io 的例子是「[API 回傳非 200 時，讀 `references/api-errors.md`](https://agentskills.io/skill-creation/best-practices#structure-large-skills-with-progressive-disclosure)」，這比「詳見 references/」有用得多。A 是這樣寫的，類型清單和規則都放在參考檔，平常不必讀：
+光把檔案拆開還不夠，還要寫明**什麼時候**讀哪個檔。agentskills.io 的例子是「[API 回傳非 200 時，讀 `references/api-errors.md`](https://agentskills.io/skill-creation/best-practices#structure-large-skills-with-progressive-disclosure)」，這比「詳見 references/」有用得多。我在 A 裡這樣寫，類型清單和規則都放在參考檔，平常不必讀：
 
 ```markdown
 Read `references/conventional-commits.md` when you are not sure which type
@@ -184,7 +184,7 @@ fits, or when the change removes or renames something other code depends on.
 
 腳本和參考檔最大的不同：依 [Anthropic 的說明](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#level-3-resources-and-code-loaded-as-needed)，腳本是透過 bash 執行的，程式碼本身不會進入 context，只有輸出會佔 token。撰寫指南也提醒，要在指示裡[寫清楚是「執行它」還是「當參考讀」](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#provide-utility-scripts)。
 
-能用程式檢查的規則，就不要用文字叫 AI 自己判斷。A 把格式規則（類型、長度、句號、空行、`BREAKING CHANGE` 要大寫）都寫進 `scripts/check_commit_msg.py`；但「這次改動算 `fix` 還是 `feat`」腳本判斷不了，還是要 AI 讀過 diff（改動前後的差異）自己決定，這一點寫在 Gotchas。腳本照 [agentskills.io 的腳本指南](https://agentskills.io/skill-creation/using-scripts#designing-scripts-for-agentic-use)設計：
+能用程式檢查的規則，我就不用文字叫 AI 自己判斷。我把 A 的格式規則（類型、長度、句號、空行、`BREAKING CHANGE` 要大寫）都寫進 `scripts/check_commit_msg.py`；但「這次改動算 `fix` 還是 `feat`」腳本判斷不了，還是要 AI 讀過 diff（改動前後的差異）自己決定，這一點寫在 Gotchas。腳本我照 [agentskills.io 的腳本指南](https://agentskills.io/skill-creation/using-scripts#designing-scripts-for-agentic-use)設計：
 
 | 指南的要求 | A 的腳本怎麼做 |
 | --- | --- |
@@ -197,13 +197,13 @@ fits, or when the change removes or renames something other code depends on.
 
 完整的 `--help` 說明，就是附錄裡腳本開頭那段文字。
 
-`--repo` 這個參數有它的原因。腳本指南說，`SKILL.md` 裡的指令路徑要寫成[相對於 skill 根目錄](https://agentskills.io/skill-creation/using-scripts#referencing-scripts-from-skill-md)，因為 agent 是在那裡執行指令的。但 git 要在使用者的 repo 裡跑，所以腳本用 `--repo` 指定 repo，`SKILL.md` 開頭也寫明「指令從 skill 目錄執行，`<repo>` 是使用者的 repo」。
+我加 `--repo` 這個參數是有原因的。腳本指南說，`SKILL.md` 裡的指令路徑要寫成[相對於 skill 根目錄](https://agentskills.io/skill-creation/using-scripts#referencing-scripts-from-skill-md)，因為 agent 是在那裡執行指令的。但 git 要在使用者的 repo 裡跑，所以我讓腳本用 `--repo` 指定 repo，也在 `SKILL.md` 開頭寫明「指令從 skill 目錄執行，`<repo>` 是使用者的 repo」。
 
 ### 依賴要寫明
 
 腳本指南也建議[在 `SKILL.md` 寫明前置需求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假設 agent 的環境已經裝好；執行階段的需求可以寫在 `compatibility` 欄位。用 `npx` 這類一次性指令時要鎖版本，例如明確指定 ESLint 用 9.0.0 版，不要只寫 `npx eslint`（指定版本的寫法見 npm 的 [package spec 文件](https://docs.npmjs.com/cli/using-npm/package-spec/)）。Anthropic 的撰寫指南也有一節就叫「[不要假設工具已經安裝](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)」。
 
-A 的腳本只用 Python 標準函式庫，另外需要 git，這兩項都寫進了 `compatibility`。B 沒有腳本，什麼都不用裝，所以沒寫 `compatibility`，這也符合規範說的「多數 skill 不需要」。如果腳本要用第三方套件，就用 [PEP 723](https://peps.python.org/pep-0723/) 在腳本裡宣告依賴，並在 `SKILL.md` 寫明怎麼執行。
+A 的腳本只用 Python 標準函式庫，另外需要 git，這兩項我都寫進了 `compatibility`。B 沒有腳本，什麼都不用裝，所以我沒寫 `compatibility`，這也符合規範說的「多數 skill 不需要」。如果腳本要用第三方套件，就用 [PEP 723](https://peps.python.org/pep-0723/) 在腳本裡宣告依賴，並在 `SKILL.md` 寫明怎麼執行。
 
 ### 不一定要有腳本
 
@@ -226,7 +226,7 @@ writing-commit-messages/references/conventional-commits.md
 writing-commit-messages/scripts/check_commit_msg.py
 ```
 
-`evals/` 是測試用的檔案，後面「分三層測試」會用到。參考檔、腳本和兩份測試題的完整內容放在文末附錄，這裡只看 `SKILL.md`。
+`evals/` 是測試用的檔案，後面「分三層測試」會用到。參考檔、腳本和兩份測試題的完整內容放在文末附錄，這裡我只看 `SKILL.md`。
 
 ### SKILL.md
 
@@ -292,7 +292,7 @@ $ git status --short
 M  app/login.py
 ```
 
-這兩欄分別代表暫存區和工作目錄：`M ` 是改了而且加進暫存區，` M` 是改了但還沒加。照步驟 1，先看暫存區有什麼：
+這兩欄分別代表暫存區和工作目錄：`M ` 是改了而且加進暫存區，` M` 是改了但還沒加。我照步驟 1，先看暫存區有什麼：
 
 ```console
 $ python3 scripts/check_commit_msg.py --staged --repo /tmp/cc-demo
@@ -309,7 +309,7 @@ $ python3 scripts/check_commit_msg.py --staged --repo /tmp/cc-demo
 }
 ```
 
-只列出 `app/login.py`，沒加進暫存區的 `README.md` 不會出現，exit code 是 0。接著拿一則合格的訊息來檢查，exit code 是 0：
+只列出 `app/login.py`，沒加進暫存區的 `README.md` 不會出現，exit code 是 0。接著我拿一則合格的訊息來檢查，exit code 是 0：
 
 ```console
 $ cat good.txt
@@ -352,7 +352,7 @@ $ python3 scripts/check_commit_msg.py /tmp/cc-msgs/bad.txt
 }
 ```
 
-三個問題各有一句「該怎麼改」，agent 照著改完再跑一次就好。最後用合格的訊息真的 commit 一次。沒加進暫存區的 `README.md` 還留在原地；再看暫存區，就變成空的了，exit code 是 1，提醒寫到 stderr：
+三個問題各有一句「該怎麼改」，agent 照著改完再跑一次就好。最後我用合格的訊息真的 commit 一次。沒加進暫存區的 `README.md` 還留在原地；再看暫存區，就變成空的了，exit code 是 1，提醒寫到 stderr：
 
 ```console
 $ git commit -q -F /tmp/cc-msgs/good.txt && git log --format="%h %s" -2 && git status --short
@@ -413,7 +413,7 @@ metadata:
   filling the template.
 ````
 
-整份都是文字規則，重點在「不要猜」：沒寫負責人就標「未說明」，日期講得不清楚就保留原文，再把這些項目集中列在最後，讓使用者一眼看到要補什麼。
+整份都是文字規則，我把重點放在「不要猜」：沒寫負責人就標「未說明」，日期講得不清楚就保留原文，再把這些項目集中列在最後，讓使用者一眼看到要補什麼。
 
 ### assets/todo-template.md
 
@@ -444,7 +444,7 @@ metadata:
 - 決定：測試環境這週先不升級
 ```
 
-照 B 的規則，預期的結果應該長這樣：
+照 B 的規則，我預期的結果應該長這樣：
 
 ```markdown
 ## 待辦：週會（2026-10-12）
@@ -481,7 +481,7 @@ $ python3 -m venv .venv && .venv/bin/pip install -q -e skills-ref && .venv/bin/s
 skills-ref, version 0.1.0
 ```
 
-第一次驗證 A 就失敗了。當時 description 還沒加引號：
+我第一次驗證 A 就失敗了。當時 description 還沒加引號：
 
 ```console
 $ skills-ref validate writing-commit-messages
@@ -492,7 +492,7 @@ Validation failed for writing-commit-messages:
                                          ^ (line: 3)
 ```
 
-問題出在 description 裡的 `type(scope): summary`。YAML 把「冒號加空白」當成「名稱: 值」的分隔，同一行出現第二個，整份 front matter 就解析失敗。修法是把整段值用雙引號包起來，原本句子裡的雙引號改成單引號。B 的 description 沒有「冒號加空白」，所以不加引號也能通過。
+問題出在 description 裡的 `type(scope): summary`。YAML 把「冒號加空白」當成「名稱: 值」的分隔，同一行出現第二個，整份 front matter 就解析失敗。我的修法是把整段值用雙引號包起來，原本句子裡的雙引號改成單引號。B 的 description 沒有「冒號加空白」，所以不加引號也能通過。
 
 這個錯在 Claude Code 裡不會有人提醒你：前面說過，它在 YAML 解析失敗時仍會載入 skill，只是所有欄位都是空的。我的推論是，description 變成空的，skill 就很難被自動叫出來；這一點我沒有實測。
 
@@ -505,7 +505,7 @@ $ skills-ref validate meeting-notes-to-todos
 Valid skill: meeting-notes-to-todos
 ```
 
-接著拿 A 故意做三個錯誤的版本：名稱有連續的 `--`、資料夾名稱和 `name` 對不上、多加一個 Claude Code 專屬的欄位 `when_to_use`。三個各跑一次，exit code 都是 1：
+接著我拿 A 故意做三個錯誤的版本：名稱有連續的 `--`、資料夾名稱和 `name` 對不上、多加一個 Claude Code 專屬的欄位 `when_to_use`。三個各跑一次，exit code 都是 1：
 
 ```console
 $ skills-ref validate bad--name
@@ -519,7 +519,7 @@ Validation failed for writing-commit-messages:
   - Unexpected fields in frontmatter: when_to_use. Only ['allowed-tools', 'compatibility', 'description', 'license', 'metadata', 'name'] are allowed.
 ```
 
-最後這個最值得注意：同一個欄位，在 Claude Code 裡完全合法，到了 skills-ref 就是錯誤。這就是前面說「只用六個欄位」的原因。
+我覺得最後這個最值得注意：同一個欄位，在 Claude Code 裡完全合法，到了 skills-ref 就是錯誤。這就是我前面說「只用六個欄位」的原因。
 
 Claude Code 另外提供 `claude plugin validate <skills 目錄>`，可以找出 frontmatter 解析失敗的 `SKILL.md`，[需要 v2.1.233 以上](https://code.claude.com/docs/en/skills)。我的機器上沒有 Claude Code，所以沒有跑。
 
@@ -544,12 +544,12 @@ Claude Code 的文件用的是[同一個思路](https://code.claude.com/docs/en/
 | 「幫我把這個月的 commit 整理成 release notes」 | 不該 | 一樣在講 commit，要的卻是 release notes |
 | 「幫我寫一個 commit-msg hook，用 Node 檢查訊息格式」 | 不該 | 連「檢查訊息格式」都一樣，但要的是寫程式 |
 
-> **本文未實跑觸發率。** 觸發測試要在真的 agent 裡跑，看它有沒有去讀 `SKILL.md`。我跑範例的機器上沒有 `claude`、`codex`、`cursor-agent`、`gemini`、`copilot` 這些 CLI（實際用 `command -v` 檢查過），所以這裡只有題目和方法，沒有任何觸發率數字。A 的 JSON 和 B 的那張對照表，都可以拿到自己的 agent 裡照指南的方法跑。
+> **我沒有實跑觸發率。** 觸發測試要在真的 agent 裡跑，看它有沒有去讀 `SKILL.md`。我跑範例的機器上沒有 `claude`、`codex`、`cursor-agent`、`gemini`、`copilot` 這些 CLI（實際用 `command -v` 檢查過），所以這裡只有題目和方法，沒有任何觸發率數字。A 的 JSON 和 B 的那張對照表，都可以拿到自己的 agent 裡照指南的方法跑。
 {: .prompt-warning }
 
 ### 輸出檢查
 
-被叫出來之後，還要做得對。agentskills.io 的[輸出評測指南](https://agentskills.io/skill-creation/evaluating-skills)建議把測試題放在 `evals/evals.json`，每題有使用者會怎麼問（`prompt`）、成功的樣子（`expected_output`）、需要的檔案（`files`），看過第一輪結果後再補上可以客觀檢查的 `assertions`。指南建議先從 2–3 題開始。A 的三題（完整內容在附錄）：
+被叫出來之後，還要做得對。agentskills.io 的[輸出評測指南](https://agentskills.io/skill-creation/evaluating-skills)建議把測試題放在 `evals/evals.json`，每題有使用者會怎麼問（`prompt`）、成功的樣子（`expected_output`）、需要的檔案（`files`），看過第一輪結果後再補上可以客觀檢查的 `assertions`。指南建議先從 2–3 題開始。我替 A 寫了三題（完整內容在附錄）：
 
 | 題目 | 想確認的事 |
 | --- | --- |
@@ -557,13 +557,13 @@ Claude Code 的文件用的是[同一個思路](https://code.claude.com/docs/en/
 | 2. 暫存區是 `mixed-changes.diff`，裡面混了 README 文字和新的登出功能 | 建議拆成兩個 commit，兩則訊息都通過檢查 |
 | 3. 使用者說「我應該都加進暫存區了」，其實暫存區是空的 | 說明暫存區是空的，不自己執行 `git add` |
 
-兩個 `.diff` 檔都是從前面那個暫時 repo 實際用 `git show` 和 `git diff --cached` 匯出的，不是手寫的。其中 `mixed-changes.diff` 是在前面那次 commit 之後，又在同一個 repo 加了登出功能，連同 README 的改動一起加進暫存區後匯出的。
+兩個 `.diff` 檔都是我從前面那個暫時 repo 實際用 `git show` 和 `git diff --cached` 匯出的，不是手寫的。其中 `mixed-changes.diff` 是我在前面那次 commit 之後，又在同一個 repo 加了登出功能，連同 README 的改動一起加進暫存區後匯出的。
 
-每題要跑兩次：一次有 skill，一次沒有（改版時則用舊版當對照），每次都要從乾淨的 context 開始。assertion 要能客觀判斷，像「輸出是合法的 JSON」就比「輸出很好」有用。指南也提到，機械性的檢查用腳本做，比讓 LLM 判斷可靠。以 A 來說，「訊息通過檢查」直接用 A 自己的腳本判斷；「沒有執行 `git commit`」比對前後的 `git log -1` 就知道，不必請 AI 打分數。
+每題要跑兩次：一次有 skill，一次沒有（改版時則用舊版當對照），每次都要從乾淨的 context 開始。assertion 要能客觀判斷，像「輸出是合法的 JSON」就比「輸出很好」有用。指南也提到，機械性的檢查用腳本做，比讓 LLM 判斷可靠。以 A 來說，「訊息通過檢查」我會直接用 A 自己的腳本判斷；「沒有執行 `git commit`」比對前後的 `git log -1` 就知道，不必請 AI 打分數。
 
 Anthropic 的撰寫指南還多提醒一點：skill 的效果和搭配的模型有關，[要用你打算搭配的所有模型都測一次](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#test-with-all-models-you-plan-to-use)。
 
-> **本文未實跑輸出評測。** 原因和觸發測試一樣：沒有可用的 agent，所以沒有「有 skill」和「沒有 skill」的對照結果。附錄的 `evals.json` 只是寫好的題目。B 沒有寫 `evals.json`，前面那份手寫的預期結果可以當它第一題的 `expected_output`。
+> **我沒有實跑輸出評測。** 原因和觸發測試一樣：沒有可用的 agent，所以沒有「有 skill」和「沒有 skill」的對照結果。附錄的 `evals.json` 只是寫好的題目。B 我沒有寫 `evals.json`，前面那份手寫的預期結果可以當它第一題的 `expected_output`。
 {: .prompt-warning }
 
 ## 換一個 Agent 還能用嗎
@@ -577,7 +577,7 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 | Cursor（[文件](https://cursor.com/docs/skills#skill-directories)） | `.agents/skills/`、`.cursor/skills/`；為了相容，也讀 `.claude/skills/`、`.codex/skills/` | `~/.agents/skills/`、`~/.cursor/skills/`；為了相容，也讀 `~/.claude/skills/`、`~/.codex/skills/` |
 | GitHub Copilot（[文件](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills)） | `.github/skills`、`.claude/skills`、`.agents/skills` | `~/.copilot/skills`、`~/.agents/skills` |
 
-從這張表可以推論出一件事（這是推論，不是哪份文件寫的）：依 2026 年 10 月 17 日的文件，`.agents/skills/` 同時出現在 Codex、Cursor、Copilot 的清單裡，但 Claude Code 的文件沒有列這個路徑；反過來，`.claude/skills/` 有 Claude Code、Cursor、Copilot，卻沒有 Codex。也就是說，**沒有一個路徑能同時被四家讀到**。
+從這張表我推論出一件事（這是我的推論，不是哪份文件寫的）：依 2026 年 10 月 17 日的文件，`.agents/skills/` 同時出現在 Codex、Cursor、Copilot 的清單裡，但 Claude Code 的文件沒有列這個路徑；反過來，`.claude/skills/` 有 Claude Code、Cursor、Copilot，卻沒有 Codex。也就是說，**沒有一個路徑能同時被四家讀到**。
 
 ### 範例做了哪些靜態檢查
 
@@ -595,9 +595,9 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 
 規範裡和版本有關的，只有 `metadata` 可以放一個 `version: "1.0"`，但它沒有定義版本號代表什麼。用 git tag 或 CHANGELOG 管版本是慣例，不是規範；我的建議是每次改 description 或腳本的行為，都打一個 tag，寫一行變更說明。例如團隊決定多一種類型，就要同時改參考檔的表格和腳本裡的 `TYPES`，這就是一次該記下來的改版。
 
-改版的流程，輸出評測指南給了一個很實用的做法：[改之前先把舊版複製一份](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs)，用舊版當對照組（放在 `old_skill/`），對同一組題目重跑。這樣才知道新版是真的變好，還是只是換了一種錯法。
+改版的流程，輸出評測指南給了一個我覺得很實用的做法：[改之前先把舊版複製一份](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs)，用舊版當對照組（放在 `old_skill/`），對同一組題目重跑。這樣才知道新版是真的變好，還是只是換了一種錯法。
 
-另外三個維護習慣：
+另外，我建議養成三個維護習慣：
 
 - **不要寫會過期的資訊。** Anthropic 的撰寫指南建議，已經不用的做法[收進一個「old patterns」區塊](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-time-sensitive-information)，不要混在主要步驟裡。
 - **每次糾正 AI，就補一條 Gotcha。** agentskills.io 說，這是[改善 skill 最直接的方法之一](https://agentskills.io/skill-creation/best-practices#gotchas-sections)。
@@ -605,15 +605,15 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 
 ## 作者該替使用者做的安全準備
 
-裝別人的 skill 有哪些風險、使用者該怎麼檢查，[這篇供應鏈安全的文章](/posts/coding-agent-supply-chain-permission-risks/)已經整理過了。這裡只談寫 skill 的人能先做好的事：
+裝別人的 skill 有哪些風險、使用者該怎麼檢查，我在[這篇供應鏈安全的文章](/posts/coding-agent-supply-chain-permission-risks/)整理過了。這裡只談寫 skill 的人能先做好的事：
 
 - **不要讓 skill 抓外部網址的內容當指示。** Anthropic 的文件寫明，[會抓外部資料的 skill 風險特別高](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations)，抓回來的內容可能藏著惡意指令；就算是可信的 skill，外部依賴一變也可能被汙染。
-- **`allowed-tools` 給到最小。** 這個欄位在 Claude Code 裡，會讓 skill 在被叫用的那一輪不經詢問就使用列出的工具。文件特別寫明，[workspace trust 擋不住這個欄位](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)：repo 裡的 skill 可以替自己開權限，連在沒信任過的資料夾裡用 `-p` 執行也會套用。兩個範例都沒有用這個欄位。
+- **`allowed-tools` 給到最小。** 這個欄位在 Claude Code 裡，會讓 skill 在被叫用的那一輪不經詢問就使用列出的工具。文件特別寫明，[workspace trust 擋不住這個欄位](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)：repo 裡的 skill 可以替自己開權限，連在沒信任過的資料夾裡用 `-p` 執行也會套用。兩個範例我都沒有用這個欄位。
 - **腳本裡不放任何秘密資訊。** 這是我的做法，不是哪份文件的規定：金鑰、權杖一律從環境變數讀，不寫進 skill 的任何檔案，因為整個資料夾都會被分享、被提交到 repo。
 - **依賴要鎖版本。** 腳本指南要求[一次性指令寫明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，這樣同一個指令隔一段時間再跑，結果也會一樣。
 - **會改東西的操作要提供 `--dry-run`。** 腳本指南建議，破壞性或會改變狀態的操作，[讓 agent 能先預覽會發生什麼](https://agentskills.io/skill-creation/using-scripts#further-considerations)。A 的腳本只讀 git 的狀態、從不寫檔；真正會改東西的 `git commit` 不在腳本裡，而是留到使用者要求時才執行，所以腳本不需要這個參數。
 
-使用者會把你的 skill 當成軟體來審查，那你能做的，就是讓它好審：檔案少、每個腳本做什麼一看就懂、沒有連到外面的東西。
+使用者會把你的 skill 當成軟體來審查，我認為你能做的，就是讓它好審：檔案少、每個腳本做什麼一看就懂、沒有連到外面的東西。
 
 ## 我的判斷
 

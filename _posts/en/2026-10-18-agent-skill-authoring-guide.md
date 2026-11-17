@@ -10,18 +10,18 @@ image:
   alt: "A skill works only if its description gets it picked at the right moment; scripts and tests check the output, and each change reruns them."
 ---
 
-Every time I ask an AI to write a commit message, I repeat the same rules: start with a type like `fix:` or `feat:`, keep the first line short, no period at the end, and only describe what's actually staged. Around the fifth time, you start wondering whether it could just remember.
+Every time I ask an AI to write a commit message, I repeat the same rules: start with a type like `fix:` or `feat:`, keep the first line short, no period at the end, and only describe what's actually staged. Around the fifth time, I start wondering whether it could just remember.
 
-That's what an Agent Skill is for. This post looks at skills from the author's side: when one is worth writing, how to lay out the files, how to write a description that gets the skill picked at the right moment, how to test it, whether it still works in another agent, and how to keep it working. Along the way I build two skills:
+That's what an Agent Skill is for. In this post I look at skills from the skill author's side: when one is worth writing, how to lay out the files, how to write a description that gets the skill picked at the right moment, how to test it, whether it still works in another agent, and how to keep it working. Along the way I build two skills:
 
-- **A: `writing-commit-messages`**. It reads the changes staged in git, writes a commit message in the Conventional Commits format, and checks the format with a small script. This is the main example, used to show building a skill, writing a script, and testing in three layers.
-- **B: `meeting-notes-to-todos`**. It turns meeting notes into a to-do list with owners and due dates. It's just an instruction file and one output template, with no code at all, and it's there for contrast: what a skill without code looks like, and how to write a description that doesn't get picked by mistake.
+- **A: `writing-commit-messages`**. It reads the changes staged in git, writes a commit message in the Conventional Commits format, and checks the format with a small script. This is the main example, and I use it to show building a skill, writing a script, and testing in three layers.
+- **B: `meeting-notes-to-todos`**. It turns meeting notes into a to-do list with owners and due dates. It's just an instruction file and one output template, with no code at all, and I use it for contrast: what a skill without code looks like, and how to write a description that doesn't get picked by mistake.
 
-This post doesn't cover installing skills other people wrote. If you'd rather start with ready-made ones, the [mattpocock/skills series guide](/posts/mattpocock-skills-series-guide/) is a good place to begin.
+In this post I don't cover installing skills other people wrote. If you'd rather start with ready-made ones, my [mattpocock/skills series guide](/posts/mattpocock-skills-series-guide/) is a good place to begin.
 
 > Everything the spec and each tool's docs say here is based on the official documentation as I read it on October 17, 2026; the Conventional Commits, commitlint, and git pages were read on October 18, 2026. None of those pages carry a version number, and they change, so check them again before you rely on a detail.
 >
-> The examples' checks were run on October 18, 2026, with skills-ref 0.1.0 (agentskills/agentskills commit `69ef37e`), git 2.47.3, and Python 3.13.5. Every command and output in this post comes from those runs. **Trigger-rate tests and output-quality evals were not run**, and neither skill has been run in any agent; the "Test in Three Layers" section explains why.
+> I ran the examples' checks on October 18, 2026, with skills-ref 0.1.0 (agentskills/agentskills commit `69ef37e`), git 2.47.3, and Python 3.13.5. Every command and output in this post comes from those runs. **I did not run trigger-rate tests or output-quality evals**, and neither skill has been run in any agent; the "Test in Three Layers" section explains why.
 {: .prompt-info }
 
 ## A Few Terms First
@@ -38,9 +38,9 @@ This post doesn't cover installing skills other people wrote. If you'd rather st
 
 ## When a Skill Is Worth Writing
 
-The Claude Code docs give a practical test: write a skill when you keep [pasting the same instructions, checklist, or multi-step procedure into chat](https://code.claude.com/docs/en/skills), or when a section of `CLAUDE.md` has grown from a fact into a procedure.
+The Claude Code docs give a test I find practical: write a skill when you keep [pasting the same instructions, checklist, or multi-step procedure into chat](https://code.claude.com/docs/en/skills), or when a section of `CLAUDE.md` has grown from a fact into a procedure.
 
-The difference is when things load. `CLAUDE.md` is read into every conversation; a skill's body loads only when it's used, so, as the same page puts it, long reference material costs almost nothing until you need it. `AGENTS.md` is always loaded too, and every line of it has a cost, which [Part 6 of the series](/posts/mattpocock-skills-research-handoff/) covers.
+The difference is when things load. `CLAUDE.md` is read into every conversation; a skill's body loads only when it's used, so, as the same page puts it, long reference material costs almost nothing until you need it. `AGENTS.md` is always loaded too, and every line of it has a cost, which I covered in [Part 6 of the series](/posts/mattpocock-skills-research-handoff/).
 
 There are also times you shouldn't bother. agentskills.io's [best practices](https://agentskills.io/skill-creation/best-practices) are blunt about it: if the agent already handles the whole task well without the skill, the skill may not be adding value. Anthropic's [authoring guide](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices) suggests building evaluations first: run the AI on a few representative tasks with no skill, write down exactly where it goes wrong, then write just enough instruction to close those gaps.
 
@@ -82,7 +82,7 @@ Individual tools add their own rules on top:
 Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
 ```
 
-Put those three together and the trap is clear: a mistake in Claude Code goes unreported, and you only find out when you try to upload the same skill somewhere else. The safest habit is to **use only the spec's six fields**, which is also the basis for the cross-agent section later on.
+Put those three together and the trap is clear: a mistake in Claude Code goes unreported, and you only find out when you try to upload the same skill somewhere else. I think the safest habit is to **use only the spec's six fields**, which is also the basis for the cross-agent section later on.
 
 ## The Description Decides When It Runs
 
@@ -92,7 +92,7 @@ The same guide points out something easy to miss: agents usually reach for a ski
 
 ### Two Docs, Two Styles
 
-The two official guides disagree on phrasing, so here they are side by side:
+The two official guides disagree on phrasing, so I'll put them side by side:
 
 - **agentskills.io** ([optimization guide](https://agentskills.io/skill-creation/optimizing-descriptions#writing-effective-descriptions)): use imperative phrasing, written as an instruction to the agent ("Use this skill when..." rather than "This skill does..."); describe what the user is trying to achieve, not how the skill works inside; explicitly list the situations it applies to, including ones where the user never names the domain; keep it concise.
 - **Anthropic** ([authoring guide](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#writing-effective-descriptions)): always write in the third person, as in "Processes Excel files and generates reports", and avoid "I can help you..." or "You can use this to...". The reason given is that the description goes into the system prompt, and an inconsistent point of view can cause discovery problems.
@@ -103,17 +103,17 @@ The two actually pull in opposite directions: agentskills.io asks for "Use this 
 description: "Writes a git commit message for the currently staged changes, in Conventional Commits format (type(scope): summary, optional body and footers). Use this skill when the user asks for a commit message, asks you to commit what they staged, or asks how to describe their changes, even if they don't say 'Conventional Commits'. Do not use it to explain git commands, to edit commits that were already pushed, or to write changelogs or release notes."
 ```
 
-The double quotes around the whole value aren't a style choice; you'll see why under "Format Checks". That last "Do not use it to..." sentence has a source too: when queries that shouldn't trigger keep triggering, the optimization guide suggests spelling out what the skill does **not** do, to draw the line between it and nearby capabilities.
+The double quotes I put around the whole value aren't a style choice; you'll see why under "Format Checks". That last "Do not use it to..." sentence has a source too: when queries that shouldn't trigger keep triggering, the optimization guide suggests spelling out what the skill does **not** do, to draw the line between it and nearby capabilities.
 
 ### Using B to Avoid False Triggers
 
-Meeting notes sit close to a lot of other requests. "Summarize this meeting", "prioritize my to-dos", and "set up a meeting" all sound related, but each wants something different. Here's B's description:
+Meeting notes sit close to a lot of other requests. "Summarize this meeting", "prioritize my to-dos", and "set up a meeting" all sound related, but each wants something different. Here's how I wrote B's description:
 
 ```yaml
 description: Turns meeting notes or a meeting transcript into a to-do list of tasks with owners and due dates, in a fixed Markdown format. Use this skill when the user shares notes, minutes or a transcript of a meeting or call and asks what needs to be done, who is doing what, or for the follow-ups, even if they don't say "action items". Do not use it for a plain meeting summary with no tasks, for editing or prioritizing an existing to-do list, or for scheduling a meeting.
 ```
 
-It does three things. The first sentence says the output is a list of tasks with owners and due dates, not a summary. The second lists how people actually ask (notes, minutes, transcripts, who is doing what, follow-ups), including when they never say "action items". The last rules out the three closest requests. A few queries to compare:
+It does three things. The first sentence says the output is a list of tasks with owners and due dates, not a summary. The second lists how people actually ask (notes, minutes, transcripts, who is doing what, follow-ups), including when they never say "action items". The last rules out the three closest requests. I'll compare a few queries:
 
 | Query | Should it trigger? | Why |
 | --- | --- | --- |
@@ -133,15 +133,15 @@ A description can be up to 1024 characters, but the usable space is usually smal
 | Claude Code | The whole listing gets 1% of the context window; each skill's `description` plus `when_to_use` is cut at 1,536 characters ([docs](https://code.claude.com/docs/en/skills)) | Descriptions are dropped, starting with the skills you invoke least |
 | Codex | The initial list uses at most 2% of the context window, or 8,000 characters when the window size is unknown ([docs](https://learn.chatgpt.com/docs/build-skills)) | Descriptions are shortened first; with many skills, some may be left out with a warning |
 
-Both say to **put the key use case first**, so the most important words survive a cut. A's description is 444 characters and B's is 464, and in both the three sentences are ordered with that in mind.
+Both say to **put the key use case first**, so the most important words survive a cut. A's description is 444 characters and B's is 464, and in both I ordered the three sentences with that in mind.
 
 ## One Skill, One Job
 
 [agentskills.io](https://agentskills.io/skill-creation/best-practices#design-coherent-units) compares a skill to a function: it should be one coherent unit of work. Scope it too narrowly and a single task has to load several skills whose instructions may conflict; scope it too broadly and it gets hard to trigger precisely. The Codex docs say it in one line: [Keep each skill focused on one job](https://learn.chatgpt.com/docs/build-skills#best-practices).
 
-A writes commit messages and nothing else: look at what's staged, pick a type, write the summary, check the format. PR descriptions, release notes, and editing commits that are already pushed are out of scope. B turns meeting notes into to-dos; it doesn't summarize meetings or manage the list afterward.
+I limited A to writing commit messages and nothing else: look at what's staged, pick a type, write the summary, check the format. PR descriptions, release notes, and editing commits that are already pushed are out of scope. B turns meeting notes into to-dos; it doesn't summarize meetings or manage the list afterward.
 
-On naming, Anthropic [recommends the gerund form](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#naming-conventions), like `processing-pdfs`, accepts noun phrases like `pdf-processing` and action-oriented names like `process-pdfs`, and says to avoid vague names like `helper` or `utils`. A, `writing-commit-messages`, is a gerund. B, `meeting-notes-to-todos`, reads as input-to-output, which isn't one of those three patterns. The same guide also says to keep naming consistent within a collection of skills, so if you keep both in one project, pick one pattern, for example gerunds for both.
+On naming, Anthropic [recommends the gerund form](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#naming-conventions), like `processing-pdfs`, accepts noun phrases like `pdf-processing` and action-oriented names like `process-pdfs`, and says to avoid vague names like `helper` or `utils`. A, `writing-commit-messages`, is a gerund. B, `meeting-notes-to-todos`, reads as input-to-output, which isn't one of those three patterns. The same guide also says to keep naming consistent within a collection of skills, so if you keep both in one project, I'd pick one pattern, for example gerunds for both.
 
 ### Who Can Start It
 
@@ -158,7 +158,7 @@ The Claude Code docs suggest manual-only for workflows with side effects or timi
 
 A sits right on that line, since a commit is a side effect. My approach is to have A only write and check the message, and **run `git commit` only when the user asked for a commit in the conversation** (step 5). Note that this is an agreement written into the instructions, not a technical guard. If what you want is "invoke it and it commits", make it manual-only.
 
-There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code (Cursor supports only `disable-model-invocation`), but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only. Neither example sets either switch.
+There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code (Cursor supports only `disable-model-invocation`), but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only. I didn't set either switch in either example.
 
 ## Move Details Into References and Scripts
 
@@ -173,7 +173,7 @@ The [spec](https://agentskills.io/specification#progressive-disclosure) splits a
 
 The spec also recommends keeping the main `SKILL.md` under 500 lines and file references one level deep. Anthropic's authoring guide explains why: when Claude meets a reference inside a referenced file, it [may preview it with something like `head -100`](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-deeply-nested-references) instead of reading the whole thing, and end up with incomplete information. So link every reference file straight from `SKILL.md`, and give any reference file over 100 lines a table of contents at the top.
 
-Splitting files isn't enough on its own; you also have to say **when** to read each one. agentskills.io's example is "[Read `references/api-errors.md` if the API returns a non-200 status code](https://agentskills.io/skill-creation/best-practices#structure-large-skills-with-progressive-disclosure)", which is far more useful than "see references/ for details". Here's how A does it; the type list and rules live in the reference file and normally aren't read at all:
+Splitting files isn't enough on its own; you also have to say **when** to read each one. agentskills.io's example is "[Read `references/api-errors.md` if the API returns a non-200 status code](https://agentskills.io/skill-creation/best-practices#structure-large-skills-with-progressive-disclosure)", which is far more useful than "see references/ for details". Here's how I did it in A; the type list and rules live in the reference file and normally aren't read at all:
 
 ```markdown
 Read `references/conventional-commits.md` when you are not sure which type
@@ -184,7 +184,7 @@ fits, or when the change removes or renames something other code depends on.
 
 The big difference between scripts and reference files: according to [Anthropic's overview](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#level-3-resources-and-code-loaded-as-needed), scripts run through bash, the code never enters the context, and only the output costs tokens. The authoring guide adds that your instructions should [make clear whether to run a script or read it as reference](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#provide-utility-scripts).
 
-If a rule can be checked by code, don't ask the AI to judge it from prose. A puts the format rules (type, length, trailing period, blank line, uppercase `BREAKING CHANGE`) in `scripts/check_commit_msg.py`. What the script can't tell is whether a change is a `fix` or a `feat`; the AI still has to read the diff (the before-and-after of the change) and decide, and the Gotchas say so. The script follows [agentskills.io's guide to scripts](https://agentskills.io/skill-creation/using-scripts#designing-scripts-for-agentic-use):
+If a rule can be checked by code, I don't ask the AI to judge it from prose. I put A's format rules (type, length, trailing period, blank line, uppercase `BREAKING CHANGE`) in `scripts/check_commit_msg.py`. What the script can't tell is whether a change is a `fix` or a `feat`; the AI still has to read the diff (the before-and-after of the change) and decide, and the Gotchas say so. I wrote the script to follow [agentskills.io's guide to scripts](https://agentskills.io/skill-creation/using-scripts#designing-scripts-for-agentic-use):
 
 | What the guide asks for | What A's script does |
 | --- | --- |
@@ -197,13 +197,13 @@ If a rule can be checked by code, don't ask the AI to judge it from prose. A put
 
 The full `--help` text is the docstring at the top of the script in the appendix.
 
-The `--repo` option is there for a reason. The scripts guide says command paths in `SKILL.md` should be [relative to the skill's root](https://agentskills.io/skill-creation/using-scripts#referencing-scripts-from-skill-md), because that's where the agent runs them. But git has to run inside the user's repo, so the script takes the repo through `--repo`, and the top of `SKILL.md` says that commands run from the skill's directory and that `<repo>` is the user's repo.
+I added the `--repo` option for a reason. The scripts guide says command paths in `SKILL.md` should be [relative to the skill's root](https://agentskills.io/skill-creation/using-scripts#referencing-scripts-from-skill-md), because that's where the agent runs them. But git has to run inside the user's repo, so I had the script take the repo through `--repo`, and wrote at the top of `SKILL.md` that commands run from the skill's directory and that `<repo>` is the user's repo.
 
 ### State Your Dependencies
 
 The scripts guide also says to [state prerequisites in `SKILL.md`](https://agentskills.io/skill-creation/using-scripts#one-off-commands) instead of assuming the agent's environment has them, and to use the `compatibility` field for runtime-level requirements. Pin versions in one-off commands, for example by telling `npx` to run ESLint 9.0.0 rather than just writing `npx eslint` (see npm's [package spec docs](https://docs.npmjs.com/cli/using-npm/package-spec/) for the syntax). Anthropic's authoring guide has a whole section titled "[Avoid assuming tools are installed](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)".
 
-A's script uses only the Python standard library and needs git, and both are written into `compatibility`. B has no script and needs nothing installed, so it has no `compatibility` field, which fits the spec's note that most skills don't need one. If a script needs third-party packages, declare them inside the script with [PEP 723](https://peps.python.org/pep-0723/) and say in `SKILL.md` how to run it.
+A's script uses only the Python standard library and needs git, and I wrote both into `compatibility`. B has no script and needs nothing installed, so I left out the `compatibility` field, which fits the spec's note that most skills don't need one. If a script needs third-party packages, declare them inside the script with [PEP 723](https://peps.python.org/pep-0723/) and say in `SKILL.md` how to run it.
 
 ### Not Every Skill Needs a Script
 
@@ -226,7 +226,7 @@ writing-commit-messages/references/conventional-commits.md
 writing-commit-messages/scripts/check_commit_msg.py
 ```
 
-`evals/` holds the test files used in "Test in Three Layers" below. The reference file, the script, and both test files are in full in the appendix at the end; here we only look at `SKILL.md`.
+`evals/` holds the test files used in "Test in Three Layers" below. The reference file, the script, and both test files are in full in the appendix at the end; here I only look at `SKILL.md`.
 
 ### SKILL.md
 
@@ -292,7 +292,7 @@ $ git status --short
 M  app/login.py
 ```
 
-The two columns are the staging area and the working directory: `M ` means changed and staged, ` M` means changed but not staged. Following step 1, see what's staged:
+The two columns are the staging area and the working directory: `M ` means changed and staged, ` M` means changed but not staged. Following step 1, I checked what's staged:
 
 ```console
 $ python3 scripts/check_commit_msg.py --staged --repo /tmp/cc-demo
@@ -309,7 +309,7 @@ $ python3 scripts/check_commit_msg.py --staged --repo /tmp/cc-demo
 }
 ```
 
-Only `app/login.py` is listed; the unstaged `README.md` doesn't appear, and the exit code is 0. Next, a valid message, which exits with 0:
+Only `app/login.py` is listed; the unstaged `README.md` doesn't appear, and the exit code is 0. Next, I checked a valid message, which exits with 0:
 
 ```console
 $ cat good.txt
@@ -413,7 +413,7 @@ metadata:
   filling the template.
 ````
 
-It's all text rules, and the core of them is "don't guess": a missing owner is marked as not stated, a vague date is kept as written, and those items are gathered at the end so the user sees at a glance what to fill in.
+It's all text rules, and I built them around "don't guess": a missing owner is marked as not stated, a vague date is kept as written, and those items are gathered at the end so the user sees at a glance what to fill in.
 
 ### assets/todo-template.md
 
@@ -444,7 +444,7 @@ Weekly sync, 2026-10-12 (Monday)
 - Decision: no test environment upgrade this week
 ```
 
-Following B's rules, the expected result looks like this:
+Following B's rules, I'd expect the result to look like this:
 
 ```markdown
 ## To-dos: Weekly sync (2026-10-12)
@@ -492,7 +492,7 @@ Validation failed for writing-commit-messages:
                                          ^ (line: 3)
 ```
 
-The culprit is `type(scope): summary` inside the description. YAML reads "colon plus space" as the separator between a name and its value, so a second one on the same line makes the whole front matter fail to parse. The fix is to wrap the entire value in double quotes and switch the quotes inside the sentence to single quotes. B's description has no "colon plus space", so it passes without quotes.
+The culprit is `type(scope): summary` inside the description. YAML reads "colon plus space" as the separator between a name and its value, so a second one on the same line makes the whole front matter fail to parse. My fix is to wrap the entire value in double quotes and switch the quotes inside the sentence to single quotes. B's description has no "colon plus space", so it passes without quotes.
 
 Claude Code wouldn't warn you about this one: as mentioned earlier, when the YAML doesn't parse, it still loads the skill with every field empty. My inference is that with an empty description, the skill would rarely get picked automatically; I haven't tested that.
 
@@ -544,12 +544,12 @@ I wrote 20 queries for A: 10 should trigger and 10 shouldn't, 12 in the train se
 | 「幫我把這個月的 commit 整理成 release notes」 ("Turn this month's commits into release notes") | No | Also about commits, but wants release notes |
 | 「幫我寫一個 commit-msg hook，用 Node 檢查訊息格式」 ("Write a commit-msg hook that checks the message format in Node") | No | Even says "check the message format", but wants code written |
 
-> **Trigger rates were not run for this post.** A trigger test has to run in a real agent, so you can see whether it read `SKILL.md`. The machine I used has none of the `claude`, `codex`, `cursor-agent`, `gemini`, or `copilot` CLIs (I checked with `command -v`), so this section gives the queries and the method, but no trigger-rate numbers. You can take A's JSON and B's comparison table to your own agent and run them the way the guide describes.
+> **I did not measure trigger rates for this post.** A trigger test has to run in a real agent, so you can see whether it read `SKILL.md`. The machine I used has none of the `claude`, `codex`, `cursor-agent`, `gemini`, or `copilot` CLIs (I checked with `command -v`), so this section gives the queries and the method, but no trigger-rate numbers. You can take A's JSON and B's comparison table to your own agent and run them the way the guide describes.
 {: .prompt-warning }
 
 ### Output Checks
 
-Once picked, the skill still has to do the job right. agentskills.io's [guide to evaluating output](https://agentskills.io/skill-creation/evaluating-skills) suggests keeping test cases in `evals/evals.json`. Each case has a realistic `prompt`, an `expected_output` describing success, and any input `files`; objective `assertions` get added after you've seen a first round of results. The guide suggests starting with 2–3 cases. A's three (in full in the appendix):
+Once picked, the skill still has to do the job right. agentskills.io's [guide to evaluating output](https://agentskills.io/skill-creation/evaluating-skills) suggests keeping test cases in `evals/evals.json`. Each case has a realistic `prompt`, an `expected_output` describing success, and any input `files`; objective `assertions` get added after you've seen a first round of results. The guide suggests starting with 2–3 cases. I wrote three for A (in full in the appendix):
 
 | Case | What it checks |
 | --- | --- |
@@ -557,13 +557,13 @@ Once picked, the skill still has to do the job right. agentskills.io's [guide to
 | 2. The staged change is `mixed-changes.diff`, mixing README text and a new logout function | Suggests two commits, and both messages pass the check |
 | 3. The user says "I think I staged everything", but nothing is staged | Says nothing is staged and doesn't run `git add` itself |
 
-Both `.diff` files were exported from the temporary repo above with `git show` and `git diff --cached`; they aren't hand-written. For `mixed-changes.diff`, I added a logout feature to the same repo after the commit above, staged it together with the README change, and then exported it.
+I exported both `.diff` files from the temporary repo above with `git show` and `git diff --cached`; they aren't hand-written. For `mixed-changes.diff`, I added a logout feature to the same repo after the commit above, staged it together with the README change, and then exported it.
 
-Each case runs twice, once with the skill and once without it (or with the previous version when you're revising), and every run starts from a clean context. Assertions should be objectively checkable: "the output file is valid JSON" beats "the output is good". The guide also notes that mechanical checks are more reliable as scripts than as LLM judgment. For A, "the message passes the check" is decided by A's own script, and "no `git commit` was run" by comparing `git log -1` before and after, with no AI grading needed.
+Each case runs twice, once with the skill and once without it (or with the previous version when you're revising), and every run starts from a clean context. Assertions should be objectively checkable: "the output file is valid JSON" beats "the output is good". The guide also notes that mechanical checks are more reliable as scripts than as LLM judgment. For A, I'd decide "the message passes the check" with A's own script, and "no `git commit` was run" by comparing `git log -1` before and after, with no AI grading needed.
 
 Anthropic's authoring guide adds one more point: a skill's effect depends on the model, so [test it with all the models you plan to use it with](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#test-with-all-models-you-plan-to-use).
 
-> **Output evals were not run for this post.** Same reason as the trigger tests: no agent was available, so there are no with-skill and without-skill results to compare. The `evals.json` in the appendix is a set of written test cases only. B has no `evals.json`; the hand-written expected result above could serve as the `expected_output` of its first case.
+> **I did not run output evals for this post.** Same reason as the trigger tests: no agent was available, so there are no with-skill and without-skill results to compare. The `evals.json` in the appendix is a set of written test cases only. I didn't write an `evals.json` for B; the hand-written expected result above could serve as the `expected_output` of its first case.
 {: .prompt-warning }
 
 ## Does It Work in Another Agent?
@@ -595,9 +595,9 @@ That last row needs a word of explanation. In Claude Code, `` !`command` `` runs
 
 On versions, the spec only lets you put something like `version: "1.0"` in `metadata`, and it doesn't define what a version number means. Managing versions with git tags or a CHANGELOG is a convention, not part of the spec. My suggestion: whenever you change the description or what a script does, tag it and write a one-line note. If your team adds a type, for instance, both the table in the reference file and `TYPES` in the script have to change, and that's a revision worth recording.
 
-For the revision itself, the output guide has a practical routine: [snapshot the old version before editing](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs), use it as the baseline (saved under `old_skill/`), and rerun the same cases. That's how you tell whether the new version is actually better or just wrong in a different way.
+For the revision itself, the output guide has a routine I find practical: [snapshot the old version before editing](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs), use it as the baseline (saved under `old_skill/`), and rerun the same cases. That's how you tell whether the new version is actually better or just wrong in a different way.
 
-Three more maintenance habits:
+Three more maintenance habits I recommend:
 
 - **Don't write things that will go stale.** Anthropic's authoring guide suggests moving retired approaches into [an "old patterns" section](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-time-sensitive-information) instead of mixing them into the main steps.
 - **Every time you correct the AI, add a gotcha.** agentskills.io calls this [one of the most direct ways to improve a skill](https://agentskills.io/skill-creation/best-practices#gotchas-sections).
@@ -608,12 +608,12 @@ Three more maintenance habits:
 The risks of installing someone else's skill, and how users should check one, are covered in [the supply-chain security post](/posts/coding-agent-supply-chain-permission-risks/). Here I'll stick to what the person writing the skill can do up front:
 
 - **Don't have the skill fetch instructions from external URLs.** Anthropic's docs say [skills that fetch data from external URLs pose particular risk](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations), since the fetched content may contain malicious instructions, and even a trustworthy skill can be compromised if its external dependencies change.
-- **Keep `allowed-tools` to the minimum.** In Claude Code, this field lets the skill use the listed tools without asking during the turn it's invoked. The docs specifically say [workspace trust doesn't gate this field](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill): a skill in a repo can grant itself tools, even in a `-p` run in a folder you've never trusted. Neither example uses the field.
+- **Keep `allowed-tools` to the minimum.** In Claude Code, this field lets the skill use the listed tools without asking during the turn it's invoked. The docs specifically say [workspace trust doesn't gate this field](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill): a skill in a repo can grant itself tools, even in a `-p` run in a folder you've never trusted. I didn't use the field in either example.
 - **Keep secrets out of scripts.** This is my own practice, not a rule from any doc: keys and tokens come from environment variables and never go into any file in the skill, because the whole folder gets shared and committed.
 - **Pin your dependencies.** The scripts guide says to [pin versions in one-off commands](https://agentskills.io/skill-creation/using-scripts#one-off-commands) so the same command behaves the same way over time.
 - **Offer `--dry-run` for anything that changes things.** The scripts guide suggests letting the agent [preview what a destructive or stateful operation will do](https://agentskills.io/skill-creation/using-scripts#further-considerations). A's script only reads git's state and never writes anything; the one step that changes things, `git commit`, isn't in the script and waits until the user asks, so the script doesn't need the option.
 
-Users will review your skill the way they'd review any software. The best you can do is make that review easy: few files, scripts whose purpose is obvious at a glance, and nothing that reaches outside.
+Users will review your skill the way they'd review any software. I think the best you can do is make that review easy: few files, scripts whose purpose is obvious at a glance, and nothing that reaches outside.
 
 ## My Take
 
