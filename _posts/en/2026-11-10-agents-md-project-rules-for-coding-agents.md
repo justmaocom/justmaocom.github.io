@@ -16,11 +16,11 @@ First, what is a coding agent? It is an AI assistant for software work: you desc
 
 AGENTS.md is a README for those assistants. A README is the file many projects keep at the top level to tell newcomers what the project is and how to get started; AGENTS.md tells an AI assistant the same kind of thing. You write it in Markdown, a plain-text format where `#` marks a heading and `-` starts a list item, saved with a `.md` extension. There are no required fields, and you can choose your own headings. The format is stewarded by the [Agentic AI Foundation](https://agents.md/) under the Linux Foundation.
 
-This post covers how to write the file, and what the official docs for [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [Claude Code](https://code.claude.com/docs/en/memory#agents-md) say each tool will actually read. I will not claim that every tool behaves the same way, and I will not list products I have not checked.
+In this post I cover how to write the file, and what the official docs for [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [Claude Code](https://code.claude.com/docs/en/memory#agents-md) say each tool will actually read. I will not claim that every tool behaves the same way, and I will not list products I have not checked.
 
-If you want a skill pack (packaged workflows that an assistant loads when it needs them) to help generate project rules, see [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. This one is about the file format itself, and how these two tools load it.
+If you want a skill pack (packaged workflows that an assistant loads when it needs them) to help generate project rules, see my post [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. In this one I focus on the file format itself, and how these two tools load it.
 
-> **Version note:** This post follows the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) (including the [AGENTS.md section](https://code.claude.com/docs/en/memory#agents-md)), and the [AGENTS.md site](https://agents.md/), all read on 2026-11-10 (Taipei time). That day, the latest Codex CLI on npm was 0.167.0, and Claude Code was 2.1.322. Later versions or docs may change how files are loaded.
+> **Version note:** This post is based on the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) (including the [AGENTS.md section](https://code.claude.com/docs/en/memory#agents-md)), and the [AGENTS.md site](https://agents.md/), as I read them on 2026-11-10 (Taipei time). That day, the latest Codex CLI on npm was 0.167.0, and Claude Code was 2.1.322. Later versions or docs may change how files are loaded.
 {: .prompt-info }
 
 ## Before You Start: A Few Terms
@@ -37,13 +37,13 @@ If you are not an engineer, these words come up again and again. A minute spent 
 
 ## When You Should Write an AGENTS.md
 
-These are good reasons to put the rules in AGENTS.md:
+In my view, these are good reasons to put the rules in AGENTS.md:
 
 - You have already had to repeat the same reminder to the assistant.
 - It keeps running the wrong test command, for example `npm test` when the project uses `pnpm test`.
 - A new teammate, or anyone who opens this repo next, also needs to know it.
 
-Two kinds of content do not belong here. Long workflows that apply only to one small area are a better fit as a short file in that subdirectory, or as a skill that loads when it is needed. Rules that must always happen are the other case. The [Claude Code docs](https://code.claude.com/docs/en/memory) are explicit: these files are context (text added to the conversation for the model to read), not enforced configuration. The model takes them into account, but what it does in the end is still the model's decision. To block an action at a fixed point, use a hook (a command the tool runs automatically at a set moment); see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
+I think two kinds of content do not belong here. Long workflows that apply only to one small area are a better fit as a short file in that subdirectory, or as a skill that loads when it is needed. Rules that must always happen are the other case. The [Claude Code docs](https://code.claude.com/docs/en/memory) are explicit: these files are context (text added to the conversation for the model to read), not enforced configuration. The model takes them into account, but what it does in the end is still the model's decision. To block an action at a fixed point, use a hook (a command the tool runs automatically at a set moment); see my post [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 **When to use it:** the rule will be repeated, and later people on the project should see it too.
 
@@ -53,9 +53,9 @@ Two kinds of content do not belong here. Long workflows that apply only to one s
 
 ## What to Put in the File
 
-Write instructions that are specific enough to check. The official contrast is clear: "Use 2-space indentation" works better than "format code nicely," and "Run `npm test` before opening a pull request" is clearer than "remember to test." A simple test: if someone reading the sentence could not check whether it was followed, make it more specific.
+Write instructions that are specific enough to check. The official contrast is clear: "Use 2-space indentation" works better than "format code nicely," and "Run `npm test` before opening a pull request" is clearer than "remember to test." My test is simple: if someone reading the sentence could not check whether it was followed, make it more specific.
 
-At a minimum, cover:
+At a minimum, I recommend covering:
 
 - Install and test commands
 - Code style
@@ -64,7 +64,7 @@ At a minimum, cover:
 
 Keep it short. Claude Code suggests [staying under 200 lines per file](https://code.claude.com/docs/en/memory#write-effective-instructions); longer files use more context and are followed less consistently. Codex concatenates the files it finds and [stops at 32 KiB by default](https://learn.chatgpt.com/docs/agent-configuration/agents-md) (`project_doc_max_bytes`); anything past that limit is not read. 32 KiB is 32,768 bytes. An English letter takes about 1 byte in the common UTF-8 encoding, so that is roughly 32,000 characters of plain English; many other scripts, such as Chinese, take more bytes per character. Put the important lines first.
 
-Here is a root-level template you can copy, a little over twenty lines. Change the commands and paths to match your project:
+Here is a root-level template I wrote for you to copy, a little over twenty lines. Change the commands and paths to match your project:
 
 ```markdown
 # AGENTS.md
@@ -96,7 +96,7 @@ This is a Node.js web service. Use pnpm to manage packages. The Node version is 
 - In the description, say how to run the tests and which ones you ran
 ```
 
-The `pnpm install`, `pnpm test`, and `pnpm lint` commands in the template are only examples. If you are not sure which commands your project uses, check its existing README or ask the engineer who maintains it. Leaving a section out is better than writing it wrong.
+The `pnpm install`, `pnpm test`, and `pnpm lint` commands in the template are only examples. If you are not sure which commands your project uses, check its existing README or ask the engineer who maintains it. I would rather leave a section out than write it wrong.
 
 ### Hands-On: Create Your First AGENTS.md
 
@@ -115,7 +115,7 @@ If you use Codex code review on GitHub (code review: checking changes before the
 - Flag any password or API key written directly into the code
 ```
 
-To learn more about having an AI agent review PRs on GitHub, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
+To learn more about having an AI agent review PRs on GitHub, see my separate post [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
 
 ## Where to Put It: How Codex Reads the Files
 
@@ -126,7 +126,7 @@ Codex rules live in two kinds of places:
 - **Global rules:** your own preferences that apply to all of your projects, in `~/.codex/AGENTS.md` (or in `CODEX_HOME`, if you set that).
 - **Project rules:** rules that live in the repo and travel with the project. This is the file most of this post is about.
 
-If the same directory also has `AGENTS.override.md`, Codex reads that file instead of `AGENTS.md`. An override is a temporary stand-in for the usual rules. When you are done, delete it; do not leave an empty file behind. The official wording is that you remove the override to restore the original file.
+If the same directory also has `AGENTS.override.md`, Codex reads that file instead of `AGENTS.md`. An override is a temporary stand-in for the usual rules. When you are done, I recommend deleting it rather than leaving an empty file behind. The official wording is that you remove the override to restore the original file.
 
 For a project, Codex starts at the project root (typically the Git root) and walks down to your current working directory. In each directory it looks for `AGENTS.override.md`, then `AGENTS.md`, then any fallback names you configured (backup filenames, explained below), and it takes at most one file per directory. It concatenates those files from the root down. Files closer to your current directory appear later, so the more specific rules effectively override the broader ones above.
 
@@ -158,7 +158,7 @@ You can raise the combined size cap with `project_doc_max_bytes`; the default is
 
 Claude Code's own project instructions file is called CLAUDE.md, and it plays the same role as AGENTS.md. Claude Code can also read a repository's AGENTS.md as project instructions, so you do not have to add a CLAUDE.md just to get started. The [default conditions](https://code.claude.com/docs/en/memory#agents-md) are stricter, though.
 
-By default, Claude reads AGENTS.md (including `.claude/AGENTS.md`) only when there is no `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in your current working directory or above it ("above" means the folders that contain it, all the way up). If any of those files exists, Claude reads the CLAUDE.md files only. A simple way to remember it: **by default, if a CLAUDE.md file exists in the current directory or above, AGENTS.md is not read.** Your personal `~/.claude/CLAUDE.md`, your organization's managed CLAUDE.md, and files under `.claude/rules/` do not count in that check, so they do not stop AGENTS.md from loading.
+By default, Claude reads AGENTS.md (including `.claude/AGENTS.md`) only when there is no `CLAUDE.md`, `.claude/CLAUDE.md`, or `CLAUDE.local.md` in your current working directory or above it ("above" means the folders that contain it, all the way up). If any of those files exists, Claude reads the CLAUDE.md files only. Here is how I remember it: **by default, if a CLAUDE.md file exists in the current directory or above, AGENTS.md is not read.** Your personal `~/.claude/CLAUDE.md`, your organization's managed CLAUDE.md, and files under `.claude/rules/` do not count in that check, so they do not stop AGENTS.md from loading.
 
 There is a common trap: you add `CLAUDE.local.md` for private notes you will not commit, and Claude stops reading AGENTS.md. To keep both, type `/config` in the session (a command typed into the Claude Code chat box, starting with a slash, that opens the settings) and set Project instructions to `claude-md-and-agents-md`.
 
@@ -168,7 +168,7 @@ A subdirectory AGENTS.md is not loaded at launch for every folder. The [official
 
 Direct AGENTS.md support requires Claude Code v2.1.277 or later. Older versions, sessions where the built-in plugin (add-on feature) that reads AGENTS.md is disabled, or the first session (one run of the tool, from opening it to closing it) after you upgrade from an older version, may not load it. In those cases, use the import in the next section. In an interactive session that does load it, you will often see a line such as `no CLAUDE.md found; AGENTS.md loaded: …`.
 
-To change the default, set Project instructions in `/config`, or write the value in the user-level settings file `~/.claude/settings.json` (this setting is ignored in project settings files). If you are not used to editing settings files, `/config` is the less error-prone route. The four values mean:
+To change the default, set Project instructions in `/config`, or write the value in the user-level settings file `~/.claude/settings.json` (this setting is ignored in project settings files). If you are not used to editing settings files, I recommend `/config`, the less error-prone route. The four values mean:
 
 | Value | What Claude reads |
 | --- | --- |
@@ -183,7 +183,7 @@ To change the default, set Project instructions in `/config`, or write the value
 
 ## Share One File With Both Tools
 
-If you use both tools, the aim is to maintain one shared set of rules. The key is an import.
+If you use both tools, as I do, the aim is to maintain one shared set of rules. I think the key is an import.
 
 Here, an import means "pull in another file by reference." Instead of copying the contents of AGENTS.md into CLAUDE.md, you write one line, `@AGENTS.md`. When Claude reads CLAUDE.md, it expands that line into the contents of AGENTS.md and reads them as part of CLAUDE.md. Nothing is copied, so AGENTS.md stays the only file you maintain.
 
@@ -212,11 +212,11 @@ If you do not need any Claude-specific content, a symlink (a filename that point
 ln -s AGENTS.md CLAUDE.md
 ```
 
-The command prints no output on success. If anyone on the team works on Windows, use the import instead. Officially, creating a symlink there needs Administrator privileges or Developer Mode, and if Git does not have `core.symlinks` enabled, a checkout can turn the link into a one-line plain-text file, which leaves the clone without your instructions.
+The command prints no output on success. If anyone on the team works on Windows, I would use the import instead. Officially, creating a symlink there needs Administrator privileges or Developer Mode, and if Git does not have `core.symlinks` enabled, a checkout can turn the link into a one-line plain-text file, which leaves the clone without your instructions.
 
-Do not replace the import with a sentence such as "please read AGENTS.md." The docs say Claude then sees that file only if it decides to open it.
+I don't recommend replacing the import with a sentence such as "please read AGENTS.md." The docs say Claude then sees that file only if it decides to open it.
 
-`/import` (a different Claude Code chat command with a similar name) is also a poor long-term substitute. The official wording is that it appends a one-time copy of instruction files such as AGENTS.md to the matching CLAUDE.md. Later edits to AGENTS.md are not copied over automatically.
+I also don't recommend `/import` (a different Claude Code chat command with a similar name) as a long-term substitute. The official wording is that it appends a one-time copy of instruction files such as AGENTS.md to the matching CLAUDE.md. Later edits to AGENTS.md are not copied over automatically.
 
 **What you get:** one file to maintain for shared rules, with Claude-only sentences kept in the lower half of CLAUDE.md.
 
@@ -224,7 +224,7 @@ Do not replace the import with a sentence such as "please read AGENTS.md." The d
 
 ## How to Confirm the File Was Loaded
 
-After you edit the files, do not assume the tool has already seen the new text.
+After editing the files, I would not assume the tool has already seen the new text.
 
 Restart Codex, then run the [official checks](https://learn.chatgpt.com/docs/agent-configuration/agents-md#verify-your-setup) in the terminal from the repository root:
 
@@ -246,7 +246,7 @@ You should see the active instruction sources listed in order, such as the globa
 
 In Claude Code, type `/memory` in the chat and look for your file in the list, or type `/context all` and check under Memory files (before v2.1.280, this list does not show an AGENTS.md that was read directly). In an interactive session that loaded AGENTS.md directly, you should also see the `AGENTS.md loaded` line mentioned earlier.
 
-If a file was not loaded, check three things first: that the filename and location are right, that you restarted Codex, and whether a CLAUDE.md file already exists in Claude Code's current directory or above (if it does, use an import or change the setting).
+If a file was not loaded, I would check three things first: that the filename and location are right, that you restarted Codex, and whether a CLAUDE.md file already exists in Claude Code's current directory or above (if it does, use an import or change the setting).
 
 ## A Worked Example: A Frontend Plus a Payments Service
 
@@ -266,7 +266,7 @@ my-project/              ← repository root
 - `services/payments/AGENTS.md`: only the payments service's own test command, for example `make test-payments`
 - Root `CLAUDE.md`: `@AGENTS.md` on the first line, then one Claude-specific rule, such as using plan mode before changing payment code
 
-`services/payments/AGENTS.md` can be very short and cover only what differs from the root:
+I would keep `services/payments/AGENTS.md` very short and cover only what differs from the root:
 
 ```markdown
 # AGENTS.md (payments service)
@@ -280,7 +280,7 @@ When you start Codex from the repository root, it loads the global file (if you 
 
 When you start Claude Code from the root, a CLAUDE.md is already present, so [by default it reads the CLAUDE.md files only](https://code.claude.com/docs/en/memory#agents-md). The root AGENTS.md comes in through the `@AGENTS.md` import. If Claude then uses Read to open a file under `services/payments/`, the docs describe loading a subdirectory AGENTS.md only when no counting CLAUDE.md files exist in the working directory or above, and the subdirectory itself has none of those three files. The root already has a CLAUDE.md, so by default `services/payments/AGENTS.md` is not read directly.
 
-If Claude should also see the payments rules, add a `CLAUDE.md` in `services/payments/` that starts with `@AGENTS.md`. Because an import path is relative to the CLAUDE.md that contains it, that line points to `services/payments/AGENTS.md` in the same folder, not to the root file. A [subdirectory CLAUDE.md](https://code.claude.com/docs/en/memory#how-claude-md-files-load) loads when Claude reads, writes, or edits a file in that directory. The other option is to set Project instructions to `claude-md-and-agents-md`, so both kinds of files are read.
+If Claude should also see the payments rules, I would add a `CLAUDE.md` in `services/payments/` that starts with `@AGENTS.md`. Because an import path is relative to the CLAUDE.md that contains it, that line points to `services/payments/AGENTS.md` in the same folder, not to the root file. A [subdirectory CLAUDE.md](https://code.claude.com/docs/en/memory#how-claude-md-files-load) loads when Claude reads, writes, or edits a file in that directory. The other option is to set Project instructions to `claude-md-and-agents-md`, so both kinds of files are read.
 
 ## Which File to Use in Each Situation
 
@@ -306,6 +306,6 @@ If Claude should also see the payments rules, add a `CLAUDE.md` in `services/pay
 
 ## What to Do Next
 
-Following the hands-on steps above, you can add an AGENTS.md of 30 lines or fewer at the repository root today, with the install, test, and caution lines you actually use. If you also need Claude-specific notes, add a CLAUDE.md that starts with `@AGENTS.md`. Then use the commands above, or `/memory`, to confirm the files were loaded.
+I suggest following the hands-on steps above and adding an AGENTS.md of 30 lines or fewer at the repository root today, with the install, test, and caution lines you actually use. If you also need Claude-specific notes, add a CLAUDE.md that starts with `@AGENTS.md`. Then use the commands above, or `/memory`, to confirm the files were loaded.
 
-For more on why every line written for an assistant has a cost, see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/). The official references are the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/). To turn a rule into a check that runs at a fixed point, see the [hooks post](/posts/claude-code-hooks-automate-checks/). Long material such as a full architecture write-up doesn't belong in AGENTS.md; for the approach of keeping it in a wiki inside the repo and pointing to it from AGENTS.md, see [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
+For more on why every line written for an assistant has a cost, see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/). The official references are the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/). To turn a rule into a check that runs at a fixed point, see the [hooks post](/posts/claude-code-hooks-automate-checks/). I think long material such as a full architecture write-up doesn't belong in AGENTS.md; I discuss keeping it in a wiki inside the repo and pointing to it from AGENTS.md in [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
