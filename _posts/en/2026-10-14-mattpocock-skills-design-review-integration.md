@@ -12,13 +12,13 @@ image:
 
 In the previous post, `implement` finished "Deactivate a member and release the seat." The test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main branch (a branch is a copy of the main branch where you can make changes safely).
 
-Passing tests only mean the code behaves the way the tests say. Three things remain that tests can't see:
+Passing tests only mean the code behaves the way the tests say. In my view, three things remain that tests can't see:
 
 - Is the structure of the code getting messier with every change?
 - Did this change do more, or less, than what was asked?
 - When two people edit the same piece of code, whose version wins?
 
-`mattpocock/skills` handles these with four skills. `codebase-design` and `improve-codebase-architecture` look after structure, `code-review` looks at this change, and `resolving-merge-conflicts` handles conflicts during a merge.
+`mattpocock/skills` handles these with four skills, and I'll go through them in order. `codebase-design` and `improve-codebase-architecture` look after structure, `code-review` looks at this change, and `resolving-merge-conflicts` handles conflicts during a merge.
 
 > mattpocock/skills Series | Part 5
 >
@@ -26,10 +26,10 @@ Passing tests only mean the code behaves the way the tests say. Three things rem
 > - Next (Part 6): [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the merge conflict and the post-merge test failure are real execution results.
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the skill invocations in the per-seat billing example from the original instructions; the merge conflict and the post-merge test failure come from commands I actually ran.
 {: .prompt-info }
 
-> Since this series started, `mattpocock/skills` has moved on to `1.3.x`. [`v1.3.0` removed `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1), and the official note says nothing replaces it. The same release also renamed the glossary file `CONTEXT.md` to `GLOSSARY.md`. To stay consistent with the first four parts, this post still uses `1.2.3`.
+> Since this series started, `mattpocock/skills` has moved on to `1.3.x`. [`v1.3.0` removed `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1), and the official note says nothing replaces it. The same release also renamed the glossary file `CONTEXT.md` to `GLOSSARY.md`. To stay consistent with the first four parts, I still use `1.2.3` in this post.
 {: .prompt-warning }
 
 ## Three Terms First
@@ -65,7 +65,7 @@ This is a lot like `domain-modeling` from part 2. [`ask-matt` lists them side by
 
 The whole vocabulary rests on one idea: [a good module is "deep"](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L8).
 
-Think of a coffee machine. A good one has a single button, and grinding, heating, and brewing all happen inside. That's "deep." If you had to press a separate button for every step, with almost as many buttons as there are steps inside, that's "shallow."
+I'll compare it to a coffee machine. A good one has a single button, and grinding, heating, and brewing all happen inside. That's "deep." If you had to press a separate button for every step, with almost as many buttons as there are steps inside, that's "shallow."
 
 [The original definition of "deep"](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/codebase-design/SKILL.md#L20) is exactly this: how much you get for each extra button you have to learn. The more you get, the deeper the module.
 
@@ -89,7 +89,7 @@ _The same seat feature: five buttons to remember on the left, three on the right
 3. **Tests press the same buttons as users.** If you want to reach past the buttons to test the insides, the module is cut the wrong way.
 4. **A socket only one plug ever fits isn't really a socket.** "We might swap it someday" isn't a reason. Only leave a seam when at least two things actually plug in, such as the real version and a fake one for tests.
 
-The situation rule 4 describes comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
+I think the situation rule 4 describes comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
 
 ### Two Appendices
 
@@ -100,7 +100,7 @@ The situation rule 4 describes comes up a lot. People often add an extra layer "
 
 ## `improve-codebase-architecture`: A Regular Health Check for the Project
 
-If `codebase-design` is the toolbox you tidy with, `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
+I think of `codebase-design` as the toolbox you tidy with; `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
 
 It works in three steps.
 
@@ -153,7 +153,7 @@ Plenty of projects have no written guidelines at all. So the "written by the rul
 
 The checklist comes with two conditions: the project's own guidelines come first, so anything the project explicitly allows isn't a smell; and every item is only a heads-up, so the report says "may have this problem," never a hard violation.
 
-The third example is the same idea as `codebase-design`'s "a socket only one plug ever fits isn't really a socket": one warns you while designing, the other catches it during review.
+To me, the third example is the same idea as `codebase-design`'s "a socket only one plug ever fits isn't really a socket": one warns you while designing, the other catches it during review.
 
 ### Why Two Sides
 
@@ -167,11 +167,11 @@ Reporting them separately keeps a good grade on one side from hiding a problem o
 ![On the left, the "Written by the rules?" report lists two possible code smells, marked as heads-ups only; on the right, the "Built what was asked?" report quotes the spec, showing billing receives the new seat count and that deactivating a member with no seat may be handled wrong; the bottom reads "Nicely written but built the wrong thing: a good grade on one side can't hide a problem on the other"](code-review-two-axes.webp){: width="800" height="450" }
 _The two reports stay separate and are never merged into one ranking._
 
-As the previous post mentioned, [`tdd` leaves tidying up the code to the review stage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38). The "written by the rules?" side is the step after the tests pass where you go back and tidy up.
+As I mentioned in the previous post, [`tdd` leaves tidying up the code to the review stage](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L38). The "written by the rules?" side is the step after the tests pass where you go back and tidy up.
 
 ## `resolving-merge-conflicts`: Understand What Each Side Wanted, Then Merge
 
-First, what a merge conflict is. Two people start from the same code and each make changes. When they happen to change the same lines, git, the tool that tracks versions, can't tell which version to keep, so it stops, marks both versions, and lets a person decide.
+I'll start with what a merge conflict is. Two people start from the same code and each make changes. When they happen to change the same lines, git, the tool that tracks versions, can't tell which version to keep, so it stops, marks both versions, and lets a person decide.
 
 The skill is just [five steps](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/resolving-merge-conflicts/SKILL.md#L6-L14):
 
@@ -181,12 +181,12 @@ The skill is just [five steps](https://github.com/mattpocock/skills/blob/c55ee46
 4. Run the project's automatic checks, usually type checking (making sure each piece of data is the right kind), tests, and formatting, and fix whatever the merge broke.
 5. Finish the merge and commit.
 
-Step 2 is the heart of it. Conflict markers only tell you "the text differs on each side," not what each side was trying to do. If you just choose "keep mine" or "keep theirs," the code may run, but it can quietly throw away a change someone made on purpose.
+As I read it, step 2 is the heart of it. Conflict markers only tell you "the text differs on each side," not what each side was trying to do. If you just choose "keep mine" or "keep theirs," the code may run, but it can quietly throw away a change someone made on purpose.
 
 ![On the left, simply choosing "keep mine" quietly drops "return false when deactivating an unknown member"; on the right, reading both commits first keeps the member check, the billing notification, and the return value; the bottom reads "A conflict tells you the text differs, not what each side wanted"](merge-conflict-intent.webp){: width="800" height="450" }
 _Picking a side may run, but can lose half of what the changes were for._
 
-As noted above, this skill was removed in `1.3.0`, and [the archived docs page](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1) says nothing replaces it. Still, the five steps don't need any tools, so you can follow them even without the skill installed.
+As I noted above, this skill was removed in `1.3.0`, and [the archived docs page](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1) says nothing replaces it. Still, the five steps don't need any tools, so you can follow them even without the skill installed.
 
 ## Where Your Time Goes
 
@@ -200,7 +200,7 @@ As noted above, this skill was removed in `1.3.0`, and [the archived docs page](
 | Reading the review | You | Read the two sides separately; smells are just heads-ups, and whether to act is up to you |
 | Resolving conflicts | The AI, and you when needed | Trace what each side was for; when only one side can stay, check the AI's choice and its reasons |
 
-The two most time-consuming tasks are the health check and "design it twice," since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
+I expect the two most time-consuming tasks to be the health check and "design it twice," since both read a lot of code. The good news is they're also the least urgent: the code works, the structure just isn't great, so do them when you have time.
 
 ## Which One to Use When
 
@@ -214,7 +214,7 @@ The two most time-consuming tasks are the health check and "design it twice," si
 
 ## Walkthrough: Reviewing and Merging Per-Seat Billing
 
-The skill invocations below were not actually run; the flow is inferred from the `1.2.3` instructions. The merge conflict was produced for real with git 2.47.3, and the post-merge test was run on Node.js v20.19.2; the code is a minimal example written for this post, not taken from `mattpocock/skills`.
+I did not actually run the skill invocations below; I inferred the flow from the `1.2.3` instructions. I produced the merge conflict for real with git 2.47.3 and ran the post-merge test on Node.js v20.19.2; the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
 
 ### Reviewing "Deactivate a Member and Release the Seat"
 
@@ -227,16 +227,16 @@ $code-review main
 
 This means "check every change since branching off `main`." The AI finds the ticket number in the commit message, and since the project has no written guidelines, the "written by the rules?" side uses only the basic checklist.
 
-The two reports might look like this (inferred):
+The two reports might look like this (my inference):
 
 - **Written by the rules?**: the billing notification code is spread across "assign seat" and "deactivate member," so there "may be a 'one change, many places' problem." This is a heads-up, not an error.
 - **Built what was asked?**: the ticket's "billing system receives the new seat count" is done. But the ticket doesn't say what happens when you deactivate a member who never had a seat, and the code doesn't handle it, so it's listed as "looks done, but may have a gap."
 
-You can deal with the requirements item first by going back to clarify the rule, and leave the rules item for the next health check.
+You can deal with the requirements item first by going back to clarify the rule, and leave the rules item for the next health check. That's the order I'd pick too.
 
 ### Handing the Structural Problem to the Health Check
 
-A few days later you run `$improve-codebase-architecture` with the area "per-seat billing." The report might include a card like this (inferred):
+A few days later you run `$improve-codebase-architecture` with the area "per-seat billing." The report might include a card like this (my inference):
 
 - **Title**: Tidy per-seat billing into one module
 - **Files**: `seats.js`, `billing-sync.js`
@@ -244,7 +244,7 @@ A few days later you run `$improve-codebase-architecture` with the area "per-sea
 - **Change**: per-seat billing keeps just three buttons, "assign," "deactivate," and "check available seats," with billing notification happening automatically inside.
 - **Label**: Worth exploring
 
-Check it with "try deleting it": delete `billing-sync.js`, and "notify billing after changing seats" spills back into every place that uses it. So the hassle is real; it's just in the wrong place.
+I'd check it with "try deleting it": delete `billing-sync.js`, and "notify billing after changing seats" spills back into every place that uses it. So the hassle is real; it's just in the wrong place.
 
 You pick this card, the AI starts asking about the details one question at a time, and once you're done the idea goes back to `grill-with-docs` and follows the route from parts 3 and 4 again.
 
@@ -303,11 +303,11 @@ export function deactivateMember(workspace, memberId, billing) {
 ```
 {: file="seats.js (resolved)" }
 
-The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging, so it belongs in the merge commit message where you'll see it during review.
+The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging, so I think it belongs in the merge commit message where you'll see it during review.
 
 Then, per step 4, run the tests. The test from the previous post, run with `node --test seats.test.js`, calls `deactivateMember()` without passing in a billing system. I put the merged code back under that test and actually ran it on Node.js v20.19.2: the result was `fail 1` (one test failed), with a `TypeError`, meaning the code received something it couldn't use: here, the billing system was never passed in.
 
-This is exactly the "fix whatever the merge broke" case: add a fake billing system to the test, rather than deleting the line that notifies billing. Only after everything passes does the AI commit.
+This is exactly the "fix whatever the merge broke" case: I'd recommend adding a fake billing system to the test, rather than deleting the line that notifies billing. Only after everything passes does the AI commit.
 
 ## My Take: Read the Two Reports Separately, and Don't Fix Every Smell on the Spot
 
@@ -317,17 +317,17 @@ This section is my own view; the source material doesn't say it directly.
 
 I also wouldn't have `code-review` fix every smell on the spot. The "one change, many places" in the walkthrough isn't something a rename solves. It needs the full health-check treatment: walk through, discuss, then go back into the main flow. Forcing it during review means reshaping the code without any requirements document, skipping exactly the checkpoints that parts 3 and 4 set up.
 
-That said, this assumes the project really does run health checks regularly. If the team never makes time to tidy up, leftover smells just pile up. In that case, you're better off fixing the most obvious ones during review.
+That said, this assumes the project really does run health checks regularly. If the team never makes time to tidy up, leftover smells just pile up. In that case, I'd rather fix the most obvious ones during review.
 
 ## Wrapping Up
 
-Most of what needs judging after the code is written isn't something tests can answer.
+I'd say most of what needs judging after the code is written isn't something tests can answer.
 
 - For this change, let `code-review` check from two sides: written by the rules, and built what was asked.
 - For structure, run `improve-codebase-architecture` as a regular health check, and use `codebase-design`'s vocabulary to discuss changes.
 - When two branches collide, read both sides' commits and tickets, understand what each wanted, then decide how to merge.
 
-In your own project, the next step is to run `$code-review main` on a branch that's finished and ready to merge. Deal with the problems on the "built what was asked?" side first, then decide whether the code smells from "written by the rules?" go into the next health check.
+In your own project, the next step I'd suggest is to run `$code-review main` on a branch that's finished and ready to merge. Deal with the problems on the "built what was asked?" side first, then decide whether the code smells from "written by the rules?" go into the next health check.
 
 ## Further Reading
 
