@@ -23,14 +23,12 @@ The example prompts in this post are generic. Copy them and swap in details from
 > - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
 > - Next (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
 >
-> **Version note**: This post is based on pstack [version `0.15.29`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `88d4751`, the version when this post first went out on 2026-10-22. When it was rewritten as a tutorial on 2026-10-24, it stayed on this version. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
->
-> When checked on 2026-10-24 at 10:51 Taipei time, the latest version on `cursor/plugins` main was `0.15.32` (commit `e853501`), and the skill count had risen to 58 with the addition of `statechart` and `ketchup-video`. Compared with `0.15.29`, `setup-pstack`, the setup guide (01-setup), and the Claude Code notes haven't changed. The README added a paragraph on automatic and manual updates after its install steps (it matches Step 2 here), plus rows for the two new skills. `poteto-mode`'s SKILL.md and playbooks haven't changed, and only its internal scripts were updated; `poteto-help` only added two rows for those two new skills to its lookup table.
+> **Version note**: This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (2026-11-17 05:47 Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
 {: .prompt-info }
 
 ## What pstack Installs
 
-Version `0.15.29` has 56 skills, and each skill is a slash command. It also has two dedicated subagents, `poteto-agent` and `comment-sicko`, plus 23 playbooks under `poteto-mode`.
+Version `0.15.43` has 58 skills, and each skill is a slash command. It also has two dedicated subagents, `poteto-agent` and `comment-sicko`, plus 22 playbooks under `poteto-mode`.
 
 In Claude Code, a plugin's commands carry the plugin's name as a prefix, so Cursor's `/poteto-mode` becomes `/pstack:poteto-mode` (see the [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)). The examples below use the Claude Code form; in Cursor, just drop `pstack:`. Other differences are listed in the official [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md).
 
@@ -73,9 +71,9 @@ Compare the version with [`plugin.json`](https://github.com/cursor/plugins/blob/
 
 ### Updates: Off by Default
 
-According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#keep-plugins-updated), Claude Code leaves auto-update **off** for third-party marketplaces, so pstack stays on the version you installed.
+According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#keep-plugins-updated), Claude Code leaves auto-update **off** for third-party marketplaces, so pstack stays on the version you installed. pstack's [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28) says the same and gives the two options below.
 
-- **To update once by hand**: run the line below in your terminal.
+- **To update once by hand**: run the line below in your terminal. According to `claude plugin update --help`, the update takes effect only after you restart Claude Code.
 - **To turn on auto-update**: type `/plugin` in a chat, open the Marketplaces tab, select `cursor-plugins`, and choose Enable auto-update.
 
 ```bash
@@ -91,13 +89,13 @@ This post doesn't cover how updates work on the Cursor side.
 
 A commit is one saved version in git (the most widely used version-control tool), and each commit has an ID (its SHA). To keep pstack on a commit you've reviewed, you can use a local folder as the marketplace.
 
-Here's why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) (a tag is a fixed name given to one commit, such as v1.0), but when I checked on 2026-10-24, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
+Here's why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) (a tag is a fixed name given to one commit, such as v1.0), but when I checked on 2026-11-17, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
 
 The official docs support adding a local folder as a marketplace. So you can download (clone) the repo to your computer, check out the commit you reviewed, and add that folder as a marketplace. Using this post's commit as the example, run in your terminal:
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
-git -C ~/src/cursor-plugins checkout 88d47514b82e7c44f00f2b2a72ff6dd12158038c
+git -C ~/src/cursor-plugins checkout 2f87c854fe3e2fcda44ca86b46ede35aad3c46b7
 claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
@@ -110,7 +108,7 @@ This is the same "clone, then check out a reviewed commit" approach the [supply-
 
 pstack splits work across roles, such as the one that writes code, the one that makes judgment calls, and the ones that sit on a review panel, and each role can use a different model. [`/setup-pstack`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/setup-pstack/SKILL.md) picks the models for those roles.
 
-**When to use it**: once after installing. Run it again when you switch accounts or plans, or want different models. According to the [setup guide](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/01-setup.md#L29), a rerun keeps any role you changed.
+**When to use it**: once after installing. Run it again when you switch accounts or plans, want different models, or update pstack. According to the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L29), a rerun keeps any role you changed. When pstack changes a default model, an older settings file stays on the old default until you rerun, and the rerun tells you which values it replaced. If an older `/setup-pstack` wrote your settings file, `/poteto-mode` also reminds you to rerun it ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L88)).
 
 **The command**:
 
@@ -118,23 +116,22 @@ pstack splits work across roles, such as the one that writes code, the one that 
 /pstack:setup-pstack
 ```
 
-**What it does, step by step** ([SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/setup-pstack/SKILL.md#L10-L78)):
+**What it does, step by step** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/setup-pstack/SKILL.md#L10-L78)):
 
 1. **Detects the models you can choose from.**
 2. **Asks you for a reasoning budget.** The budget sets how hard a model thinks, also called effort. A higher level is more thorough but uses more tokens.
 3. **Shows which model each role gets**, and asks whether to accept them all or change a few roles.
-4. **Checks** that every model you chose is in the detected list. If one isn't, it stops and asks again.
+4. **Checks** that every model you chose is in the detected list and at `xhigh` or below. If one isn't, it stops and asks again.
 5. **Writes the settings file.**
 6. **Asks whether to generate verification skills for your project.** One lets the AI drive your app the way a user does and check the result itself (`/create-verification-skill`); the other is a formal verification skill (`/create-formal-verification-skill`), which proves a key property of your code holds in every case in scope, not only the cases tests reach. Each offer comes up once, and you can say no. The first is skipped if the project already has a way to drive the app for proof (a `verify-*` skill or an existing harness, meaning tooling that already runs the app); the second is skipped if it already has a formal verification skill.
 
-There are four budgets:
+There are three budgets. According to the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L27), the defaults are the `large` budget, and no role runs above `xhigh`. The other two lower every role from its default:
 
 | Budget | Reasoning effort |
 | --- | --- |
-| unlimited | Each model at its highest, up to `max` |
-| large (default) | `xhigh` |
-| medium | `high` |
-| small | `medium` |
+| large (default) | The defaults; most roles run at `xhigh` |
+| medium | Each role one level lower; `xhigh` becomes `high` |
+| small | Each role two levels lower; `xhigh` becomes `medium` |
 
 **What you get**: a global model settings file. Cursor writes `~/.cursor/rules/pstack-models.mdc`; Claude Code writes `~/.claude/rules/pstack-models.md`. Both live in your home folder. "Global" means it applies to every project on your computer, not just the current one. According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L38), Claude Code loads the file automatically at the start of every new session.
 
@@ -186,7 +183,7 @@ According to [guide chapter 2](https://github.com/cursor/plugins/blob/2f87c854fe
 - **What you already know**: an error message, steps to reproduce, a related link. These save it a search.
 - **Real constraints**: for example, "reproduce first", "don't change any code yet", "zero behavior change", or "let me review before you proceed".
 
-Leave two things out: **how to do it** (give it room to find a better way) and **your guess at the cause** (a stated guess narrows its search). Also don't list which skills to use in your prompt. The playbook already orders them, and a hand-written order tends to drop or reorder steps ([guide chapter 2](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/02-poteto-mode.md#L135)).
+Leave two things out: **how to do it** (give it room to find a better way) and **your guess at the cause** (a stated guess narrows its search). Also don't list which skills to use in your prompt. The playbook already orders them, and a hand-written order tends to drop or reorder steps ([guide chapter 2](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/02-poteto-mode.md#L135)).
 
 ### Three Examples to Adapt
 
@@ -212,19 +209,19 @@ According to [guide chapter 2](https://github.com/cursor/plugins/blob/2f87c854fe
 
 ### What It Does
 
-![Your task states the goal and done check; /poteto-mode matches a playbook and copies its steps into a todo list, marking skips](poteto-mode-routing.en.webp){: width="800" height="450" }
+![Your task states the goal and done check; /poteto-mode matches a playbook and copies its steps verbatim into a todo list](poteto-mode-routing.en.webp){: width="800" height="450" }
 _/poteto-mode first identifies the task type, then follows that playbook's steps._
 
-1. **It identifies the task type and picks a playbook.** The [playbook list](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md#L121-L149) covers Investigation, Bug fix, Perf issue, Feature, Refactoring, Prototype, writing a skill, and more. Large or cross-cutting work, or work you'll step away from and check later, goes to the `figure-it-out` skill, which designs its own process.
-2. **It copies the playbook's steps verbatim into a todo list**, ahead of any other todos.
-3. **Steps it decides not to do don't disappear.** They stay on the list marked `skip: <reason>`, so you can see what it chose not to do.
+1. **It says what it understood the goal to be.** Its first reply restates your goal in its own words, along with the smallest change that meets it, and then it starts without waiting for you to confirm ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L19)).
+2. **It identifies the task type and picks a playbook.** The [playbook list](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L108-L110) covers Investigation, Bug fix, Perf issue, Feature, Refactoring, Prototype, writing a skill, and more. Large or cross-cutting work, or work you'll step away from and check later, goes to the `figure-it-out` skill, which designs its own process.
+3. **It copies the playbook's steps verbatim into a todo list**, ahead of any other todos.
 4. **It works through the steps**, and calls any other skill a step needs on its own.
 5. **It verifies and reports.** The "Opening a PR" playbook runs at the end of every other playbook. A PR (pull request) is a request for others to review and merge your changes.
 
 ### What You Get
 
-- A todo list you can see, including skipped steps and their reasons.
-- A final reply: what it did, the tradeoffs, and the decisions left to you. According to the [SKILL.md](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/skills/poteto-mode/SKILL.md#L110-L115), the reply is short but keeps every section the playbook asks for, and it includes the PR link if it opened one.
+- A todo list you can see, whose first items are the playbook's steps.
+- A final reply. It opens with your goal again, and the playbook sets the rest; for a feature, that's what it built, what it chose and why, and the decisions left to you ([feature.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/feature.md#L21)). According to the [SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L104), the reply uses short sentences, leads with what changes for you, and gives each claim its evidence or labels it as measured, inferred, or a guess.
 
 ### Next Steps
 
@@ -239,14 +236,14 @@ _/poteto-mode first identifies the task type, then follows that playbook's steps
 
 ## Should You Install cursor-team-kit Too?
 
-The [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L258-L266) says three things `/poteto-mode` uses aren't in pstack but in another plugin, `cursor-team-kit`: `/deslop`, which cleans up code, and `control-cli` and `control-ui`, which drive a CLI and a browser UI. The README's advice is to install `cursor-team-kit` alongside pstack for the full set. [Guide chapter 5](https://github.com/cursor/plugins/blob/88d47514b82e7c44f00f2b2a72ff6dd12158038c/pstack/docs/guide/05-build-and-clean.md#L59) adds that the steps before opening a PR run `/deslop`. If you don't have it, ask for the same cleanup in plain words, such as removing narrating comments, defensive code with no reason behind it, and changes unrelated to the task.
+The [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L258-L266) says three things `/poteto-mode` uses aren't in pstack but in another plugin, `cursor-team-kit`: `/deslop`, which cleans up code, and `control-cli` and `control-ui`, which drive a CLI and a browser UI. The README's advice is to install `cursor-team-kit` alongside pstack for the full set. [Guide chapter 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L59) adds that the steps before opening a PR run `/deslop`. If you don't have it, ask for the same cleanup in plain words, such as removing narrating comments, defensive code with no reason behind it, and changes unrelated to the task.
 
 ## When to Use Which
 
 | Situation | What to use |
 | --- | --- |
 | You just installed pstack | `/pstack:setup-pstack`, once |
-| You switched accounts or plans, or want other models | `/pstack:setup-pstack` again |
+| You switched accounts or plans, want other models, or updated pstack | `/pstack:setup-pstack` again |
 | You don't know which skill to use or what to do first | `/pstack:poteto-help` |
 | Any task that needs rigor: investigating, fixing a bug, adding a feature | `/pstack:poteto-mode`, with the goal and done check |
 | Changing the subject in the same chat | `/pstack:poteto-mode new task. …` |
@@ -276,7 +273,7 @@ It replies with a suggested prompt. Read it, adjust it, and then send it.
 /pstack:poteto-mode User report: the link in the password reset email shows "expired" as soon as it's opened. Reproduce first, then fix. Done means: a newly sent link resets the password while it's still valid, and only shows "expired" after it expires. Show me the repro before and after the fix.
 ```
 
-This description gives the symptom, the done check, and the proof you want. It doesn't include your guess at the cause or a list of skills. The todo list should then show the Bug fix playbook's steps; if any step is skipped, it will carry `skip:` and a reason, which is worth a look.
+This description gives the symptom, the done check, and the proof you want. It doesn't include your guess at the cause or a list of skills. Its first reply restates your goal, which is worth a look to make sure it understood; then the todo list should show the Bug fix playbook's steps.
 
 **5. Keep going, or switch.** When it stops to ask you something, answer and then say "continue". If you then want to add a "resend email" button, start with `new task` and describe the new feature and its done check.
 
