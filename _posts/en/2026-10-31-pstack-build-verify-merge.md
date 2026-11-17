@@ -19,19 +19,7 @@ When an AI coding assistant finishes a change, it often says "Done, this should 
 > - Next (Part 4): [Steer with principles, build your own mode, and let it run unattended](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
-> **Version note:** This post is based on pstack [version `0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `c742dd6` (07:12 on 2026-10-28, Taipei time), with Claude Code 2.1.316. That is newer than the first two parts used: upstream shipped several releases while I wrote this one, so I checked against the latest, and the instructions here refer to that version. The three parts used these versions:
->
-> | | Part 1 | Part 2 | This post |
-> | --- | --- | --- | --- |
-> | pstack | `0.15.29` (`88d4751`) | `0.15.30` (`eb4db2b`) | `0.15.36` (`c742dd6`) |
-> | Skills | 56 | 57 | 58 |
-> | Claude Code | 2.1.306 | 2.1.309 | 2.1.316 |
->
-> Two changes directly affect the workflows in this post. First, on its first reply to a task, `/poteto-mode` now restates your goal, the problem to solve, and the smallest change it plans, then starts right away without waiting for you to confirm ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/SKILL.md#L19)). If it misread you, you can tell at once. Second, the subagent that opens a PR on behalf of the main chat no longer runs `/interrogate`; it runs only `/deslop` and `/no-comments` ([opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L34)).
->
-> **Differences to keep in mind for Part 2.** `/interrogate` and `/arena` from Part 2 now have different output or rules from what Part 2 describes. `/interrogate` now has each adversary prove a problem with a run against the real code, and only run-proven findings survive. Its report lists the intent, the verified findings, and how many findings each adversary had dropped and why, instead of the Act on / Consider / Noted / Dismissed buckets ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md#L9), [output format](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md#L27-L31)). `/arena` now always takes its judge from a different model family than the main chat's, and when none is available it skips the judge and picks the base itself ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/arena/SKILL.md#L28)). If you're on 0.15.36, keep these differences in mind when you read those parts of Part 2.
->
-> **Other updates and version checks.** The remaining updates don't affect the workflows covered here: a new skill, `ketchup-video`, and some fixes to the PR-watching script babysit uses. Claude Code leaves auto-update off for third-party marketplaces by default ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28)), so a pstack you installed by following Part 1 stays at that version. For how to update or pin it, see [Part 1](/posts/pstack-install-routing/). I checked at 15:59 on 2026-10-31 (Taipei time) before I started writing, and again at 16:13 before opening the PR; both times, `main` in `cursor/plugins` was still at `0.15.36`, with no pstack changes after `c742dd6`.
+> **Version note:** This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently. Claude Code leaves auto-update off for third-party marketplaces by default ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L28)), so a pstack you installed by following Part 1 stays at the version you installed. For how to update or pin it, see [Part 1](/posts/pstack-install-routing/).
 {: .prompt-warning }
 
 ## Before You Start
@@ -52,6 +40,8 @@ pstack is a set of skills in Cursor's official plugin repository. A skill is a s
 ```
 
 That gives the AI three concrete acceptance requirements it can check one by one. Its reply should include the exact commands and their output. When a check can't run, a good reply says "inconclusive." **A confident reply with no evidence is a warning sign.** The check also has to match the change: for a command change, run the command; for a UI change, walk the changed flow in the running app; for a parser or data migration, replay a saved input; for performance, compare profiles from before and after; for a change to saving data, read the stored value back.
+
+On its first reply, `/poteto-mode` restates your goal and the smallest change it plans, then starts right away without waiting for you to confirm ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L19)). If it misread you, you can tell at once.
 
 ![Four stages: build, clean, verify, and ship, with the playbooks and skills used at each stage](four-stages.en.webp){: w="800" h="450" }
 _The four stages from writing code to mergeable. Opening a PR doesn't start babysit on its own, and merging is always your call._
@@ -79,7 +69,7 @@ For example:
 **What it does** ([bug-fix playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md)):
 
 1. **Reproduces it on its own.** It triggers the bug on the same surface where it happens (the command line, a web page, and so on). It asks you to reproduce it only when it truly can't reach that surface and can say exactly why. If it can't reproduce the bug directly, it builds the trigger conditions itself or adds logging until the bug shows up.
-2. **Bisects to the cause.** It lists a few possible causes, uses `/how` to understand the code involved and `/why` to read that code's history, then rules them out one by one. Each round it picks the cut that narrows things down most, and it rules causes out with runtime evidence, not guesses.
+2. **Bisects to the cause.** It lists a few possible causes, traces the code involved, uses `/why` to read that code's history, then rules them out one by one. Each round it picks the cut that narrows things down most, and it rules causes out with runtime evidence, not guesses.
 3. **Plans the fix.** If the fix crosses function boundaries, it runs `/architect` first. The implementation goes to a subagent (a separate AI a skill sends off to do part of the work).
 4. **Verifies on the same surface.** The original reproduction steps must now pass. "Inconclusive," or verifying on a different surface, doesn't count as passing. A unit test only proves how one branch runs; it doesn't prove the bug is gone.
 5. **Orders the commits.** A commit is one recorded change in git. The failing reproduction (for example, a test) goes into git history first, and the fix comes after it. When the bug has a cheap local test path, it follows the `/tdd` cadence; when testing is expensive, needs a lot of setup, or the test path is unclear, it skips that.
@@ -109,8 +99,8 @@ For example (from [chapter 5 of the guide](https://github.com/cursor/plugins/blo
 
 **What it does** ([feature playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/feature.md)):
 
-1. Runs `/how` on the affected parts to understand how things work now.
-2. Uses `/architect` to compare a few designs in parallel (covered in detail in Part 2).
+1. Traces the affected parts to understand how things work now.
+2. Uses `/architect` to settle the design's shape: it sketches two different sets of types, function signatures, and module boundaries, then picks one ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/architect/SKILL.md#L9); covered in detail in Part 2).
 3. Writes four "split check" to-dos: which steps must finish first, which work can run in parallel, which state gets shared, and what the smallest safe split is. If one doesn't apply (for example, only one file changes), it stays on the list marked `n/a: <reason>`.
 4. Hands the coding to a subagent with a tight scope: file paths, **data shapes**, and success criteria. A data shape describes the structure of the data the code handles, such as one state machine instead of a pile of true/false flags scattered around, or a lookup table instead of a long chain of ifs. When there are several reasonable ways to write it, it uses `/arena` to have a few candidates compete instead.
 5. Verifies on the matching surface. "Inconclusive," or verifying on the wrong surface, doesn't count as passing.
@@ -155,7 +145,7 @@ When a failing test isn't worth writing, it uses the closest runnable check inst
 
 ## Clean: Make the Diff Easy to Review
 
-Before each commit, the PR-opening playbook runs `/deslop` on the diff, then applies `/unslop` to the PR description and commit messages ([chapter 5 of the guide](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/05-build-and-clean.md#L57-L59)). `/deslop` lives in the `cursor-team-kit` plugin, not in pstack (Part 1 covers whether to install it as well). If you don't have it, ask for the same result in plain words: delete narrating comments, unjustified defensive checks, compatibility code nobody uses anymore, and changes unrelated to this one. The three tools split the work like this: `/deslop` cleans code, `/unslop` cleans prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
+Before each commit, the PR-opening playbook runs `/deslop` on the diff, and `/poteto-mode` applies `/unslop` to the PR description and commit messages ([chapter 5 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L57-L59)). `/deslop` lives in the `cursor-team-kit` plugin, not in pstack (Part 1 covers whether to install it as well). If you don't have it, ask for the same result in plain words: delete narrating comments, unjustified defensive checks, compatibility code nobody uses anymore, and changes unrelated to this one. The three tools split the work like this: `/deslop` cleans code, `/unslop` cleans prose, and `/no-comments` hands the comments to a reviewer who didn't write them.
 
 ### /unslop: Strip the AI Tone From Prose
 
@@ -173,7 +163,7 @@ For example (from [chapter 5 of the guide](https://github.com/cursor/plugins/blo
 /pstack:unslop the readme changes, no emdashes
 ```
 
-**What it does**: it finds AI writing habits in the prose and rewrites them, keeping the meaning and the voice ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/unslop/SKILL.md#L9)). Its list has several groups: content (empty praise, unsourced claims like "experts say"), word choice (words AI overuses, forced groups of three), formatting (dashes, too much bold, a bold label on every line), chat tone ("Hope this helps!"), filler, abstract jargon, and plain-language rules (active voice, short sentences, everyday words). The examples in the list are all in English.
+**What it does**: it finds AI writing habits in the prose and rewrites them, keeping the meaning and the voice ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/unslop/SKILL.md#L9)). Its list is a set of numbered rules ([the rules](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/unslop/SKILL.md#L13-L40)) covering trailing phrases that add no fact, unsourced claims like "experts say", words AI overuses, forced groups of three, dashes, bolding every proper noun, a bold label that just restates its line, chat tone ("Hope this helps!"), filler, abstract metaphor nouns, and plain-language rules (active voice, one idea per sentence, everyday words). The examples in the list are all in English.
 
 **What you get**: the rewritten prose.
 
@@ -195,7 +185,7 @@ With no scope given, it uses the current branch's diff against `main`, including
 /pstack:no-comments <files or folders>
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/no-comments/SKILL.md#L17-L24)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/no-comments/SKILL.md#L17-L24)):
 
 1. **Sends out Comment Sicko.** This is a subagent that reviews only comments. It touches only comments, points out where to refactor, and **never writes application code** ([Comment Sicko](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/agents/comment-sicko.md#L30)). It lets only a few kinds of comments through: license headers, doc comments that define a public API contract, issue or spec links the code can't express, non-obvious behavior forced by an outside library or platform, and formatter directives like `// prettier-ignore`. Everything else goes. Surprising parts of your own code don't pass just because they have a comment; it marks them `MUST KILL` and asks for a rename, an extracted function, or a type change so the code reads clearly without the comment.
 2. **Checks its report.** Findings where it edited code beyond its role, or gave the wrong reason, get sent back.
@@ -260,7 +250,7 @@ For each fact it states how far it proved it: just asserted, pointed to a line o
 6. Does the difference matter across the whole path a user waits on?
 7. Did the work you meant to time actually happen inside the timed region?
 
-**What you get**: the verdict first (faster, slower, no measurable difference, or inconclusive), then the numbers with units, how many runs, the spread, and the limiting factor. If it can't name the limiting factor, one side didn't use production settings, or questions 4 or 7 can't be checked, the verdict is "inconclusive" ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/benchmark-checklist/SKILL.md#L29-L34)).
+**What you get**: the verdict first (faster, slower, no measurable difference, or inconclusive), then the numbers with units, how many runs, the spread, and the limiting factor. If it can't name the limiting factor, one side didn't use production settings, or questions 4 or 7 can't be checked, the verdict is "inconclusive" ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/benchmark-checklist/SKILL.md#L29-L34)).
 
 **Next step**: put one headline number in the PR description, and keep the detailed run logs in a separate linked file.
 
@@ -335,7 +325,7 @@ A verification skill proves the paths you actually drove. Some bugs hide on path
 
 **When to use it**: every other playbook hands off to it automatically when it ends ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L3)). You can also call it yourself.
 
-**How to write the command** (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L128-L134)):
+**How to write the command** (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L128-L134)):
 
 ```text
 /pstack:poteto-mode Open the PR. Organize it into small, ordered commits, and put the evidence in the description.
@@ -343,24 +333,24 @@ A verification skill proves the paths you actually drove. Some bugs hide on path
 
 **What it does** ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md)):
 
-1. **Works in a worktree** (a second working copy of the same repository), branched off main, so it doesn't mix with the changes you have in progress.
-2. **Organizes the commits**: before opening the PR, it reshapes the work into small, ordered commits. Each one can merge on its own, and the order tells the whole story.
-3. **Cleans up**: it runs `/deslop` on the diff before committing and `/no-comments` before review. It writes the PR title, description, and commit messages with `/technical-writing`, then applies `/unslop`.
+1. **Works in a worktree** (a second working copy of the same repository), branched off main, and keeps unrelated changes out of it.
+2. **Organizes the commits**: before opening the PR, it reshapes the work into small commits, each of which can merge on its own.
+3. **Cleans up**: it runs `/deslop` on the diff before committing. Running `/no-comments` before review, and writing the PR title, description, and commit messages with `/technical-writing` and then `/unslop`, are standing `/poteto-mode` rules for all work ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L23-L24)), so they apply when it opens a PR too.
 4. **Titles** use the Conventional Commits format (a fixed commit-title style: type, scope in parentheses, colon, summary), such as `fix(export): ...`.
-5. **The description** is a one-minute briefing for the reviewer, in this order: Why, What changed, Scope (what's covered and what's deliberately left out), Tradeoffs (left out if there are none), Blast Radius, and Verification (what was actually run and the results).
+5. **The description** is a one-minute briefing for the reviewer, at most 40 lines, in this order: Why, What changed, Scope, Tradeoffs (only alternatives you rejected that a reviewer would otherwise ask about), Blast Radius, and Verification. Sections with nothing to say are left out.
 6. **Opens the PR with `gh` (GitHub's command-line tool) by default**, ready for review, not as a draft.
 
-**It doesn't start babysit on its own after opening the PR.** It posts the PR link and moves on to the next task. Babysit starts only once the whole batch of work is done and you ask for it ([opening-a-pr](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L32)). That keeps it from stalling on CI (the checks that run automatically on every push) after every PR and wasting checks that will rerun anyway. The guide also suggests that five narrow PRs beat one big one.
+**It doesn't start babysit on its own after opening the PR** ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)). When CI (the checks that run automatically on every push) fails or review comments need handling, you ask for babysit. The guide also suggests stacking follow-up changes as a new PR on top instead of letting one branch keep growing ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)).
 
-**What you get**: a PR link in the form `https://github.com/<owner>/<repo>/pull/<number>`.
+**What you get**: an open PR, ready for review, not a draft.
 
-**Next step**: read the Verification section of the PR description yourself first. Once the whole batch is open, call babysit.
+**Next step**: read the Verification section of the PR description yourself first. When CI fails or review comments need handling, call babysit.
 
 ### Babysit: Get the PR to Mergeable, Without Merging for You
 
 **When to use it**: after a PR is open, when CI fails, reviewers leave comments, or main moves ahead and causes conflicts, and you want to hand off those chores.
 
-**How to write the command** (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/06-verify-and-ship.md#L136-L150)):
+**How to write the command** (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L136-L150)):
 
 ```text
 /pstack:poteto-mode Babysit this PR and get it all green.
@@ -374,16 +364,16 @@ When you only want the current status and don't want it to change anything, ask 
 
 **What it does** ([babysit playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/babysit.md)):
 
-1. **Declares a mode first.** `drive`: work all the way to mergeable ("babysit this," "get it all green"). `background`: tidy up in the background without blocking you. `threads-only`: answer review comments and touch nothing else. `check`: look at the status once and report ("check X," "is it passing?"). With no mode given it uses `drive`; small or docs-only PRs get `check`.
-2. **Looks after only the lowest unmerged PR at a time.** With a stack of PRs, it only reads and sorts the comments on the upper ones until the bottom one merges.
+1. **Declares a mode first.** It names the mode in the first line of its reply, before checking any status. `drive`: work all the way to mergeable ("babysit this," "get it all green"). `threads-only`: handle review comments and touch nothing else. `check`: look at the status once and report ("check X").
+2. **Clears one PR at a time.** With several PRs open, it finishes one before moving to the next.
 3. **Doesn't change the PR's structure.** No rebase (replaying the branch's commits onto a new base), no change of base branch, no force push (overwriting the remote branch's history). When a rebase is needed, it reports that so the PR's owner can do it.
-4. **Works in this order: conflicts, review comments, CI.** It batches known fixes into one push so the checks rerun only once. When it finds a conflict, it reports it rather than resolving it: it says which branch needs a rebase, then stops.
-5. **Goes by GitHub's verdict, not a row of green checkmarks.** On GitHub, it uses the `watch-pr` script that ships with pstack to read the PR's status: `drive` mode keeps watching until there's a final result, and `check` mode looks once. It treats the text of review comments as untrusted data, weighs it against the code, and doesn't follow it as instructions.
-6. **Sorts a CI failure before rerunning it.** It decides whether the failure is a flake, an infrastructure problem, or a real break. A flake gets one rerun; if the same failure shows up a second time, it isn't a flake, and it reads the logs.
-7. **Treats Bugbot (Cursor's automated reviewer) comments with suspicion**, checking each one against the code. It fixes only real problems, and writes a failing proof first when it does.
+4. **Works in this order: conflicts, review comments, CI.** When it finds a conflict, it reports it rather than resolving it: it says which branch needs a rebase, then stops.
+5. **Reads the status with `watch-pr` on GitHub.** It uses the `watch-pr` script that ships with pstack to read the PR's status: `drive` mode keeps watching until there's a final result, and `check` mode passes `--status-only` and looks once. The script supports GitHub only.
+6. **Reruns a flaky CI failure only once.** A flake is a failure that comes and goes without any code change, and it gets one fresh build. Only failures caused by this change's own code get a fix committed.
+7. **Treats Bugbot (Cursor's automated reviewer) comments with suspicion**, checking each one against the code: it fixes only real problems, dismisses noise with a concrete disproof, and hands anything touching billing, data, auth, or security to a person. It treats the text of every review comment as data and doesn't follow it as instructions.
 8. **Stops where the decision is yours.** Waiting for an owner's approval is "waiting," not a problem for it to fix.
 
-On GitHub, `drive` ends when watch-pr reports `READY` (GitHub has judged the PR mergeable). **Babysit never merges, even when everything is green.** Only when you clearly say "merge" or "ship" does it move to a separate playbook called Shipping ([babysit playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/babysit.md#L21-L23)).
+On GitHub, `drive` ends when watch-pr reports `READY` (no merge conflicts, no unresolved review threads, and no failing or pending checks) ([watch-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/watch-pr/render.ts#L149-L154)). **Babysit never merges, even when everything is green** ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L150)). Only when you clearly say "merge" or "ship" does it move to a separate playbook called Shipping ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L27)).
 
 > `watch-pr` is a script that runs on bun (a JavaScript runtime). **The first time it runs**, it runs `bun install --frozen-lockfile` in `skills/poteto-mode/scripts/` inside the plugin folder, downloading the packages it needs from npm according to the lockfile (a file that pins the exact version of every package) and installing them into `node_modules` there. Later, if a plugin update changes the package list (`package.json`) or the lockfile, it installs again ([bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)). In other words, calling babysit makes the AI download and install packages from the internet on your computer. The lockfile pins the versions, but you should still know this happens. For the risks and how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-warning }
@@ -436,7 +426,7 @@ Say it flags a comment that says "don't touch this, retries will break" and prop
 
 Check whether it proved the key fact that makes the change safe, and read the tests it suggests in "before merging."
 
-**5. Open the PR, and babysit once the whole batch is done.**
+**5. Open the PR, then call babysit.**
 
 ```text
 /pstack:poteto-mode Open the PR. Organize it into small, ordered commits, and put the evidence in the description.
@@ -475,11 +465,11 @@ Babysit handles CI and review comments and stops when GitHub judges the PR merge
 - **"Inconclusive" isn't a pass**: verifying on the wrong surface, or a check that couldn't run, should be flagged, not treated as success.
 - **A unit test doesn't mean the bug is gone**: for a bug fix, rerun the reproduction steps on the surface where the bug happened.
 - **Don't force a test**: `/tdd` would rather add no test than a bad one.
-- **Opening a PR doesn't start babysit**: call it once the whole batch of PRs is open, so the checks don't keep rerunning.
+- **Opening a PR doesn't start babysit**: to have it handle CI and review comments, call it yourself.
 - **Babysit doesn't merge**: it stops at mergeable; merging is a separate decision.
 - **Babysit's first run downloads packages**: see the warning above.
 - **Verification skills need upkeep**: when the code changes, remember to run `/maintain-verification-skill`.
-- **Version**: all of this is based on the pstack `0.15.36` instructions, and later versions may change how things work.
+- **Version**: all of this is based on the pstack `0.15.43` instructions, and later versions may change how things work.
 
 ## Conclusion
 
