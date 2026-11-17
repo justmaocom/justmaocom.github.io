@@ -10,20 +10,20 @@ image:
   alt: "四篇从安装、看懂、证明能用，到用原则指挥与自己跑；先找出你卡在哪一步，再从那一篇读起。"
 ---
 
-你可能听人提过 pstack，打开 repo 却只看到一长串 skill 名称；也可能是从搜索点进其中一篇，想知道前后还有哪些。这个系列我写了四篇，每篇处理用 AI 写代码时的其中一段流程。这篇导读不重讲细节，只回答三件事：pstack 是什么、四篇怎么串起来，还有你该从哪一篇开始。
+你可能听人提过 pstack，打开 repo 却只看到一长串 skill 名称；也可能是从搜索点进其中一篇，想知道前后还有哪些。这个系列我写了四篇，每篇处理用 AI 写代码时的其中一段流程。这篇导读我不重讲细节，只回答三件事：pstack 是什么、四篇怎么串起来，还有你该从哪一篇开始。
 
 > pstack 系列｜导读
 >
 > - 从头开始（第 1 篇）：[安装、选模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)
 >
-> 系列五篇都以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)（commit `2f87c85`）为准，细节见下方的版本说明。
+> 这个系列的五篇，我都以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)（commit `2f87c85`）为准，细节见下方的版本说明。
 {: .prompt-info }
 
 ## pstack 是什么
 
-[pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 是 [Lauren Tan](https://x.com/poteto)（网络昵称 poteto）在 Cursor 官方插件库 [`cursor/plugins`](https://github.com/cursor/plugins) 里维护的一整组 skill，采用 MIT 许可。skill 可以想成一份操作说明，告诉 AI 编程助手怎么完成某一类工作；这里的 AI 编程助手，指的是 Cursor、Claude Code 这类能读写项目文件、帮你写代码的工具。
+[pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 是 [Lauren Tan](https://x.com/poteto)（网络昵称 poteto）在 Cursor 官方插件库 [`cursor/plugins`](https://github.com/cursor/plugins) 里维护的一整组 skill，采用 MIT 许可。我会把 skill 想成一份操作说明，告诉 AI 编程助手怎么完成某一类工作；这里的 AI 编程助手，指的是 Cursor、Claude Code 这类能读写项目文件、帮你写代码的工具。
 
-在 `0.15.43` 这一版，pstack 有 **58** 个 skill、**24** 条原则（每条都是简短而具体的规则，名称都是 `principle-*`），以及 **22** 个 playbook（针对某一种任务写好的固定步骤，挂在 `/poteto-mode` 下面）。另外，别把它和 Unix 命令 `pstack`（用来打印进程的调用栈）搞混；这里说的是这套 AI skill。
+在 `0.15.43` 这一版，pstack 有 **58** 个 skill、**24** 条原则（每条都是简短而具体的规则，名称都是 `principle-*`），以及 **22** 个 playbook（针对某一种任务写好的固定步骤，挂在 `/poteto-mode` 下面）。另外，别把它和 Unix 命令 `pstack`（用来打印进程的调用栈）搞混；这里我说的是这套 AI skill。
 
 有两件事先知道，后面会比较好读：
 
@@ -41,15 +41,15 @@ image:
 - 希望“证明它能用”变成固定流程：重现、清理、检查影响范围、用验证 skill 实际操作、开 PR，最后由你自己点合并（[第 3 篇](/posts/pstack-build-verify-merge/)）。
 - 想用原则名称中途指挥 AI、把习惯做成自己的 mode，并在权限与费用上限内让它无人值守地跑（[第 4 篇](/posts/pstack-principles-customization/)）。
 
-反过来说，下面这些情况不必动用整套：
+反过来说，我认为下面这些情况不必动用整套：
 
-- **很小、很明显的修改**：直接跟 AI 说就好，不用 pstack（第 1、2 篇都提过；第 2 篇更直接说，大部分改动其实用不到那些工具）。
+- **很小、很明显的修改**：直接跟 AI 说就好，不用 pstack（我在第 1、2 篇都提过；第 2 篇更直接说，大部分改动其实用不到那些工具）。
 - **不愿意为严谨流程多花用量**：pstack 会派出子代理、组评审，读写的内容越多，花掉的用量就越多（见第 1、2 篇的注意事项）。
-- **无人值守却想关掉所有检查**，或在没有隔离的环境里用 `bypassPermissions`：第 4 篇明确反对这么做。合并、force push、删数据、对客户发消息这类不可逆的操作，还是要由人来决定。
+- **无人值守却想关掉所有检查**，或在没有隔离的环境里用 `bypassPermissions`：我在第 4 篇明确反对这么做。合并、force push、删数据、对客户发消息这类不可逆的操作，还是要由人来决定。
 
 ## 四篇怎么串起来
 
-四篇的顺序，就是一件工作的流程：先装好工具，再看懂、设计，接着证明能用，最后用原则指挥，让它在边界内自己跑。
+我按一件工作的流程排这四篇：先装好工具，再看懂、设计，接着证明能用，最后用原则指挥，让它在边界内自己跑。
 
 ![四篇：安装与挑 playbook、看懂再设计、证明能用再送审、原则与自己跑](series-map.zh-CN.webp){: w="800" h="450" }
 _四篇按工作流程排列，每篇处理其中一段，细节都写在各篇里。_
@@ -97,14 +97,14 @@ _先找出你现在卡在哪一步，再点进对应的那一篇；不必把四�
 
 ## 版本说明
 
-> **版本**：本导读以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 为准，对应 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北时间），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以这一版查证；我查证时，`cursor/plugins` 的 main 在 `2f87c85` 之后没有改动 pstack。之后的版本，数量和行为都可能改变。
+> **版本**：这篇导读我以 pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 为准，对应 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北时间），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以这一版查证；我查证时，`cursor/plugins` 的 main 在 `2f87c85` 之后没有改动 pstack。之后的版本，数量和行为都可能改变。
 {: .prompt-info }
 
-如果想装和这篇导读相同的版本，请先 clone 下来、checkout 到 `2f87c85`，再加进 marketplace；详细步骤和不钉版本的风险，见[第 1 篇](/posts/pstack-install-routing/)和[供应链与权限风险](/posts/coding-agent-supply-chain-permission-risks/)。
+如果你想装和这篇导读相同的版本，我建议先 clone 下来、checkout 到 `2f87c85`，再加进 marketplace；详细步骤和不钉版本的风险，见[第 1 篇](/posts/pstack-install-routing/)和[供应链与权限风险](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 结论
 
-pstack 是 Cursor 官方插件库里的一套 skill，在本导读钉的版本里有 58 个 skill、24 条原则、22 个 playbook。先跑一次 `/setup-pstack`，平时记住 `/poteto-mode`，卡住时问 `/poteto-help`。四篇依次处理安装与挑 playbook、看懂再设计、证明能用再送审、用原则指挥并在边界内自己跑；你不必按顺序读完，找出自己卡在哪一步，从那一篇开始就好。
+pstack 是 Cursor 官方插件库里的一套 skill，在本导读钉的版本里有 58 个 skill、24 条原则、22 个 playbook。我建议先跑一次 `/setup-pstack`，平时记住 `/poteto-mode`，卡住时问 `/poteto-help`。四篇依次处理安装与挑 playbook、看懂再设计、证明能用再送审、用原则指挥并在边界内自己跑；你不必按顺序读完，找出自己卡在哪一步，从那一篇开始就好。
 
 ## 延伸阅读
 
