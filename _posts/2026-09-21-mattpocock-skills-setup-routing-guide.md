@@ -10,16 +10,16 @@ image:
   alt: "不必先背 25 個 skill：替專案跑一次設定，卡住時再讓 ask-matt 建議下一步，但仍要你親自啟動。"
 ---
 
-> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從 25 個 skill 變成 27 個：移除 `resolving-merge-conflicts`，新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也會推薦這三個新 skill。專案詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`，新版 skill 只認新檔名，舊檔請用 `git mv` 改名。本系列之後會依新版全面更新。
+> **版本提醒（2026-10-19 查證）**：這篇我以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方外掛從 25 個 skill 變成 27 個：移除 `resolving-merge-conflicts`，新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也會推薦這三個新 skill。專案詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`，新版 skill 只認新檔名，舊檔請用 `git mv` 改名。這個系列我之後會依新版全面更新。
 {: .prompt-warning }
 
 你準備替既有的訂閱服務加入按席次計費，卻不確定該先釐清需求、寫規格、補測試，還是直接動手寫程式。你聽說 mattpocock/skills 能讓 AI 程式助理把這類工作做得更有條理，打開清單卻看到 25 個 skill 名稱。難道要先把每一個都搞懂才能開始？
 
-答案是不必全部看懂。第一次使用只需要兩步：先用 `setup-matt-pocock-skills` 把專案的工作規則記下來，再用 `ask-matt` 依你遇到的問題，建議下一個該用的 skill。
+我的答案是不必全部看懂。第一次使用只需要兩步：先用 `setup-matt-pocock-skills` 把專案的工作規則記下來，再用 `ask-matt` 依你遇到的問題，建議下一個該用的 skill。
 
-不過，`ask-matt` 比較像服務台，不是會自動跑完整套流程的總管。它只會告訴你下一步該用哪個 skill，實際啟動仍要由你來做。
+不過，在我看來，`ask-matt` 比較像服務台，不是會自動跑完整套流程的總管。它只會告訴你下一步該用哪個 skill，實際啟動仍要由你來做。
 
-先說明幾個名詞。AI 程式助理指的是 Claude Code、Codex 這類能讀寫專案檔案、替你寫程式的 AI 工具。skill 則可以理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明，例如怎麼訪談需求，或怎麼把規格拆成一項項工作。`mattpocock/skills` 是 Matt Pocock 公開的一整組 skill。
+我先說明幾個名詞。AI 程式助理指的是 Claude Code、Codex 這類能讀寫專案檔案、替你寫程式的 AI 工具。我把 skill 理解成一份「告訴 AI 程式助理如何完成特定工作」的操作說明，例如怎麼訪談需求，或怎麼把規格拆成一項項工作。`mattpocock/skills` 是 Matt Pocock 公開的一整組 skill。
 
 > mattpocock/skills 系列｜第 1 篇
 >
@@ -34,7 +34,7 @@ image:
 ![六格圖解說明 mattpocock/skills：選擇 Claude Code 外掛或 skills.sh，執行 setup 建立專案設定，再由 ask-matt 建議下一個 skill。功能需求依序經過需求釐清、撰寫規格、拆分工作與實作](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _第一次使用的完整路徑：選擇安裝方式、執行 setup，再由 ask-matt 建議下一個 skill。_
 
-安裝與啟動是兩個不同的問題。安裝方式決定 skill 檔案放在哪裡、由誰負責更新；啟動方式則決定誰能叫某個 skill 開始工作。
+我把安裝與啟動當成兩個不同的問題來看。安裝方式決定 skill 檔案放在哪裡、由誰負責更新；啟動方式則決定誰能叫某個 skill 開始工作。
 
 ### 選一種安裝方式
 
@@ -64,7 +64,7 @@ npx skills@latest add mattpocock/skills
 
 skills.sh 會讓你勾選要安裝哪些 skill，以及要裝給哪些 AI 程式助理使用。一定要選入 `setup-matt-pocock-skills`；若想照本文使用 `ask-matt`，也要選入它。之後 `ask-matt` 建議的其他 skill，同樣要先安裝才能使用。
 
-兩種方式擇一即可，同時使用會讓每個 skill 各出現兩份。使用 skills.sh 時，更新單一 skill 的指令是：
+我建議兩種方式擇一，同時使用會讓每個 skill 各出現兩份。使用 skills.sh 時，更新單一 skill 的指令是：
 
 ```bash
 npx skills@latest update <name>
@@ -91,13 +91,13 @@ npx skills@latest update <name>
 
 在 Codex 中，可以先輸入 `$` 再從清單選取 skill，也可以直接輸入 `$skill-name`。這項語法可在 [OpenAI 的 Codex skills 文件](https://developers.openai.com/codex/skills/)核對。其他 AI 程式助理請依各自的 skill 選單或輸入方式操作。
 
-這項限制也說明了為什麼 `ask-matt` 只能提出建議：例如它常推薦的 `grill-with-docs` 同樣只能由人啟動，所以你得自己輸入。它也不會自動一路往下執行 `to-spec`、`to-tickets` 和 `implement`。
+我認為這項限制也說明了為什麼 `ask-matt` 只能提出建議：例如它常推薦的 `grill-with-docs` 同樣只能由人啟動，所以你得自己輸入。它也不會自動一路往下執行 `to-spec`、`to-tickets` 和 `implement`。
 
 ## setup 會替專案留下哪些設定
 
 `mattpocock/skills` 裡偏重軟體開發的 skill（原文歸在 engineering 類）需要知道專案的一些基本資訊。因此，每個專案在第一次使用它們之前，要先執行一次 `setup-matt-pocock-skills`。它不是固定不變的安裝程式，而是先檢查、再詢問，最後才寫入檔案的流程。
 
-它會先查看專案現況：程式碼放在哪個平台（例如 GitHub）、專案裡是否已有給 AI 看的說明檔（`AGENTS.md` 或 `CLAUDE.md`）、詞彙表與決策紀錄、先前留下的設定檔，以及專案是否由多個子專案組成（原文稱 monorepo）。其中，詞彙表（`CONTEXT.md`）記錄專案專用名詞的定義，決策紀錄（ADR）則記錄重要技術選擇的理由，下一篇會詳細介紹。
+它會先查看專案現況：程式碼放在哪個平台（例如 GitHub）、專案裡是否已有給 AI 看的說明檔（`AGENTS.md` 或 `CLAUDE.md`）、詞彙表與決策紀錄、先前留下的設定檔，以及專案是否由多個子專案組成（原文稱 monorepo）。其中，詞彙表（`CONTEXT.md`）記錄專案專用名詞的定義，決策紀錄（ADR）則記錄重要技術選擇的理由，下一篇我會詳細介紹。
 
 查看完畢後，它會依序確認三件事：
 
@@ -116,7 +116,7 @@ npx skills@latest update <name>
 
 如果專案裡兩份說明檔都沒有，它會先問你要建立哪一份，不會自行決定。如果檔案裡已經有 `## Agent skills` 段落，它會直接更新該段落，不會重複新增。
 
-setup 只把標籤名稱寫進 `docs/agents/triage-labels.md`，原始流程裡沒有到 GitHub 或 GitLab 建立標籤的步驟。開始分類之前，最好先確認工作追蹤工具裡的標籤名稱與設定檔一致。
+setup 只把標籤名稱寫進 `docs/agents/triage-labels.md`，原始流程裡沒有到 GitHub 或 GitLab 建立標籤的步驟。開始分類之前，我會先確認工作追蹤工具裡的標籤名稱與設定檔一致。
 
 寫入前，它必須先展示 `## Agent skills` 段落與各份設定檔的草稿，讓你修改和確認。完成後，這些檔案就是一般的專案文件，之後可以直接編輯。只有想更換工作追蹤工具或從頭設定時，才需要再執行一次。
 
@@ -143,9 +143,9 @@ _記憶測驗取消，工作開始。_
 
 ## 模擬情境：替既有服務加入按席次計費
 
-這一節依 `1.2.3` 版的原始規則推演，不是實測紀錄。假設專案由幾個子專案組成，程式碼放在 GitHub，工作也用 GitHub Issues 追蹤。
+這一節是我依 `1.2.3` 版的原始規則推演的，不是實測紀錄。假設專案由幾個子專案組成，程式碼放在 GitHub，工作也用 GitHub Issues 追蹤。
 
-以 Codex 為例，先用 skills.sh 安裝需要的 skill，這裡假設後文提到的 skill 都已選入。接著輸入：
+以 Codex 為例，先用 skills.sh 安裝需要的 skill，這裡我假設後文提到的 skill 都已選入。接著輸入：
 
 ```text
 $setup-matt-pocock-skills
@@ -198,11 +198,11 @@ $implement <工作單網址或編號>
 
 ## 第一次使用時怎麼選
 
-如果打算採用這套流程，先選一種安裝方式，再替專案執行一次 setup。之後若不確定某項工作該怎麼進行，再問 `ask-matt`。
+如果打算採用這套流程，我建議先選一種安裝方式，再替專案執行一次 setup。之後若不確定某項工作該怎麼進行，再問 `ask-matt`。
 
 如果你已經知道下一個 skill 是什麼，可以跳過 `ask-matt`，直接啟動它。不過，需要讀取工作追蹤工具或詞彙表設定的 skill，仍要先完成 setup。若只是一次性、不在專案資料夾裡的工作，就不必為了使用單一 skill 而建立整套專案設定。
 
-這篇文章核對的是 `1.2.3` 版的設計與操作方式，不代表這套流程一定能縮短開發時間。它直接帶來的好處，是把專案慣例寫成文件，並在你不確定下一步時建議合適的 skill。下一篇會接著討論如何把需求問清楚，並建立團隊共用的詞彙。
+這篇我核對的是 `1.2.3` 版的設計與操作方式，不代表這套流程一定能縮短開發時間。我認為它直接帶來的好處，是把專案慣例寫成文件，並在你不確定下一步時建議合適的 skill。下一篇會接著討論如何把需求問清楚，並建立團隊共用的詞彙。
 
 ## 延伸閱讀
 
