@@ -430,7 +430,7 @@ For more on permission and supply-chain risks, and how to tighten permissions, s
 
 ## Full Example: One Day's Flow
 
-This continues the example I made up in Part 3: a command-line tool that exports data. I made up the day below as well.
+This continues the example I made up in Part 3: a command-line tool that exports data.
 
 **Daytime: steer with principle names.** I ask for a new option:
 
