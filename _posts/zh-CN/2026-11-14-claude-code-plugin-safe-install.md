@@ -18,7 +18,7 @@ Claude Code（在终端里使用的 AI 编程助手）可以安装 plugin。我�
 
 读到“确认你信任它”，我的第一个疑问是：到底要怎么确认？我把官方的几份文档读了一遍，整理成我在装 plugin 前后会照着做的检查方法：在官方目录里怎么找、装之前打开哪几个文件、选哪个安装范围，以及装了之后怎么禁用和卸载。这篇不推荐任何 plugin。我也没有实际安装 plugin 来测试，文中“我会怎么做”的部分，都是根据官方文档列出来的步骤。
 
-> **版本说明**：这篇依据我在 2026-11-14（台北时间）读取的官方资料撰写：[安装与管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 概览](https://code.claude.com/docs/en/plugins)、[plugin 参考手册](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全说明](https://code.claude.com/docs/en/plugins/security)、[组织管理](https://code.claude.com/docs/en/plugins/org)、[市场参考手册](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 和市场清单。2026-11-17 我又对照上述页面修正了部分说法，并根据当天读取的 [mod 概览](https://code.claude.com/docs/en/plugins/mods/overview) 和 [mod 管理说明](https://code.claude.com/docs/en/plugins/mods/admin) 补充了 mod 的部分。文中的终端命令，我对照过 Claude Code 2.1.325 的 `--help`（`plugin validate` 对照 2.1.326），没有实际安装任何 plugin。命令和界面会随版本变化，请以你安装的版本为准。
+> **版本说明**：我写这篇时，参考的是 2026-11-14（台北时间）当天的官方资料：[安装与管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 概览](https://code.claude.com/docs/en/plugins)、[plugin 参考手册](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全说明](https://code.claude.com/docs/en/plugins/security)、[组织管理](https://code.claude.com/docs/en/plugins/org)、[市场参考手册](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 和市场清单。2026-11-17 我又对照上述页面修正了部分说法，并根据当天的 [mod 概览](https://code.claude.com/docs/en/plugins/mods/overview) 和 [mod 管理说明](https://code.claude.com/docs/en/plugins/mods/admin) 补充了 mod 的部分。文中的终端命令，我对照过 Claude Code 2.1.325 的 `--help`（`plugin validate` 对照 2.1.326），没有实际安装任何 plugin。命令和界面会随版本变化，请以你安装的版本为准。
 {: .prompt-info }
 
 第三方扩展为什么会带来风险，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里讲过，这里不再重讲。这篇只处理 plugin 的具体检查步骤。
@@ -64,7 +64,7 @@ repo 里有两个放 plugin 的文件夹，README 是这样说明的：
 - **`/plugins`**：Anthropic 自己开发和维护的 plugin。每次有人提出修改，这里的每个文件夹都会被检查。
 - **`/external_plugins`**：在投稿渠道改到 claude.ai/directory/manage 之前加入的第三方 plugin，以及 Anthropic 的频道类 plugin（Discord、fakechat、iMessage 和 Telegram）。
 
-不过，市场清单里的 plugin 大多不在这两个文件夹里。我在 2026-11-14 读取 `marketplace.json` 时，它列了 317 个 plugin，放在这个 repo 里的只有 55 个（`/plugins` 41 个、`/external_plugins` 14 个）。其余 262 个里，261 个指向其他公司或开发者自己的 repo，1 个要在你的电脑上执行命令来获取。README 写得很直接：这个 repo 的检查覆盖放在这里的 plugin 文件夹，不覆盖放在其他 repo 的 plugin。
+不过，市场清单里的 plugin 大多不在这两个文件夹里。我在 2026-11-14 打开 `marketplace.json` 时，它列了 317 个 plugin，放在这个 repo 里的只有 55 个（`/plugins` 41 个、`/external_plugins` 14 个）。其余 262 个里，261 个指向其他公司或开发者自己的 repo，1 个要在你的电脑上执行命令来获取。README 写得很直接：这个 repo 的检查覆盖放在这里的 plugin 文件夹，不覆盖放在其他 repo 的 plugin。
 
 官方文档也提醒，市场的名称告诉你这份目录是谁发布的，不代表里面每个 plugin 做了什么，所以不管来自哪个市场，安装前都要检查。安装前的那段提醒也不分市场，内容都一样。
 
