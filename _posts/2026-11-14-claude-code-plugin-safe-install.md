@@ -10,18 +10,18 @@ image:
   alt: "裝 Claude Code plugin 前，先讀 hooks.json 與 .mcp.json 這些會自動執行的檔案。"
 ---
 
-Claude Code（在終端機裡使用的 AI 程式助理）可以安裝 plugin。一個 plugin 是一整包擴充功能，裝一次就會把好幾樣東西一起放進 Claude Code：教 Claude 做事的 skill、自訂的斜線指令、在固定時機自動執行的 hook，以及連到外部服務的 MCP server。
+Claude Code（在終端機裡使用的 AI 程式助理）可以安裝 plugin。我把 plugin 理解成一整包擴充功能：裝一次，就會把教 Claude 做事的 skill、自訂的斜線指令、在固定時機自動執行的 hook，以及連到外部服務的 MCP server 一起放進來。
 
-方便在這裡，要小心的地方也在這裡。其中有幾樣東西會在你沒下任何指令的時候自己執行程式，用的還是你的帳號權限。官方在安裝前會顯示這段提醒（中譯）：
+它方便的地方，正好也是我覺得要小心的地方。裡面有幾樣東西會在你沒下任何指令的時候自己執行程式，用的還是你的帳號權限。官方在安裝前會顯示這段提醒（我的中譯）：
 
 > Plugin 可以在你的電腦上執行程式，並存取你的檔案與 shell。安裝、更新或使用 plugin 之前，請確認你信任它。Anthropic 無法控制 plugin 內含哪些 MCP server、檔案或其他軟體，也無法驗證它們會如預期運作，或日後不會改變。詳情請見各 plugin 的首頁。
 
-問題是，「確認你信任它」要怎麼確認？這篇不推薦任何 plugin，只整理一套安裝前後的檢查方法：從官方目錄怎麼找、裝之前要打開哪幾個檔案、選哪個安裝範圍，以及裝了之後怎麼停用和移除。
+讀到「確認你信任它」，我的第一個疑問是：到底要怎麼確認？我把官方的幾份文件讀過一輪，整理成我在裝 plugin 前後會照著做的檢查方法：從官方目錄怎麼找、裝之前打開哪幾個檔案、選哪個安裝範圍，以及裝了之後怎麼停用和移除。這篇不推薦任何 plugin。我也沒有實際安裝 plugin 來測試，文中「我會怎麼做」的部分，都是依官方文件排出來的步驟。
 
-> **版本說明**：本文依 2026-11-14（台北時間）讀取的官方資料撰寫：[安裝與管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 總覽](https://code.claude.com/docs/en/plugins)、[plugin 參考手冊](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全說明](https://code.claude.com/docs/en/plugins/security)、[組織管理](https://code.claude.com/docs/en/plugins/org)、[市集參考手冊](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 與市集清單。2026-11-17 再對照上述頁面修正部分說法，並依當天讀取的 [mod 總覽](https://code.claude.com/docs/en/plugins/mods/overview) 與 [mod 管理說明](https://code.claude.com/docs/en/plugins/mods/admin) 補上 mod 的部分。文中的終端機指令對照過 Claude Code 2.1.325 的 `--help`（`plugin validate` 對照 2.1.326），本文沒有實際安裝任何 plugin。指令與介面會隨版本改變，請以你安裝的版本為準。
+> **版本說明**：這篇依我在 2026-11-14（台北時間）讀取的官方資料撰寫：[安裝與管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 總覽](https://code.claude.com/docs/en/plugins)、[plugin 參考手冊](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全說明](https://code.claude.com/docs/en/plugins/security)、[組織管理](https://code.claude.com/docs/en/plugins/org)、[市集參考手冊](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 與市集清單。2026-11-17 我再對照上述頁面修正部分說法，並依當天讀取的 [mod 總覽](https://code.claude.com/docs/en/plugins/mods/overview) 與 [mod 管理說明](https://code.claude.com/docs/en/plugins/mods/admin) 補上 mod 的部分。文中的終端機指令，我對照過 Claude Code 2.1.325 的 `--help`（`plugin validate` 對照 2.1.326），沒有實際安裝任何 plugin。指令與介面會隨版本改變，請以你安裝的版本為準。
 {: .prompt-info }
 
-為什麼第三方擴充會帶來風險，在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過，這裡不再重講。這篇只處理 plugin 的具體檢查步驟。
+第三方擴充為什麼會帶來風險，我在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過，這裡不再重講。這篇只處理 plugin 的具體檢查步驟。
 
 ## 先認識幾個名詞
 
@@ -35,7 +35,7 @@ Claude Code（在終端機裡使用的 AI 程式助理）可以安裝 plugin。�
 
 ## 一個 plugin 會帶進哪些東西
 
-plugin 是一個資料夾，裡面的檔案依用途放在固定位置。依官方的參考手冊與安全說明，這些檔案可以分成兩類：只給 Claude 讀的文字，以及會執行程式的部分。
+plugin 是一個資料夾，裡面的檔案依用途放在固定位置。讀完官方的參考手冊與安全說明，我把這些檔案分成兩類：只給 Claude 讀的文字，以及會執行程式的部分。
 
 | 位置 | 是什麼 | 會自己執行程式嗎 |
 | --- | --- | --- |
@@ -48,16 +48,16 @@ plugin 是一個資料夾，裡面的檔案依用途放在固定位置。依官�
 | `.lsp.json` | 語言伺服器（提供程式碼跳轉、錯誤提示的背景程式） | **會** |
 | `bin/` | 可執行檔，plugin 啟用期間 Claude 可以直接呼叫 | Claude 呼叫時才執行，會經過權限規則 |
 
-最需要記住的一句話出自官方安全說明：Claude Code 的權限規則和沙箱，管的是 Claude 自己發出的工具呼叫，不管 plugin 自己執行的程式。hook、monitor、MCP server、LSP server 和 mod 都在沙箱外、以你完整的使用者權限執行。就算你照〈[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)〉開了 `/sandbox`，plugin 的 hook 和 mod 還是在沙箱外面跑。
+整份官方安全說明裡，我認為最該記住的是這句：Claude Code 的權限規則和沙箱，管的是 Claude 自己發出的工具呼叫，不管 plugin 自己執行的程式。hook、monitor、MCP server、LSP server 和 mod 都在沙箱外、以你完整的使用者權限執行。我在〈[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)〉教過怎麼開 `/sandbox`，但就算開了，plugin 的 hook 和 mod 還是在沙箱外面跑。
 
-另外，`plugin.json` 不是必要的檔案。官方說它可以省略，就算有，也只有 `name` 一定要填。作者、首頁、授權這些欄位都可能是空的。
+還有一點容易誤會：`plugin.json` 不是必要的檔案。官方說它可以省略，就算有，也只有 `name` 一定要填。所以作者、首頁、授權這些欄位都可能是空的。我不會因為欄位空著就認定它有問題，也不會因為欄位填得很完整就放心。
 
 ![一個 plugin 裡的檔案分兩類：skills、commands、agents 只給 Claude 讀；hooks、mod、monitors、.mcp.json、.lsp.json 會在沙箱外執行程式，bin/ 要等 Claude 呼叫才執行](plugin-anatomy.webp){: w="1600" h="900" }
 _概念圖：左邊是給 Claude 讀的文字，右邊是會執行程式的部分。安裝前要逐一打開右邊的檔案，標成黃色的 `plugin.json` 也要看，它可能直接宣告 hook 與 MCP server。_
 
 ## 官方目錄裡的「官方」指的是什麼
 
-官方 plugin 目錄是 GitHub 上的 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official)。這個 repo 同時是兩樣東西：一個存放 plugin 的地方，以及 `claude-plugins-official` 市集的清單檔 `.claude-plugin/marketplace.json`。
+看到「官方」兩個字，很容易以為裡面的 plugin 都經過 Anthropic 審查。我讀了官方 plugin 目錄的 README 和清單檔，才確定範圍沒有這麼大。這個目錄是 GitHub 上的 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official)。這個 repo 同時是兩樣東西：一個存放 plugin 的地方，以及 `claude-plugins-official` 市集的清單檔 `.claude-plugin/marketplace.json`。
 
 repo 裡有兩個放 plugin 的資料夾，README 這樣說明：
 
@@ -68,11 +68,11 @@ repo 裡有兩個放 plugin 的資料夾，README 這樣說明：
 
 官方文件也提醒，市集的名稱告訴你這份目錄是誰發行的，不代表裡面每個 plugin 做了什麼，所以不論來自哪個市集，安裝前都要檢查。安裝前的那段提醒也不分市集，內容都一樣。
 
-所以，官方目錄能讓你少裝到冒名的假貨：`claude-plugins-official` 這類官方名稱，Claude Code 只接受來自 `github.com/anthropics/` 的來源，其他人沒辦法用同樣的名稱發行市集。但它不等於「每個 plugin 都通過安全審查」。
+所以我對官方目錄的看法是：它能讓你少裝到冒名的假貨，因為 `claude-plugins-official` 這類官方名稱，Claude Code 只接受來自 `github.com/anthropics/` 的來源，其他人沒辦法用同樣的名稱發行市集。但它不等於「每個 plugin 都通過安全審查」。從官方目錄裝的 plugin，我一樣會照後面的步驟檢查。
 
 ### 查出 plugin 實際放在哪裡
 
-在 `marketplace.json` 裡找到 plugin 的條目，看它的 `source` 欄位：
+既然多數 plugin 放在別的 repo，我裝之前一定會先查這件事。在 `marketplace.json` 裡找到 plugin 的條目，看它的 `source` 欄位：
 
 - 寫成 `./plugins/…` 或 `./external_plugins/…`：plugin 就在官方 repo 的這個資料夾。
 - 寫成一個物件，`source` 是 `url` 或 `git-subdir`：plugin 在 `url` 指向的另一個 repo。`git-subdir` 另外用 `path` 指出是 repo 裡的哪個資料夾。
@@ -94,20 +94,20 @@ repo 裡有兩個放 plugin 的資料夾，README 這樣說明：
 }
 ```
 
-`sha` 是一個 commit 的編號，代表程式碼在某一次提交時的樣子。依市集參考手冊，條目同時寫了 `ref` 和 `sha` 時，Claude Code 會取出 `sha` 這一版。所以要檢查的是那個 commit 的檔案，不是對方 repo 現在的最新版。在 GitHub 上，可以用 `https://github.com/<帳號>/<repo>/tree/<sha>/<path>` 這種網址打開那一版的資料夾。
+`sha` 是一個 commit 的編號，代表程式碼在某一次提交時的樣子。依市集參考手冊，條目同時寫了 `ref` 和 `sha` 時，Claude Code 會取出 `sha` 這一版。所以我要檢查的是那個 commit 的檔案，不是對方 repo 現在的最新版。在 GitHub 上，我會用 `https://github.com/<帳號>/<repo>/tree/<sha>/<path>` 這種網址打開那一版的資料夾。
 
-條目也不只是一張索引卡。依市集參考手冊，條目本身也可以寫元件欄位。plugin 有 `plugin.json` 時，條目的 `commands`、`agents`、`skills`、`hooks`、`outputStyles`、`themes` 預設會併進 `plugin.json`，其中 `hooks` 會依事件取代 `plugin.json` 裡同一個事件的設定；條目寫的 `mcpServers`、`lspServers` 不會生效。plugin 沒有 `plugin.json` 時，條目就直接當作它的設定檔，這時 `mcpServers`、`lspServers` 也會載入。條目裡如果有這些欄位，也要一起看。
+條目也不只是一張索引卡。依市集參考手冊，條目本身也可以寫元件欄位。plugin 有 `plugin.json` 時，條目的 `commands`、`agents`、`skills`、`hooks`、`outputStyles`、`themes` 預設會併進 `plugin.json`，其中 `hooks` 會依事件取代 `plugin.json` 裡同一個事件的設定；條目寫的 `mcpServers`、`lspServers` 不會生效。plugin 沒有 `plugin.json` 時，條目就直接當作它的設定檔，這時 `mcpServers`、`lspServers` 也會載入。條目裡如果有這些欄位，我也會一起看。
 
 ## 步驟 1：在 `/plugin` 找到 plugin，先看詳細資訊
 
-在 Claude Code 的輸入框輸入：
+找 plugin 時，我會先打開 plugin 管理畫面。在 Claude Code 的輸入框輸入：
 
 ```text
 /plugin
 ```
 {: .nolineno }
 
-畫面會開在 **Discover** 分頁，列出你已加入的市集裡的 plugin。直接打字可以搜尋，按 Enter 打開詳細資訊。其他分頁是 **Installed**（已安裝）、**Marketplaces**（已加入的市集）和 **Errors**（載入錯誤）。
+官方文件說，畫面會開在 **Discover** 分頁，列出你已加入的市集裡的 plugin。直接打字可以搜尋，按 Enter 打開詳細資訊。其他分頁是 **Installed**（已安裝）、**Marketplaces**（已加入的市集）和 **Errors**（載入錯誤）。
 
 已經知道名稱的話，也可以直接輸入：
 
@@ -118,28 +118,28 @@ repo 裡有兩個放 plugin 的資料夾，README 這樣說明：
 
 在對話裡執行這行不會馬上安裝，而是先打開同一個詳細資訊面板，讓你選好安裝範圍再確認。
 
-詳細資訊面板有一區 **Will install**，列出這個 plugin 會裝進哪些指令、agent、skill、hook，以及 MCP 和 LSP server。先看這裡有沒有 hook、MCP server 或 LSP server。有的話，代表裝了之後會有程式自動執行。
+詳細資訊面板有一區 **Will install**，列出這個 plugin 會裝進哪些指令、agent、skill、hook，以及 MCP 和 LSP server。我會先看這裡有沒有 hook、MCP server 或 LSP server。有的話，就代表裝了之後會有程式自動執行，後面的檢查要更仔細。
 
-放在其他 repo 的 plugin（官方市集裡大多數是這種），如果 Anthropic 沒有它的元件資料，這一區可能只顯示 `Component summary not available for remote plugin`，什麼元件都看不到。遇到這種情況，更要照步驟 2 去看原始檔。
+放在其他 repo 的 plugin（官方市集裡大多數是這種），如果 Anthropic 沒有它的元件資料，這一區可能只顯示 `Component summary not available for remote plugin`，什麼元件都看不到。遇到這種情況，我就直接照步驟 2 去看原始檔。
 
-但官方也說明，Will install 只告訴你「有 hook」，不告訴你 hook 會執行什麼。所以下一步要去看原始檔。
+就算這一區列出了元件，官方也說明它只告訴你「有 hook」，不告訴你 hook 會執行什麼。所以不管這裡列了什麼，我下一步都會去讀原始檔。
 
 ## 步驟 2：裝之前，打開這幾個檔案
 
-在詳細資訊面板選 **Open homepage** 或 **View on GitHub** 打開原始碼。兩個選項都沒有的話，回到市集的 repo，用上一節的方法找到 plugin 的資料夾。市集當初是從哪裡加入的，可以在終端機用這行確認：
+我會在詳細資訊面板選 **Open homepage** 或 **View on GitHub** 打開原始碼。兩個選項都沒有的話，就回到市集的 repo，用上一節的方法找到 plugin 的資料夾。市集當初是從哪裡加入的，可以在終端機用這行確認：
 
 ```bash
 claude plugin marketplace list
 ```
 {: .nolineno }
 
-接著依序打開下面這些檔案，先從 `plugin.json` 開始。預設位置找不到某個檔案，不代表 plugin 沒有那項功能，因為 `plugin.json` 可以把 hook、MCP server、LSP server 和 monitor 直接寫在裡面，或指向其他路徑的設定檔。先看 `plugin.json` 宣告了什麼，再決定要打開哪些檔案。
+接著我會依序打開下面這些檔案，第一個一定是 `plugin.json`。預設位置找不到某個檔案，不代表 plugin 沒有那項功能，因為 `plugin.json` 可以把 hook、MCP server、LSP server 和 monitor 直接寫在裡面，或指向其他路徑的設定檔。先看 `plugin.json` 宣告了什麼，我才知道還要打開哪些檔案。
 
 ### `.claude-plugin/plugin.json`：誰做的、還宣告了什麼
 
-先看 `author`、`homepage`、`repository` 和 `license`。首頁和 repo 欄位指向的地方，跟你正在看的 repo 是不是同一個？如果名稱很像、帳號卻不一樣，要特別小心。
+我先看 `author`、`homepage`、`repository` 和 `license`，確認首頁和 repo 欄位指向的地方，跟我正在看的 repo 是同一個。名稱很像、帳號卻不一樣的，我會先停下來查清楚是誰。
 
-接著看它有沒有宣告元件或依賴。例如這份（內容為示範）：
+再來看它有沒有宣告元件或依賴。下面這份是我寫的示範：
 
 ```json
 {
@@ -155,15 +155,15 @@ claude plugin marketplace list
 ```
 {: file=".claude-plugin/plugin.json" }
 
-這樣讀：
+這份檔案我會這樣讀：
 
-- `hooks` 指向 `config/hooks.json`，不在預設的 `hooks/hooks.json`。兩個位置的 hook 會合併載入，所以兩個檔案都要看。
-- `mcpServers` 直接寫在 `plugin.json` 裡，安裝後會啟動 `server.js`。`lspServers` 和 `experimental.monitors` 也能這樣寫。這些內容都用後面讀 `hooks/hooks.json` 和 `.mcp.json` 的方式去讀。
-- `dependencies` 列出這個 plugin 依賴的其他 plugin。官方文件說明，安裝時 Claude Code 會以同樣的範圍，把這些依賴一起安裝並啟用。所以 `example-helper` 也要照這篇的步驟檢查一次。只寫名稱的依賴從同一個市集取得；寫成 `名稱@市集` 的來自另一個市集，這種跨市集的依賴預設不會自動安裝，除非市集明確允許。
+- `hooks` 指向 `config/hooks.json`，不在預設的 `hooks/hooks.json`。兩個位置的 hook 會合併載入，所以兩個檔案我都會看。
+- `mcpServers` 直接寫在 `plugin.json` 裡，安裝後會啟動 `server.js`。`lspServers` 和 `experimental.monitors` 也能這樣寫。這些內容我都用後面讀 `hooks/hooks.json` 和 `.mcp.json` 的方式去讀。
+- `dependencies` 列出這個 plugin 依賴的其他 plugin。官方文件說明，安裝時 Claude Code 會以同樣的範圍，把這些依賴一起安裝並啟用。所以 `example-helper` 我也會照這篇的步驟檢查一次。只寫名稱的依賴從同一個市集取得；寫成 `名稱@市集` 的來自另一個市集，這種跨市集的依賴預設不會自動安裝，除非市集明確允許。
 
 ### `hooks/hooks.json`：什麼時候、自動執行什麼
 
-這是最重要的檔案。每個 hook 要看兩件事：事件名稱（什麼時候執行）和它執行什麼。`type` 是 `command` 時看 `command` 欄位；`type` 是 `http` 時看 `url`，事件內容會送到那個網址。`type` 也可能是 `mcp_tool`、`prompt` 或 `agent`。結構大致如下（內容是示意）：
+如果只能挑一個檔案細看，我會挑這個。每個 hook 我都看兩件事：事件名稱（什麼時候執行）和它執行什麼。`type` 是 `command` 時看 `command` 欄位；`type` 是 `http` 時看 `url`，事件內容會送到那個網址。`type` 也可能是 `mcp_tool`、`prompt` 或 `agent`。結構大致如下（內容是示意）：
 
 ```json
 {
@@ -188,17 +188,17 @@ claude plugin marketplace list
 ```
 {: file="hooks/hooks.json" }
 
-這樣讀：
+這份設定，我會逐項這樣看：
 
 - `SessionStart`：每次開啟 Claude Code 就執行 `setup.sh`，恢復先前的對話、執行 `/clear` 或對話被壓縮時也會再執行，不需要你做任何事。
 - `PostToolUse` 加上 `"matcher": "Edit|Write"`：Claude 每次用 Edit 或 Write 工具改完檔案，就執行 `format.sh`。
-- `${CLAUDE_PLUGIN_ROOT}` 代表 plugin 安裝後所在的資料夾。指令只寫「去執行某支腳本」時，那支腳本也要打開來看，真正做事的是它。
+- `${CLAUDE_PLUGIN_ROOT}` 代表 plugin 安裝後所在的資料夾。指令只寫「去執行某支腳本」時，我會把那支腳本也打開來看，真正做事的是它。
 
-看到下面這些內容，先停下來弄清楚原因：用 `curl`、`wget` 下載東西後直接執行；把檔案內容或環境變數送到外部網址；刪除或修改專案以外的檔案；讀取 `~/.ssh`、`.env` 這類存放金鑰的位置。這些不一定是惡意，有些 hook 本來就會把程式碼片段送到外部服務分析，通常會寫在 README 裡。重點是你知道它會這麼做，而且能接受。
+hook 有下面這些行為時，我會先停下來弄清楚原因：用 `curl`、`wget` 下載東西後直接執行；把檔案內容或環境變數送到外部網址；刪除或修改專案以外的檔案；讀取 `~/.ssh`、`.env` 這類存放金鑰的位置。這些不一定是惡意，有些 hook 本來就會把程式碼片段送到外部服務分析，通常會寫在 README 裡。我在意的是自己知不知道它會這麼做，以及能不能接受。
 
 ### `hooks.json` 裡的 `modules`：在 Claude Code 裡面執行的 mod
 
-`hooks.json` 如果有 `"modules": ["./register.js"]` 這樣的欄位，代表這個 plugin 帶了 mod。mod 是一支在 Claude Code 裡面執行的 JavaScript 程式，不在沙箱裡。依官方的 mod 說明，它能用你的權限讀寫檔案、啟動程式、連上網路，讀得到環境變數和設定檔裡的 API key，也看得到你送出的每一則訊息和 Claude 的每一次工具呼叫，並且可以改寫它們。內建的防護沒有擋住時，它還能核准原本會被你的 deny、ask 規則或 `PreToolUse` hook 擋下的工具呼叫。
+`hooks.json` 如果有 `"modules": ["./register.js"]` 這樣的欄位，代表這個 plugin 帶了 mod。mod 是一支在 Claude Code 裡面執行的 JavaScript 程式，不在沙箱裡。依官方的 mod 說明，它能用你的權限讀寫檔案、啟動程式、連上網路，讀得到環境變數和設定檔裡的 API key，也看得到你送出的每一則訊息和 Claude 的每一次工具呼叫，並且可以改寫它們。內建的防護沒有擋住時，它還能核准原本會被你的 deny、ask 規則或 `PreToolUse` hook 擋下的工具呼叫。所以 plugin 帶了 mod，我會看得比 hook 更仔細。
 
 後面介紹的 `plugin details` 元件清單不會列出 mod。官方提供的檢查方式是先取得 plugin 的檔案（例如 clone 下來），再對 plugin 資料夾執行：
 
@@ -207,7 +207,7 @@ claude plugin validate <plugin 資料夾>
 ```
 {: .nolineno }
 
-輸出裡的 `hooks:` 列出 mod 會接收哪些事件，`calls:` 列出它會呼叫哪些功能，例如 `$.fs.read`（讀檔案）、`$.process.run`（啟動程式）、`$.http.fetch`（連網）、`$.env.get`（讀環境變數）。看完這兩行，再把那支 JavaScript 檔讀一遍。官方也提醒，這個指令回報錯誤的 mod 不要裝，因為有些錯誤不會阻止它載入。
+輸出裡的 `hooks:` 列出 mod 會接收哪些事件，`calls:` 列出它會呼叫哪些功能，例如 `$.fs.read`（讀檔案）、`$.process.run`（啟動程式）、`$.http.fetch`（連網）、`$.env.get`（讀環境變數）。看完這兩行，我會再把那支 JavaScript 檔讀一遍。官方也提醒，這個指令回報錯誤的 mod 不要裝，因為有些錯誤不會阻止它載入。
 
 ### `.mcp.json`：會啟動哪些程式、連到哪裡
 
@@ -228,25 +228,25 @@ claude plugin validate <plugin 資料夾>
 ```
 {: file=".mcp.json" }
 
-這樣讀：
+這份設定，我會照欄位分開看：
 
-- 有 `url` 的 server 是連到外部網址。看網域是不是那個服務本身。你在 Claude 裡透過它查詢或傳送的內容，會送到那個網址。
-- 有 `command` 的 server 是在你的電腦上啟動程式。`npx -y 套件名稱` 會從 npm 下載並執行那個套件。寫死版本號（例如 `@1.4.2`）比較好；沒寫版本或寫 `@latest`，每次啟動都可能跑到不同的程式。
-- `env` 列出它需要哪些環境變數，通常就是 token 或密碼。給它的權限，最好只限於它真正需要的範圍。
+- 有 `url` 的 server 是連到外部網址。我會確認網域是不是那個服務本身。你在 Claude 裡透過它查詢或傳送的內容，會送到那個網址。
+- 有 `command` 的 server 是在你的電腦上啟動程式。`npx -y 套件名稱` 會從 npm 下載並執行那個套件。我希望看到寫死的版本號（例如 `@1.4.2`）；沒寫版本或寫 `@latest`，每次啟動都可能跑到不同的程式。
+- `env` 列出它需要哪些環境變數，通常就是 token 或密碼。我給它的權限，只開到它真正需要的範圍。
 
 ### `bin/`、`monitors/` 和 `.lsp.json`
 
-- `bin/` 裡的每個檔案都要看。plugin 啟用期間，這些檔案會被放進 Claude 執行指令時的搜尋路徑（`PATH`），Claude 可以像一般指令一樣直接呼叫它們。
+- `bin/` 裡的每個檔案我都會看。plugin 啟用期間，這些檔案會被放進 Claude 執行指令時的搜尋路徑（`PATH`），Claude 可以像一般指令一樣直接呼叫它們。
 - `monitors/monitors.json` 是在背景執行的指令，讀法跟 hook 一樣，看每一個 `command`。
 - `.lsp.json` 會啟動語言伺服器，看它啟動的是哪支程式。
 
 ### `skills/`、`commands/`、`agents/`：快速掃過
 
-這些是給 Claude 讀的說明，本身不會執行。但說明可以叫 Claude 去執行指令。快速掃過一遍，留意這幾種段落：要 Claude 下載並執行東西、把資料傳到外部、或要它略過你的規則。這類藏在內容裡的指令，〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉的「入口一」有詳細說明。
+這些是給 Claude 讀的說明，本身不會執行，但說明可以叫 Claude 去執行指令。我會快速掃過一遍，留意這幾種段落：要 Claude 下載並執行東西、把資料傳到外部、或要它略過你的規則。這類藏在內容裡的指令，〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉的「入口一」有詳細說明。
 
 ### 用一行指令核對元件清單
 
-自己翻資料夾難免漏看。官方安全說明提供一個方法：把 plugin 所在的 repo clone 下來，切到市集條目寫的 commit，再用 `plugin details` 列出 Claude Code 在這個資料夾裡找到的元件：
+我自己翻資料夾，難免有漏看的時候。官方安全說明提供一個核對方法：把 plugin 所在的 repo clone 下來，切到市集條目寫的 commit，再用 `plugin details` 列出 Claude Code 在這個資料夾裡找到的元件：
 
 ```bash
 git clone https://github.com/example-org/claude-plugins.git
@@ -256,11 +256,11 @@ claude --plugin-dir ./plugins/example-plugin plugin details example-plugin
 ```
 {: .nolineno }
 
-它會印出一份 `Component inventory`（元件清單），列出 skill 與指令、agent、hook（含觸發事件）、MCP server 和 LSP server。拿它對照你剛才看過的檔案，有漏看的就回去補。monitor、`bin/` 裡的檔案和 mod 不在這份清單裡，要自己打開來看。這份清單列的是這個資料夾裡的元件；市集條目另外加上的元件，以及 `dependencies` 裡的其他 plugin，要各自回去看。裝好之後，也可以用 `claude plugin details <plugin 名稱>` 檢查實際安裝的那一份。
+它會印出一份 `Component inventory`（元件清單），列出 skill 與指令、agent、hook（含觸發事件）、MCP server 和 LSP server。我會拿它對照剛才看過的檔案，有漏看的就回去補。monitor、`bin/` 裡的檔案和 mod 不在這份清單裡，要自己打開來看。這份清單列的是這個資料夾裡的元件；市集條目另外加上的元件，以及 `dependencies` 裡的其他 plugin，要各自回去看。裝好之後，也可以用 `claude plugin details <plugin 名稱>` 檢查實際安裝的那一份。
 
 ### 可複製的檢查清單
 
-下面這份可以直接貼進筆記或團隊文件：
+我把上面的檢查整理成一份清單，可以直接貼進筆記或團隊文件：
 
 ```markdown
 ## Claude Code plugin 安裝前檢查
@@ -292,7 +292,7 @@ _概念圖：四項檢查都在安裝之前完成。第三項只看得到你打�
 | User | 你自己，這台電腦上的所有專案 | `~/.claude/settings.json` |
 | Project | 這個 repo 的所有協作者 | `.claude/settings.json`（會提交進 repo） |
 
-第一次用的 plugin，建議先裝在 Local，只在一個專案裡試用。確定其他專案也要用，再裝到 User。要讓整個團隊一起用，才選 Project，並且走一般的程式碼審查流程，做法見後面的「下一步：把檢查清單放進團隊規則」。
+第一次用的 plugin，我會先裝在 Local，只在一個專案裡試用。確定其他專案也要用，再裝到 User。要讓整個團隊一起用，我才選 Project，並且走一般的程式碼審查流程，做法見後面的「下一步：把檢查清單放進團隊規則」。
 
 在終端機安裝的寫法如下，不加 `--scope` 時預設是 user：
 
@@ -301,7 +301,7 @@ claude plugin install <plugin 名稱>@claude-plugins-official --scope local
 ```
 {: .nolineno }
 
-有三件事要知道：
+安裝前，我會先記住三件事：
 
 - **安裝就等於啟用。** 除非 plugin 自己設定了 `defaultEnabled: false`，裝好它就開始運作。
 - **依賴會一起裝。** plugin 宣告了依賴的話，Claude Code 會以同樣的範圍一起安裝並啟用，完成訊息會列出它們。
@@ -309,7 +309,7 @@ claude plugin install <plugin 名稱>@claude-plugins-official --scope local
 
 ## 其他市集：加入之前先確認來源
 
-除了官方市集，任何人都可以建立市集。加入市集的指令是：
+除了官方市集，任何人都可以建立市集。加入市集這件事，我會比裝單一 plugin 更謹慎，因為加入之後，裡面的每個 plugin 都能用一行指令裝進來。加入市集的指令是：
 
 ```text
 /plugin marketplace add <來源>
@@ -323,11 +323,11 @@ claude plugin install <plugin 名稱>@claude-plugins-official --scope local
 - 本機資料夾的路徑。
 - 指向 `marketplace.json` 的 `https://` 網址。
 
-加入之前，先確認這幾件事：
+加入之前，我會先確認這幾件事：
 
-- **這個 repo 是誰的。** 從你信任的地方取得連結，例如工具的官方網站或官方文件，不要只看搜尋結果。名稱相似的帳號並不少見。
-- **有沒有指定版本。** 加上 `#v1.2.0` 這類標籤，市集內容就不會隨對方每次提交而改變。不過標籤本身可以被移動，原理見〈[gh actions-lock 教學：用 lockfile 鎖定 GitHub Actions 依賴](/posts/gh-actions-lock-workflow-lockfile/)〉，它只能讓變動少一點。
-- **一行安裝指令也可能順便加入市集。** 在對話裡輸入 `/plugin install <名稱> --marketplace owner/repo`，市集還沒加入時，Claude Code 會先顯示來源請你確認；在終端機執行 `claude plugin install <名稱> --marketplace owner/repo` 則不會詢問，直接加入市集。看到別人貼這種指令，一樣先確認 `owner/repo` 是誰。
+- **這個 repo 是誰的。** 我只從信任的地方取得連結，例如工具的官方網站或官方文件，不只看搜尋結果。名稱相似的帳號並不少見。
+- **有沒有指定版本。** 我會加上 `#v1.2.0` 這類標籤，市集內容就不會隨對方每次提交而改變。不過標籤本身可以被移動，原理見〈[gh actions-lock 教學：用 lockfile 鎖定 GitHub Actions 依賴](/posts/gh-actions-lock-workflow-lockfile/)〉，它只能讓變動少一點。
+- **一行安裝指令也可能順便加入市集。** 在對話裡輸入 `/plugin install <名稱> --marketplace owner/repo`，市集還沒加入時，Claude Code 會先顯示來源請你確認；在終端機執行 `claude plugin install <名稱> --marketplace owner/repo` 則不會詢問，直接加入市集。看到別人貼這種指令，我一樣會先確認 `owner/repo` 是誰。
 
 ### 自動更新：你看過的檔案可能會變
 
@@ -335,13 +335,13 @@ claude plugin install <plugin 名稱>@claude-plugins-official --scope local
 
 要關閉某個市集的自動更新，在 `/plugin` 切到 **Marketplaces** 分頁，選擇市集，再選 **Disable auto-update**。
 
-關掉的代價是不會自動拿到修正。比較實際的做法是：對第三方或不熟悉的市集關閉自動更新，改成定期手動更新。更新前先用 `https://github.com/<帳號>/<repo>/compare/<舊 sha>...<新 sha>` 比對這次改了什麼，特別是 `plugin.json`、`hooks/hooks.json`、`.mcp.json` 和新增的依賴。手動更新的指令是 `claude plugin update <plugin 名稱>@<市集名稱>`，更新後要重新啟動 Claude Code，或在對話裡執行 `/reload-plugins` 才會套用。
+關掉的代價是不會自動拿到修正，所以我不會全部關掉。我的做法是只對第三方或不熟悉的市集關閉自動更新，改成定期手動更新。更新前，我會先用 `https://github.com/<帳號>/<repo>/compare/<舊 sha>...<新 sha>` 比對這次改了什麼，特別是 `plugin.json`、`hooks/hooks.json`、`.mcp.json` 和新增的依賴。手動更新的指令是 `claude plugin update <plugin 名稱>@<市集名稱>`，更新後要重新啟動 Claude Code，或在對話裡執行 `/reload-plugins` 才會套用。
 
 ## 裝了之後：停用、移除、清乾淨
 
-先確認自己裝了什麼。`claude plugin list` 會列出每個 plugin 的版本、安裝範圍和狀態。
+我會先確認自己到底裝了什麼。`claude plugin list` 會列出每個 plugin 的版本、安裝範圍和狀態。
 
-**停用**：暫時不用，或懷疑它有問題時使用。在 `/plugin` 的 Installed 分頁選中 plugin 後按空白鍵，或輸入 `/plugin disable` 打開面板操作。在終端機則是：
+**停用**：暫時不用，或懷疑它有問題時，我會先走這一步。在 `/plugin` 的 Installed 分頁選中 plugin 後按空白鍵，或輸入 `/plugin disable` 打開面板操作。在終端機則是：
 
 ```bash
 claude plugin disable <plugin 名稱>@<市集名稱>
@@ -357,27 +357,27 @@ claude plugin uninstall <plugin 名稱>@<市集名稱> --scope <當初的範圍>
 ```
 {: .nolineno }
 
-`--scope` 要和安裝時一樣，不寫的話預設是 user。移除時要注意：
+`--scope` 要和安裝時一樣，不寫的話預設是 user。移除時有幾件事我會特別留意：
 
 - 從最後一個安裝範圍移除時，plugin 存放資料的資料夾 `~/.claude/plugins/data/<id>/` 會一起刪除，plugin 保存的選項和密鑰也會刪掉。加上 `--keep-data` 才會保留資料夾。
-- 程式檔本身會在 `~/.claude/plugins/cache/` 多留 14 天，才由背景清理刪除。確定不再信任它，可以自己刪掉 `~/.claude/plugins/cache/<市集名稱>/<plugin 名稱>/`。
+- 程式檔本身會在 `~/.claude/plugins/cache/` 多留 14 天，才由背景清理刪除。確定不再信任它，我會自己刪掉 `~/.claude/plugins/cache/<市集名稱>/<plugin 名稱>/`。
 - 當初跟著安裝的依賴不會一起移除。加上 `--prune` 會一併移除沒有其他 plugin 需要的依賴，之後也可以用 `claude plugin prune` 清理。
 - Project 範圍的 plugin 在介面上移除時，會問你要選 **Disable for me**（只對自己停用，寫進你的 `.claude/settings.local.json`）還是 **Uninstall for everyone**（從共用的 `.claude/settings.json` 拿掉，影響所有協作者）。
 
 **移除市集**：輸入 `/plugin marketplace remove <市集名稱>`。從這個市集安裝的所有 plugin 會一起被移除。
 
-如果你是因為懷疑 plugin 有問題才移除它，曾經交給它的 token 也要換掉。後續處理可以參考〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉的「出事之後」清單。
+如果是因為懷疑 plugin 有問題才移除它，我會把曾經交給它的 token 也換掉。後續處理可以參考〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉的「出事之後」清單。
 
 ![裝了之後的三種處理：停用保留檔案；移除時依賴會留著、cache 留 14 天；移除市集會連同裝過的 plugin 一起移除；另外提醒自動更新會換掉看過的檔案](after-install.webp){: w="1600" h="900" }
 _概念圖：由輕到重的三種處理方式。懷疑出事時先停用，確定不用再移除。_
 
 ## 下一步：把檢查清單放進團隊規則
 
-一個人小心還不夠，團隊要有共同的做法。可以從三個層次著手。
+我一個人小心還不夠，團隊裡每個人都可能裝 plugin，所以要有共同的做法。我會從三個層次著手。
 
-**1. 寫進專案規則。** 把上面的檢查清單放進 `CLAUDE.md`、`AGENTS.md` 或 PR 範本，約定「新增 plugin 或市集時，要附上這份清單」。規則檔怎麼寫，見〈[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)〉。
+**1. 寫進專案規則。** 我會把上面的檢查清單放進 `CLAUDE.md`、`AGENTS.md` 或 PR 範本，約定「新增 plugin 或市集時，要附上這份清單」。規則檔怎麼寫，我整理在〈[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)〉。
 
-**2. 把設定檔當成程式碼審查。** 專案要推薦 plugin 時，在 `.claude/settings.json` 寫 `extraKnownMarketplaces`（要認識哪些市集）和 `enabledPlugins`（要啟用哪些 plugin）：
+**2. 把設定檔當成程式碼審查。** 專案要推薦 plugin 時，我會在 `.claude/settings.json` 寫 `extraKnownMarketplaces`（要認識哪些市集）和 `enabledPlugins`（要啟用哪些 plugin）：
 
 ```json
 {
@@ -393,7 +393,7 @@ _概念圖：由輕到重的三種處理方式。懷疑出事時先停用，確�
 ```
 {: file=".claude/settings.json" }
 
-這個檔案會提交進 repo，改它就跟改程式一樣，要經過 PR 審查。可以把它加進 CODEOWNERS（指定哪些檔案由誰審核的設定檔），讓熟悉這份檢查清單的人負責核准。官方文件另外說明兩點：在 repo 寫了 `enabledPlugins` 不會自動安裝，協作者要自己執行 `claude plugin install <名稱>@<市集> --scope project`；`extraKnownMarketplaces` 也只在協作者已經信任的資料夾裡生效。
+這個檔案會提交進 repo，所以我把改它當成改程式，一樣要經過 PR 審查。也可以把它加進 CODEOWNERS（指定哪些檔案由誰審核的設定檔），讓熟悉這份檢查清單的人負責核准。官方文件另外說明兩點：在 repo 寫了 `enabledPlugins` 不會自動安裝，協作者要自己執行 `claude plugin install <名稱>@<市集> --scope project`；`extraKnownMarketplaces` 也只在協作者已經信任的資料夾裡生效。
 
 **3. 在組織層級限制市集來源。** 公司若有統一管理 Claude Code 的設定（managed settings），管理員可以用 `strictKnownMarketplaces` 只允許特定來源，或用 `blockedMarketplaces` 封鎖特定來源。官方的允許清單範例如下：
 
@@ -439,6 +439,6 @@ _概念圖：由輕到重的三種處理方式。懷疑出事時先停用，確�
 
 ## 結論
 
-plugin 把好幾種擴充一次裝進來，所以安裝前要先弄清楚，它會在什麼時候、用你的權限做什麼事。順序是：從市集條目確認 plugin 實際放在哪裡，讀詳細資訊面板的 Will install，看 `plugin.json` 宣告了哪些元件和依賴，打開 `hooks/hooks.json`、`.mcp.json` 這些會執行程式的檔案（帶了 mod 就用 `plugin validate` 看它做什麼），用 `plugin details` 核對元件清單，再從最小的範圍安裝。裝了之後，記得自動更新會換掉檔案；不用了就停用或移除。
+整理完這篇，我給自己的規則只有一條：裝 plugin 之前，先弄清楚它會在什麼時候、用我的權限做什麼事。官方目錄和 Will install 只是起點。我會從市集條目查出 plugin 實際放在哪裡，看 `plugin.json` 宣告了哪些元件和依賴，再讀 `hooks/hooks.json`、`.mcp.json` 這些會執行程式的檔案；帶了 mod，就用 `plugin validate` 看它做什麼，最後用 `plugin details` 核對有沒有漏看。確定要裝，我會從最小的範圍開始。裝了之後，我也會記得自動更新會換掉檔案，不用了就停用或移除。
 
-想看懂 plugin 帶來的 hook 在做什麼，可以讀〈[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)〉。想知道 plugin 裡的 skill 是怎麼寫成的，見〈[自己寫 Agent Skill：從 SKILL.md 結構到觸發測試與維護](/posts/agent-skill-authoring-guide/)〉。要用同一套思路檢查整個 AI 工作流的供應鏈風險，見〈[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉。
+如果你想看懂 plugin 帶來的 hook 在做什麼，可以讀我寫的〈[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)〉。想知道 plugin 裡的 skill 是怎麼寫成的，見〈[自己寫 Agent Skill：從 SKILL.md 結構到觸發測試與維護](/posts/agent-skill-authoring-guide/)〉。想用同一套思路檢查整個 AI 工作流的供應鏈風險，我整理在〈[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉。
