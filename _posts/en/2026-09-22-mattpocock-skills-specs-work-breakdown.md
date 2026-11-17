@@ -330,7 +330,7 @@ I start by asking myself: what's missing right now? A spec, work that's ready to
 
 Running all five skills produces more documents, but doesn't necessarily make the problem any clearer. `triage` doesn't need to process tickets you just cut yourself, and work whose questions can already be listed clearly doesn't need `wayfinder`. Filling only the gap in front of you each time ensures that every document you produce has a clear next reader.
 
-This judgment applies to team projects that hand off work through an issue tracker, where the work spans several sessions. If I only wanted a small change within this session, I'd implement it directly.
+This judgment applies to team projects that hand off work through an issue tracker, where the work spans several sessions. For a small change within this session, I'd implement it directly.
 
 ## First Decide Who the Next Document Is For
 

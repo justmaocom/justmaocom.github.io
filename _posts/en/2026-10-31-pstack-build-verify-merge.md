@@ -167,7 +167,7 @@ For example (from [chapter 5 of the guide](https://github.com/cursor/plugins/blo
 
 **What you get**: the rewritten prose.
 
-**Next step**: I would read it once more myself to make sure the meaning didn't change.
+**Next step**: I recommend reading it once more yourself to make sure the meaning didn't change.
 
 ### /no-comments: Have Someone Who Didn't Write the Comments Review Them
 
