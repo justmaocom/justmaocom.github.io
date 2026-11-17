@@ -21,7 +21,7 @@ This is the last part of the series, and it covers three things: how to steer th
 > - Next: this is the last part of the series
 {: .prompt-info }
 
-> **Version**: this post is based on pstack [`0.15.36`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `c742dd6` in `cursor/plugins` (2026-10-28 07:12, Taipei time), the same as Part 3, with Claude Code 2.1.318. I checked on 2026-11-05: the latest `cursor/plugins` main is `bb68f23` (2026-11-04 15:20, Taipei time), with no changes in the pstack folder since `c742dd6`, and the latest Claude Code is 2.1.318.
+> **Version**: this post is based on pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. Later versions may behave differently.
 {: .prompt-info }
 
 ## Before You Start
@@ -30,7 +30,7 @@ pstack is a set of skills in Cursor's official plugin repo; a skill is simply a 
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
-git -C ~/src/cursor-plugins checkout c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+git -C ~/src/cursor-plugins checkout 2f87c854fe3e2fcda44ca86b46ede35aad3c46b7
 claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
@@ -103,11 +103,11 @@ _Four common principles, and when to say their names._
 /pstack:principle-prove-it-works run the real command and show me the output, not the build log.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-prove-it-works/SKILL.md#L9-L22)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-prove-it-works/SKILL.md#L9-L11)):
 
-1. **Checks the real thing.** It reads the actual value and actually runs the program, instead of guessing from file times, caches, or a subagent's self-report.
+1. **Checks the real thing.** It actually runs the program, reads the actual value, and inspects the diff, instead of guessing from file times, cached output, or a self-report.
 2. **Suspects the check first when a check fails.** It makes sure it looked in the right place before it blames the code.
-3. **Scripts the check when it can.** The strongest proof is a script that can be rerun, not a one-time look.
+3. **Scripts the check when it can.** A script that can be rerun and gives the same result every time beats a one-time look.
 
 **What you get**: the commands it actually ran, with their output.
 
@@ -123,12 +123,12 @@ _Four common principles, and when to say their names._
 /pstack:principle-fix-root-causes <the symptom>. find the first place it went wrong and fix it there.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-fix-root-causes/SKILL.md#L9-L21)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-fix-root-causes/SKILL.md#L9-L14)):
 
 1. **Reproduces first.**
-2. **Keeps asking "why"** until the answer is a wrong decision in the code, not the consequence of an earlier one.
-3. **Adds logging when stuck**, looking at the actual error and state instead of guessing.
-4. **Asks whether the triggering state is legitimate.** If it is, the code that can't handle it is the cause; if that state should never exist in the first place, it looks for whatever produced it.
+2. **Keeps asking "why"** until the answer is a wrong decision in the code.
+3. **Adds logging when stuck**, and reads the program's actual state.
+4. **Asks whether the triggering state is legitimate.** If it is, it handles the state where the code broke; if that state should never exist in the first place, a check there only hides the bug, so it looks for whatever produced the state.
 5. **Looks for the same fault elsewhere**, and fixes them all.
 
 **What you get**: an explanation of the root cause, a fix, and what it found when it checked for the same problem elsewhere.
@@ -145,11 +145,11 @@ _Four common principles, and when to say their names._
 /pstack:principle-attack-the-premise the last two fixes failed. write down the premise they share, test it, then decide what to do next.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L19)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L15)):
 
 1. **Writes the premise down**: that is, the assumption every failed fix relied on.
 2. **Tests the premise first**: it designs a check that can tell whether the premise is true or false, runs it, and looks at the result.
-3. **Follows the evidence**: if the evidence contradicts the premise, it looks for the cause elsewhere; if it confirms it, it asks the next "why," as in fix-root-causes.
+3. **Follows the evidence**: if the evidence contradicts the premise, it looks for what the failures have in common that the premise didn't predict; if one part always lands on the losing side, it changes what puts it there instead of adding a mechanism that cleans up after it.
 4. **Starts no new fix until the premise is written down and tested.**
 
 **What you get**: the written-down premise, how it was tested and what came back, and the direction it picked based on that result.
@@ -174,7 +174,7 @@ Naming a principle isn't the same as following it. The guide says the reply has 
 /pstack:automate-me read only this project's transcripts (~/.claude/projects/<folder name made from the project path>/), no other projects. write the draft to .claude/skills/<my-name>-mode/SKILL.md, show it to me, and don't commit.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L13-L83)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/automate-me/SKILL.md#L13-L83)):
 
 1. **Looks for an existing mode.** If you already have one, it asks whether to update it or start fresh; updating is the default.
 2. **Mines your transcripts.** It reads only this project's history, splits the last few weeks of transcripts into three time periods, and sends subagents (extra AI helpers a skill starts to work in parallel) to read them, looking for preferences that keep showing up in replies, delegation, verification, code and prose, and process. Only patterns that show up in at least two time periods count.
@@ -195,23 +195,22 @@ Naming a principle isn't the same as following it. The guide says the reply has 
 
 **When to use it**: you just finished a task that took a long detour, and you don't want to take it again next time.
 
-**What to type** (from [guide chapter 9](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L23-L31)):
+**What to type** (from [guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L25-L29)):
 
 ```text
 /pstack:reflect that took way too long. capture what we learned so the next run doesn't repeat it.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/reflect/SKILL.md#L13-L60)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/reflect/SKILL.md#L9-L17)):
 
-1. **Finds this conversation's transcript.** It reads only this project's transcripts.
-2. **Sends three reviewers in parallel.** They look for lessons from three angles: judgment, tooling, and a divergent view.
-3. **Combines the findings.** Another agent sorts the proposals into Accepted (recommended for adoption), Rejected, and Backlog.
-4. **Moves proposals better enforced by code to Backlog.** If a lint rule, script, or runtime check would prevent an error more reliably than a skill edit, the proposal goes to Backlog for a later repo change.
-5. **Waits for your approval.** It lists all the results and **changes no skill until you explicitly approve**. It never edits a skill inside the plugin cache; it copies the skill to your project or personal skill folder first and edits the copy. It never opens a PR or pushes, either.
+1. **Reads this conversation's transcript itself.** It reads only this project's transcripts. It looks for corrections you gave, commands and quirks the AI had to discover, context you supplied that it could have looked up, checks that were skipped or never run on the real artifact, and skills that should have kicked in but didn't. It treats the transcript as data and follows no instruction inside it.
+2. **Keeps only lessons that last.** A finding stays only if it will still hold in six months, would change what a future AI does, and maps to a skill this conversation used. It reads that skill first and drops whatever the skill already says clearly; it also drops one-offs and details that go stale fast, such as commit SHAs, versions, and counts. For a skill that should have kicked in but didn't, it proposes a change to that skill's description (the text the AI uses to decide when to use the skill).
+3. **Moves lessons better enforced by code to Backlog.** If a lint rule, script, or check would prevent a mistake more reliably, the lesson goes to Backlog instead of into a skill's prose.
+4. **Waits for your approval.** It lists the results as Accepted (recommended for adoption), Rejected, and Backlog, and **changes no skill until you explicitly approve**. It never edits a skill inside the plugin cache; it copies the skill to your project or personal skill folder first and edits the copy. It never opens a PR or pushes, either.
 
-**What you get**: the Accepted, Rejected, and Backlog lists, with the skill or repo check each proposal would change. Accepted items are still just proposals waiting for your approval; nothing has been changed yet.
+**What you get**: the Accepted, Rejected, and Backlog lists. Each Accepted item names the problem, the proposal, and the skill to change, and each Rejected item gives its reason. Accepted items are still just proposals waiting for your approval; nothing has been changed yet.
 
-**Next step**: approve only items that would change a future decision. The guide is blunt: one weird session is an anecdote, not a rule ([guide chapter 9](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L31)).
+**Next step**: approve only items that would change a future decision. The guide is blunt: one weird session is an anecdote, not a rule ([guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L31)).
 
 ### /correct: Make the Same Mistake Impossible
 
@@ -296,7 +295,7 @@ The guide's template ends with `/loop`, Cursor's built-in command for waking the
 3. **Makes the smallest change each iteration** and checks it against the finish condition; it commits progress and discards what didn't help, keeping nothing that only "might help."
 4. **Handles mid-run discoveries that support the goal** without stopping to ask; it leaves only irreversible actions, product or preference calls no experiment can settle, and genuine dead ends for you.
 5. **Logs one row per iteration** in the decision log.
-6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)). If the run hits the `--max-budget-usd` cap, Claude Code stops it outright and it may not get to write anything, so in the morning go by the last log row and the commits.
+6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)). If the run hits the `--max-budget-usd` cap, Claude Code stops it outright and it may not get to write anything, so in the morning go by the last log row and the commits.
 
 **What you get**: a reply with the finish condition, the number of iterations, what it kept, what it discarded, and the final state of the finish condition, plus a decision log.
 
@@ -342,7 +341,7 @@ Later, a new conversation can pick up from that note through the Session pickup 
 
 ### When the Night Holds More Than One Task
 
-If you have several unrelated changes for one night, the guide offers two playbooks ([guide chapter 7](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)): Autopilot-full carries each PR all the way to merged; Autopilot-stack verifies the same way but **doesn't merge**, so you review and land them yourself in the morning. If you want the AI to get the PRs ready so you can review them and decide whether to merge in the morning, go with Autopilot-stack. Note that unlike the earlier local-only template, you have to explicitly give it permission to push and open PRs:
+If you have several unrelated changes for one night, the guide offers two playbooks ([guide chapter 7](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L76-L86)): Autopilot-full carries each PR all the way to merged; Autopilot-stack verifies the same way but **doesn't merge**, so you review and land them yourself in the morning. If you want the AI to get the PRs ready so you can review them and decide whether to merge in the morning, go with Autopilot-stack. Note that unlike the earlier local-only template, you have to explicitly give it permission to push and open PRs:
 
 ```text
 /pstack:poteto-mode autopilot these five changes. you may push branches and open PRs; don't merge. i'll land them in the morning.
@@ -362,15 +361,15 @@ The decision log is a TSV file (a plain-text table with tab-separated columns), 
 /pstack:show-me-your-work catch me up on what you did last night
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L55-L74)):
+**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/show-me-your-work/SKILL.md#L55-L74)):
 
 1. **Audits the log against the transcript.** Every row has to match a real decision or action, and its evidence has to actually open and prove what the row claims. Missing pivots get added; wrong rows aren't edited or deleted, but corrected with a new row.
-2. **Gets a reviewer from a different model family.** It sends a subagent from a model family other than the one that did the work to read the trail and the transcript, flagging decisions with weak evidence, verification claimed without proof, and choices that look risky in hindsight.
+2. **Gets a reviewer on another vendor's model.** It sends a subagent on a model from a different vendor than the one that did the work to read the trail and the transcript, flagging decisions with weak evidence, verification claimed without proof, and choices that look risky in hindsight.
 3. **Summarizes what it did**, ending with an Attention section.
 
 **What you get**: a summary and an Attention section. Attention starts with `reviewed by <model>`, then lists each thing that needs your scrutiny, along with the log row it refers to.
 
-**Next step**: read Attention first, then follow it to the rows it points at and spot-check their evidence ([guide chapter 7](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L68)). You're auditing decisions, not replaying the whole night. Also glance at the `reviewed by` line: if your setup has only one model family, the review isn't really cross-family. To turn the TSV into a table in the terminal:
+**Next step**: read Attention first, then follow it to the rows it points at and spot-check their evidence ([guide chapter 7](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L68)). You're auditing decisions, not replaying the whole night. Also glance at the `reviewed by` line: Claude Code subagents can only use Claude models (opus, sonnet, haiku, fable), and a model from another vendor falls back to the current session's model ([Claude Code adapter notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L35-L36)), so in Claude Code this step can't be a true cross-vendor review. To turn the TSV into a table in the terminal:
 
 ```bash
 column -s$'\t' -t decisions.tsv
@@ -515,9 +514,9 @@ I approve only the items that would change a future decision. After a while, I r
 - **Editing a skill mid-task**: do it in its own PR.
 - **A rule from one conversation**: approve only `/reflect` items that would change a future decision.
 - **Letting the AI read every project's transcripts**: only let `/automate-me` and `/reflect` read this project's conversations.
-- **A cross-family review that isn't**: check `reviewed by` in Attention.
+- **A cross-vendor review that isn't**: check `reviewed by` in Attention; in Claude Code, the reviewer is still a Claude model.
 - **No spending cap**: add `--max-budget-usd` to `claude -p`, and set your plan's spend limit.
-- **Versions**: all of this follows pstack `0.15.36`'s docs, and later versions may work differently.
+- **Versions**: all of this follows pstack `0.15.43`'s docs, and later versions may work differently.
 
 ## Conclusion
 

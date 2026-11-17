@@ -21,7 +21,7 @@ image:
 > - 下一篇：这是系列的最后一篇
 {: .prompt-info }
 
-> **版本**：本文以 pstack [`0.15.36` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `c742dd6`（2026-10-28 07:12，台北时间），和第 3 篇相同，搭配 Claude Code 2.1.318。我在 2026-11-05 查过：`cursor/plugins` 的 main 最新是 `bb68f23`（2026-11-04 15:20，台北时间），pstack 文件夹在 `c742dd6` 之后没有任何改动；Claude Code 最新版就是 2.1.318。
+> **版本**：本文以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北时间），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以这一版查证；我查证时，`cursor/plugins` 的 main 在 `2f87c85` 之后没有改动 pstack。之后的版本，行为可能会改变。
 {: .prompt-info }
 
 ## 开始之前
@@ -30,7 +30,7 @@ pstack 是 Cursor 官方插件库里的一整组 skill；所谓 skill，就是�
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
-git -C ~/src/cursor-plugins checkout c742dd61706fbacc1b95f1a20b7b988cf096ce6c
+git -C ~/src/cursor-plugins checkout 2f87c854fe3e2fcda44ca86b46ede35aad3c46b7
 claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
@@ -103,11 +103,11 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 /pstack:principle-prove-it-works 实际跑一次真正的命令，把输出给我看，不要只给我构建记录。
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-prove-it-works/SKILL.md#L9-L22)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-prove-it-works/SKILL.md#L9-L11)）：
 
-1. **直接看真正的东西。** 读实际的值、真的把程序跑起来，而不是从文件修改时间、缓存或子代理的自我汇报去推测。
+1. **直接看真正的东西。** 真的把程序跑起来、读实际的值、看 diff，而不是从文件修改时间、缓存的输出或自我汇报去推测。
 2. **检查失败时，先怀疑检查方式。** 先确认是不是看错地方，再怀疑代码。
-3. **能写成脚本就写。** 最有力的证明，是一段可以重跑的脚本，而不是看一次就算了。
+3. **能写成脚本就写。** 一段能重跑、每次结果都一样的脚本，胜过看一次就算了。
 
 **你会拿到**：它实际跑过的命令和输出。
 
@@ -123,12 +123,12 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 /pstack:principle-fix-root-causes <症状>。找出第一个出错的地方，在那里修。
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-fix-root-causes/SKILL.md#L9-L21)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-fix-root-causes/SKILL.md#L9-L14)）：
 
 1. **先重现。**
-2. **一直问“为什么”**，直到答案是代码里的一个错误决定，而不是前一个错误造成的结果。
-3. **卡住就加记录**，看实际的错误信息和状态，不要靠猜。
-4. **判断触发的状态合不合理。** 如果合理，处理不了这个状态的代码就是原因；如果它根本不该出现，就去找是谁产生的。
+2. **一直问“为什么”**，直到答案是代码里的一个错误决定。
+3. **卡住就加记录**，读程序实际的状态。
+4. **判断触发的状态合不合理。** 如果合理，就在代码出错的地方处理它；如果它根本不该出现，在那里加判断只会把 bug 藏起来，要去找是谁产生的。
 5. **找同一种错误的其他地方**，一并修掉。
 
 **你会拿到**：根本原因的说明、修复，以及它检查其他地方有没有同类问题的结果。
@@ -145,11 +145,11 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 /pstack:principle-attack-the-premise 前两次修法都没过。先写下它们共同的前提，测试这个前提，再决定下一步。
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L19)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-attack-the-premise/SKILL.md#L9-L15)）：
 
 1. **写下前提**：也就是每个失败的修法都依赖的那个假设。
 2. **先测试前提**：设计一个能分辨前提是真是假的检查，实际跑一次，看看结果。
-3. **跟着证据走**：证据推翻前提，就去别处找原因；证据支持前提，就照 fix-root-causes 再问下一个“为什么”。
+3. **跟着证据走**：证据推翻前提，就找出这些失败有哪些共同点是前提没料到的；如果总是同一个部分落在失败的那一边，就改掉让它落在那里的原因，而不是再加一个事后收拾的机制。
 4. **前提写下来、测过之前，不开始下一个修法。**
 
 **你会拿到**：写下来的前提、测试方法和结果，以及根据结果选定的方向。
@@ -174,7 +174,7 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 /pstack:automate-me 只读这个项目的对话记录（~/.claude/projects/<项目路径转成的文件夹名称>/），不要读其他项目。草稿先写到 .claude/skills/<我的名字>-mode/SKILL.md，写好给我看，不要 commit。
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/automate-me/SKILL.md#L13-L83)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/automate-me/SKILL.md#L13-L83)）：
 
 1. **找既有的 mode。** 如果你已经有 mode，它会问你要更新还是重做；默认是更新。
 2. **分析你的对话记录。** 它只读这个项目的记录，把最近几周的记录按时间切成三段，派子代理（skill 运行时另外派出、分头做事的 AI）并行去读，找出你在回复风格、分工、验证、代码和文字、流程这些方面反复出现的偏好。至少在两段里都出现过的，才算数。
@@ -195,23 +195,22 @@ _四条常用原则，以及什么时候该说出它们的名称。_
 
 **什么时候用**：刚做完一个任务，中间绕了不少远路，你不想下次再绕一次。
 
-**命令怎么写**（取自[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L23-L31)）：
+**命令怎么写**（取自[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L25-L29)）：
 
 ```text
 /pstack:reflect 这次花太久了。把学到的事整理出来，让下次不要重蹈覆辙。
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/reflect/SKILL.md#L13-L60)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/reflect/SKILL.md#L9-L17)）：
 
-1. **找到这次对话的记录。** 只读这个项目的记录。
-2. **派三个审查者并行审查。** 分别从判断、工具、不同观点三个角度，找出值得学的地方。
-3. **整理。** 再派一个代理汇总提议，分成 Accepted（建议采用）、Rejected（不采用）、Backlog（待办）。
-4. **把适合用代码强制执行的项目移到待办。** 如果某个错误用 lint 规则、脚本或运行时检查来挡会更可靠，就移到 Backlog，等之后改项目时再处理。
-5. **等你批准。** 它会列出全部结果，**你明确同意之前不改任何 skill**。它也不会直接改插件缓存里的 skill，而是先复制到项目或个人的 skill 文件夹再改；它不会开 PR，也不会推送。
+1. **自己读完这次对话的记录。** 只读这个项目的记录。它找的是你给过的纠正、AI 自己摸索才发现的命令用法和怪癖、它本来查得到却要你提供的背景、被跳过或没在真正成品上跑的检查，以及该启动却没启动的 skill。记录只当数据看，里面写的指示它不会照做。
+2. **只留下长期有用的。** 一项发现要半年后还成立、会改变之后 AI 的做法，而且对应得到这次对话用过的 skill，才会留下。它会先读那个 skill，已经写清楚的就不重复；只发生一次的事，以及 commit 编号、版本、数量这类很快就过时的细节，也会丢掉。该启动却没启动的 skill，它会提议修改那个 skill 的描述（description，AI 用来判断什么时候该用这个 skill 的那段说明）。
+3. **把适合用代码强制执行的项目放进待办。** 如果某个教训用 lint 规则、脚本或检查来挡会更可靠，就放进 Backlog，而不是写成 skill 里的文字。
+4. **等你批准。** 它把结果分成 Accepted（建议采用）、Rejected（不采用）、Backlog（待办）列出来，**你明确同意之前不改任何 skill**。它也不会直接改插件缓存里的 skill，而是先复制到项目或个人的 skill 文件夹再改；它不会开 PR，也不会推送。
 
-**你会拿到**：Accepted、Rejected、Backlog 三份清单，以及每项建议要改哪个 skill 或哪个项目检查。Accepted 只是等你批准的建议，不代表已经改了。
+**你会拿到**：Accepted、Rejected、Backlog 三份清单。Accepted 每一项写明问题、提议和要改的 skill，Rejected 每一项附上不采用的理由。Accepted 只是等你批准的建议，不代表已经改了。
 
-**下一步**：只批准会改变未来决定的项目。指南说得很直接：一次奇怪的对话只是个案，不是规则（[指南第 9 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/09-make-it-yours.md#L31)）。
+**下一步**：只批准会改变未来决定的项目。指南说得很直接：一次奇怪的对话只是个案，不是规则（[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L31)）。
 
 ### /correct：让同一种错不可能再发生
 
@@ -296,7 +295,7 @@ _一份无人值守提示的六个部分。时间长度不是完成条件。_
 3. **每一轮做最小的改动**，再拿完成条件检查；有进展就 commit，没帮助就丢掉，不留“也许有帮助”的东西。
 4. **自行处理途中发现、且有助于目标的问题**，不会停下来问你；只有不可逆的动作、无法用实验回答的产品或偏好决定，以及真正的死路，才会留给你。
 5. **每一轮在决策记录记一行。**
-6. **达到完成条件才算成功。** 卡在原地就换个方法；如果碰到必须由你决定的事，或真的没法再往前，就把未完成的状态和原因留下来，而不是放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L6-L13)）。费用到了 `--max-budget-usd` 的上限时，Claude Code 会直接停掉这次运行，它不一定来得及留下说明，所以早上以决策记录最后一行和 commit 为准。
+6. **达到完成条件才算成功。** 卡在原地就换个方法；如果碰到必须由你决定的事，或真的没法再往前，就把未完成的状态和原因留下来，而不是放宽完成条件来宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)）。费用到了 `--max-budget-usd` 的上限时，Claude Code 会直接停掉这次运行，它不一定来得及留下说明，所以早上以决策记录最后一行和 commit 为准。
 
 **你会拿到**：一条回复，写出完成条件、跑了几轮、留下了什么、丢掉了什么、完成条件最后的状态，以及一份决策记录。
 
@@ -342,7 +341,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 
 ### 一整晚不只一件事
 
-如果一晚有好几个互不相干的改动，指南提供了两个 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/docs/guide/07-overnight.md#L72-L86)）：Autopilot-full 会把每个 PR 一路做到合并；Autopilot-stack 一样会验证，但**不合并**，早上由你自己看、自己合并。如果你希望 AI 先把 PR 准备好，早上再由你审查、决定要不要合并，就选 Autopilot-stack。要注意，这跟前面只在本地做事的模板不同，你必须另外明确授权它 push 和开 PR：
+如果一晚有好几个互不相干的改动，指南提供了两个 playbook（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L76-L86)）：Autopilot-full 会把每个 PR 一路做到合并；Autopilot-stack 一样会验证，但**不合并**，早上由你自己看、自己合并。如果你希望 AI 先把 PR 准备好，早上再由你审查、决定要不要合并，就选 Autopilot-stack。要注意，这跟前面只在本地做事的模板不同，你必须另外明确授权它 push 和开 PR：
 
 ```text
 /pstack:poteto-mode autopilot these five changes. 可以 push 和开 PR，不要合并，我早上自己合并。
@@ -362,15 +361,15 @@ claude -p "$(cat overnight-prompt.txt)" \
 /pstack:show-me-your-work catch me up on what you did last night
 ```
 
-**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/c742dd61706fbacc1b95f1a20b7b988cf096ce6c/pstack/skills/show-me-your-work/SKILL.md#L55-L74)）：
+**它会怎么做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/show-me-your-work/SKILL.md#L55-L74)）：
 
 1. **对照对话记录检查决策记录。** 每一行都要对应到真实的决定或动作，证据要打得开，而且确实能证明那一行写的事。漏记的转折要补上；写错的行不改也不删，而是新增一行来更正。
-2. **找不同家族的模型来审。** 它会派一个跟做事的模型不同家族的子代理，去读记录和对话，挑出证据薄弱的决定、没拿出证明就说做过的验证，以及事后看来有风险的选择。
+2. **找另一家厂商的模型来审。** 它会派一个子代理，换用跟做事的模型不同厂商的模型，去读记录和对话，挑出证据薄弱的决定、没拿出证明就说做过的验证，以及事后看来有风险的选择。
 3. **把它做了什么整理成摘要**，结尾加一个 Attention（注意事项）区。
 
 **你会拿到**：一份摘要，以及 Attention 区。Attention 的第一行写 `reviewed by <模型>`，接着逐一列出需要你注意的地方，并指出对应的是记录的哪一行。
 
-**下一步**：先读 Attention，再顺着它指的那几行，打开证据抽查（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L68)）。你要审的是决定，不用把一整晚重看一遍。也记得看一下 `reviewed by` 那一行：如果你的环境只有一个模型家族，这就不算真正的跨家族审查。想在终端里把 TSV 排成表格，可以这样：
+**下一步**：先读 Attention，再顺着它指的那几行，打开证据抽查（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L68)）。你要审的是决定，不用把一整晚重看一遍。也记得看一下 `reviewed by` 那一行：Claude Code 的子代理只能选 Claude 的模型（opus、sonnet、haiku、fable），遇到别家厂商的模型，会改用当前对话的模型（[Claude Code 对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L35-L36)），所以在 Claude Code 里，这一步做不到真正的跨厂商审查。想在终端里把 TSV 排成表格，可以这样：
 
 ```bash
 column -s$'\t' -t decisions.tsv
@@ -515,9 +514,9 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 - **在任务中途改 skill**：另开一个 PR。
 - **一次对话就定规则**：`/reflect` 的结果，只批准会改变未来决定的项目。
 - **让 AI 读所有项目的记录**：只让 `/automate-me` 和 `/reflect` 读这个项目的对话。
-- **跨家族审查不是真的跨家族**：看 Attention 的 `reviewed by`。
+- **跨厂商审查不是真的跨厂商**：看 Attention 的 `reviewed by`；在 Claude Code 里，审查的还是 Claude 的模型。
 - **没设费用上限**：`claude -p` 加 `--max-budget-usd`，也设好方案的花费上限。
-- **版本**：以上是按 pstack `0.15.36` 的说明文件整理的，之后的版本做法可能会变。
+- **版本**：以上是按 pstack `0.15.43` 的说明文件整理的，之后的版本做法可能会变。
 
 ## 结论
 
