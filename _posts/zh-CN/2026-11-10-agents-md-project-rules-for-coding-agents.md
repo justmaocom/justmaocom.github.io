@@ -16,11 +16,11 @@ image:
 
 AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上层都会放的说明文件，告诉第一次来的人“这是什么、怎么开始”；AGENTS.md 则是把类似的事写给 AI 助手看。它用 Markdown 来写（一种纯文本格式，用 `#` 标出标题、用 `-` 列出清单，扩展名是 `.md`），没有必填字段，标题也可以自己取。这个格式由 Linux Foundation 旗下的 [Agentic AI Foundation](https://agents.md/) 维护。
 
-这篇文章只谈怎么写这份文件，以及 [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) 和 [Claude Code](https://code.claude.com/docs/en/memory#agents-md) 的官方文档分别怎么说它们会读哪些文件。我不会写成“所有工具都一样”，也不会列出其他还没查证的产品。
+这篇文章我只谈怎么写这份文件，以及 [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) 和 [Claude Code](https://code.claude.com/docs/en/memory#agents-md) 的官方文档分别怎么说它们会读哪些文件。我不会写成“所有工具都一样”，也不会列出其他还没查证的产品。
 
-如果你想用一套 skill（打包好的做事流程，助手用到时才加载）帮项目生成规则，请看 [mattpocock/skills 系列（1）：先设置项目规则，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)。那一篇讲的是那套 skill 的流程；本文讲的是文件格式本身，以及这两个工具实际怎么读。
+如果你想用一套 skill（打包好的做事流程，助手用到时才加载）帮项目生成规则，可以看我写的 [mattpocock/skills 系列（1）：先设置项目规则，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)。那一篇讲的是那套 skill 的流程；这篇我讲的是文件格式本身，以及这两个工具实际怎么读。
 
-> **版本说明**：本文依据 2026-11-10（台北时间）读取的 [Codex AGENTS.md 说明](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 记忆与 CLAUDE.md 说明](https://code.claude.com/docs/en/memory)（含 [AGENTS.md 段落](https://code.claude.com/docs/en/memory#agents-md)），以及 [AGENTS.md 格式官网](https://agents.md/)。当天 npm 上最新的 Codex CLI 是 0.167.0，Claude Code 是 2.1.322。之后的版本或文档可能会改变读取规则。
+> **版本说明**：我写这篇时，参考的是 2026-11-10（台北时间）当天的 [Codex AGENTS.md 说明](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 记忆与 CLAUDE.md 说明](https://code.claude.com/docs/en/memory)（含 [AGENTS.md 段落](https://code.claude.com/docs/en/memory#agents-md)），以及 [AGENTS.md 格式官网](https://agents.md/)。当天 npm 上最新的 Codex CLI 是 0.167.0，Claude Code 是 2.1.322。之后的版本或文档可能会改变读取规则。
 {: .prompt-info }
 
 ## 开始之前：先认识几个词
@@ -37,13 +37,13 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 
 ## 什么时候该写 AGENTS.md
 
-这些情况，就适合把规则写进 AGENTS.md：
+在我看来，这些情况就适合把规则写进 AGENTS.md：
 
 - 同一件事，你已经对助手提醒第二次了。
 - 它一直跑错测试命令，例如该用 `pnpm test`，却一再执行 `npm test`。
 - 这件事新同事也需要知道，或下次再打开这个 repo 的人也用得上。
 
-不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），参见[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
+我认为不适合塞进这份文件的，主要有两种。一种是只跟某一小块区域有关、而且很长的流程：那种内容比较适合放到该子目录较短的规则里，或写成用到才加载的 skill。另一种是“一定得做到”的事。[Claude Code 的文档](https://code.claude.com/docs/en/memory)写得很清楚：这些说明是 context（塞进对话里给模型看的上下文），不是强制配置；模型会参考它，但最后怎么做仍由模型判断。要在固定时机拦住某个动作，请使用 hook（在固定时机由工具自动运行的命令），用法参见我写的[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
 **什么时候用：** 项目规则会反复讲，也会给之后进来的人看。
 
@@ -53,9 +53,9 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 
 ## 该写哪些段落
 
-写法要具体、可以核对。官方举的对比很清楚：“使用 2 个空格缩进”比“排版好一点”有用；“提交 PR 前运行 `npm test`”也比“记得测试”清楚。判断方法很简单：别人看完这句话，如果没办法检查有没有做到，就再写具体一点。
+写法要具体、可以核对。官方举的对比很清楚：“使用 2 个空格缩进”比“排版好一点”有用；“提交 PR 前运行 `npm test`”也比“记得测试”清楚。我用的判断方法很简单：别人看完这句话，如果没办法检查有没有做到，就再写具体一点。
 
-建议至少写这几类：
+我建议至少写这几类：
 
 - 安装与测试命令
 - 代码风格
@@ -64,7 +64,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 
 保持精简。Claude Code 建议[每份文件控制在 200 行以内](https://code.claude.com/docs/en/memory#write-effective-instructions)，太长会占用更多上下文，也比较不容易被遵守。Codex 则把各层规则加总，[默认上限是 32 KiB](https://learn.chatgpt.com/docs/agent-configuration/agents-md)（配置项是 `project_doc_max_bytes`），超出的部分不会读进去。32 KiB 是 32,768 个字节（byte）：英文字母一个约占 1 byte，汉字在常见的 UTF-8 编码下一个约占 3 bytes，所以全中文大约是一万字出头。重要的句子放在前面。
 
-下面是一份可直接放到根目录的模板，大约二十多行，请按你的项目改命令和路径：
+下面是我写的一份模板，可直接放到根目录，大约二十多行，请按你的项目改命令和路径：
 
 ```markdown
 # AGENTS.md
@@ -96,7 +96,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 - 说明里写测试怎么跑、跑过哪些
 ```
 
-模板里的 `pnpm install`、`pnpm test`、`pnpm lint` 只是示范用的命令。如果你不确定自己的项目用什么，可以先看项目原有的 README，或问负责的工程师；没把握的段落宁可先不写，也不要写错。
+模板里的 `pnpm install`、`pnpm test`、`pnpm lint` 只是示范用的命令。如果你不确定自己的项目用什么，可以先看项目原有的 README，或问负责的工程师；没把握的段落，我宁可先不写，也不要写错。
 
 ### 动手做：创建第一份 AGENTS.md
 
@@ -115,7 +115,7 @@ AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上�
 - 代码里如果直接写入密码或 API 密钥，请标出来
 ```
 
-如果想进一步了解怎么让 AI agent 在 GitHub 上审查 PR，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
+如果想进一步了解怎么让 AI agent 在 GitHub 上审查 PR，我另外写了一篇[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
 ## 放在哪里：Codex 怎么读
 
@@ -126,7 +126,7 @@ Codex 的规则分两种位置：
 - **全局规则**：只属于你自己、应用到你所有项目的偏好，放在 `~/.codex/AGENTS.md`（若你设置了 `CODEX_HOME`，就改到那个目录）。
 - **项目规则**：放在 repo 里、跟着项目走的规则，也就是本文主要在写的那一份。
 
-同一层如果有 `AGENTS.override.md`，Codex 会读这份，而不是原来的 `AGENTS.md`。override（覆盖文件）是暂时换成另一套规则用的；用完请删掉它，不要只是清空后留着。官方的说法是：移除 override，才会回到原来的文件。
+同一层如果有 `AGENTS.override.md`，Codex 会读这份，而不是原来的 `AGENTS.md`。override（覆盖文件）是暂时换成另一套规则用的；我建议用完就删掉它，不要只是清空后留着。官方的说法是：移除 override，才会回到原来的文件。
 
 项目规则则从项目根目录（通常是 Git 根目录）往下，一路走到你的当前工作目录。每一层依次查找 `AGENTS.override.md`、`AGENTS.md`，再查找你配置的 fallback 文件名（备用文件名，后面会说明），而且每层最多收一份。找到的内容由上往下拼在一起，离当前目录越近的越晚出现，效果上会覆盖前面较一般的规则。
 
@@ -158,7 +158,7 @@ project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
 
 Claude Code 自己的项目说明文件叫 CLAUDE.md，作用跟 AGENTS.md 类似。它也可以读取 repo 里的 AGENTS.md，当作项目说明，不必另外再写一份 CLAUDE.md。不过[默认条件](https://code.claude.com/docs/en/memory#agents-md)比较严。
 
-默认是：当前工作目录和它的上层（也就是一路往外、包住它的那些文件夹），都没有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md` 时，才会读取 AGENTS.md（包含 `.claude/AGENTS.md`）。只要其中任一份存在，就只读 CLAUDE 系列文件。简单记：**默认情况下，当前目录或上层只要有 CLAUDE 系列文件，就不读 AGENTS.md。** 个人的 `~/.claude/CLAUDE.md`、组织统一发布的 managed CLAUDE.md，以及 `.claude/rules/` 里的规则，不列入这项判断，不会因此让 AGENTS.md 被跳过。
+默认是：当前工作目录和它的上层（也就是一路往外、包住它的那些文件夹），都没有 `CLAUDE.md`、`.claude/CLAUDE.md` 或 `CLAUDE.local.md` 时，才会读取 AGENTS.md（包含 `.claude/AGENTS.md`）。只要其中任一份存在，就只读 CLAUDE 系列文件。我是这样记的：**默认情况下，当前目录或上层只要有 CLAUDE 系列文件，就不读 AGENTS.md。** 个人的 `~/.claude/CLAUDE.md`、组织统一发布的 managed CLAUDE.md，以及 `.claude/rules/` 里的规则，不列入这项判断，不会因此让 AGENTS.md 被跳过。
 
 这里有一个常见陷阱：你只是想在项目里放自己不会提交的笔记，于是加了 `CLAUDE.local.md`，Claude 就不再读取 AGENTS.md。若要两边都保留，到对话里输入 `/config`（在 Claude Code 对话框输入、以斜杠开头的命令，用来调整设置），把 Project instructions 设成 `claude-md-and-agents-md`。
 
@@ -168,7 +168,7 @@ Claude Code 自己的项目说明文件叫 CLAUDE.md，作用跟 AGENTS.md 类�
 
 直接读取 AGENTS.md 需要 Claude Code v2.1.277 或更新的版本。较旧的版本、停用了负责读取的内置 plugin（插件），或刚从更旧版本升级后的第一个 session（会话：从打开工具到关闭的这一段对话），有可能读不到；这时改用下一节的 import。交互 session 若成功加载，通常会看到类似 `no CLAUDE.md found; AGENTS.md loaded: …` 的提示。
 
-若要改默认行为，在 `/config` 调整 Project instructions，或在用户级别的配置文件 `~/.claude/settings.json` 中写入对应值（放在项目里的配置文件，这一项会被忽略）。不熟悉配置文件的话，用 `/config` 比较不容易出错。四个值的含义如下：
+若要改默认行为，在 `/config` 调整 Project instructions，或在用户级别的配置文件 `~/.claude/settings.json` 中写入对应值（放在项目里的配置文件，这一项会被忽略）。不熟悉配置文件的话，我建议用 `/config`，比较不容易出错。四个值的含义如下：
 
 | 值 | Claude 会读什么 |
 | --- | --- |
@@ -183,7 +183,7 @@ Claude Code 自己的项目说明文件叫 CLAUDE.md，作用跟 AGENTS.md 类�
 
 ## 一份文件两边共用
 
-若你同时使用两个工具，目标是只维护一份共用规则。关键是 import。
+若你像我一样同时使用两个工具，目标是只维护一份共用规则。我认为关键是 import。
 
 import 在这里的意思是“引用另一份文件”：CLAUDE.md 不必把 AGENTS.md 的内容抄一遍，只要写一行 `@AGENTS.md`，Claude 读取 CLAUDE.md 时，就会把 AGENTS.md 的内容展开，当成 CLAUDE.md 的一部分一并读取。它不是复制一份贴过去，所以你只需要维护 AGENTS.md 这一份。
 
@@ -212,11 +212,11 @@ _概念图，不是实际界面。左边的助手代表 Codex，直接读取蓝�
 ln -s AGENTS.md CLAUDE.md
 ```
 
-成功时这条命令不会打印内容。不过，只要团队里有人使用 Windows，就改用上面的 import。官方说明：在 Windows 创建 symlink 需要管理员权限或开发人员模式；Git 若未启用 `core.symlinks`，checkout 时可能把它变成只有一行文字的普通文件，规则就读不到了。
+成功时这条命令不会打印内容。不过，只要团队里有人使用 Windows，我就会改用上面的 import。官方说明：在 Windows 创建 symlink 需要管理员权限或开发人员模式；Git 若未启用 `core.symlinks`，checkout 时可能把它变成只有一行文字的普通文件，规则就读不到了。
 
-不要只用一句“请去读 AGENTS.md”代替 import。官方说，那样写的话，Claude 只有自己决定打开那份文件时才看得到内容。
+我不建议只用一句“请去读 AGENTS.md”代替 import。官方说，那样写的话，Claude 只有自己决定打开那份文件时才看得到内容。
 
-也不建议把 `/import`（Claude Code 对话里的另一个命令，名称相近，作用不同）当成长期做法。官方的用词是：它会把 AGENTS.md 这类说明“一次性复制”（appends a one-time copy）到对应的 CLAUDE.md。之后你改 AGENTS.md，复制过去的那份不会自动跟着改。
+我也不建议把 `/import`（Claude Code 对话里的另一个命令，名称相近，作用不同）当成长期做法。官方的用词是：它会把 AGENTS.md 这类说明“一次性复制”（appends a one-time copy）到对应的 CLAUDE.md。之后你改 AGENTS.md，复制过去的那份不会自动跟着改。
 
 **你会得到：** 共用规则只维护一份；Claude 专用的句子单独放在 CLAUDE.md 下半部分。
 
@@ -224,7 +224,7 @@ ln -s AGENTS.md CLAUDE.md
 
 ## 怎么确认有读到
 
-改完文件之后，不要假设工具已经看到新内容。
+改完文件之后，我不会假设工具已经看到新内容。
 
 Codex 请重新启动，再按[官方建议](https://learn.chatgpt.com/docs/agent-configuration/agents-md#verify-your-setup)，在终端切换到项目根目录后执行：
 
@@ -246,7 +246,7 @@ codex --cd services/payments --ask-for-approval never "Show which instruction fi
 
 Claude Code 可在对话里输入 `/memory`，看列表里有没有你的文件；也可输入 `/context all`，在 Memory files 下面确认（v2.1.280 之前的版本，这里不会列出直接读入的 AGENTS.md）。若是直接读取 AGENTS.md 的交互 session，也会出现前面提过的 `AGENTS.md loaded` 提示。
 
-如果没读到，先回头检查三件事：文件名和位置对不对、Codex 有没有重新启动、Claude Code 的当前目录或上层是不是已经有 CLAUDE 系列文件（有的话，改用 import 或调整设置）。
+如果没读到，我会先回头检查三件事：文件名和位置对不对、Codex 有没有重新启动、Claude Code 的当前目录或上层是不是已经有 CLAUDE 系列文件（有的话，改用 import 或调整设置）。
 
 ## 实际场景：前端加支付服务
 
@@ -266,7 +266,7 @@ my-project/              ← 根目录
 - `services/payments/AGENTS.md`：只写支付服务自己的测试命令，例如改跑 `make test-payments`
 - 根目录 `CLAUDE.md`：第一行 `@AGENTS.md`，下面再加一条 Claude 专用规则，例如变更支付相关代码前先使用 plan mode
 
-`services/payments/AGENTS.md` 可以很短，只写跟根目录不同的部分：
+`services/payments/AGENTS.md` 我会写得很短，只写跟根目录不同的部分：
 
 ```markdown
 # AGENTS.md（支付服务）
@@ -280,7 +280,7 @@ my-project/              ← 根目录
 
 从根目录启动 Claude Code 时，因为已经有 CLAUDE.md，[默认只读 CLAUDE 系列文件](https://code.claude.com/docs/en/memory#agents-md)；根目录的 AGENTS.md 是靠 `@AGENTS.md` 这行 import 带进来的。接着，若它用 Read 打开 `services/payments/` 里的某个文件：官方把“读取子目录 AGENTS.md”写在“当前目录和上层都没有会占用判断的 CLAUDE 系列文件”这个前提下，而且该子目录自己也不能有那三种 CLAUDE 文件。根目录已经有 CLAUDE.md，所以默认不会直接读取 `services/payments/AGENTS.md`。
 
-若支付服务的规则也要让 Claude 看到，可在 `services/payments/` 再放一份以 `@AGENTS.md` 开头的 `CLAUDE.md`。因为 import 的路径以 CLAUDE.md 所在位置为准，这一行指的是同一个文件夹里的 `services/payments/AGENTS.md`，不是根目录那份。[子目录的 CLAUDE.md](https://code.claude.com/docs/en/memory#how-claude-md-files-load) 会在 Claude 读取、写入或编辑该目录中的文件时加载。另一个做法是把 Project instructions 设成 `claude-md-and-agents-md`，让两种文件一起读。
+若支付服务的规则也要让 Claude 看到，我会在 `services/payments/` 再放一份以 `@AGENTS.md` 开头的 `CLAUDE.md`。因为 import 的路径以 CLAUDE.md 所在位置为准，这一行指的是同一个文件夹里的 `services/payments/AGENTS.md`，不是根目录那份。[子目录的 CLAUDE.md](https://code.claude.com/docs/en/memory#how-claude-md-files-load) 会在 Claude 读取、写入或编辑该目录中的文件时加载。另一个做法是把 Project instructions 设成 `claude-md-and-agents-md`，让两种文件一起读。
 
 ## 什么情况用哪个文件
 
@@ -306,6 +306,6 @@ my-project/              ← 根目录
 
 ## 结论与下一步
 
-今天就可以按“动手做”的步骤，在根目录放一份 30 行以内的 AGENTS.md，写上真正会用到的安装、测试和注意事项。若还需要 Claude 专用补充，再加一份以 `@AGENTS.md` 开头的 CLAUDE.md。改完后用上面的命令或 `/memory` 确认有读到。
+我建议今天就按“动手做”的步骤，在根目录放一份 30 行以内的 AGENTS.md，写上真正会用到的安装、测试和注意事项。若还需要 Claude 专用补充，再加一份以 `@AGENTS.md` 开头的 CLAUDE.md。改完后用上面的命令或 `/memory` 确认有读到。
 
-若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/posts/claude-code-hooks-automate-checks/)。完整的架构说明这类长篇内容不适合放进 AGENTS.md；把它整理成 repo 内的 wiki、再由 AGENTS.md 指过去的做法，见 [OpenWiki 追得到代码变更，却证明不了文档正确](/posts/openwiki-agent-docs-maintenance/)。
+若要进一步了解“写给助手看的每一行都有成本”，请看 [mattpocock/skills 系列（6）：查资料、做交接、学新东西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。官方说明则见 [Codex 的 AGENTS.md 文档](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的记忆说明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官网](https://agents.md/)。要把规则变成固定时机执行的检查，参见[hooks 篇](/posts/claude-code-hooks-automate-checks/)。完整的架构说明这类长篇内容，我认为不适合放进 AGENTS.md；把它整理成 repo 内的 wiki、再由 AGENTS.md 指过去的做法，我在 [OpenWiki 追得到代码变更，却证明不了文档正确](/posts/openwiki-agent-docs-maintenance/)里谈过。

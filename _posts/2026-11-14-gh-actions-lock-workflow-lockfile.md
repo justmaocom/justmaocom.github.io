@@ -12,7 +12,7 @@ image:
 
 workflow 裡的 `uses: actions/checkout@v7` 看起來只是選了第 7 版，實際上跑的是 `v7` 標籤當下指向的 commit。上游移動標籤後，你的 workflow 沒改，執行的程式碼卻可能跟著變。
 
-GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把支援範圍內的 action 解析成確切的 commit，記在 `.github/workflows/actions.lock`，納入管理的 workflow 就會依這份記錄執行。你可以保留好讀的版本號，同時把真正要跑的程式碼放進審查流程；不過，產生 lockfile 本身不代表已完成安全審查。
+GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把支援範圍內的 action 解析成確切的 commit，記在 `.github/workflows/actions.lock`，納入管理的 workflow 就會依這份記錄執行。你可以保留好讀的版本號，同時把真正要跑的程式碼放進審查流程；不過我要先提醒，產生 lockfile 本身不代表已完成安全審查。
 
 先認識幾個詞：
 
@@ -26,9 +26,9 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把
 - **Dependabot**：GitHub 內建的機器人，發現依賴有新版本時，會自動開 PR（請求合併變更的申請）幫你更新。
 - **gh**：GitHub 官方的命令列工具（GitHub CLI）。`gh actions-lock` 是替它加上的擴充功能（extension）。
 
-這篇處理的是「別人寫的 action 被換掉」這種供應鏈風險。[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)在 ASI04（供應鏈）簡短提到可以用 lockfile 鎖住第三方 action，這篇把完整做法寫出來。
+這篇我要處理的是「別人寫的 action 被換掉」這種供應鏈風險。我在[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的 ASI04（供應鏈）簡短提過可以用 lockfile 鎖住第三方 action，這篇我把完整做法寫出來。我沒有實際執行上鎖操作，步驟都是依 GitHub 官方資料整理的。
 
-> **版本說明**：本文依 2026-11-13 讀取的 GitHub 官方資料撰寫：[GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)、[Locking action dependencies in a repository's workflows](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)、[Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，以及 [gh-actions-lock v0.4.1 的 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)與[疑難排解文件](https://github.com/github/gh-actions-lock/blob/v0.4.1/docs/troubleshooting.md)。本文未實際執行上鎖操作；工具持續更新，指令與選項請對照已安裝版本的 `gh actions-lock --help`。
+> **版本說明**：我寫這篇時，參考的是 2026-11-13 當天的 GitHub 官方資料：[GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)、[Locking action dependencies in a repository's workflows](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)、[Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，以及 [gh-actions-lock v0.4.1 的 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)與[疑難排解文件](https://github.com/github/gh-actions-lock/blob/v0.4.1/docs/troubleshooting.md)。我沒有實際執行上鎖操作；工具持續更新，指令與選項請對照已安裝版本的 `gh actions-lock --help`。
 {: .prompt-info }
 
 ## 為什麼 `@v3` 不一定是你審過的那一版
@@ -37,14 +37,14 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把
 
 這種事真的發生過。2025 年 3 月，很多 repo 都在用的 `tj-actions/changed-files` 就出過事。依 [GitHub 安全公告](https://github.com/advisories/GHSA-mrrh-fwg8-r2c3)，攻擊者回頭修改了多個既有的版本標籤，讓它們都指向同一個惡意 commit；這段程式會把 CI 裡的機密資料（例如 token、金鑰）印進 workflow 的執行紀錄（log）。公告寫的受影響期間是 2025 年 3 月 14 日到 15 日，使用這個 action 的 repo 超過 23,000 個。美國 CISA 也為這起事件（CVE-2025-30066）發了[警示](https://www.cisa.gov/news-events/alerts/2025/03/18/supply-chain-compromise-third-party-tj-actionschanged-files-cve-2025-30066-and-reviewdogaction)。
 
-以往常見的做法，是把 action 直接釘到完整的 commit SHA。本站的部署 workflow 就是這樣寫：
+以往常見的做法，是把 action 直接釘到完整的 commit SHA。我這個網站的部署 workflow 就是這樣寫：
 
 ```yaml
 - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 ```
 {: .nolineno }
 
-完整 SHA 可以避免跟著移動的 tag 換版，但不保證該 commit 的內容安全。閱讀時也有一個不便：一長串編號看不出是哪一版，只能靠行尾的註解。註解也可能和 SHA 對不上，每次更新都要兩個一起改。workflow lockfile 換了一種做法：workflow 裡繼續寫 `@v7.0.1` 這種好讀的版本號，SHA 另外記在 lockfile 裡。[官方文件](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)寫得很直接：已納入 lockfile 的 action，可以由 lockfile 固定 SHA，不必每一行都直接寫 SHA。但這不表示可以先拿掉既有的 SHA，再慢慢補 lockfile；要等 workflow 納入 lockfile、審查並驗證過，才拿掉 SHA。
+完整 SHA 可以避免跟著移動的 tag 換版，但不保證該 commit 的內容安全。閱讀時也有一個不便：一長串編號看不出是哪一版，只能靠行尾的註解。註解也可能和 SHA 對不上，每次更新都要兩個一起改。workflow lockfile 換了一種做法：workflow 裡繼續寫 `@v7.0.1` 這種好讀的版本號，SHA 另外記在 lockfile 裡。[官方文件](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)寫得很直接：已納入 lockfile 的 action，可以由 lockfile 固定 SHA，不必每一行都直接寫 SHA。但我不認為這表示可以先拿掉既有的 SHA，再慢慢補 lockfile；要等 workflow 納入 lockfile、審查並驗證過，才拿掉 SHA。
 
 ## workflow lockfile 是什麼、怎麼運作
 
@@ -58,7 +58,7 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把
 
 它不只記你直接寫在 `uses:` 的 action。依 [GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)，action 自己再用到的其他 action（遞移依賴）也會一起鎖住。
 
-一個 workflow 被納入 lockfile 之後（官方稱為 onboard，本文叫「上鎖」），依[概念說明](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，執行時有三條規則：
+一個 workflow 被納入 lockfile 之後（官方稱為 onboard，這篇我叫它「上鎖」），依[概念說明](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，執行時有三條規則：
 
 1. 這個 workflow 用到的每個 action，都必須出現在 lockfile 裡。
 2. 執行的是 lockfile 裡記的那個 commit，不是標籤現在指到的 commit。
@@ -69,9 +69,9 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把
 ![沒有 lockfile 時，標籤被移走就跑到被換上的程式；有 lockfile 時，照跑鎖住的那一版](tag-vs-lock.webp){: w="1600" h="900" }
 _概念圖：同一行 `uses: octo-org/deploy-action@v3`。左邊沒有 lockfile，執行時跟著標籤走；右邊有 lockfile，照跑鎖住的 commit，那個 commit 若已不在標籤的歷史裡，這次執行會被擋下。_
 
-**誰可以用：** GA 公告列出的方案是 GitHub Enterprise Cloud（含資料落地版本）、Team 與 Free；不過本文查閱時，操作與政策文件的適用方案欄仍標示 Enterprise Cloud。實際能用哪些功能與政策，以你的 repo 設定為準；尤其不要把「產生得出 lockfile」當成「執行時已套用保護」。擴充功能方面，[v0.4.1 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)列出支援 github.com 與 GHE.com，不支援 GitHub Enterprise Server。
+**誰可以用：** GA 公告列出的方案是 GitHub Enterprise Cloud（含資料落地版本）、Team 與 Free；不過我查閱時，操作與政策文件的適用方案欄仍標示 Enterprise Cloud。實際能用哪些功能與政策，以你的 repo 設定為準；尤其不要把「產生得出 lockfile」當成「執行時已套用保護」。擴充功能方面，[v0.4.1 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)列出支援 github.com 與 GHE.com，不支援 GitHub Enterprise Server。
 
-**要先說清楚：** lockfile 只決定「跑哪一版」，不判斷那一版安不安全。官方提醒，上鎖前要先審過依賴。你鎖住的那一版若本來就有問題，lockfile 會很忠實地一直跑它。
+**我要先說清楚：** lockfile 只決定「跑哪一版」，不判斷那一版安不安全。官方提醒，上鎖前要先審過依賴。你鎖住的那一版若本來就有問題，lockfile 會很忠實地一直跑它。
 
 ## 步驟 0：先準備這些
 
@@ -90,7 +90,7 @@ updates:
 ```
 
 - **檢查每一行 `uses:`：** 確認指向的都是仍在維護的目前版本。lockfile 會把你寫的版本原樣鎖住，舊版本鎖起來還是舊版本。
-- **確認有沒有 action 允許清單：** 有些組織只允許使用特定的 action（allowlist）。上鎖之後比對方式會改變，步驟 3 會說明。
+- **確認有沒有 action 允許清單：** 有些組織只允許使用特定的 action（allowlist）。上鎖之後比對方式會改變，我會在步驟 3 說明。
 
 ## 步驟 1：安裝 gh-actions-lock
 
@@ -99,14 +99,14 @@ gh extension install github/gh-actions-lock
 ```
 {: .nolineno }
 
-這會安裝當下最新的 release；本文依 v0.4.1 的文件撰寫。想固定使用這一版，安裝時加上 `--pin v0.4.1`。要注意它指定的是 release tag，不是完整的 commit SHA，也不代表工具通過了安全審查，工具來源仍要自己確認。沒有加 `--pin` 的一般安裝，之後可以這樣更新：
+這會安裝當下最新的 release；這篇我是依 v0.4.1 的文件寫的。想固定使用這一版，安裝時加上 `--pin v0.4.1`。要注意它指定的是 release tag，不是完整的 commit SHA，也不代表工具通過了安全審查，工具來源仍要自己確認。沒有加 `--pin` 的一般安裝，之後可以這樣更新：
 
 ```bash
 gh extension upgrade gh-actions-lock
 ```
 {: .nolineno }
 
-裝好後先看一次 `gh actions-lock --help`。README 寫，所有選項以這份說明為準。
+裝好後，我會先看一次 `gh actions-lock --help`。README 寫，所有選項以這份說明為準。
 
 ## 步驟 2：產生 lockfile
 
@@ -130,7 +130,7 @@ gh actions-lock .github/workflows/ci.yml
 
 ## 步驟 3：看懂 diff 再提交
 
-執行完後先用 `git status --short` 確認修改與新增的檔案，再用 `git diff -- .github/workflows/` 看已追蹤檔案的變更。**新建、尚未追蹤的 `actions.lock` 不會直接出現在一般 `git diff` 裡**，要開檔檢查，或加入暫存區後用 `git diff --cached` 查看。主要看兩處：
+執行完後，我會先用 `git status --short` 確認修改與新增的檔案，再用 `git diff -- .github/workflows/` 看已追蹤檔案的變更。**新建、尚未追蹤的 `actions.lock` 不會直接出現在一般 `git diff` 裡**，要開檔檢查，或加入暫存區後用 `git diff --cached` 查看。主要看兩處：
 
 **第一處：workflow 檔裡的 `uses:` 寫得更精確。** 例如 `octo-org/deploy-action@v3` 可能被改寫成 `octo-org/deploy-action@v3.1.0`。找得到指向同一個 commit 的完整版本標籤時，工具才會這樣改寫；commit 不變，只是名稱更精確，不會因此升到別的版本。想保留 `@v3` 的寫法，執行時加上 `--no-narrow`。
 
@@ -149,7 +149,7 @@ dependencies:
         repo_id: 7654321
 ```
 
-`version` 是 lockfile 的格式版本，不是擴充功能的版本。`workflows` 列出每個 workflow 用到哪些 action；`dependencies` 記下每個 action 解析到的 commit。審查時看兩件事：
+`version` 是 lockfile 的格式版本，不是擴充功能的版本。`workflows` 列出每個 workflow 用到哪些 action；`dependencies` 記下每個 action 解析到的 commit。審查時我會看兩件事：
 
 - **`commit` 變了：** 代表 workflow 之後會跑不同的程式碼。官方建議把它當成程式碼變更來審，去看上游改了什麼。
 - **`owner_id` 或 `repo_id` 變了：** 這應該很少發生。官方建議先查清楚原因，再合併。
@@ -163,13 +163,13 @@ _概念圖：上方是 workflow 檔的改寫，`@v3` 變成 `@v3.1.0`，指向�
 
 ## 步驟 4：日常維護
 
-上鎖不是做一次就結束。下面幾件事，決定它能不能長期有效。
+上鎖不是做一次就結束。我認為下面幾件事，決定它能不能長期有效。
 
 **改了 `uses:` 就重新執行。** 新增 workflow，或在既有 workflow 增刪 action 時，再跑一次 `gh actions-lock`。不要手動改 lockfile。
 
 **Dependabot 會一起更新。** 已上鎖的 workflow，Dependabot 開版本更新的 PR 時，會在同一個 PR 裡重產對應的 lockfile 紀錄，不需要額外設定。但它只處理已上鎖的 workflow：還沒上鎖的，它照舊只改 workflow 檔，也不會替你把新的 workflow 納入 lockfile。
 
-**讓 CI 檢查 lockfile 有沒有過期。** `gh actions-lock --verify` 只檢查、不改檔案；缺少必要鎖定紀錄或驗證失敗等阻擋性問題，會讓檢查以錯誤結束，適合設成 PR 必須通過的檢查。gh-actions-lock 的 repo 提供了 [`verify-lockfile.yml` 範例](https://github.com/github/gh-actions-lock/blob/v0.4.1/.github/workflows/verify-lockfile.yml)。下面以它為基礎，把擴充功能固定在本文對照的 v0.4.1，適用於 github.com 上一般的 PR 檢查：
+**讓 CI 檢查 lockfile 有沒有過期。** `gh actions-lock --verify` 只檢查、不改檔案；缺少必要鎖定紀錄或驗證失敗等阻擋性問題，會讓檢查以錯誤結束，適合設成 PR 必須通過的檢查。gh-actions-lock 的 repo 提供了 [`verify-lockfile.yml` 範例](https://github.com/github/gh-actions-lock/blob/v0.4.1/.github/workflows/verify-lockfile.yml)。下面這份是我以它為基礎改寫的版本，把擴充功能固定在這篇對照的 v0.4.1，適用於 github.com 上一般的 PR 檢查：
 
 {% raw %}
 ```yaml
@@ -228,7 +228,7 @@ _概念圖：三種參照移動的情況與對應指令。第三種的 `--accept
 
 **`--accept-moved` 接受的是什麼？** 它表示你已檢查上游歷史，願意信任新的 commit，不是讓已無法驗證的舊 commit 繼續過關。歷史被改寫可能是正常維護，也可能是供應鏈攻擊或 lockfile 被誤改；工具無法替你判斷是哪一種，所以會先停下來。這個選項只處理 workflow 自己直接引用的依賴；若問題藏在第三方 composite action 裡，要升級、替換或停止使用該 action，不能靠同一個旗標全部放行。
 
-`--relock` 也會改變要執行的 commit，仍要審查差異。兩個選項都不應被當成「CI 出錯就自動補上」的解法；官方尤其明確要求不要在自動化裡使用 `--accept-moved`。
+`--relock` 也會改變要執行的 commit，仍要審查差異。我認為兩個選項都不應被當成「CI 出錯就自動補上」的解法；官方尤其明確要求不要在自動化裡使用 `--accept-moved`。
 
 **不要刪掉 lockfile。** README 提醒，鎖住的參照會一直沿用；刪掉重產，所有參照都會重新解析成「現在指到的 commit」，等於重新相信一次上游。檔案壞了，先比對工作目錄、暫存區與可信版本之間的差異，把要保留的變更另外存好，再從版本控制還原。下面的 `restore` 會覆蓋工作目錄中的 lockfile，但不會更新暫存區；執行前請確認沒有需要保留的未提交內容：
 
@@ -303,6 +303,6 @@ gh actions-lock
 
 ## 結論與下一步
 
-`@v3` 是一張可以被移走的貼紙。workflow lockfile 讓你保留好讀的版本號，同時把「實際跑哪個 commit」記下來交給 GitHub 把關：先開 Dependabot，執行 `gh actions-lock`，看懂 diff 再提交，然後用 `--verify` 讓 CI 幫你盯著。標籤被移動時，停下來看一眼，不要讓自動化替你按下 `--accept-moved`。
+`@v3` 是一張可以被移走的貼紙。workflow lockfile 讓你保留好讀的版本號，同時把「實際跑哪個 commit」記下來交給 GitHub 把關。我建議照這個順序做：先開 Dependabot，執行 `gh actions-lock`，看懂 diff 再提交，然後用 `--verify` 讓 CI 幫你盯著。標籤被移動時，停下來看一眼，不要讓自動化替你按下 `--accept-moved`。
 
-負責發布的 workflow 特別值得先鎖。照[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)設定後，發布流程不再需要長期 token；但 workflow 跑的 action 若被換掉，一樣能發出有問題的版本。想替同一條 CI 流程加上自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)；更完整的 AI 工作流風險檢查，見 [OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+我認為負責發布的 workflow 特別值得先鎖。照我寫的[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)設定後，發布流程不再需要長期 token；但 workflow 跑的 action 若被換掉，一樣能發出有問題的版本。想替同一條 CI 流程加上自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)；更完整的 AI 工作流風險檢查，我整理在 [OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。

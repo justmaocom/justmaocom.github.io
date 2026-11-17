@@ -10,15 +10,15 @@ image:
   alt: "用 herdr 讓每個 AI 各有一個 pane，一眼看出哪個在等你回答，離開後再接回來。"
 ---
 
-如果你讀過[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)，已經讓兩三個 coding agent 同時做事，下一個麻煩通常是：哪個在等你按「允許」、哪個還在跑，得一個視窗一個視窗切過去才知道；而且終端機一關，或 SSH 連線一斷，做到一半的工作也可能跟著停掉。
+如果你讀過我寫的[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)，已經讓兩三個 coding agent 同時做事，下一個麻煩通常是：哪個在等你按「允許」、哪個還在跑，得一個視窗一個視窗切過去才知道；而且終端機一關，或 SSH 連線一斷，做到一半的工作也可能跟著停掉。
 
 herdr 是在終端機裡管理多個工作區和分割畫面的工具。它把每個 agent 放進自己的分割畫面（pane），並在側欄用不同顏色的圓點標出每個 agent 是在跑、在等你，還是已經做完。就算關掉你看到的畫面，背景的工作也能繼續。官方的說法是「the runtime your coding agents live on」。
 
-這篇講的是終端機裡的 Herdr TUI（[herdr.dev/tui](https://herdr.dev/tui)），不是 herdr.dev 首頁現在主要推廣的另一個程式 Herdr desktop App（[herdr-app](https://github.com/herdrdev/herdr-app)）。兩者是分開的程式，在其中一個啟動的 agent，不會出現在另一個裡。桌面 App 的用法另見[Herdr 桌面 App 入門：用 space 與分頁管理多個 AI](/posts/herdr-app-desktop-manage-ai-agents/)。
+這篇我講的是終端機裡的 Herdr TUI（[herdr.dev/tui](https://herdr.dev/tui)），不是 herdr.dev 首頁現在主要推廣的另一個程式 Herdr desktop App（[herdr-app](https://github.com/herdrdev/herdr-app)）。兩者是分開的程式，在其中一個啟動的 agent，不會出現在另一個裡。桌面 App 的用法，我另外寫在[Herdr 桌面 App 入門：用 space 與分頁管理多個 AI](/posts/herdr-app-desktop-manage-ai-agents/)。
 
-這篇以 macOS 和 Linux 為主，用 Claude Code 與 Codex 當例子（官方還支援其他 agent，見[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)）。Windows 已有原生支援，但有已知限制，細節見[Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/)，本文不教 Windows 安裝。
+這篇我以 macOS 和 Linux 為主，用 Claude Code 與 Codex 當例子（官方還支援其他 agent，見[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)）。Windows 已有原生支援，但有已知限制，細節見[Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/)，Windows 安裝我就不教了。
 
-> **版本說明**：本文依 herdr v0.9.5（2026-10-15 發布，2026-11-12 確認仍是最新穩定版）的官方文件撰寫。herdr 仍是 0.x 版，更新很快，指令與快捷鍵以[官方文件](https://herdr.dev/tui/docs/0.9.5/)為準。
+> **版本說明**：我寫這篇時，參考的是 herdr v0.9.5（2026-10-15 發布，我在 2026-11-12 確認過仍是最新穩定版）的官方文件。herdr 仍是 0.x 版，更新很快，指令與快捷鍵以[官方文件](https://herdr.dev/tui/docs/0.9.5/)為準。
 {: .prompt-info }
 
 ## 先說幾個詞
@@ -32,12 +32,12 @@ herdr 是在終端機裡管理多個工作區和分割畫面的工具。它把�
 - **套件管理器**：像 Homebrew（`brew`）和 mise 這類幫你安裝、升級、移除工具的程式。
 - **coding agent、worktree、分支**：沿用 worktree 篇的說法——agent 會自己改檔、跑指令；worktree 是同一個 repo 裡另一份獨立的工作目錄；分支是 git 裡一條獨立的修改紀錄，每份工作目錄各自停在一條分支上。
 
-以下的指令、快捷鍵、狀態定義和斷線後的行為，都以官方文件為準並附上連結；「建議用 brew 或 mise 安裝」「一個 worktree 配一個 workspace」「先處理 blocked」則是本站的做法，文中會標明。
+以下的指令、快捷鍵、狀態定義和斷線後的行為，我都以官方文件為準並附上連結；「建議用 brew 或 mise 安裝」「一個 worktree 配一個 workspace」「先處理 blocked」則是我的建議，我會在文中標明。
 
 ## 什麼時候用、什麼時候不用
 
-- 同時跑兩個以上的 agent，或常常要離開座位、用 SSH 連遠端機器：值得用。
-- 只跑一個 agent，或已經有順手的安排：不一定要換。
+- 同時跑兩個以上的 agent，或常常要離開座位、用 SSH 連遠端機器：我認為值得用。
+- 只跑一個 agent，或已經有順手的安排：我覺得不一定要換。
 - herdr 不會取代或包住你的 agent。官方 README 寫：「herdr doesn't wrap or replace them; it owns their terminals.」它管的是終端機，agent 還是你原來用的那個。
 
 ## 開始前要準備
@@ -47,7 +47,7 @@ herdr 是在終端機裡管理多個工作區和分割畫面的工具。它把�
 - 一個用 git 管理、至少有過一次 commit 的專案資料夾。步驟 3 開 worktree 時會用到。
 - 已經裝好並登入 Claude Code 或 Codex：在一般終端機輸入 `claude` 或 `codex`，能正常啟動。
 
-裝好 herdr 之後，每一輪的用法就是下圖的五步，分別對應下面的步驟 2 到 6。
+裝好 herdr 之後，我把每一輪的用法整理成下圖的五步，分別對應下面的步驟 2 到 6。
 
 ![herdr 五步：開 herdr、開 worktree、每 pane 跑一個 agent、找 blocked、離開再接回](workflow.webp){: w="1600" h="900" }
 _概念圖：一輪的五個步驟是開 herdr、開工作目錄、跑 agent、找卡住的、離開再接回。prefix 是先按 ctrl+b 放開，再按下一個鍵。_
@@ -59,15 +59,15 @@ _概念圖：左邊是本站建議的做法，用 brew 或 mise 安裝與升級�
 
 我建議已經在用 [Homebrew](https://formulae.brew.sh/formula/herdr) 的人用 `brew install herdr`，已經在用 [mise](https://mise.jdx.dev/) 的人用 `mise use -g herdr`。這兩種都列在官方[Install](https://herdr.dev/tui/docs/0.9.5/install/)頁。
 
-官方 Install／TUI 頁另外提供一行安裝指令 `curl -fsSL https://herdr.dev/install.sh | sh`。我建議不要直接貼上執行，原因有兩個。第一，這樣跑的是伺服器當下回傳、你沒看過的內容，下次執行也可能不一樣。第二，它會裝到 `~/.local/bin`，之後靠 `herdr update` 自己更新，不會出現在套件管理器的清單裡，日後比較難查到裝了什麼、也比較難移除；用 brew 或 mise 裝，版本查得到，升級和移除也都用同一套指令。這不是說安裝腳本有問題，而是出於「先看過再執行」的習慣，原因見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+官方 Install／TUI 頁另外提供一行安裝指令 `curl -fsSL https://herdr.dev/install.sh | sh`。我建議不要直接貼上執行，原因有兩個。第一，這樣跑的是伺服器當下回傳、你沒看過的內容，下次執行也可能不一樣。第二，它會裝到 `~/.local/bin`，之後靠 `herdr update` 自己更新，不會出現在套件管理器的清單裡，日後比較難查到裝了什麼、也比較難移除；用 brew 或 mise 裝，版本查得到，升級和移除也都用同一套指令。這不是說安裝腳本有問題，而是出於我「先看過再執行」的習慣，原因我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)談過。
 
-若一定要用官方腳本，先把它下載成檔案：
+若一定要用官方腳本，我會先把它下載成檔案：
 
 ```bash
 curl -fsSL https://herdr.dev/install.sh -o herdr-install.sh
 ```
 
-用文字編輯器打開看過（也可以在終端機執行 `less herdr-install.sh`，看完按 `q` 離開），確認沒問題再執行 `sh herdr-install.sh`。看不懂腳本在做什麼的話，就改用 brew 或 mise。
+用文字編輯器打開看過（也可以在終端機執行 `less herdr-install.sh`，看完按 `q` 離開），確認沒問題再執行 `sh herdr-install.sh`。看不懂腳本在做什麼的話，我建議改用 brew 或 mise。
 
 用 mise 時若出現 `herdr not found in mise tool registry`，依官方說法，先更新 mise 再試一次（用 brew 裝的 mise 執行 `brew upgrade mise`，其他方式裝的可執行 `mise self-update`）。
 
@@ -86,7 +86,7 @@ herdr 可以全程用滑鼠操作：點一下就能切換 pane、tab、workspace
 
 ## 步驟 3：每個工作目錄一個 workspace
 
-本站的做法是：每個 worktree 配一個 workspace，讓每個 agent 只改自己的那份工作目錄，兩個 agent 不會同時改到同一個檔案，這和 worktree 篇的原則相同。開法有兩種，選一種即可，底層都是 `git worktree`。做完之後怎麼合併、怎麼刪分支，以及為什麼有 submodule 的 repo 不建議用 worktree，請看[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)。
+我建議每個 worktree 配一個 workspace，讓每個 agent 只改自己的那份工作目錄，兩個 agent 不會同時改到同一個檔案，這和 worktree 篇的原則相同。開法有兩種，選一種即可，底層都是 `git worktree`。做完之後怎麼合併、怎麼刪分支，以及為什麼有 submodule 的 repo 不建議用 worktree，請看[git worktree 教學：讓兩個 AI 在同一個 repo 分開工作](/posts/git-worktree-parallel-ai-agents/)。
 
 **做法 A：用 herdr 開。** 在專案的 workspace 裡按 `prefix+shift+g`（側欄的 workspace 那一列也有 `New worktree` 可選），會跳出 new worktree 視窗。分支欄一開始會填好隨機名稱，先按 ctrl+c 清掉，輸入你要的分支名稱（例如 `login-page`），再按 Enter。herdr 會建好 git worktree，並把它開成一個新的 workspace，排在原專案底下；點側欄的名稱就能切換。這個操作等同在專案資料夾內執行：
 
@@ -115,14 +115,14 @@ git worktree add -b login-page ../demo-app-login-page
 
 切到要工作的 workspace，在 pane 裡輸入 `claude` 或 `codex`，就跟在一般終端機啟動一樣。依 Quick start，herdr 會自動認出這是哪個 agent，側欄的 agents 區會多出一列。官方還支援 Cursor Agent CLI、GitHub Copilot CLI、OpenCode 等，完整清單見[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)，這裡不一一列出。
 
-整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。安裝指令是 `herdr integration install claude` 或 `herdr integration install codex`，見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。可用 `herdr integration uninstall claude`（或 `codex`）移除，但 Codex 的 `config.toml` 不會被改回去。hook 是什麼，可參考[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
+整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。安裝指令是 `herdr integration install claude` 或 `herdr integration install codex`，見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。可用 `herdr integration uninstall claude`（或 `codex`）移除，但 Codex 的 `config.toml` 不會被改回去。hook 是什麼，可以參考我寫的[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ## 步驟 5：看狀態，找出卡住的那個
 
 ![herdr 的五種狀態：blocked、working、done、idle、unknown，各代表什麼、你該做什麼](states.webp){: w="1600" h="900" }
 _概念圖：五種狀態的意思，以及本站建議你該做的事。blocked 要先處理；新的提示畫面可能先顯示成 idle，看到 idle 也不代表可以不看內容就按「允許」。圖上的顏色是本站配圖用的，不是 herdr 介面的配色。_
 
-側欄用不同顏色的圓點標出每個 agent 的狀態；同一個 workspace 裡若有 agent 是 blocked，該 workspace 自己的那一列也會換成 blocked 的顏色。側欄只有圓點，要看到寫成文字的狀態名稱（working、blocked、done、idle），得按 `prefix+g` 打開 Go to 清單。官方定義了五種狀態；表格最右欄「你該做什麼」是本站的建議。
+側欄用不同顏色的圓點標出每個 agent 的狀態；同一個 workspace 裡若有 agent 是 blocked，該 workspace 自己的那一列也會換成 blocked 的顏色。側欄只有圓點，要看到寫成文字的狀態名稱（working、blocked、done、idle），得按 `prefix+g` 打開 Go to 清單。官方定義了五種狀態；表格最右欄「你該做什麼」是我的建議。
 
 | 狀態 | 官方定義（白話） | 本站建議你該做什麼 |
 | --- | --- | --- |
@@ -149,7 +149,7 @@ delivery = "herdr"
 
 存檔後執行 `herdr server reload-config`（或按 `prefix+shift+r`），設定就會生效。設成 `herdr`，提示會出現在 herdr 畫面裡；設成 `system`，則改用作業系統的通知。macOS 用 `system` 時會優先透過 terminal-notifier 發通知，官方建議先 `brew install terminal-notifier`，其他選項見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)或[Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/)。
 
-依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意從嚴：herdr 沒見過的新提示畫面，一開始可能顯示成 idle，而不是 blocked；而且「idle status is not authorization to approve an action」，也就是看到 idle，不代表可以直接核准。跳過去之後，要看清楚再按允許。這一點和[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
+依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意從嚴：herdr 沒見過的新提示畫面，一開始可能顯示成 idle，而不是 blocked；而且「idle status is not authorization to approve an action」，也就是看到 idle，不代表可以直接核准。跳過去之後，要看清楚再按允許。這一點和我在[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
 
 ## 步驟 6：離開，再接回來
 
@@ -204,6 +204,6 @@ delivery = "herdr"
 
 ## 結論與下一步
 
-每個 AI 一個 pane，看側欄找 blocked，離開後再接回來。若要在遠端機器上這樣做，見[How to work](https://herdr.dev/tui/docs/0.9.5/how-to-work/)。官方也提供讓 agent 自己操作 herdr 的 skill：`herdr --skill` 會印出與目前版本相符的內容。裝任何第三方 skill 之前，都先讀過內容，原因見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+每個 AI 一個 pane，看側欄找 blocked，離開後再接回來。若要在遠端機器上這樣做，見[How to work](https://herdr.dev/tui/docs/0.9.5/how-to-work/)。官方也提供讓 agent 自己操作 herdr 的 skill：`herdr --skill` 會印出與目前版本相符的內容。我建議裝任何第三方 skill 之前，都先讀過內容，原因見[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 
 延伸閱讀： [herdr README](https://github.com/herdrdev/herdr)、[v0.9.5 release](https://github.com/herdrdev/herdr/releases/tag/v0.9.5)、[文件首頁](https://herdr.dev/tui/docs/0.9.5/)、[Install](https://herdr.dev/tui/docs/0.9.5/install/)、[Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/)、[Concepts](https://herdr.dev/tui/docs/0.9.5/concepts/)、[Keyboard](https://herdr.dev/tui/docs/0.9.5/keyboard/)、[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)、[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)、[Session state](https://herdr.dev/tui/docs/0.9.5/session-state/)、[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)、[Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/)、[Homebrew formula](https://formulae.brew.sh/formula/herdr)。

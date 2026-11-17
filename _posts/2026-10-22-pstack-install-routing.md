@@ -10,9 +10,9 @@ image:
   alt: "教你安裝 pstack、核對版本、用 /setup-pstack 選模型，再把每個任務交給 /poteto-mode。"
 ---
 
-pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill 就有好幾十個。這篇教你第一次怎麼開始：裝好 pstack、確認裝到哪個版本、選好模型，之後每個任務都交給 `/poteto-mode`。不用先背下所有名字。
+pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill 就有好幾十個。這篇我會教你第一次怎麼開始：裝好 pstack、確認裝到哪個版本、選好模型，之後每個任務都交給 `/poteto-mode`。不用先背下所有名字。
 
-先說明幾個名詞。AI 程式助理指的是 Cursor、Claude Code 這類能讀寫專案檔案、替你寫程式的工具。skill 是一份「告訴 AI 怎麼完成某類工作」的操作說明，用斜線指令呼叫，例如 `/poteto-mode`。pstack 是 Lauren Tan 在 Cursor 官方外掛庫 [`cursor/plugins`](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 裡維護的一整組 skill。playbook 是針對一種任務寫好的固定步驟，例如「修 bug」要先重現、再找原因、修完再驗證。subagent 是主對話另外派出去、專門做一小段工作的 AI。token 是 AI 計算用量的單位，讀和寫的內容越多，用掉的 token 越多。
+我先說明幾個名詞。AI 程式助理指的是 Cursor、Claude Code 這類能讀寫專案檔案、替你寫程式的工具。skill 是一份「告訴 AI 怎麼完成某類工作」的操作說明，用斜線指令呼叫，例如 `/poteto-mode`。pstack 是 Lauren Tan 在 Cursor 官方外掛庫 [`cursor/plugins`](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) 裡維護的一整組 skill。playbook 是針對一種任務寫好的固定步驟，例如「修 bug」要先重現、再找原因、修完再驗證。subagent 是主對話另外派出去、專門做一小段工作的 AI。token 是 AI 計算用量的單位，讀和寫的內容越多，用掉的 token 越多。
 
 整個流程只有四步：安裝一次、核對版本、用 `/setup-pstack` 選一次模型，之後每個新任務都用 `/poteto-mode` 開頭，寫清楚目標和「怎樣算完成」，它會自己挑 playbook。不知道該用哪個時，先問 `/poteto-help`。
 
@@ -23,14 +23,14 @@ pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill
 > - 系列導讀：[這套 skill 是什麼、四篇該怎麼讀](/posts/pstack-series-guide/)
 > - 下一篇（第 2 篇）：[改程式之前，先看懂再設計](/posts/pstack-understand-design/)
 >
-> **版本提醒**：本文以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北時間），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以這一版查證；我查證時，`cursor/plugins` 的 main 在 `2f87c85` 之後沒有改動 pstack。Claude Code 的指令和選單，依 2026-10-24 查閱的[官方文件](https://code.claude.com/docs/en/plugins/install)。之後的版本，指令和行為可能會改變。
+> **版本提醒**：這篇我以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北時間），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以這一版查證；我查證時，`cursor/plugins` 的 main 在 `2f87c85` 之後沒有改動 pstack。Claude Code 的指令和選單，依 2026-10-24 查閱的[官方文件](https://code.claude.com/docs/en/plugins/install)。之後的版本，指令和行為可能會改變。
 {: .prompt-info }
 
 ## pstack 裝了什麼
 
 `0.15.43` 版有 58 個 skill，每個 skill 就是一個斜線指令。另外還有 `poteto-agent`、`comment-sicko` 兩個專用的 subagent，以及 `poteto-mode` 底下的 22 個 playbook。
 
-在 Claude Code 裡，外掛的指令前面要加外掛名稱，所以 Cursor 的 `/poteto-mode`，在 Claude Code 裡寫成 `/pstack:poteto-mode`（見 [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)）。下文的範例都用 Claude Code 的寫法；在 Cursor 裡，把 `pstack:` 拿掉就好。兩邊的其他差異，列在官方的 [Claude Code 對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md)。
+在 Claude Code 裡，外掛的指令前面要加外掛名稱，所以 Cursor 的 `/poteto-mode`，在 Claude Code 裡寫成 `/pstack:poteto-mode`（見 [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)）。下文的範例我都用 Claude Code 的寫法；在 Cursor 裡，把 `pstack:` 拿掉就好。兩邊的其他差異，列在官方的 [Claude Code 對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md)。
 
 ![四步：安裝 pstack、核對版本、用 /setup-pstack 選模型、每個任務用 /poteto-mode 開頭](install-setup-flow.webp){: width="800" height="450" }
 _第一次使用的流程：安裝、核對版本、選模型，再從 /poteto-mode 開始。_
@@ -52,22 +52,22 @@ _第一次使用的流程：安裝、核對版本、選模型，再從 /poteto-m
 
 第二行的 `pstack@cursor-plugins` 意思是「從 cursor-plugins 這個目錄安裝 pstack」。依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#install-a-plugin)，在對話裡輸入 `/plugin install` 不會馬上安裝，而是先打開外掛的說明頁，讓你看它會裝哪些東西，再選安裝範圍：選「Install for you」（user scope）就是這台電腦上的所有專案都能用。
 
-> 上面的指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支（branch，repo 裡平常開發用的主線，通常叫 main）上的內容。裝別人的外掛之前該檢查什麼，見[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+> 上面的指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支（branch，repo 裡平常開發用的主線，通常叫 main）上的內容。裝別人的外掛之前該檢查什麼，我在[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)談過。
 {: .prompt-tip }
 
-網路上也有第三方整理的 pstack 鏡像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方維護的版本。要用的話，請先看完內容、鎖定版本，理由同樣見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+網路上也有第三方整理的 pstack 鏡像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方維護的版本。要用的話，我建議先看完內容、鎖定版本，理由同樣見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 第 2 步：檢查版本、更新，或固定版本
 
 ### 看裝到哪個版本
 
-裝好之後，先確認裝到的是哪個版本。依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#install-a-plugin)，在終端機（輸入指令的視窗）執行下面這行，會列出每個外掛的 `Version`、`Scope` 和 `Status`；在對話裡打 `/plugin`，切到 Installed 分頁也看得到。
+裝好之後，我會先確認裝到的是哪個版本。依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#install-a-plugin)，在終端機（輸入指令的視窗）執行下面這行，會列出每個外掛的 `Version`、`Scope` 和 `Status`；在對話裡打 `/plugin`，切到 Installed 分頁也看得到。
 
 ```bash
 claude plugin list
 ```
 
-把看到的版本號和 [`plugin.json`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 對一下，就知道自己是不是和文章用的同一版。
+把看到的版本號和 [`plugin.json`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) 對一下，就知道自己裝的是不是我這篇依據的那一版。
 
 ### 更新：預設不會自動更新
 
@@ -80,18 +80,18 @@ claude plugin list
 claude plugin update pstack@cursor-plugins
 ```
 
-> 更新前，建議先到 `cursor/plugins` 看看 pstack 這次改了什麼，再決定要不要更新。開了自動更新，就等於每次都直接接受新內容。理由見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+> 更新前，我建議先到 `cursor/plugins` 看看 pstack 這次改了什麼，再決定要不要更新。開了自動更新，就等於每次都直接接受新內容。理由見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 {: .prompt-tip }
 
-Cursor 這邊的更新方式，本文不討論。
+Cursor 這邊的更新方式，這篇我不討論。
 
 ### 固定在某個 commit
 
 commit 是 git（最常用的版本控制工具）裡的一個版本紀錄，每個 commit 都有一串編號（SHA）。想讓 pstack 一直停在你看過的那個 commit，可以用本機資料夾當 marketplace。
 
-先說明為什麼要這樣做。Claude Code 官方的[指令參考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)裡，`/plugin install` 沒有指定版本或 commit 的選項。`/plugin marketplace add` 可以在 repo 後面加 `#ref`，[固定在某個分支或 tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace)（tag 是替某個 commit 取的固定名稱，例如 v1.0）；但 2026-11-17 查證時，`cursor/plugins` 沒有任何 tag。能固定到 commit 的 `sha` 欄位，是寫在目錄的 `marketplace.json` 裡、由目錄維護者設定的（見 [marketplace 參考文件](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 條目沒有設定。
+我先說明為什麼要這樣做。Claude Code 官方的[指令參考](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install)裡，`/plugin install` 沒有指定版本或 commit 的選項。`/plugin marketplace add` 可以在 repo 後面加 `#ref`，[固定在某個分支或 tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace)（tag 是替某個 commit 取的固定名稱，例如 v1.0）；但我在 2026-11-17 查證時，`cursor/plugins` 沒有任何 tag。能固定到 commit 的 `sha` 欄位，是寫在目錄的 `marketplace.json` 裡、由目錄維護者設定的（見 [marketplace 參考文件](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)），`cursor/plugins` 的 pstack 條目沒有設定。
 
-官方文件支援把本機資料夾加成 marketplace，所以可以先把 repo 下載（clone）到自己電腦，切到你審過的 commit，再把這個資料夾加成 marketplace。以下以本文的 commit 為例，在終端機執行：
+官方文件支援把本機資料夾加成 marketplace，所以可以先把 repo 下載（clone）到自己電腦，切到你審過的 commit，再把這個資料夾加成 marketplace。以下我以這篇的 commit 為例，在終端機執行：
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -102,7 +102,7 @@ claude plugin install pstack@cursor-plugins
 
 如果你之前已經用 GitHub 來源加過 `cursor/plugins`，兩個來源的目錄名稱都是 `cursor-plugins`。可以先用 `claude plugin marketplace remove cursor-plugins` 移除舊的，再執行上面的指令。注意，依 [Claude Code 文件](https://code.claude.com/docs/en/plugins/install#manage-marketplaces)，移除 marketplace 會一併解除安裝從它裝的外掛，所以移除後要重新安裝。
 
-這和[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)建議的「先 clone，再切到審過的 commit」是同一個做法。之後想升級，就在這個資料夾裡切到新的 commit，再更新外掛。
+這和我在[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)建議的「先 clone，再切到審過的 commit」是同一個做法。之後想升級，就在這個資料夾裡切到新的 commit，再更新外掛。
 
 ## 第 3 步：用 /setup-pstack 選模型
 
@@ -137,7 +137,7 @@ pstack 會把工作分給不同角色，例如寫程式的、做判斷的、組�
 
 **下一步**：開一個新對話。依[設定指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L43)，模型設定只對新的對話生效。
 
-> **只選你的帳號實際能用的模型。** 依[對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45)，在 Claude Code 裡，「偵測到的模型」是 subagent 工具允許填的模型名稱，不代表你的帳號或方案每一個都能用。不確定時，把角色設成 `inherit-parent` 或 `auto`，它就直接用主對話的模型（見[設定指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)）。
+> **只選你的帳號實際能用的模型。** 依[對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45)，在 Claude Code 裡，「偵測到的模型」是 subagent 工具允許填的模型名稱，不代表你的帳號或方案每一個都能用。不確定時，我建議把角色設成 `inherit-parent` 或 `auto`，它就直接用主對話的模型（見[設定指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)）。
 {: .prompt-tip }
 
 ## 不確定時：問 /poteto-help
@@ -251,7 +251,7 @@ _/poteto-mode 先判斷任務類型，再照 playbook 的步驟走。_
 
 ## 一個完整的例子（虛構）
 
-以下是虛構的情境，用來示範流程，不是實際執行的紀錄。
+以下是我虛構的情境，用來示範流程，不是實際執行的紀錄。
 
 假設你剛加入一個網站專案，想用 pstack 處理一個使用者回報：「忘記密碼的信，連結點下去就說已過期。」
 
@@ -282,14 +282,14 @@ _/poteto-mode 先判斷任務類型，再照 playbook 的步驟走。_
 - **小改動不需要 pstack。** [設定指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L52)寫得很清楚：很小、很明顯的修改，直接說就好。
 - **pstack 會多用 token。** 它會派 subagent、組評審小組，這是嚴謹的代價。[設定指南](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L45-L52)列了幾個省 token 的方法：重跑 `/setup-pstack` 選小一點的預算或便宜一點的模型、把角色設成 `auto` 或 `inherit-parent` 讓它用主對話的模型、縮短評審小組的模型清單（清單上每多一個模型，就多派一個 subagent），以及只在需要嚴謹的工作才用 `/poteto-mode`。
 - **模型設定是全域的。** 改了會影響這台電腦上的每個專案。
-- **更新前先看改了什麼。** Claude Code 對第三方 marketplace 預設不自動更新，這反而讓你有機會先檢查。
+- **更新前先看改了什麼。** Claude Code 對第三方 marketplace 預設不自動更新，在我看來，這反而讓你有機會先檢查。
 - **不要在提示裡排 skill 的順序。** 交給 playbook 排。
 
-如果你想看另一套「先設定、再由說明台建議下一步」的 skill 怎麼用，可以讀 [mattpocock/skills 系列第 1 篇](/posts/mattpocock-skills-setup-routing-guide/)和[系列導讀](/posts/mattpocock-skills-series-guide/)。
+如果你想看另一套「先設定、再由說明台建議下一步」的 skill 怎麼用，可以讀我之前寫的 [mattpocock/skills 系列第 1 篇](/posts/mattpocock-skills-setup-routing-guide/)和[系列導讀](/posts/mattpocock-skills-series-guide/)。
 
 ## 結論
 
-第一次用 pstack，不需要先把所有 skill 記熟。照官方說明裝一次，用 `claude plugin list` 核對版本，更新前先看看改了什麼；用 `/setup-pstack` 選一次模型，而且只選帳號能用的；之後每個新任務都從 `/poteto-mode` 開始，在 Claude Code 裡寫成 `/pstack:poteto-mode`，寫清楚目標和完成條件，剩下的交給它挑 playbook。不確定時，問 `/poteto-help`。下一篇會接著談，改程式之前怎麼用 pstack 先看懂程式、再做設計。
+我認為第一次用 pstack，不需要先把所有 skill 記熟。照官方說明裝一次，用 `claude plugin list` 核對版本，更新前先看看改了什麼；用 `/setup-pstack` 選一次模型，而且只選帳號能用的；之後每個新任務都從 `/poteto-mode` 開始，在 Claude Code 裡寫成 `/pstack:poteto-mode`，寫清楚目標和完成條件，剩下的交給它挑 playbook。不確定時，問 `/poteto-help`。下一篇我會接著談，改程式之前怎麼用 pstack 先看懂程式、再做設計。
 
 ## 延伸閱讀
 

@@ -10,7 +10,7 @@ image:
   alt: "Before changing code, understand it with /how and /why, design with /architect and /arena, then review with /interrogate."
 ---
 
-Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills: first have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems. For each skill I cover when to use it, how to write the command (with an example you can copy and adapt), what it does step by step, what you get back, and where to go next. At the end, a made-up example strings all five together, followed by a "which one when" table.
+Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills: first have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems. For each skill I cover when to use it, how to write the command (with an example you can copy and adapt), what it does step by step, what you get back, and where to go next. At the end, I string all five together in a made-up example, followed by a "which one when" table.
 
 > pstack Series | Part 2
 >
@@ -19,18 +19,18 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 > - Next (Part 3): [After the code is written, prove it works before merging](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
-> **Version note:** This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version together on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently.
+> **Version note:** I based this post on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version together on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently.
 {: .prompt-warning }
 
 ## Before You Start
 
-pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. Installing pstack and picking models are covered in [Part 1](/posts/pstack-install-routing/); this post assumes it is already installed.
+pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. I covered installing pstack and picking models in [Part 1](/posts/pstack-install-routing/); this post assumes it is already installed.
 
-**Commands take a prefix.** pstack's docs use Cursor's form, such as `/how`. In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, so you type `/pstack:how`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+**Commands take a prefix.** pstack's docs use Cursor's form, such as `/how`. In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, so you type `/pstack:how`. My examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
 **None of these five skills start on their own.** Each one is set so the AI can't invoke it by itself, so you have to type the command. The other option is to hand the task to `/pstack:poteto-mode` and let it sequence the work. For example, if your prompt says "don't change any code yet," it runs a read-only investigation, which first traces the code involved and adds `/why` for questions about motivation.
 
-You'll see the word "subagent" a lot below. When a skill runs, it sends out other AI instances to work on parts of the job in parallel; each one is a subagent. The more subagents a skill sends out, the more of your usage quota it usually takes.
+I use the word "subagent" a lot below. When a skill runs, it sends out other AI instances to work on parts of the job in parallel; each one is a subagent. The more subagents a skill sends out, the more of your usage quota it usually takes.
 
 ![The five-skill flow: understand with /how and /why, design with /architect, then review with /interrogate; /arena also works on its own](five-skills-flow.en.webp){: w="800" h="450" }
 _Understand first, then design, then review the change. `/arena` works on its own, and `/architect` switches to it for a large or contested design._
@@ -63,7 +63,7 @@ For example:
 
 ## /why: Find Out Why the Code Looks This Way
 
-**When to use it:** when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. It is especially useful **before you change** something, so you know which parts exist for a reason and shouldn't be touched lightly.
+**When to use it:** when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. I think it is especially useful **before you change** something, so you know which parts exist for a reason and shouldn't be touched lightly.
 
 **How to write the command:** name the target and ask your question. If you're asking because you plan to change it, include the change you have in mind and ask whether the original reason still holds:
 
@@ -79,7 +79,7 @@ For example:
 
 If you suspect the history explains the mess, you can ask for both at once: "do why first, then how."
 
-**What it does:** the skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. It asks for three things:
+**What it does:** the skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. As I read it, it asks for three things:
 
 1. **Answers from the record, not by guessing from the code.** It reads the commits (a commit is one recorded change in git) and PR (pull request) discussions that introduced the code, then those for each later change to it.
 2. **Looks at other sources only when that trail is thin.** The skill file doesn't list them. If you have MCP servers connected (an MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion), it may use them.
@@ -87,11 +87,11 @@ If you suspect the history explains the mess, you can ask for both at once: "do 
 
 **What you get:** a cited answer that separates what the authors wrote, what it infers, and what the record doesn't cover. "Nobody wrote down why" is an answer too.
 
-If you're asking because you plan to change the code, you can end your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it.
+If you're asking because you plan to change the code, I suggest ending your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it.
 
 **What's next:** take what it found must not be touched lightly (or the list you asked for) to `/architect` as constraints for the design.
 
-> `/why` reads commits and PR discussions; when that trail is thin, it may also use the MCP servers you've connected to read issues, docs, and chat history. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+> `/why` reads commits and PR discussions; when that trail is thin, it may also use the MCP servers you've connected to read issues, docs, and chat history. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
 ## /architect: Sketch the Design Before Writing Code
@@ -110,7 +110,7 @@ For example:
 /pstack:architect design the import pipeline, then stop and show me before implementing. i care most about how callers use it.
 ```
 
-**What it does:** the skill file is just two short paragraphs. The key points:
+**What it does:** the skill file is just two short paragraphs. I've summed up the key points below:
 
 1. **Trace first:** before writing code, it traces every system the change touches.
 2. **Sketch two designs:** it draws two different shapes, each with only types, function signatures (a function's name, parameters, and return value), and how modules divide the work.
@@ -197,7 +197,7 @@ _More candidates means more subagents: N candidates plus at most one judge._
 
 ## A Complete Example (Made Up)
 
-> **This scenario is made up.** It only shows how the five skills fit together. It isn't a record of a real run, and no output is shown.
+> **I made up this scenario.** It only shows how the five skills fit together. It isn't a record of a real run, and no output is shown.
 {: .prompt-info }
 
 Say you maintain a website that sends an email for every notification (a new comment, a new like). You want to add an option so users can get one daily digest email instead.
@@ -224,7 +224,7 @@ Because you asked for that list at the end of your prompt, the report includes i
 /pstack:architect design a daily digest email option. stop and show me the design before implementing, and tell me which two designs you compared and why you picked this one. i care most about not affecting the existing instant notifications. constraints: <paste the preserve and avoid items from step 2>.
 ```
 
-`/architect`'s first step already traces the code the change touches on its own, but its skill file doesn't have it dig into history; if you want the original reasons as constraints, run `/why` yourself first, as in step 2. This example also runs the first two steps by hand so you understand the code yourself and can check whether the AI's understanding is off. If you don't need any of that, you can start at this step. When it stops, look at which two designs it compared and why it picked this one, ask about anything unclear, and then let it implement.
+`/architect`'s first step already traces the code the change touches on its own, but its skill file doesn't have it dig into history; if you want the original reasons as constraints, run `/why` yourself first, as in step 2. I also wrote the first two steps of this example as manual runs so you understand the code yourself and can check whether the AI's understanding is off. If you don't need any of that, you can start at this step. When it stops, look at which two designs it compared and why it picked this one, ask about anything unclear, and then let it implement.
 
 **4. Hand a standalone decision to `/arena`.**
 
@@ -242,12 +242,12 @@ Suppose the design leaves an open question: should the digest list notifications
 
 Handle the Findings first. Read Dropped too, and override it if you disagree.
 
-> This example calls each skill **by hand**, so you stay in control of every step. Normally you can give the goal and constraints to `/pstack:poteto-mode` and let it decide which skills to use and in what order. When you do, don't list the skills in your prompt; that reorders steps it already sequences. Name a skill only when you want to override a default.
+> I wrote this example to call each skill **by hand**, so you stay in control of every step. Normally you can give the goal and constraints to `/pstack:poteto-mode` and let it decide which skills to use and in what order. When you do, don't list the skills in your prompt; that reorders steps it already sequences. Name a skill only when you want to override a default.
 {: .prompt-tip }
 
 ## Which One When
 
-The pstack guide starts with an important point: **most changes need none of these.** Here is its rough ladder, plus `/how` and `/why`:
+The pstack guide starts with a point I think is important: **most changes need none of these.** Here is its rough ladder, to which I've added `/how` and `/why`:
 
 | Situation | Use |
 | --- | --- |
@@ -268,11 +268,11 @@ The pstack guide starts with an important point: **most changes need none of the
 - **Don't review an abstract plan:** `/interrogate` keeps only problems a run can show, so a plan with no code behind it gives it little to break. Use it on actual code changes.
 - **Don't accept every review comment:** `/interrogate` keeps only the findings a rerun proves and lists what it dropped and why, but you decide, and you can override it either way.
 - **Don't let parallel AIs share one working directory:** they overwrite each other, and nobody can tell who changed what. With `/arena`, you can ask for its own worktree per attempt.
-- **Versions:** everything here follows the pstack `0.15.43` skill files; later versions may work differently.
+- **Versions:** I based everything here on the pstack `0.15.43` skill files; later versions may work differently.
 
 ## Conclusion
 
-Before you change code with pstack, the order is: use `/how` to learn how the code runs now, and `/why` when you need the reasons that make some parts off-limits. Then use `/architect` to compare two designs and sketch the types, asking it in your prompt to stop so you see the design first. For a standalone decision, let `/arena` compare a few candidates. Once the code is changed, use `/interrogate` to have several models run the code and try to break it, keeping only the problems they can prove, and decide for yourself what to fix. You don't need all five every time: for a small change, just make it, and review it afterward if you're unsure.
+Before you change code with pstack, the order I suggest is: use `/how` to learn how the code runs now, and `/why` when you need the reasons that make some parts off-limits. Then use `/architect` to compare two designs and sketch the types, asking it in your prompt to stop so you see the design first. For a standalone decision, let `/arena` compare a few candidates. Once the code is changed, use `/interrogate` to have several models run the code and try to break it, keeping only the problems they can prove, and decide for yourself what to fix. You don't need all five every time: for a small change, just make it, and review it afterward if you're unsure.
 
 ## Further Reading
 

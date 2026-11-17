@@ -11,22 +11,22 @@ image:
   alt: "Before merging, separate what the automated checks, the AI review, and a person each verified, and which version they saw."
 ---
 
-The article is finished and submitted for review. GitHub's automated checks are green, and the AI raised no issues. Ready to merge? Not yet. Three questions remain: Which version did the AI review? Did the automated checks confirm that external links still work? Did anyone look again at the translation fixes added after the review?
+The article is finished and submitted for review. GitHub's automated checks are green, and the AI raised no issues. Ready to merge? Not yet. I would still check three things: Which version did the AI review? Did the automated checks confirm that external links still work? Did anyone look again at the translation fixes added after the review?
 
-This post uses a real article review on this site to show how GitHub Actions and an AI agent can form a review process you can trace from start to finish. Three terms come up constantly:
+In this post I use a real article review on this site to show how GitHub Actions and an AI agent can form a review process you can trace from start to finish. Three terms come up constantly:
 
 - **PR (pull request)**: a request to have a set of changes reviewed before they are merged into the published version.
 - **Commit**: a saved record of one version. Fixes added after a PR is opened become new commits.
 - **AI agent**: an AI assistant that can read files, compare content, and raise issues on its own. The review visible on this site's public PRs comes from OpenAI's Codex.
 
-Other terms are explained where they first appear. The goal is concrete: **for every review, be able to say what was checked, which version was checked, and what still needs a human decision.**
+Other terms are explained where they first appear. The problem I want to solve is concrete: **for every review, be able to say what was checked, which version was checked, and what still needs a human decision.**
 
-> **Scope**: I checked this site's source and public PR records on 2026-11-07. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example: this article does not install or enable it on the site, and its configuration should not be read as verified or ready to use.
+> **Scope**: I checked this site's source and public PR records on 2026-11-07. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example: I did not install or enable it on the site, and its configuration should not be read as verified or ready to use.
 {: .prompt-info }
 
 ## When This Process Helps
 
-It is worth recording who checked what, and which version, whenever:
+I think it is worth recording who checked what, and which version, whenever:
 
 - Changes continue after a review finishes, such as wording edits, translation fixes, or link changes.
 - The same content exists in several languages, or describes how an external tool behaves.
@@ -59,20 +59,20 @@ These fixed rules have clear limits; passing them does not mean the content is r
 
 The second check appears in the PR discussion. [The Codex summary on PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29#issuecomment-6655342679) shows a completed Codex Code Review from when the PR was opened; that row's trigger column says PR opened. The comment comes from Codex's GitHub integration (the `chatgpt-codex-connector` account), which is not part of the workflow above. So the absence of `openai/codex-action` from the workflow does not mean the site has no AI review, and it does not mean Actions started this review.
 
-AI review is good at reading prose, comparing claims, and spotting issues that take reasoning to find. Its suggestions still need a person to check them against the sources.
+In my view, AI review is good at reading prose, comparing claims, and spotting issues that take reasoning to find. Its suggestions still need a person to check them against the sources.
 
 ## Case Study: PR #29 Changed After Its Review
 
-The PR added the [pstack series guide](/posts/pstack-series-guide/) and updated navigation links in four articles, across Traditional Chinese, English, and Simplified Chinese. For how this site maintains its three language versions, see [Multilingual Jekyll Blog With Polyglot and hreflang](/posts/jekyll-blog-three-languages/).
+I submitted this PR for review. It added the [pstack series guide](/posts/pstack-series-guide/) and updated navigation links in four articles, across Traditional Chinese, English, and Simplified Chinese. I describe how this site maintains its three language versions in [Multilingual Jekyll Blog With Polyglot and hreflang](/posts/jekyll-blog-three-languages/).
 
-To tell which version was reviewed, you need version identifiers. Each commit has a unique string of letters and digits called a **SHA**; this article shows only the first seven characters. A PR's latest commit at any given moment is its **head**. Only two versions matter here:
+To tell which version was reviewed, you need version identifiers. Each commit has a unique string of letters and digits called a **SHA**; I show only the first seven characters here. A PR's latest commit at any given moment is its **head**. Only two versions matter here:
 
 - [`6857f1f`](https://github.com/justmaocom/justmaocom.github.io/commit/6857f1fc9eae761b018d8c48ad6b77c017d991ab): the initial version. The Codex summary names this as the reviewed commit, with a completed status and no findings (issues raised by the review).
 - [`ff4455b`](https://github.com/justmaocom/justmaocom.github.io/commit/ff4455b570ad97936f0cce3083fdf8c4ccfecee3): the head before merge. After the initial version, one commit revised the prose in all three languages. This final commit then changed a GitHub directory link from `blob` to `tree` and changed the Simplified Chinese “关光” to “关掉.”
 
-The supported conclusion is narrow: **the Codex review in that summary covered the initial `6857f1f`, so it cannot establish that the final `ff4455b` was covered by the same review.** I do not infer checks that the public summary does not list, or conclude that nobody reviewed the later changes.
+The conclusion I can support is narrow: **the Codex review in that summary covered the initial `6857f1f`, so it cannot establish that the final `ff4455b` was covered by the same review.** I do not infer checks that the public summary does not list, or conclude that nobody reviewed the later changes.
 
-Those last two fixes also show why the work needs several kinds of review. Whether a GitHub link path is correct calls for checking the source or running a separate external-link check. A phrase such as “关光” calls for language editing. Neither a successful build nor the absence of AI findings covers both. Nor does this show that Codex missed the final fix: the available summary refers to an earlier version.
+To me, those last two fixes also show why the work needs several kinds of review. Whether a GitHub link path is correct calls for checking the source or running a separate external-link check. A phrase such as “关光” calls for language editing. Neither a successful build nor the absence of AI findings covers both. Nor does this show that Codex missed the final fix: the summary I have refers to an earlier version.
 
 ## Dividing the Work: Fixed Rules, AI Reasoning, Human Approval
 
@@ -96,7 +96,7 @@ flowchart TD
 bash tools/test.sh
 ```
 
-It rebuilds the production site and checks localized URLs and internal links. It does not include the npm asset comparison in the `lib` job. If CI fails, the change has not passed, even if the AI raised no issues.
+It rebuilds the production site and checks localized URLs and internal links. It does not include the npm asset comparison in the `lib` job. If CI fails, I do not count the change as passed, even if the AI raised no issues.
 
 **Give reasoning tasks to the AI agent.** An article might say an action runs for PRs from anyone by default, while the cited version restricts who can trigger it. Or the three translations might describe the same option differently. Ask the agent for the file, passage, evidence, and impact of each finding. Those are easier to verify than an open-ended request to “review everything.”
 
@@ -109,19 +109,19 @@ _Keep the three apart: fixed rules, questions that take reasoning, and the decis
 
 ### Step 1: Trigger Review With the Existing Codex Integration
 
-There is no need to rush into installing another bot (an automated account that performs tasks). [The official Codex documentation](https://developers.openai.com/codex/cloud/code-review) describes two entry points: enable automatic review for the repository in Codex settings, or leave this comment on a PR:
+I would not rush into installing another bot (an automated account that performs tasks). [The official Codex documentation](https://developers.openai.com/codex/cloud/code-review) describes two entry points: enable automatic review for the repository in Codex settings, or leave this comment on a PR:
 
 ```text
 @codex review
 ```
 
-This is an instruction readers can use, not a new comment posted to the example PR by this article. A one-off focus can follow on the same line. The official docs use `@codex review for issues in the database migration`. The review instructions in the next step can be handed over the same way; the next step also covers keeping them for every review.
+This is an instruction readers can use. I did not post it as a new comment on the example PR. A one-off focus can follow on the same line. The official docs use `@codex review for issues in the database migration`. The review instructions in the next step can be handed over the same way; the next step also covers keeping them for every review.
 
-The trigger column on the PR #29 summary says PR opened. The same public comment lists three ways a review starts: opening a PR, marking a draft as ready, or commenting `@codex review`. Pushing another commit is not on that list. Settings also let you choose a Review trigger, so this one record does not mean every later commit is reviewed again.
+The trigger column on the PR #29 summary says PR opened. The same public comment lists three ways a review starts: opening a PR, marking a draft as ready, or commenting `@codex review`. Pushing another commit is not on that list. Settings also let you choose a Review trigger, so I do not take this one record to mean every later commit is reviewed again.
 
 ### Step 2: Add Review Instructions (Copyable)
 
-For a repository that is mostly articles, you can give the agent instructions like these:
+For a repository that is mostly articles, I suggest giving the agent instructions like these:
 
 ```text
 Review only issues introduced by this PR. State the reviewed head SHA.
@@ -134,8 +134,8 @@ State unavailable sources and partial coverage. Do not claim a full pass.
 
 Two things to know before you use them:
 
-- They express the desired focus. At the time of checking, the official documentation says GitHub Code Review flags only high-priority P0 and P1 issues (the most serious problems, to be fixed first). It does not promise a reply to every item. Paragraph-by-paragraph editing or a complete report with mandatory fields needs a separately designed process.
-- To keep using them, the official docs say to put the rules in the repository's `AGENTS.md` (a project rules file written for agents to read), under a `## Code Review Rules` heading. Codex on GitHub reads the file that is in the repository. This site currently lists `AGENTS.md` in `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with that review means deciding to track the file. For how to write the file itself, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+- They express the focus I want from the review. When I checked, the official documentation said GitHub Code Review flags only high-priority P0 and P1 issues (the most serious problems, to be fixed first). It does not promise a reply to every item. Paragraph-by-paragraph editing or a complete report with mandatory fields needs a separately designed process.
+- To keep using them, the official docs say to put the rules in the repository's `AGENTS.md` (a project rules file written for agents to read), under a `## Code Review Rules` heading. Codex on GitHub reads the file that is in the repository. I currently list `AGENTS.md` in this site's `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with that review means deciding to track the file. For how to write the file itself, see my post [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
 
 ### Step 3: After New Commits, Confirm the Latest Version Was Reviewed
 
@@ -144,7 +144,7 @@ For PR #29, I would want more than a bare “review complete” before merge. Af
 ![After an article changes, the earlier review still belongs to the old version; the updated version needs its checks confirmed again.](review-latest-revision.webp){: w="800" h="450" }
 _A note on the old version does not prove the new one was reviewed. Read the revised passages again._
 
-The record below is a suggested format, not a record that exists in the example:
+The record below is the format I suggest, not a record that exists in the example:
 
 ```text
 PR: #29
@@ -155,7 +155,7 @@ Human: checked the GitHub directory link and read the revised passages in all th
 Outstanding: list unresolved issues; explicitly say none if there are none
 ```
 
-The sequence can stay simple:
+I would keep the sequence simple:
 
 1. **Resolve CI failures first.** Fix reproducible problems such as a failed build or incorrect localized URLs.
 2. **Read the evidence for each AI suggestion.** Accept and fix it, or record why you disagree. Supply missing context instead of counting an incomplete report as a pass. If an oversized diff, an unavailable source, or a timeout leaves the review partial, mark it incomplete; a missing result is not the same as no issues.
@@ -164,12 +164,12 @@ The sequence can stay simple:
 
 ## Advanced: When a Custom Codex Action Is Worth It
 
-> This site does not install or enable the configuration in this section. It is an extension example, not this site's current process.
+> I did not install or enable the configuration in this section on this site. It is an extension example, not this site's current process.
 {: .prompt-info }
 
 Consider [`openai/codex-action`](https://github.com/openai/codex-action/tree/bdf19a4a223ec2549a3e2274a0cf61556bc07675) when you need a fixed report format, different prompts for articles and code, or output connected to an existing review tool. It installs Codex CLI (Codex's command-line tool) on a runner (the machine that executes Actions jobs) and runs a task through an API. You provide the API key (the credential for calling the service) and manage usage yourself. This is a different integration from the Codex reviews already visible on this site's PRs.
 
-The following shows **only the Codex step inside a review job**, not a complete workflow you can paste and run. Earlier steps must prepare trusted review instructions, the full PR diff (the before-and-after differences), and the required context; record the base and head SHAs (the comparison starting point and the latest version); and check for truncated input. **Do not run PR-supplied installation scripts and then introduce an API key into that same environment.**
+Below I show **only the Codex step inside a review job**, not a complete workflow you can paste and run. Earlier steps must prepare trusted review instructions, the full PR diff (the before-and-after differences), and the required context; record the base and head SHAs (the comparison starting point and the latest version); and check for truncated input. **Do not run PR-supplied installation scripts and then introduce an API key into that same environment.**
 
 {% raw %}
 ```yaml
@@ -186,9 +186,9 @@ The following shows **only the Codex step inside a review job**, not a complete 
 
 In short, `openai-api-key` reads the key from GitHub secrets (encrypted, stored credentials), `prompt-file` points to the prepared review prompt, and the other two inputs restrict what Codex can do.
 
-The [README fixed to this version](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md) says permission profiles require Codex CLI `0.138.0` or later and were still in beta when checked. `:read-only` constrains filesystem and network access for commands; `drop-sudo` controls process privileges. They serve different purposes. Do not set `permission-profile` and the legacy `sandbox` input together; the action rejects that before it starts. `safety-strategy: read-only` switches to the legacy read-only sandbox, so it cannot be combined with a permission profile either. It is not another spelling of `:read-only`.
+The [README fixed to this version](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md) says permission profiles require Codex CLI `0.138.0` or later and were still in beta when I checked. `:read-only` constrains filesystem and network access for commands; `drop-sudo` controls process privileges. They serve different purposes. Do not set `permission-profile` and the legacy `sandbox` input together; the action rejects that before it starts. `safety-strategy: read-only` switches to the legacy read-only sandbox, so it cannot be combined with a permission profile either. It is not another spelling of `:read-only`.
 
-The long string at the end of the `uses` line is a SHA that pins the action's version. It fixes only the action itself; it does not also pin the Codex CLI it installs or the model it uses. Before adoption, choose and record a tested `codex-version`, model, and report format, and check that the runner supports the required isolation. This article does not invent a version combination that merely looks guaranteed to work.
+The long string at the end of the `uses` line is a SHA that pins the action's version. It fixes only the action itself; it does not also pin the Codex CLI it installs or the model it uses. Before adoption, choose and record a tested `codex-version`, model, and report format, and check that the runner supports the required isolation. I do not invent a version combination that merely looks guaranteed to work.
 
 Follow the [official security guidance](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md):
 
@@ -210,7 +210,7 @@ If you write a custom reporting program, have it read the PR head again before p
 
 Posting the result on the PR is a separate question. `GITHUB_TOKEN` is the token a workflow receives automatically when it runs. On a PR from a fork, that token is read-only. On a PR from the same repository, it depends on the workflow or repository permissions. This site's current workflow sets `contents: read` at the top level and does not grant `pull-requests: write`, so that workflow cannot use the token to post a review comment. A custom review that needs to comment has to grant posting permission in a separate job.
 
-When a fork PR lacks a secret or the actor lacks permission, skip explicitly or wait for a maintainer, rather than broadening everyone's permissions to make it run. An initial rollout can be limited to trusted collaborators' PRs within the same repository. Design trust, isolation, and reporting separately before accepting external submissions.
+When a fork PR lacks a secret or the actor lacks permission, skip explicitly or wait for a maintainer, rather than broadening everyone's permissions to make it run. I suggest limiting an initial rollout to trusted collaborators' PRs within the same repository. Design trust, isolation, and reporting separately before accepting external submissions.
 
 **Do not switch to `pull_request_target` just to obtain a secret and then check out and execute an external PR's code.** PR text, diffs, and added `AGENTS.md` files can all carry untrusted instructions. Prompt reminders help, but runners, tokens, and isolation must enforce the actual permissions. Avoid `allow-users: "*"` as a shortcut that opens API usage to everyone. These constraints are covered by [GitHub's security guide](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) and the Codex Action security document above.
 
@@ -218,7 +218,7 @@ When a fork PR lacks a secret or the actor lacks permission, skip explicitly or 
 
 Following this process, every PR leaves a traceable record before merge: which version the automated checks ran on, which version the AI reviewed and what it covered, what a person read, and what remains open. The next time you open a PR, you will know what you are approving.
 
-Next steps:
+Next, I suggest these steps:
 
 1. In Codex settings, confirm which events trigger automatic review, and decide who requests another review after new commits, and when.
 2. Decide whether to put `AGENTS.md` under version control so the team can share the review instructions above.

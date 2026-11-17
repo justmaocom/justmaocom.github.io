@@ -10,23 +10,23 @@ image:
   alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
 ---
 
-> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04, and the official plugin now has 27 skills instead of 25: `resolving-merge-conflicts` is gone, and `implement-spec`, `pr`, and `retro` are new, with `ask-matt` suggesting them too. The project glossary was renamed from `CONTEXT.md` to `GLOSSARY.md`. Skills in the new releases only look for the new name, so rename an existing file with `git mv`. A full update of this series is planned.
+> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04, and the official plugin now has 27 skills instead of 25: `resolving-merge-conflicts` is gone, and `implement-spec`, `pr`, and `retro` are new, with `ask-matt` suggesting them too. The project glossary was renamed from `CONTEXT.md` to `GLOSSARY.md`. Skills in the new releases only look for the new name, so rename an existing file with `git mv`. I plan to fully update this series for the new releases.
 {: .prompt-warning }
 
 You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that mattpocock/skills can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?
 
-The answer is no, you don't need to understand them all. Your first time through takes just two steps: use `setup-matt-pocock-skills` to record your project's working rules, then let `ask-matt` suggest the next skill based on the problem in front of you.
+My answer is no, you don't need to understand them all. Your first time through takes just two steps: use `setup-matt-pocock-skills` to record your project's working rules, then let `ask-matt` suggest the next skill based on the problem in front of you.
 
-That said, `ask-matt` is more like a help desk than a manager that automatically runs the whole pipeline. It only tells you which skill to use next; you still have to start that skill yourself.
+That said, I see `ask-matt` as more of a help desk than a manager that automatically runs the whole pipeline. It only tells you which skill to use next; you still have to start that skill yourself.
 
-First, a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. A skill can be thought of as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
+First, I'll define a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. I think of a skill as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
 
 > mattpocock/skills Series | Part 1
 >
 > - Next (Part 2): [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills. The repository also contains 9 items that are still experimental and 4 that aren't currently being promoted, listed in [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18) and [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8) respectively. This series only covers the 25 included in the official plugin.
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills. The repository also contains 9 items that are still experimental and 4 that aren't currently being promoted, listed in [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18) and [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8) respectively. This series only covers the 25 included in the official plugin.
 {: .prompt-info }
 
 ## Installing vs. Invoking: Two Separate Questions
@@ -34,7 +34,7 @@ First, a few terms. An AI coding assistant is an AI tool such as Claude Code or 
 ![A six-panel illustration of mattpocock/skills: choose the Claude Code plugin or skills.sh, run setup to create the project configuration, then let ask-matt suggest the next skill. A feature request moves through requirements clarification, spec writing, work breakdown, and implementation in order](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _The full path for first-time use: choose an installation method, run setup, then let ask-matt suggest the next skill._
 
-Installing and invoking are two different questions. The installation method determines where the skill files live and who is responsible for updating them; the invocation method determines who can tell a skill to start working.
+I treat installing and invoking as two different questions. The installation method determines where the skill files live and who is responsible for updating them; the invocation method determines who can tell a skill to start working.
 
 ### Pick One Installation Method
 
@@ -64,7 +64,7 @@ npx skills@latest add mattpocock/skills
 
 skills.sh lets you check off which skills to install and which AI coding assistants to install them for. Be sure to include `setup-matt-pocock-skills`; if you want to follow along with `ask-matt` in this post, include that too. Any other skill that `ask-matt` recommends later also has to be installed before you can use it.
 
-Pick only one of the two methods. Using both will make every skill show up twice. With skills.sh, the command to update a single skill is:
+I'd pick only one of the two methods. Using both will make every skill show up twice. With skills.sh, the command to update a single skill is:
 
 ```bash
 npx skills@latest update <name>
@@ -91,13 +91,13 @@ Both `setup-matt-pocock-skills` and `ask-matt` are user-invoked, so you have to 
 
 In Codex, you can type `$` and then pick a skill from the list, or type `$skill-name` directly. You can verify this syntax in [OpenAI's Codex skills documentation](https://developers.openai.com/codex/skills/). For other AI coding assistants, use their own skill menu or input syntax.
 
-This constraint also explains why `ask-matt` can only make suggestions: `grill-with-docs`, for example, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
+I think this constraint also explains why `ask-matt` can only make suggestions: `grill-with-docs`, for example, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
 
 ## What Setup Leaves Behind in Your Project
 
 The skills in `mattpocock/skills` that focus on software development (grouped under "engineering" in the repo) need to know some basic information about your project. So before using them for the first time in any project, you need to run `setup-matt-pocock-skills` once. It isn't an installer that does the same thing every time; it inspects first, asks questions next, and writes files only at the end.
 
-It starts by looking at the current state of the project: which platform hosts the code (GitHub, for example), whether the project already has AI instruction files (`AGENTS.md` or `CLAUDE.md`), a glossary, decision records, or configuration files left over from a previous run, and whether the project is made up of multiple subprojects (a monorepo). The glossary (`CONTEXT.md`) records definitions of project-specific terms, and decision records (ADRs) capture the reasoning behind important technical choices. The next post covers both in detail.
+It starts by looking at the current state of the project: which platform hosts the code (GitHub, for example), whether the project already has AI instruction files (`AGENTS.md` or `CLAUDE.md`), a glossary, decision records, or configuration files left over from a previous run, and whether the project is made up of multiple subprojects (a monorepo). The glossary (`CONTEXT.md`) records definitions of project-specific terms, and decision records (ADRs) capture the reasoning behind important technical choices. I cover both in detail in the next post.
 
 Once it's done looking, it confirms three things with you, in order:
 
@@ -116,7 +116,7 @@ After you confirm, it modifies or creates the following files:
 
 If the project has neither instruction file, it asks which one you want to create rather than deciding on its own. If a file already contains an `## Agent skills` section, it updates that section in place instead of adding a duplicate.
 
-Setup only writes the label names into `docs/agents/triage-labels.md`; the process as written has no step that creates those labels on GitHub or GitLab. Before you start triaging, it's a good idea to make sure the label names in your issue tracker match the configuration file.
+Setup only writes the label names into `docs/agents/triage-labels.md`; the process as written has no step that creates those labels on GitHub or GitLab. Before you start triaging, I'd first make sure the label names in your issue tracker match the configuration file.
 
 Before writing anything, it must show you drafts of the `## Agent skills` section and each configuration file so you can edit and approve them. Once written, these files are just ordinary project documents that you can edit directly from then on. You only need to run setup again if you want to switch issue trackers or start over from scratch.
 
@@ -143,9 +143,9 @@ _Memory test canceled. Time to get to work._
 
 ## Walkthrough: Adding Per-Seat Billing to an Existing Service
 
-This section walks through the scenario based on the rules as written in version `1.2.3`; it is not a record of an actual run. Assume the project is made up of several subprojects, the code is hosted on GitHub, and work is tracked in GitHub Issues.
+I reasoned through this section from the rules as written in version `1.2.3`; it is not a record of an actual run. Assume the project is made up of several subprojects, the code is hosted on GitHub, and work is tracked in GitHub Issues.
 
-Using Codex as the example, first install the skills you need with skills.sh. Here we'll assume every skill mentioned below has been selected. Then type:
+Using Codex as the example, first install the skills you need with skills.sh. Here I'll assume every skill mentioned below has been selected. Then type:
 
 ```text
 $setup-matt-pocock-skills
@@ -198,11 +198,11 @@ This workflow only handles the order of the work. It won't decide your pricing r
 
 ## How to Choose on Your First Run
 
-If you plan to adopt this workflow, pick one installation method first, then run setup once for your project. After that, whenever you're unsure how to approach a piece of work, ask `ask-matt`.
+If you plan to adopt this workflow, I suggest picking one installation method first, then running setup once for your project. After that, whenever you're unsure how to approach a piece of work, ask `ask-matt`.
 
 If you already know which skill comes next, you can skip `ask-matt` and invoke it directly. However, skills that need to read your issue tracker or glossary configuration still require setup to be completed first. For one-off work that isn't inside a project folder, there's no need to build out the whole project configuration just to use a single skill.
 
-This post examines the design and usage of version `1.2.3`; it doesn't claim this workflow will necessarily shorten development time. Its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
+In this post I checked the design and usage of version `1.2.3`; that doesn't mean this workflow will necessarily shorten development time. I think its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
 
 ## Further Reading
 

@@ -10,13 +10,13 @@ image:
   alt: "同一篇文章输出成繁中、简中、英文三个网址，三个版本用 hreflang 互相指向。"
 ---
 
-这个网站从 2026 年 9 月底开始，每篇文章都同时有繁体中文、简体中文、英文三个版本。写这篇的时候，三个语言各有 28 篇（不算这篇），一篇不缺。
+这个网站从 2026 年 9 月底开始，每篇文章都同时有繁体中文、简体中文、英文三个版本。我写这篇的时候，三个语言各有 28 篇（不算这篇），一篇不缺。
 
 我想做三语，是因为读者不只在台湾。可是真的动手后才发现，“把文章翻成三份”只是最容易的一段。比较麻烦的是那些看不到的地方：分享出去的链接指向哪个语言、搜索引擎知不知道这三页是同一篇、读者从 Google 点进来会不会被带走。这些地方做错了，网站照样能打开，只是悄悄出错。
 
 这篇用本站实际的配置，说明我怎么处理这些事。想给自己的个人网站加上多语言的人，可以拿它当一份实际运行中的参考。本站用 Jekyll 和 Chirpy 主题；换成别的工具，做法会不同，但要处理的问题大多一样。
 
-> **版本说明**：本文根据 2026-11-13（台北时间）本站 repo 的配置撰写，使用 Jekyll 4.4.1、Chirpy 主题 7.6.0、jekyll-polyglot 1.14.0。Google 与 polyglot 的说法依据同一天读取的官方文档。整个站的配置都公开在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，除了 `CLAUDE.md`，文中提到的文件都可以在那里看到完整内容。
+> **版本说明**：我写这篇时，参考的是 2026-11-13（台北时间）当天本站 repo 的配置，使用 Jekyll 4.4.1、Chirpy 主题 7.6.0、jekyll-polyglot 1.14.0。Google 与 polyglot 的说法，参考的是同一天的官方文档。我把整个站的配置都公开在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，除了 `CLAUDE.md`，文中提到的文件都可以在那里看到完整内容。
 {: .prompt-info }
 
 ## 开始前：先认识几个词
@@ -97,14 +97,14 @@ polyglot 看到三份文件的 permalink 相同，就把它们当成同一篇的
 
 ### 翻译规则写在 repo 里
 
-三个版本要一致，靠的不是记性，而是写下来的规则。本站的规则写在 repo 的 [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md)。这份文档整理自 `CLAUDE.md`，也就是给 AI 助手读的项目说明；`CLAUDE.md` 本身列在 `.gitignore` 里，没有放到 GitHub 上。不论是我自己翻，还是请 AI 起草，都照同一份规则（给 AI 看的规则文件怎么写，可以参考[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)）：
+三个版本要一致，靠的不是记性，而是写下来的规则。我把规则写在 repo 的 [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md)。这份文档整理自 `CLAUDE.md`，也就是给 AI 助手读的项目说明；`CLAUDE.md` 本身列在 `.gitignore` 里，没有放到 GitHub 上。不论是我自己翻，还是请 AI 起草，都照同一份规则（给 AI 看的规则文件怎么写，可以参考[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)）：
 
 - 简中不是转换字形就好，用词要换成大陆惯用的说法，例如“軟體”改成“软件”、“程式碼”改成“代码”，引号「」改成“”。同一个词要看上下文，例如“指令”只有在指命令行时才改成“命令”。
 - 三个版本的 `tags` 必须完全相同，因为各语言共用同名的标签页。
-- `categories` 按一张固定的对照表翻译，例如“資訊安全”在简中是“信息安全”，在英文是“Security”。新增分类时，就在表上补一行。
-- 站内链接一律写成 `/posts/<slug>/`，不写语言前缀，构建时会自动补上。
+- `categories` 按一张固定的对照表翻译，例如“資訊安全”在简中是“信息安全”，在英文是“Security”。新增分类时，我就在表上补一行。
+- 站内链接我一律写成 `/posts/<slug>/`，不写语言前缀，构建时会自动补上。
 
-最后一条很重要。如果在英文文章里手写 `/en/posts/...`，看起来没错，但哪天网址规则改了，就得一篇一篇找出来修改。
+最后一条很重要。如果我在英文文章里手写 `/en/posts/...`，看起来没错，但哪天网址规则改了，我就得一篇一篇找出来修改。
 
 ## polyglot 没处理到的网址：自己写 hook 补
 
@@ -120,7 +120,7 @@ polyglot 会把 HTML 里 `href="..."` 形式的站内链接补上语言前缀，
 
 ![英文页上的网址分三层处理：polyglot 补 href 链接，i18n-hook.rb 补 og:url、JSON-LD、分享按钮、search.json 与 feed、sitemap、llms.txt，check-i18n.rb 检查成品](url-fix.zh-CN.webp){: w="1600" h="900" }
 
-本站用一个 hook 补上这些网址，文件是 `_plugins/i18n-hook.rb`。它在 polyglot 处理完之后执行，把“本页的繁中网址”这个精确字符串换成该语言的网址。下面是处理 HTML 的核心部分：
+我写了一个 hook 补上这些网址，文件是 `_plugins/i18n-hook.rb`。它在 polyglot 处理完之后执行，把“本页的繁中网址”这个精确字符串换成该语言的网址。下面是处理 HTML 的核心部分：
 
 ```ruby
 page_url = "#{ origin }#{ doc.url }"
@@ -160,13 +160,13 @@ Google 用 hreflang 判断一页的其他语言版本。[Google 的说明](https
 
 因为三个语言的页面都用同一个模板生成，每一页输出的四行都一样，自然满足“列出自己”和“互相指向”这两条。模板在 `_includes/metadata-hook.html`，那是 Chirpy 预留给用户在 `<head>` 加东西的位置。
 
-`x-default` 的用途，Google 的说法是“没有其他语言符合用户的浏览器设置时使用”。本站让它指向英文版，因为浏览器语言既不是中文也不是英文的读者，英文版最可能看得懂。
+`x-default` 的用途，Google 的说法是“没有其他语言符合用户的浏览器设置时使用”。我让它指向英文版，因为浏览器语言既不是中文也不是英文的读者，英文版最可能看得懂。
 
 有一种页面例外：分类页。分类名称在三个语言里不同，例如“資訊安全”、“信息安全”、“Security”，网址也就不同，没有一对一的对应版本，所以分类页不输出 hreflang。
 
 ### robots.txt 只有一份，列出三份 sitemap
 
-每个语言各自生成一份 sitemap：`/sitemap.xml`、`/zh-CN/sitemap.xml`、`/en/sitemap.xml`。搜索引擎只读域名根目录的 `robots.txt`，所以本站让这一份列出三份 sitemap：
+每个语言各自生成一份 sitemap：`/sitemap.xml`、`/zh-CN/sitemap.xml`、`/en/sitemap.xml`。搜索引擎只读域名根目录的 `robots.txt`，所以我让这一份列出三份 sitemap：
 
 ```text
 User-agent: *
@@ -178,7 +178,7 @@ Sitemap: https://justmao.com/zh-CN/sitemap.xml
 Sitemap: https://justmao.com/en/sitemap.xml
 ```
 
-这里有一个小陷阱。生成 sitemap 的插件 jekyll-sitemap 发现某个语言没有 `robots.txt` 时，会自动补一份，结果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出来了。这两份没有作用，只会让人困惑，所以 `i18n-hook.rb` 等 sitemap 生成完，再把它们从输出列表里去掉，不写成文件。
+这里有一个小陷阱。生成 sitemap 的插件 jekyll-sitemap 发现某个语言没有 `robots.txt` 时，会自动补一份，结果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出来了。这两份没有作用，只会让人困惑，所以我让 `i18n-hook.rb` 等 sitemap 生成完，再把它们从输出列表里去掉，不写成文件。
 
 ![三个语言的页面都输出相同的四行 hreflang，x-default 指向英文版；根目录只有一份 robots.txt，列出三份 sitemap；分类页不输出 hreflang](hreflang.zh-CN.webp){: w="1600" h="900" }
 
@@ -196,7 +196,7 @@ Sitemap: https://justmao.com/en/sitemap.xml
 
 上面的跳转规则只在从站外进来时才会用到。在站内换页一律不跳转，所以读者点了其他语言的链接，就会留在那个语言。
 
-第 5 条的爬虫名单有一个容易漏掉的项目：Google Search Console 检查网址用的 `Google-InspectionTool`。它的 User-Agent（浏览器或爬虫发出的自我介绍字符串）里没有 `bot` 这个词，本站一开始只用 `bot`、`crawl` 这类字眼识别爬虫，没认出它。漏掉的话，它检查英文页时可能被当成普通读者跳转到别的语言，检查的就不是你想看的那一页。
+第 5 条的爬虫名单有一个容易漏掉的项目：Google Search Console 检查网址用的 `Google-InspectionTool`。它的 User-Agent（浏览器或爬虫发出的自我介绍字符串）里没有 `bot` 这个词，我一开始只用 `bot`、`crawl` 这类字眼识别爬虫，所以程序没认出它。漏掉的话，它检查英文页时可能被当成普通读者跳转到别的语言，检查的就不是你想看的那一页。
 
 ![读者进站时的判断顺序：爬虫不跳转、站内换页不跳转、选过语言就带到该语言、直接打开首页才按浏览器语言跳转，其他情况留在原版本](entry-flow.zh-CN.webp){: w="1600" h="900" }
 
@@ -208,9 +208,9 @@ Sitemap: https://justmao.com/en/sitemap.xml
 
 `i18n-hook.rb` 靠精确字符串匹配改写网址。这个做法简单，但很脆弱：哪天 Chirpy 主题或 jekyll-seo-tag 改了输出格式，例如在 `"url":` 后面多加一个空格，匹配就对不上，网址也就没被替换。构建不会报错，网站也照样能打开。
 
-所以本站另外写了一个检查程序 `tools/check-i18n.rb`。它不管 hook 怎么写，只看构建出来的成品：简中和英文的每一页，上面提到的每一类网址都要带正确的语言前缀，而且每一类都至少要找到一个网址。最后这条是防止“格式变了，所以一个都没抓到，所以零个错误”这种假的通过。它也会检查 `/zh-CN/robots.txt`、`/en/robots.txt` 不存在。
+所以我另外写了一个检查程序 `tools/check-i18n.rb`。它不管 hook 怎么写，只看构建出来的成品：简中和英文的每一页，上面提到的每一类网址都要带正确的语言前缀，而且每一类都至少要找到一个网址。最后这条是防止“格式变了，所以一个都没抓到，所以零个错误”这种假的通过。它也会检查 `/zh-CN/robots.txt`、`/en/robots.txt` 不存在。
 
-检查项目写成一张表，新增一类需要带前缀的网址时，在表上加一行就好。下面的 `head[s]` 只取网页的 `<head>` 那一段，因为像这篇文章的代码块里，也会出现同样的字符串：
+检查项目写成一张表，新增一类需要带前缀的网址时，我在表上加一行就好。下面的 `head[s]` 只取网页的 `<head>` 那一段，因为像这篇文章的代码块里，也会出现同样的字符串：
 
 ```ruby
 checks = [
@@ -227,13 +227,13 @@ checks = [
 
 三语不是免费的，实际的代价是这些：
 
-- **每篇文章要写三次。** 就算请 AI 起草，简中的用词和英文的语气还是要看过。原文修改后，两份译文也要跟着改。
+- **每篇文章要写三次。** 就算请 AI 起草，简中的用词和英文的语气我还是要看过。原文修改后，两份译文也要跟着改。
 - **构建要做的事变多。** polyglot 每个语言各构建一次完整的网站（默认会同时运行），语言越多，每次构建要做的事就越多。
-- **要多维护两个程序。** `i18n-hook.rb` 和 `check-i18n.rb` 都是因为 polyglot 没处理到才需要的。升级主题或插件之后，要重跑检查。
+- **要多维护两个程序。** `i18n-hook.rb` 和 `check-i18n.rb` 都是因为 polyglot 没处理到才需要的。升级主题或插件之后，我要重跑检查。
 
 ## 如果你也想做
 
-按本站的经验，顺序可以这样排：
+按我做这个网站的经验，顺序可以这样排：
 
 1. 先决定网址规则，哪个语言放根目录、其他语言用什么前缀。之后再改，所有旧网址都要做重定向。
 2. 把翻译规则写下来，尤其是分类和标签怎么对应。

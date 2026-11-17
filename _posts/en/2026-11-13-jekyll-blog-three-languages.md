@@ -16,7 +16,7 @@ I wanted three languages because my readers are not only in Taiwan. Once I actua
 
 This post uses the site's actual configuration to show how I handle these things. If you want to add multiple languages to your own personal site, you can use it as a reference from a site that is really running. This site uses Jekyll with the Chirpy theme. With other tools, the steps will be different, but most of the problems you need to solve are the same.
 
-> **Version note:** This post is based on the configuration in this site's repo as of 2026-11-13 (Taipei time), using Jekyll 4.4.1, Chirpy theme 7.6.0, and jekyll-polyglot 1.14.0. What I cite from Google and polyglot comes from their official docs, read the same day. The whole site's configuration is public in the [GitHub repo](https://github.com/justmaocom/justmaocom.github.io), where you can read the full contents of every file this post mentions except `CLAUDE.md`.
+> **Version note:** This post is based on the configuration in my site's repo as of 2026-11-13 (Taipei time), using Jekyll 4.4.1, Chirpy theme 7.6.0, and jekyll-polyglot 1.14.0. What I cite from Google and polyglot comes from their official docs, which I read the same day. I keep the whole site's configuration public in the [GitHub repo](https://github.com/justmaocom/justmaocom.github.io), where you can read the full contents of every file this post mentions except `CLAUDE.md`.
 {: .prompt-info }
 
 ## Before You Start: A Few Terms
@@ -97,7 +97,7 @@ Sidebar pages with their own text, such as "About" and "Projects," work the same
 
 ### The Translation Rules Live in the Repo
 
-Keeping the three versions consistent depends on written rules, not on memory. This site keeps its rules in the repo at [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md). That document is compiled from `CLAUDE.md`, the project notes the AI assistant reads; `CLAUDE.md` itself is listed in `.gitignore` and is not on GitHub. Whether I translate a post myself or have AI write the first draft, the same rules apply (for how to write a rules file for AI tools, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/)):
+Keeping the three versions consistent depends on written rules, not on memory. I keep the rules in the repo at [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md). That document is compiled from `CLAUDE.md`, the project notes the AI assistant reads; `CLAUDE.md` itself is listed in `.gitignore` and is not on GitHub. Whether I translate a post myself or have AI write the first draft, the same rules apply (for how to write a rules file for AI tools, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/)):
 
 - Simplified Chinese takes more than converting the characters. The wording has to change to what readers in mainland China use. For example, 軟體 (software) becomes 软件, 程式碼 (code) becomes 代码, and the corner-bracket quotation marks 「」 become “”. The same word depends on context. For example, 指令 becomes 命令 only when it means a command-line command.
 - The `tags` must be exactly the same in all three versions, because the languages share tag pages with the same names.
@@ -120,7 +120,7 @@ Here is what happens if these stay unfixed. A reader clicks "Share" on an Englis
 
 ![URLs on an English page are handled in three layers: polyglot fixes href links, i18n-hook.rb fixes og:url, JSON-LD, share buttons, search.json, and the feed, sitemap, and llms.txt, and check-i18n.rb checks the output](url-fix.en.webp){: w="1600" h="900" }
 
-This site fills in these URLs with a hook in `_plugins/i18n-hook.rb`. It runs after polyglot has finished, and replaces the exact string "this page's Traditional Chinese URL" with the URL for that language. Here is the core of the part that handles HTML:
+I wrote a hook in `_plugins/i18n-hook.rb` to fill in these URLs. It runs after polyglot has finished, and replaces the exact string "this page's Traditional Chinese URL" with the URL for that language. Here is the core of the part that handles HTML:
 
 ```ruby
 page_url = "#{ origin }#{ doc.url }"
@@ -160,13 +160,13 @@ This site outputs four lines in the `<head>` of every page, one for each languag
 
 All three language versions of a page come from the same template, so every version outputs the same four lines. That meets the "list itself" and "point to each other" rules without extra work. The template is `_includes/metadata-hook.html`, a spot Chirpy reserves for users to add things to the `<head>`.
 
-As for what `x-default` is for, Google says it is "used when no other language/region matches the user's browser setting." This site points it to the English version, because readers whose browser language is neither Chinese nor English are most likely to be able to read English.
+As for what `x-default` is for, Google says it is "used when no other language/region matches the user's browser setting." I point it to the English version, because readers whose browser language is neither Chinese nor English are most likely to be able to read English.
 
 Category pages are the one exception. Category names differ across the three languages. For example, the same category is 資訊安全 in Traditional Chinese, 信息安全 in Simplified Chinese, and Security in English. Because the names differ, the URLs differ too, and there is no one-to-one matching version. So category pages do not output hreflang.
 
 ### A Single robots.txt Lists All Three Sitemaps
 
-Each language generates its own sitemap: `/sitemap.xml`, `/zh-CN/sitemap.xml`, and `/en/sitemap.xml`. Search engines only read the `robots.txt` at the root of the domain, so this site has that one file list all three sitemaps:
+Each language generates its own sitemap: `/sitemap.xml`, `/zh-CN/sitemap.xml`, and `/en/sitemap.xml`. Search engines only read the `robots.txt` at the root of the domain, so I have that one file list all three sitemaps:
 
 ```text
 User-agent: *
@@ -178,7 +178,7 @@ Sitemap: https://justmao.com/zh-CN/sitemap.xml
 Sitemap: https://justmao.com/en/sitemap.xml
 ```
 
-There is a small trap here. When jekyll-sitemap, the plugin that generates the sitemaps, finds that a language has no `robots.txt`, it adds one automatically, so `/zh-CN/robots.txt` and `/en/robots.txt` show up after all. These two files do nothing except confuse people, so `i18n-hook.rb` waits until the sitemaps are generated, then takes these two files off the output list so they are never written.
+There is a small trap here. When jekyll-sitemap, the plugin that generates the sitemaps, finds that a language has no `robots.txt`, it adds one automatically, so `/zh-CN/robots.txt` and `/en/robots.txt` show up after all. These two files do nothing except confuse people, so I have `i18n-hook.rb` wait until the sitemaps are generated, then take these two files off the output list so they are never written.
 
 ![Pages in all three languages output the same four hreflang lines, with x-default pointing to English; a single robots.txt at the root lists all three sitemaps; category pages output no hreflang](hreflang.en.webp){: w="1600" h="900" }
 
@@ -196,7 +196,7 @@ This site's rules live in `assets/js/i18n.js`. Roughly, they work like this:
 
 These redirect rules only come into play when a reader arrives from outside the site. Moving between pages on the site never triggers a redirect, so a reader who clicks a link to another language stays in that language.
 
-The crawler list behind item 5 has one entry that is easy to miss: `Google-InspectionTool`, which Google Search Console uses to inspect URLs. Its User-Agent (the string a browser or crawler sends to identify itself) does not contain the word `bot`. At first, this site recognized crawlers only by words like `bot` and `crawl`, so it did not recognize this one. If you miss it, the tool may be treated as an ordinary reader and redirected to another language when it inspects an English page, and then it is not inspecting the page you wanted to check.
+The crawler list behind item 5 has one entry that is easy to miss: `Google-InspectionTool`, which Google Search Console uses to inspect URLs. Its User-Agent (the string a browser or crawler sends to identify itself) does not contain the word `bot`. At first, I matched crawlers only on words like `bot` and `crawl`, so the script did not recognize this one. If you miss it, the tool may be treated as an ordinary reader and redirected to another language when it inspects an English page, and then it is not inspecting the page you wanted to check.
 
 ![The order of checks when a reader arrives: no redirect for crawlers or in-site navigation, a saved language choice wins, browser language is used only on a direct home page visit, and everyone else stays on the version they opened](entry-flow.en.webp){: w="1600" h="900" }
 

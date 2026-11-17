@@ -10,12 +10,12 @@ image:
   alt: "把需求问清楚的关键是让同一个词代表同一件事；问答留在对话里，只有定义和少数重要决策才写进项目。"
 ---
 
-> **版本提醒（2026-10-19 核实）**：本文以 `1.2.3` 版为准。`mattpocock/skills` 在 2026-10-04 发布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的词汇表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名为 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 今后只会读写新文件名。按本文操作时，请把文中的 `CONTEXT.md` 换成 `GLOSSARY.md`；已有旧文件的项目，用 `git mv CONTEXT.md GLOSSARY.md` 改名。本文介绍的五个 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 中都还在。本系列之后会按新版全面更新。
+> **版本提醒（2026-10-19 核实）**：这篇我以 `1.2.3` 版为准。`mattpocock/skills` 在 2026-10-04 发布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 把本文的词汇表 `CONTEXT.md`／`CONTEXT-MAP.md` 改名为 `GLOSSARY.md`／`GLOSSARY-MAP.md`，`grill-with-docs`、`domain-modeling`、`wait-what` 今后只会读写新文件名。按本文操作时，请把文中的 `CONTEXT.md` 换成 `GLOSSARY.md`；已有旧文件的项目，用 `git mv CONTEXT.md GLOSSARY.md` 改名。我核实时，本文介绍的五个 skill 在最新的 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) 中都还在。我之后会按新版全面更新这个系列。
 {: .prompt-warning }
 
 你准备替订阅服务加入按席位计费功能。会议记录里同时出现“成员”、“用户”和“席位”，却没有人确认三个词是否代表同一件事。在讨论禁用成员是否仍要收费前，团队得先说清楚计费对象到底是人、账号，还是一份可以分配的资格。
 
-本文提到的 skill，可以先理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明。`mattpocock/skills` 把厘清需求的工作拆成访谈、词汇整理与重新说明。本文会厘清五个相关 skill 的分工，并说明访谈结束后哪些内容会留在项目里。
+这篇提到的 skill，我会先把它理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明。`mattpocock/skills` 把厘清需求的工作拆成访谈、词汇整理与重新说明。这篇我会厘清五个相关 skill 的分工，并说明访谈结束后哪些内容会留在项目里。
 
 > mattpocock/skills 系列｜第 2 篇
 >
@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 3 篇）：[先找出缺口，再决定要写规格还是拆工作单](/posts/mattpocock-skills-specs-work-breakdown/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 本文内容以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。
 {: .prompt-info }
 
 ## 先看懂五个 skill 的关系
@@ -61,7 +61,7 @@ _选任选其一个符合目前状况的入口，其余工作由内部流程接�
 
 ## domain-modeling 会创建项目词汇表
 
-`domain-modeling` 里的 domain 指项目所处理的事物与规则。以本文的例子来说，就是工作区、成员、席位与计费方式。这个 skill 会把确认过的名称写进 `CONTEXT.md`。你可以把这个文件理解成项目专用的词汇表。
+`domain-modeling` 里的 domain 指项目所处理的事物与规则。以本文的例子来说，就是工作区、成员、席位与计费方式。这个 skill 会把确认过的名称写进 `CONTEXT.md`。我把这个文件看成项目专用的词汇表。
 
 如果只是读取词汇表并沿用现有名称，不必特别启动 `domain-modeling`。只有在旧定义可能有问题、名称不够清楚或需要记录重要决定时，才需要它介入。
 
@@ -82,7 +82,7 @@ _同意使用同一个词，还不等于同意同一件事。_
 
 若项目使用多份词汇文档，它会先从 `CONTEXT-MAP.md` 找到正确位置。完整指令只有一段，可在 [`wait-what/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/wait-what/SKILL.md#L1-L7)核对。
 
-它的指令只要求重讲上一条消息，不会重新进行整场访谈。如果问题不只是一段话没听懂，而是整体需求仍然模糊，就该回到 `grill-with-docs` 继续访谈。
+它的指令只要求重讲上一条消息，不会重新进行整场访谈。如果问题不只是一段话没听懂，而是整体需求仍然模糊，我建议回到 `grill-with-docs` 继续访谈。
 
 ## 访谈结果不会全部写进同一份文档
 
@@ -103,13 +103,13 @@ _访谈结果依内容性质分别写入词汇表、ADR 或后续规格。_
 
 两个起点没有各自的题库，它们都把访谈交给 `grilling`。`grilling` 也没有固定轮数或题数。如果某一题需要前面的答案，AI 就会把它留到后面。所有问题都处理完，并由你确认双方理解一致，访谈才结束。
 
-访谈时间取决于有多少事情尚未决定，而不是你用了哪个 skill。与其计算 AI 问了几题，不如检查三件事：哪些问题已经有答案、哪些问题还在等前面的答案，以及词汇和 ADR 有没有写到正确的位置。
+访谈时间取决于有多少事情尚未决定，而不是你用了哪个 skill。比起计算 AI 问了几题，我会检查三件事：哪些问题已经有答案、哪些问题还在等前面的答案，以及词汇和 ADR 有没有写到正确的位置。
 
-`grill-with-docs` 会修改项目文档，团队仍要审查添加的词汇是否适合沿用，以及 ADR 是否符合三项条件。尚未谈妥的定义不该提早写入，否则下次接手的人或 AI 读到的只会是另一个含糊定义。
+`grill-with-docs` 会修改项目文档，所以我认为团队仍要审查添加的词汇是否适合沿用，以及 ADR 是否符合三项条件。尚未谈妥的定义不该提早写入，否则下次接手的人或 AI 读到的只会是另一个含糊定义。
 
 ## 先看手上有没有项目，再选起点
 
-先判断手上是否已有存放代码与文档的项目文件夹，再看卡住的是需求、词汇还是上一段说明。
+我会先判断手上是否已有存放代码与文档的项目文件夹，再看卡住的是需求、词汇还是上一段说明。
 
 | 目前状况 | 选择 | 不该期待它做什么 |
 | --- | --- | --- |
@@ -119,13 +119,13 @@ _访谈结果依内容性质分别写入词汇表、ADR 或后续规格。_
 | 只需要整理项目用语或重要决策 | `domain-modeling` | 不会收录所有需求答案 |
 | 上一段说明没有听懂 | `wait-what` | 不会重新进行整场访谈 |
 
-这张表用来选择起点，不是执行顺序。一般情况下，你只需启动一个起点，其余流程会自行接手。
+我整理这张表是要帮你选择起点，不是执行顺序。一般情况下，你只需启动一个起点，其余流程会自行接手。
 
 `grill-with-docs` 适合用一次对话就能厘清全貌的需求。如果需求大到无法在一次对话中厘清，[`ask-matt` 的选择规则](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L38-L46)会改为建议 `wayfinder`。`wayfinder` 是另一个 skill，用来先探索大型工作，找出可以从哪里开始。
 
 ## 模拟场景：把席位问到能写规格
 
-这次没有实际启动这组流程。以下内容只依原始规则推演，不是实测结果。场景是你已完成上一篇的项目设置，现在要在订阅服务的项目文件夹内处理按席位计费。
+写这篇时，我没有实际启动这组流程。以下内容只依原始规则推演，不是实测结果。场景是你已完成上一篇的项目设置，现在要在订阅服务的项目文件夹内处理按席位计费。
 
 以 Codex 这套 AI 编程助手为例，先输入需求并明确启动 `grill-with-docs`：
 
@@ -157,7 +157,7 @@ _Avoid_: 成员资格、订阅项目
 _Avoid_: 用户、席位
 ```
 
-这段是依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意内容，不是工具的实测输出。每个 `_Avoid_` 都列出容易混用、往后应避免的名称。
+这段是我依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意内容，不是工具的实测输出。每个 `_Avoid_` 都列出容易混用、往后应避免的名称。
 
 有了这些定义，第二轮才能追问邀请尚未接受时是否先保留席位、成员禁用后如何处理分配，以及增减席位何时影响价格。若现有代码直接以活跃成员数量计费，AI 也要指出新定义与现状不同，请你确认是否要改变行为。
 
@@ -169,7 +169,7 @@ _Avoid_: 用户、席位
 
 ## 我更在意留下什么
 
-到这里，启动方式与文档保存规则都有原始资料可查。但这些规则本身无法证明共用词汇一定会改善团队合作。
+到这里，我谈到的启动方式与文档保存规则都有原始资料可查。但这些规则本身无法证明共用词汇一定会改善团队合作。
 
 我仍认为，厘清需求后最值得留下的是下一个人能直接沿用的词汇，以及少数不容易从代码看懂的决策。问答会留在对话里，确认过的定义则能进入项目。
 
@@ -177,9 +177,9 @@ _Avoid_: 用户、席位
 
 ## 先让同一个词代表同一件事
 
-如果要试这套流程，可以先找出需求中最容易产生歧义的一个词，例如“席位”。在项目内启动 `grill-with-docs`，先确认它和“成员”的关系，再讨论邀请成员时是否占用席位，以及禁用后何时停止收费。
+如果你要试这套流程，我建议先找出需求中最容易产生歧义的一个词，例如“席位”。在项目内启动 `grill-with-docs`，先确认它和“成员”的关系，再讨论邀请成员时是否占用席位，以及禁用后何时停止收费。
 
-访谈的目标不是累积问题，而是让后续规格里的同一个词始终代表同一件事。下一篇会说明如何用 `to-spec` 整理规格，再用 `to-tickets` 把规格拆成一张张可以直接开工的工作单。
+访谈的目标不是累积问题，而是让后续规格里的同一个词始终代表同一件事。下一篇我会说明如何用 `to-spec` 整理规格，再用 `to-tickets` 把规格拆成一张张可以直接开工的工作单。
 
 ## 延伸阅读
 

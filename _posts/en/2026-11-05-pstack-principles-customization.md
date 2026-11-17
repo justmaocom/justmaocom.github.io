@@ -12,7 +12,7 @@ image:
 
 When an AI coding assistant got something wrong, I used to type out a long paragraph explaining what I actually wanted. pstack gives you a much easier way: just name a principle to tell it which way to adjust, then check that it really follows through.
 
-This is the last part of the series, and it covers three things: how to steer the AI mid-conversation with principle names; how to turn your own habits into a mode so the AI works your way; and, if you want it to work while you sleep, how to write the prompt, how to set permissions and spending limits, and how to check what it did when you get up in the morning.
+This is the last part of the series, and in it I cover three things: how to steer the AI mid-conversation with principle names; how to turn your own habits into a mode so the AI works your way; and, if you want it to work while you sleep, how to write the prompt, how to set permissions and spending limits, and how to check what it did when you get up in the morning.
 
 > pstack series | Part 4 (final part)
 >
@@ -21,12 +21,12 @@ This is the last part of the series, and it covers three things: how to steer th
 > - Next: this is the last part of the series
 {: .prompt-info }
 
-> **Version**: this post is based on pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. Later versions may behave differently.
+> **Version**: I based this post on pstack version [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. Later versions may behave differently.
 {: .prompt-info }
 
 ## Before You Start
 
-pstack is a set of skills in Cursor's official plugin repo; a skill is simply a set of instructions that tells the AI how to do one kind of work. I covered installation in [Part 1](/posts/pstack-install-routing/). If you want the same version this post uses, clone the repo, check out this post's commit, and add the folder as a marketplace (the source catalog Claude Code installs plugins from):
+pstack is a set of skills in Cursor's official plugin repo; a skill is simply a set of instructions that tells the AI how to do one kind of work. I covered installation in [Part 1](/posts/pstack-install-routing/). If you want the same version this post uses, clone the repo, check out the commit I checked against, and add the folder as a marketplace (the source catalog Claude Code installs plugins from):
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -35,7 +35,7 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-If you install with `/plugin marketplace add cursor/plugins` instead, you get whatever happens to be latest at that moment, not the version you've reviewed. For why that's risky, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+If you install with `/plugin marketplace add cursor/plugins` instead, you get whatever happens to be latest at that moment, not the version you've reviewed. I covered why that's risky in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
 **Commands need a prefix.** In Claude Code (an AI coding assistant you use in the terminal), plugin commands start with the plugin name, such as `/pstack:correct`. The examples below use the Claude Code form; in Cursor, drop the `pstack:`.
 
@@ -158,7 +158,7 @@ _Four common principles, and when to say their names._
 
 ### How to Tell It Really Applied the Rule
 
-Naming a principle isn't the same as following it. The guide says the reply has to state **which decision the rule changed**; if it cites the name but can't point to a decision it changed, the agent just name-dropped the rule without applying it ([guide chapter 8](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L27)). The guide also says there's no need to memorize the list: skim it once, then come back for the name the next time you see the agent do something one of the principles could have prevented ([guide chapter 8](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L70)).
+I don't assume that naming a principle means the agent followed it. The guide says the reply has to state **which decision the rule changed**; if it cites the name but can't point to a decision it changed, the agent just name-dropped the rule without applying it ([guide chapter 8](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L27)). The guide also says there's no need to memorize the list: skim it once, then come back for the name the next time you see the agent do something one of the principles could have prevented ([guide chapter 8](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L70)).
 
 ## Make It Work Your Way
 
@@ -183,7 +183,7 @@ Naming a principle isn't the same as following it. The guide says the reply has 
 5. **Edits the prose.** It runs `/unslop` so every line is direct and clear.
 6. **Delivers it as requested.** In the guide's full workflow, it commits in a worktree (a separate working directory for the same repo) and then opens a PR rather than pushing straight to main. The prompt above, though, explicitly asks for a draft and no commit, so this run should stop at the draft and wait until you've read it and decided whether to send it for review.
 
-**What you get**: a draft `<your-name>-mode/SKILL.md`. Claude Code protects the project's `.claude/` folder, so a write there either asks you first or is refused ([permission modes](https://code.claude.com/docs/en/permission-modes#protected-paths)). If it's refused, have it write somewhere else first, then move the file in yourself once you've read it.
+**What you get**: a draft `<your-name>-mode/SKILL.md`. Claude Code protects the project's `.claude/` folder, so a write there either asks you first or is refused ([permission modes](https://code.claude.com/docs/en/permission-modes#protected-paths)). If it's refused, I'd suggest having it write somewhere else first; once you've read the file, move it in yourself.
 
 **Next step**: read it and ask yourself, "Does this read like me? What did it miss?" ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/automate-me/SKILL.md#L94-L96)). Keep in mind that it mines **your conversations in this project**; if most of them were for something unusual, such as one-off tests, the result won't look like the way you usually work. When your habits change later, just run an update:
 
@@ -214,7 +214,7 @@ Naming a principle isn't the same as following it. The guide says the reply has 
 
 ### /correct: Make the Same Mistake Impossible
 
-**When to use it**: you keep correcting the AI for the same kind of mistake. The fix belongs in the repo, not in your next prompt.
+**When to use it**: you keep correcting the AI for the same kind of mistake. I think the fix belongs in the repo, not in your next prompt.
 
 **What to type**: when you know the mistake, name it (from [guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L45)):
 
@@ -241,7 +241,7 @@ If you can't say what the recurring mistake is, leave the description off and le
 
 **What you get**: the evidence for each class, the level it picked, and why a higher level couldn't work, plus one commit per class.
 
-**Next step**: go through the commits one by one. It may touch your CI config or existing tests, and you should see those changes before anything gets pushed. So run `/correct` in a session you're watching, not in an unattended prompt.
+**Next step**: go through the commits one by one. It may touch your CI config or existing tests, and you should see those changes before anything gets pushed. So I'd run `/correct` in a session I'm watching, not in an unattended prompt.
 
 The difference between the two: `/reflect` improves skills based on one conversation, while `/correct` changes the repo so a whole class of mistakes can't come back ([guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L50)). One more thing: **don't edit a skill in the middle of a task**. Write down what you'd improve, finish the task, then handle the skill change separately; if it needs a commit, put it in its own PR ([guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L98)).
 
@@ -281,10 +281,10 @@ What each line does:
 
 - **"im going to bed"** tells `/poteto-mode` to keep the authorized work moving for the rest of this session and check in less often. It still has to respect your prohibitions, though, and it still stops for actions that need confirmation or when it's genuinely stuck ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L80)).
 - **"done means"** has to be a condition every iteration can actually check, such as "all tests pass" or "nothing calls the old function." The guide warns that **a duration is not a finish condition**: "work on this for 4 hours" gives the agent nothing to check, and you'll wake up to four hours of busywork instead of a result ([guide chapter 7](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L120)).
-- **"task branch"** keeps the commits separate, but it doesn't isolate uncommitted changes in the same working directory. If you don't want it getting in the way of your other work, follow the guide's advice and use a fresh worktree; Claude Code's `-w` (`--worktree`) option starts a session directly in its own worktree ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
+- **"task branch"** keeps the commits separate, but it doesn't isolate uncommitted changes in the same working directory. If you don't want it getting in the way of your other work, I'd follow the guide's advice and use a fresh worktree; Claude Code's `-w` (`--worktree`) option starts a session directly in its own worktree ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
 - **"don't ask me"** answers ahead of time the questions it would otherwise stop to ask. This template only clears committing on a new local branch. Pushing and opening a PR need your explicit go-ahead in both the prompt and the permission settings (see Autopilot-stack below); merging and other irreversible actions still need a human to confirm.
 - **"never"** draws the line. Writing it in the prompt isn't enough; you also need to block it with permission settings, which I'll cover next.
-- **"if you're truly stuck"** is the escape hatch. Rather than spending the night creatively reinterpreting the goal, it should stop when it hits a genuine dead end and write up what happened.
+- **"if you're truly stuck"** is the escape hatch. Instead of letting it spend the night creatively reinterpreting the goal, I'd rather it stop when it hits a genuine dead end and write up what happened.
 
 The guide's template ends with `/loop`, Cursor's built-in command for waking the AI on a schedule or an event; it isn't a pstack skill ([guide chapter 7](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L35)). Claude Code has its own `/loop`, but it works differently and I won't cover it here; the template above skips it and drives the work to done within a single conversation.
 
@@ -295,7 +295,7 @@ The guide's template ends with `/loop`, Cursor's built-in command for waking the
 3. **Makes the smallest change each iteration** and checks it against the finish condition; it commits progress and discards what didn't help, keeping nothing that only "might help."
 4. **Handles mid-run discoveries that support the goal** without stopping to ask; it leaves only irreversible actions, product or preference calls no experiment can settle, and genuine dead ends for you.
 5. **Logs one row per iteration** in the decision log.
-6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)). If the run hits the `--max-budget-usd` cap, Claude Code stops it outright and it may not get to write anything, so in the morning go by the last log row and the commits.
+6. **Claims success only when the finish condition is met.** If it plateaus, it changes approach. If it hits a decision only you can make, or genuinely can't get any further, it records the unfinished state and why, instead of loosening the finish condition to declare success ([autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)). If the run hits the `--max-budget-usd` cap, Claude Code stops it outright and it may not get to write anything, so in the morning I'd go by the last log row and the commits.
 
 **What you get**: a reply with the finish condition, the number of iterations, what it kept, what it discarded, and the final state of the finish condition, plus a decision log.
 
@@ -327,7 +327,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 - `--disallowedTools`: the denylist. Deny rules apply in every permission mode ([permission modes](https://code.claude.com/docs/en/permission-modes#available-modes)).
 - `--max-budget-usd`: stops the run once estimated spend reaches this amount; it works only with `claude -p` ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
 
-If `claude -p` runs with no permission mode set, actions that need approval are simply denied ([permission modes](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)). If the allowlist leaves out a command the task needs, the task may not finish; in the morning, check the log to decide whether to adjust it. Also, this example blocks only some tools and commands. It doesn't fully prevent network access, file deletion, or changes outside the working directory, because a program you allow can still do those things itself. To actually enforce those boundaries, you need a sandbox, a container, or similar isolation settings.
+If `claude -p` runs with no permission mode set, actions that need approval are simply denied ([permission modes](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)). If the allowlist leaves out a command the task needs, the task may not finish; in the morning, I'd check the log to decide whether to adjust it. Also, this example blocks only some tools and commands. It doesn't fully prevent network access, file deletion, or changes outside the working directory, because a program you allow can still do those things itself. To actually enforce those boundaries, you need a sandbox, a container, or similar isolation settings.
 
 ### Stopping on Purpose, or Picking Up Tomorrow
 
@@ -347,7 +347,7 @@ If you have several unrelated changes for one night, the guide offers two playbo
 /pstack:poteto-mode autopilot these five changes. you may push branches and open PRs; don't merge. i'll land them in the morning.
 ```
 
-With the earlier `claude -p` setup, remove `Bash(git push *)` from the denylist, add `Bash(git push -u origin feat/*)` and `Bash(gh pr create *)` to the allowlist, and add `Bash(git push *--force*)`, `Bash(git push *-f*)`, `Bash(git push *main*)`, and `Bash(gh pr merge *)` to the denylist. These rules only match how a command is written, so the real wall is on GitHub: protect main so changes must go through a PR and force pushes are blocked, and turn on "Do not allow bypassing the above settings", because branch protection doesn't apply to repo admins by default, and the AI pushes as you. Because the rules match text literally, keep "-f" and "main" out of branch names (`feat/add-format` or `feat/domain-check` would be blocked, for example), or ordinary pushes get blocked too. If your default branch is master, use master instead of main in the deny rule. Also, if you reuse the earlier six-part template, drop "go online" from its never line this time, since pushing and opening PRs need the network.
+With the earlier `claude -p` setup, remove `Bash(git push *)` from the denylist, add `Bash(git push -u origin feat/*)` and `Bash(gh pr create *)` to the allowlist, and add `Bash(git push *--force*)`, `Bash(git push *-f*)`, `Bash(git push *main*)`, and `Bash(gh pr merge *)` to the denylist. These rules only match how a command is written, so I'd put the real wall on GitHub: protect main so changes must go through a PR and force pushes are blocked, and turn on "Do not allow bypassing the above settings", because branch protection doesn't apply to repo admins by default, and the AI pushes as you. Because the rules match text literally, keep "-f" and "main" out of branch names (`feat/add-format` or `feat/domain-check` would be blocked, for example), or ordinary pushes get blocked too. If your default branch is master, use master instead of main in the deny rule. Also, if you reuse the earlier six-part template, drop "go online" from its never line this time, since pushing and opening PRs need the network.
 
 ## In the Morning: Audit the Decision Log With /show-me-your-work
 
@@ -385,7 +385,7 @@ The core principle behind letting the AI run on its own is [never-block-on-the-h
 
 `/poteto-mode` also says that even after "im going to bed," it **always pauses** for these: force-pushing to shared branches, deploys, data deletion, and customer messages ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L78-L80)).
 
-But note that the same SKILL.md also says reversible work, plus external actions like team chat, ticket updates, and kicking off evals, go ahead without asking, using any MCP tool ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L76)). So don't read "irreversible actions need confirmation" as "every external message gets asked about first": the document treats internal team messages differently from customer messages. If you don't want it posting anywhere, say so under Never and block those MCP tools with `--disallowedTools`.
+But I'd point out that the same SKILL.md also says reversible work, plus external actions like team chat, ticket updates, and kicking off evals, go ahead without asking, using any MCP tool ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L76)). So don't read "irreversible actions need confirmation" as "every external message gets asked about first": the document treats internal team messages differently from customer messages. If you don't want it posting anywhere, say so under Never and block those MCP tools with `--disallowedTools`.
 
 ![Let reversible actions run, ask before irreversible ones; permissions and spending caps back that up](ask-line.en.webp){: w="800" h="450" }
 _The line is whether an action can be undone. The prompt is the first line of defense; permission settings are the second._
@@ -415,22 +415,22 @@ The prompt states your intent, permission rules restrict tool calls, and isolati
 A few things to know:
 
 - **Deny rules always apply**, even in `bypassPermissions`; but in `bypassPermissions`, allow rules have no effect.
-- **Some folders are protected.** Writes to folders such as `.git` and `.claude` ask you first in `default` and `acceptEdits`, and are refused in `dontAsk` ([protected paths](https://code.claude.com/docs/en/permission-modes#protected-paths)). That's actually a good thing: the AI can't sneakily rewrite its own settings. So when `/automate-me` or `/reflect` writes a skill, be ready for it to stop here.
+- **Some folders are protected.** Writes to folders such as `.git` and `.claude` ask you first in `default` and `acceptEdits`, and are refused in `dontAsk` ([protected paths](https://code.claude.com/docs/en/permission-modes#protected-paths)). I think that's actually a good thing: the AI can't sneakily rewrite its own settings. So when `/automate-me` or `/reflect` writes a skill, be ready for it to stop here.
 - **Don't turn off every check just to avoid interruptions.** `bypassPermissions` belongs only in an isolated container or VM ([common setups](https://code.claude.com/docs/en/permission-modes#common-setups)).
 
 ### Spending: Set a Cap First
 
 Unattended work may spin up several subagents, and it can end up costing more than you expect.
 
-- Add `--max-budget-usd` to `claude -p`. The amount is Claude Code's own estimate, which can differ from your actual bill and can slightly overshoot, so leave some headroom; subagent spend counts toward it; and when you continue with `--resume`, earlier spend doesn't count toward this run's cap ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
+- Add `--max-budget-usd` to `claude -p`. The amount is Claude Code's own estimate, which can differ from your actual bill and can slightly overshoot, so I'd leave some headroom; subagent spend counts toward it; and when you continue with `--resume`, earlier spend doesn't count toward this run's cap ([CLI reference](https://code.claude.com/docs/en/cli-reference)).
 - If you're on a subscription such as Pro or Max with usage credits turned on, remember to set a monthly spend limit in claude.ai under Settings → Usage ([costs](https://code.claude.com/docs/en/costs)).
 - If you use Cursor, check your plan's usage and limit settings too before letting it run alone.
 
-For more on permission and supply-chain risks, and how to tighten permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+For more on permission and supply-chain risks, and how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Full Example: One Day's Flow
 
-This continues Part 3's fictional example: a command-line tool that exports data.
+This continues the example I made up in Part 3: a command-line tool that exports data.
 
 **Daytime: steer with principle names.** I ask for a new option:
 
@@ -516,15 +516,15 @@ I approve only the items that would change a future decision. After a while, I r
 - **Letting the AI read every project's transcripts**: only let `/automate-me` and `/reflect` read this project's conversations.
 - **A cross-vendor review that isn't**: check `reviewed by` in Attention; in Claude Code, the reviewer is still a Claude model.
 - **No spending cap**: add `--max-budget-usd` to `claude -p`, and set your plan's spend limit.
-- **Versions**: all of this follows pstack `0.15.43`'s docs, and later versions may work differently.
+- **Versions**: I put all of this together from pstack `0.15.43`'s docs, and later versions may work differently.
 
 ## Conclusion
 
-To change how the AI works with one phrase, type `/pstack:principle-<name>` mid-conversation, then check that its reply says which decision the principle changed.
+To change how the AI works with one phrase, I'd type `/pstack:principle-<name>` mid-conversation, then check that its reply says which decision the principle changed.
 
 To have the AI work your way, use `/automate-me` to build your own mode from your conversations and `/reflect` to write one conversation's lessons back into a skill, while `/correct` changes the repo itself so the same mistake can't recur.
 
-To let it run while you're away, first check that this kind of work meets the four conditions above, then write the goal, a checkable finish condition, the decision log, what not to ask about, what it must never do, and how to stop when stuck; back those boundaries up with permission rules and isolation settings, set a spending cap, and in the morning start your `/show-me-your-work` audit from Attention. Within the scope you've authorized, let it finish the reversible work; decisions that can't be undone stay in your hands.
+To let it run while you're away, first check that this kind of work meets the four conditions above, then write the goal, a checkable finish condition, the decision log, what not to ask about, what it must never do, and how to stop when stuck; back those boundaries up with permission rules and isolation settings, set a spending cap, and in the morning start your `/show-me-your-work` audit from Attention. As I see it, within the scope you've authorized, let it finish the reversible work; decisions that can't be undone stay in your hands.
 
 ## Further Reading
 

@@ -10,9 +10,9 @@ image:
   alt: "How to install pstack, check its version, pick models with /setup-pstack, and then hand every task to /poteto-mode."
 ---
 
-pstack helps an AI coding assistant work in a more orderly way, but open it up and there are dozens of skills. This post shows you how to start: install pstack, confirm which version you got, pick your models, and then hand every task to `/poteto-mode`. You don't need to learn every name first.
+pstack helps an AI coding assistant work in a more orderly way, but open it up and there are dozens of skills. In this post, I'll show you how to start: install pstack, confirm which version you got, pick your models, and then hand every task to `/poteto-mode`. You don't need to learn every name first.
 
-A few terms first. An AI coding assistant is a tool such as Cursor or Claude Code that can read and write the files in your project and write code for you. A skill is a set of instructions that tells the AI how to do one kind of work, and you call it with a slash command such as `/poteto-mode`. pstack is a set of skills that Lauren Tan maintains in Cursor's official plugin repository, [`cursor/plugins`](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack). A playbook is a fixed list of steps for one type of task; for example, "fix a bug" means reproduce it, find the cause, fix it, and then verify. A subagent is a separate AI that the main chat sends off to do one small piece of work. A token is the unit an AI's usage is counted in; the more it reads and writes, the more tokens it uses.
+First, I'll explain a few terms. An AI coding assistant is a tool such as Cursor or Claude Code that can read and write the files in your project and write code for you. A skill is a set of instructions that tells the AI how to do one kind of work, and you call it with a slash command such as `/poteto-mode`. pstack is a set of skills that Lauren Tan maintains in Cursor's official plugin repository, [`cursor/plugins`](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack). A playbook is a fixed list of steps for one type of task; for example, "fix a bug" means reproduce it, find the cause, fix it, and then verify. A subagent is a separate AI that the main chat sends off to do one small piece of work. A token is the unit an AI's usage is counted in; the more it reads and writes, the more tokens it uses.
 
 The whole flow has four steps: install once, check the version, pick models once with `/setup-pstack`, and start every new task with `/poteto-mode`. Say what you want and what "done" looks like, and it picks the playbook. When you're not sure what to use, ask `/poteto-help`.
 
@@ -23,14 +23,14 @@ The example prompts in this post are generic. Copy them and swap in details from
 > - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
 > - Next (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
 >
-> **Version note**: This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (2026-11-17 05:47 Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
+> **Version note**: I based this post on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (2026-11-17 05:47 Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
 {: .prompt-info }
 
 ## What pstack Installs
 
 Version `0.15.43` has 58 skills, and each skill is a slash command. It also has two dedicated subagents, `poteto-agent` and `comment-sicko`, plus 22 playbooks under `poteto-mode`.
 
-In Claude Code, a plugin's commands carry the plugin's name as a prefix, so Cursor's `/poteto-mode` becomes `/pstack:poteto-mode` (see the [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)). The examples below use the Claude Code form; in Cursor, just drop `pstack:`. Other differences are listed in the official [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md).
+In Claude Code, a plugin's commands carry the plugin's name as a prefix, so Cursor's `/poteto-mode` becomes `/pstack:poteto-mode` (see the [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L30)). I use the Claude Code form in the examples below; in Cursor, just drop `pstack:`. Other differences are listed in the official [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md).
 
 ![Four steps: install pstack, check and update or pin the version, pick models with /setup-pstack, start each task with /poteto-mode](install-setup-flow.en.webp){: width="800" height="450" }
 _The first-run flow: install, check the version, pick models, then start from /poteto-mode._
@@ -52,22 +52,22 @@ In Claude Code, first add the `cursor/plugins` GitHub repo (repository: the proj
 
 `pstack@cursor-plugins` on the second line means "install pstack from the cursor-plugins catalog." According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#install-a-plugin), typing `/plugin install` in a chat doesn't install right away. It first opens the plugin's details pane so you can see what it adds, and then asks you to pick a scope. "Install for you" (user scope) makes it available in every project on this machine.
 
-> None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment (the default branch is the main line of work in a repo, usually called main). For what to check before installing someone else's plugin, see [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
+> None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment (the default branch is the main line of work in a repo, usually called main). I covered what to check before installing someone else's plugin in [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
-There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, read through it and pin a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
+There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, I suggest reading through it and pinning a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Step 2: Check the Version, Update, or Pin It
 
 ### See Which Version You Got
 
-After installing, confirm which version you have. According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#install-a-plugin), running this line in your terminal (the window where you type commands) lists each plugin with its `Version`, `Scope`, and `Status`. You can also type `/plugin` in a chat and open the Installed tab.
+After installing, I'd first check which version was installed. According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#install-a-plugin), running this line in your terminal (the window where you type commands) lists each plugin with its `Version`, `Scope`, and `Status`. You can also type `/plugin` in a chat and open the Installed tab.
 
 ```bash
 claude plugin list
 ```
 
-Compare the version with [`plugin.json`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) to see whether you have the same version this post uses.
+Compare the version with [`plugin.json`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) to see whether you have the same version I based this post on.
 
 ### Updates: Off by Default
 
@@ -80,18 +80,18 @@ According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/inst
 claude plugin update pstack@cursor-plugins
 ```
 
-> Before you update, look at what changed in pstack on `cursor/plugins`, then decide. Turning on auto-update means you accept every new change as it lands. The [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why this matters.
+> Before you update, I suggest looking at what changed in pstack on `cursor/plugins`, then deciding. Turning on auto-update means you accept every new change as it lands. The [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why this matters.
 {: .prompt-tip }
 
-This post doesn't cover how updates work on the Cursor side.
+In this post, I don't cover how updates work on the Cursor side.
 
 ### Pin a Specific Commit
 
 A commit is one saved version in git (the most widely used version-control tool), and each commit has an ID (its SHA). To keep pstack on a commit you've reviewed, you can use a local folder as the marketplace.
 
-Here's why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) (a tag is a fixed name given to one commit, such as v1.0), but when I checked on 2026-11-17, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
+First, I'll explain why. In Claude Code's official [command reference](https://code.claude.com/docs/en/plugins/cli-reference#plugin-install), `/plugin install` has no option for a version or commit. `/plugin marketplace add` lets you add `#ref` after the repo to [pin a branch or tag](https://code.claude.com/docs/en/plugins/install#add-a-marketplace) (a tag is a fixed name given to one commit, such as v1.0), but when I checked on 2026-11-17, `cursor/plugins` had no tags. The `sha` field that can pin a commit lives in the catalog's `marketplace.json` and is set by the catalog's maintainer (see the [marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference#plugin-sources)); the pstack entry in `cursor/plugins` doesn't set it.
 
-The official docs support adding a local folder as a marketplace. So you can download (clone) the repo to your computer, check out the commit you reviewed, and add that folder as a marketplace. Using this post's commit as the example, run in your terminal:
+The official docs support adding a local folder as a marketplace. So you can download (clone) the repo to your computer, check out the commit you reviewed, and add that folder as a marketplace. I'll use this post's commit as the example. In your terminal, run:
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -102,7 +102,7 @@ claude plugin install pstack@cursor-plugins
 
 If you already added `cursor/plugins` from GitHub, both sources use the catalog name `cursor-plugins`. You can remove the old one with `claude plugin marketplace remove cursor-plugins` and then run the commands above. Note that according to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#manage-marketplaces), removing a marketplace also uninstalls every plugin you installed from it, so you'll need to install again afterward.
 
-This is the same "clone, then check out a reviewed commit" approach the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) recommends. To upgrade later, check out a newer commit in that folder and then update the plugin.
+This is the same "clone, then check out a reviewed commit" approach I recommend in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/). To upgrade later, check out a newer commit in that folder and then update the plugin.
 
 ## Step 3: Pick Models With /setup-pstack
 
@@ -137,7 +137,7 @@ There are three budgets. According to the [setup guide](https://github.com/curso
 
 **Next**: open a new chat. According to the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L43), the model settings only apply to new sessions.
 
-> **Pick only models your account can actually use.** According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45), in Claude Code the "detected models" are the model names the subagent tool accepts. That doesn't mean your account or plan can use every one of them. If you're not sure, set a role to `inherit-parent` or `auto`, and it uses the main chat's model (see the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)).
+> **Pick only models your account can actually use.** According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45), in Claude Code the "detected models" are the model names the subagent tool accepts. That doesn't mean your account or plan can use every one of them. If you're not sure, I suggest setting a role to `inherit-parent` or `auto`, so it uses the main chat's model (see the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)).
 {: .prompt-tip }
 
 ## When You're Unsure: Ask /poteto-help
@@ -251,7 +251,7 @@ The [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ed
 
 ## A Full Example (Fictional)
 
-The scenario below is made up to show the flow. It is not a record of a real run.
+I made up the scenario below to show the flow. It is not a record of a real run.
 
 Say you've just joined a web app project and want to use pstack on a user report: "The link in the password reset email says it has expired as soon as I click it."
 
@@ -282,14 +282,14 @@ This description gives the symptom, the done check, and the proof you want. It d
 - **Small edits don't need pstack.** The [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L52) is clear on this: for a small, obvious edit, just ask.
 - **pstack uses extra tokens.** It sends out subagents and review panels, and that's the price of the rigor. The [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L45-L52) lists ways to spend fewer: rerun `/setup-pstack` with a smaller budget or cheaper models, set a role to `auto` or `inherit-parent` so it uses the main chat's model, shorten a review panel's model list (each entry runs one more subagent), and save `/poteto-mode` for work that needs rigor.
 - **The model settings are global.** A change affects every project on this computer.
-- **Check what changed before you update.** Claude Code leaves auto-update off for third-party marketplaces, which gives you the chance to look first.
+- **Check what changed before you update.** Claude Code leaves auto-update off for third-party marketplaces, and as I see it, that gives you the chance to look first.
 - **Don't order skills in your prompt.** Let the playbook do it.
 
-If you'd like to see another skill set built around "set up first, then let a help desk suggest the next step," read [Part 1 of the mattpocock/skills series](/posts/mattpocock-skills-setup-routing-guide/) and the [series guide](/posts/mattpocock-skills-series-guide/).
+If you'd like to see another skill set built around "set up first, then let a help desk suggest the next step," read [Part 1 of the mattpocock/skills series](/posts/mattpocock-skills-setup-routing-guide/) and the [series guide](/posts/mattpocock-skills-series-guide/), which I wrote earlier.
 
 ## Conclusion
 
-You don't need to learn every skill before using pstack. Install it once from the official source, check the version with `claude plugin list`, and look at what changed before you update. Pick models once with `/setup-pstack`, and only pick ones your account can use. Then start every new task with `/poteto-mode` (`/pstack:poteto-mode` in Claude Code), state the goal and what counts as done, and let it pick the playbook. When you're unsure, ask `/poteto-help`. The next part covers how to use pstack to understand the code, then design, before you change it.
+I don't think you need to learn every skill before using pstack. Install it once from the official source, check the version with `claude plugin list`, and look at what changed before you update. Pick models once with `/setup-pstack`, and only pick ones your account can use. Then start every new task with `/poteto-mode` (`/pstack:poteto-mode` in Claude Code), state the goal and what counts as done, and let it pick the playbook. When you're unsure, ask `/poteto-help`. In the next part, I'll cover how to use pstack to understand the code, then design, before you change it.
 
 ## Further Reading
 

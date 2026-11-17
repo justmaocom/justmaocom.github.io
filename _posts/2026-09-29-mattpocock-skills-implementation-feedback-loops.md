@@ -10,12 +10,12 @@ image:
   alt: "AI 自己寫程式也寫測試時，要看它改不了的東西：你確認過的測試位置，和出自規格的預期值。"
 ---
 
-> **版本提醒（2026-10-19 查證）**：本文以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介紹的四個 skill 都還在，但有三點不同：原本還在試驗中的 `implement-spec` 移入官方 plugin，它會一次實作整份規格，用 worktree（同一個 repo 的多個工作目錄）平行處理多張工作單，是逐張使用 `implement` 之外的另一種做法；同樣移入官方 plugin 的 `retro` 是主線最後一步，在 `code-review` 之後回顧這次工作；`tdd`、`diagnosing-bugs` 讀的詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`。`1.3.1` 起，`ask-matt` 會在修完 bug 後建議執行 `retro`。本系列之後會依新版全面更新。
+> **版本提醒（2026-10-19 查證）**：這篇我以 `1.2.3` 版為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)。本文介紹的四個 skill 都還在，但有三點不同：原本還在試驗中的 `implement-spec` 移入官方 plugin，它會一次實作整份規格，用 worktree（同一個 repo 的多個工作目錄）平行處理多張工作單，是逐張使用 `implement` 之外的另一種做法；同樣移入官方 plugin 的 `retro` 是主線最後一步，在 `code-review` 之後回顧這次工作；`tdd`、`diagnosing-bugs` 讀的詞彙表從 `CONTEXT.md` 改名為 `GLOSSARY.md`。`1.3.1` 起，`ask-matt` 會在修完 bug 後建議執行 `retro`。這個系列之後我會依新版全面更新。
 {: .prompt-warning }
 
-上一篇用 `to-tickets` 把按席次計費切成三張工作單，每張都貼上了 `ready-for-agent`，表示資訊已經齊全，可以交給 AI 接手。現在要開一個新的對話，讓 AI 實作其中一張「停用成員並釋放席次」。它會自己改程式，也會自己寫測試，最後回報「測試全部通過」。
+在我上一篇的推演裡，`to-tickets` 把按席次計費切成三張工作單，每張都貼上了 `ready-for-agent`，表示資訊已經齊全，可以交給 AI 接手。現在要開一個新的對話，讓 AI 實作其中一張「停用成員並釋放席次」。它會自己改程式，也會自己寫測試，最後回報「測試全部通過」。
 
-可是這些測試也是 AI 寫的。它可能只是在替自己剛寫的程式背書，根本沒對照需求。程式和測試都由 AI 寫，你要看什麼才知道它做對了？
+可是這些測試也是 AI 寫的。我擔心的是，它可能只是在替自己剛寫的程式背書，根本沒對照需求。程式和測試都由 AI 寫，你要看什麼才知道它做對了？
 
 `mattpocock/skills` 把這一段交給四個 skill：`implement`、`tdd`、`diagnosing-bugs` 與 `prototype`，每個 skill 看的訊號都不一樣。
 
@@ -25,7 +25,7 @@ image:
 > - 下一篇（第 5 篇）：[程式寫完之後，誰來看結構、審修改、解衝突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 本文資料以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程依原始指令推演；文中的紅燈與綠燈測試輸出則是實際執行結果。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。按席次計費的 skill 呼叫流程是我依原始指令推演的；文中的紅燈與綠燈測試輸出，則是我實際執行的結果。
 {: .prompt-info }
 
 ## 先認識幾個詞
@@ -43,7 +43,7 @@ image:
 
 這四個 skill 都放在 repo 的 `skills/engineering/` 底下，套件授權是 [MIT](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L10)。它們在 `ask-matt` 的路線圖裡位置不同。
 
-`implement` 位在主流程的最後一段。[`ask-matt` 的主流程](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L22-L26)寫明，它在實作每張工作單時會搭配 `tdd`，完成後再跑 `code-review`。`code-review` 負責審查這次修改的程式，第 5 篇會介紹。`diagnosing-bugs` 是另一個入口，[專門處理「東西壞了」](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)。`prototype` 則是需求討論中的岔路，[遇到只靠對話談不定的設計問題時才走](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)。
+`implement` 位在主流程的最後一段。[`ask-matt` 的主流程](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L22-L26)寫明，它在實作每張工作單時會搭配 `tdd`，完成後再跑 `code-review`。`code-review` 負責審查這次修改的程式，第 5 篇我會介紹。`diagnosing-bugs` 是另一個入口，[專門處理「東西壞了」](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)。`prototype` 則是需求討論中的岔路，[遇到只靠對話談不定的設計問題時才走](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L18-L21)。
 
 | skill | 什麼時候出場 | 靠什麼判斷做對了 |
 | --- | --- | --- |
@@ -69,7 +69,7 @@ Commit your work to the current branch.
 ```
 {: file="skills/engineering/implement/SKILL.md" }
 
-逐行看，AI 會做下面五件事：
+我逐行看下來，AI 會做下面五件事：
 
 1. 讀你指定的規格或工作單，依照內容實作。
 2. 能用 `tdd` 的地方就用，而且只在事先談好的測試接點上寫測試。
@@ -77,7 +77,7 @@ Commit your work to the current branch.
 4. 做完後呼叫 `code-review` 審查這次的修改。
 5. 把成果 commit 到目前的分支。
 
-要注意第 3 點：整套測試只在最後跑一次，所以這張工作單沒有動到的測試檔，要到最後才會執行。如果這次修改不小心弄壞了別處的功能，也要到那時才會發現。
+我會注意第 3 點：整套測試只在最後跑一次，所以這張工作單沒有動到的測試檔，要到最後才會執行。如果這次修改不小心弄壞了別處的功能，也要到那時才會發現。
 
 `implement` 不會自己啟動。它的 front matter 設定了 [`disable-model-invocation: true`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/SKILL.md#L4)，`agents/openai.yaml` 也寫了 [`allow_implicit_invocation: false`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/agents/openai.yaml#L5)。AI 不會因為聊到「開始寫吧」就自行執行它，要由你明確呼叫。
 
@@ -135,9 +135,9 @@ _還沒有會亮紅燈的指令，推測再多也無法確認哪一個對。_
 4. **修正並補回歸測試。** 回歸測試用來確認同一個 bug 不會再出現。先寫一個會失敗的回歸測試，再修正。前提是[找得到正確的測試接點](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L114-L128)；如果找不到，也說明了一件事：現在的程式結構沒辦法用測試擋住這個 bug 再次出現。
 5. **[清理](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L130-L138)。** 重跑原本的迴路、確認回歸測試通過、刪掉 `[DEBUG-` 開頭的輸出，並把最後證實的假設寫進 commit 或 PR 訊息。
 
-第 2 步的假設要寫成「如果原因是 X，那麼改變 Y 會讓 bug 消失」。套在席次上，可以寫成「如果原因是停用時沒有把成員移出已指派名單，那麼在停用流程補上移除動作，可用席次就會正確增加」。寫不出預測的假設要丟掉或改寫。
+第 2 步的假設要寫成「如果原因是 X，那麼改變 Y 會讓 bug 消失」。套在席次上，我會寫成「如果原因是停用時沒有把成員移出已指派名單，那麼在停用流程補上移除動作，可用席次就會正確增加」。寫不出預測的假設要丟掉或改寫。
 
-第 4 步找不到測試接點時，[`ask-matt` 把後續交給 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇會介紹。
+第 4 步找不到測試接點時，[`ask-matt` 把後續交給 `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42)，下一篇我會介紹。
 
 ## `prototype` 用拋棄式程式回答一個設計問題
 
@@ -163,9 +163,9 @@ _版本之間要在版面與操作方式上有所不同，只換顏色看不出�
 
 ## 測試由 AI 自己寫，靠兩條規則才算數
 
-開頭問過：AI 自己寫程式也自己寫測試，測試會不會只是在替程式背書？`tdd` 靠兩條規則防止這種情況。
+我在開頭問過：AI 自己寫程式也自己寫測試，測試會不會只是在替程式背書？`tdd` 靠兩條規則防止這種情況。
 
-**第一條是測試位置由你確認。** 上面提過，AI 列出的接點要經過你同意，才能在那裡寫測試。你可以趁這一步，把「停用成員後可用席次增加」這類需求裡寫明的行為，指定為一定要驗證的項目。
+**第一條是測試位置由你確認。** 上面提過，AI 列出的接點要經過你同意，才能在那裡寫測試。我建議趁這一步，把「停用成員後可用席次增加」這類需求裡寫明的行為，指定為一定要驗證的項目。
 
 **第二條是預期值要有獨立來源。** `tdd` 在說明[同義反覆這個反模式](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31)時，要求預期值來自程式以外的依據，例如已知正確的數值、手算過的例子或規格。`tests.md` 用同一個加總函式示範了兩種寫法：
 
@@ -186,16 +186,16 @@ test("calculateTotal sums line items", () => {
 
 第一種寫法的 `expected` 用 `reduce` 重算一次。程式怎麼算，測試就怎麼算，所以它永遠會通過。第二種寫法直接寫 `15`，這個數字可以拿規格或手算核對，程式算錯時測試就會失敗。
 
-不過，這兩條規則都只是寫在 Markdown 裡的指令，沒有程式強制執行。[`tdd` 資料夾](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)裡只有 `SKILL.md`、`tests.md`、`mocking.md` 與一份 `agents/openai.yaml`，沒有任何檢查腳本。AI 列出接點時，你若沒細看就按同意，第一條規則等於沒有作用。
+不過，這兩條規則都只是寫在 Markdown 裡的指令，沒有程式強制執行。我看過 [`tdd` 資料夾](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)，裡面只有 `SKILL.md`、`tests.md`、`mocking.md` 與一份 `agents/openai.yaml`，沒有任何檢查腳本。AI 列出接點時，你若沒細看就按同意，第一條規則等於沒有作用。
 
-所以測試算不算數，要你自己看兩樣東西：你確認過的接點清單，以及每個預期值能不能在規格裡找到出處。
+所以我認為，測試算不算數，要你自己看兩樣東西：你確認過的接點清單，以及每個預期值能不能在規格裡找到出處。
 
 ![左側考卷的出題、作答、批改都是 AI，標準答案欄寫著「照作答算一遍」，蓋著 100 分；右側考卷由你確認的接點出題，標準答案寫著「15，出自規格」，由 node --test 批改；底部寫著「自己出題、自己作答、自己打分數」](tautological-test-exam.webp){: width="800" height="450" }
 _預期值若照程式的算法重算，測試就會永遠通過。_
 
 ## 哪些地方要花你的時間
 
-用了這四個 skill，就不必再憑感覺判斷做完了沒：前三個可以看能重跑的測試或指令，`prototype` 則看人實際試過之後的反應。不過下面這些環節都要有人付出心力，多半落在你身上：
+用了這四個 skill，就不必再憑感覺判斷做完了沒：前三個可以看能重跑的測試或指令，`prototype` 則看人實際試過之後的反應。不過照我的整理，下面這些環節都要有人付出心力，多半落在你身上：
 
 | 環節 | 由誰付出 | 付出什麼 |
 | --- | --- | --- |
@@ -207,11 +207,11 @@ _預期值若照程式的算法重算，測試就會永遠通過。_
 | `prototype` 交付後 | 你或領域專家 | 實際點過每個情境或每個版本，並說出哪裡不對 |
 | `prototype` 收尾 | 團隊 | 維護 `prototype/<name>` 分支，並在工作單上留下指向它的說明 |
 
-最花時間的是 `diagnosing-bugs` 的第一階段。原文認為[迴路做對了，bug 就等於修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以時間都花在這裡；做不出迴路，就不進下一階段。
+在我看來，最花時間的是 `diagnosing-bugs` 的第一階段。原文認為[迴路做對了，bug 就等於修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以時間都花在這裡；做不出迴路，就不進下一階段。
 
 ## 什麼情況用哪一個
 
-照你手上的狀況挑：
+我建議照你手上的狀況挑：
 
 | 你手上的狀況 | 使用的 skill | 不適用的時候 |
 | --- | --- | --- |
@@ -224,7 +224,7 @@ _預期值若照程式的算法重算，測試就會永遠通過。_
 
 ## 模擬情境：實作「停用成員並釋放席次」
 
-以下的 skill 呼叫沒有實際執行，因為 `implement` 會修改專案並 commit。流程依 `1.2.3` 版的原始指令推演。其中的紅燈與綠燈測試在 Node.js v25.2.1 上實際跑過，程式是為本文寫的最小範例，並非取自 `mattpocock/skills`。
+以下的 skill 呼叫我沒有實際執行，因為 `implement` 會修改專案並 commit。流程是我依 `1.2.3` 版的原始指令推演的。其中的紅燈與綠燈測試，我在 Node.js v25.2.1 上實際跑過，程式是我為這篇寫的最小範例，並非取自 `mattpocock/skills`。
 
 假設前兩張工作單「顯示工作區已購買與可用席次」與「把可用席次指派給成員」都已完成。你開一個新的對話，附上第三張工作單：
 
@@ -339,11 +339,11 @@ export function deactivateMember(workspace, memberId) {
 
 ## 小結
 
-程式和測試都由 AI 寫的時候，判斷做對了沒，要看 AI 自己改不了的東西。寫新功能時，看測試是不是寫在你確認過的接點上、預期值是不是出自規格；修 bug 時，看有沒有一條對這個症狀亮過紅燈的指令；設計還沒定時，就讓你或熟悉業務的人實際點過原型再說。
+程式和測試都由 AI 寫的時候，要判斷做對了沒，我會看 AI 自己改不了的東西。寫新功能時，看測試是不是寫在你確認過的接點上、預期值是不是出自規格；修 bug 時，看有沒有一條對這個症狀亮過紅燈的指令；設計還沒定時，就讓你或熟悉業務的人實際點過原型再說。
 
-這篇只談把工作單變成程式的這一段。審查程式碼結構與這次的修改、解決合併衝突，下一篇會介紹 `codebase-design`、`improve-codebase-architecture`、`code-review` 與 `resolving-merge-conflicts`。
+這篇我只談把工作單變成程式的這一段。審查程式碼結構與這次的修改、解決合併衝突，下一篇我會介紹 `codebase-design`、`improve-codebase-architecture`、`code-review` 與 `resolving-merge-conflicts`。
 
-換到你自己的專案，接下來可以開一個新的對話，對一張已貼上 `ready-for-agent`、沒有前置工作的工作單執行 `$implement`。AI 列出測試接點時逐一確認；它寫出測試後，再核對每個預期值都能在規格裡找到。
+換到你自己的專案，我建議接下來開一個新的對話，對一張已貼上 `ready-for-agent`、沒有前置工作的工作單執行 `$implement`。AI 列出測試接點時逐一確認；它寫出測試後，再核對每個預期值都能在規格裡找到。
 
 ## 延伸閱讀
 

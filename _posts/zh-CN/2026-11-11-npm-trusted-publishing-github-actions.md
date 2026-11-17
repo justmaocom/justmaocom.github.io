@@ -10,7 +10,7 @@ image:
   alt: "用 Trusted Publishing 在 GitHub Actions 发 npm 包，不必再放长期 token。"
 ---
 
-先说结论：用 GitHub Actions 自动发布 npm 包时，可以改用 npm 的 Trusted Publishing，不必再把长期 token 存在 CI 里。设好之后，还要另外收回旧 token，风险才算真正降下来。
+先说结论：用 GitHub Actions 自动发布 npm 包时，我建议改用 npm 的 Trusted Publishing，不必再把长期 token 存在 CI 里。设好之后，还要另外收回旧 token，风险才算真正降下来。
 
 先认识几个词：
 
@@ -23,11 +23,11 @@ image:
 
 为什么要换？token（令牌）是一串代替账号密码的通行码，谁拿到，就能用你的身份做它允许的事。如果你的自动发布，是把一个 `NPM_TOKEN` 放进 GitHub Actions 的 secrets（GitHub 存放密码等机密数据的地方），这就是长期 token：在撤销或到期前一直有效。一旦泄露，别人就能冒用你的名义发布新版本。
 
-另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)是从用户那边看这个风险：文中的 Nx 案例，根据 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻击者是通过 GitHub Actions 的注入漏洞取得 npm 发布令牌。本文改从**发布者**这端，去掉“长期 token 放在 CI”这个风险。但要先说清楚：Trusted Publishing 挡不住那类事件本身。workflow 若已被注入恶意命令，它照样可以发布。想让每个版本多一道人工把关，请看后面的“进阶：更严格的做法”。
+我在另一篇[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里，从用户那边看过这个风险：文中的 Nx 案例，根据 [Nx 官方安全公告](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c)，攻击者是通过 GitHub Actions 的注入漏洞取得 npm 发布令牌。这篇我改从**发布者**这端，去掉“长期 token 放在 CI”这个风险。但要先说清楚：Trusted Publishing 挡不住那类事件本身。workflow 若已被注入恶意命令，它照样可以发布。想让每个版本多一道人工把关，请看后面的“进阶：更严格的做法”。
 
-本文只讲 GitHub 托管的 runner（由 GitHub 提供的机器），搭配 npmjs.com 上的设置。若想给 workflow 加上自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
+这篇我只讲 GitHub 托管的 runner（由 GitHub 提供的机器），搭配 npmjs.com 上的设置。若想给 workflow 加上自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
-> **版本说明**：本文依据 2026-11-11 读取的 npm 官方文档《[Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers)》撰写；npm 近几个月仍在调整这项功能（例如 2026-09-03 之后新建的设置，默认只允许 stage publish），设置界面与默认值以官方文档为准。
+> **版本说明**：我写这篇时，参考的是 2026-11-11 当天的 npm 官方文档《[Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers)》；npm 近几个月仍在调整这项功能（例如 2026-09-03 之后新建的设置，默认只允许 stage publish），设置界面与默认值以官方文档为准。
 {: .prompt-info }
 
 ## Trusted Publishing 是什么、怎么运作
@@ -36,25 +36,25 @@ image:
 
 它依靠的是 OIDC（OpenID Connect），一套让系统之间出示身份证明的标准。每次发布时，GitHub 会签发一张短期身份证明（技术上叫 JWT），写明这是哪个 repo、哪个 workflow。npm 核对它和你事先在 npmjs.com 填好的设置相符后，才换发这次发布用的短期凭证。按文档的说法，这种凭证经过加密签名，只给你的 workflow 使用，无法提取，也不能重复使用。
 
-流程可以想成四步：
+我会把流程想成四步：
 
 1. workflow 在 GitHub 托管的 runner 上开始运行。执行发布的 job（workflow 里的一组步骤）要有 `id-token: write` 权限，才能申请身份证明。
 2. GitHub 签发 OIDC 身份证明，写明 repo 与 workflow。
 3. npm 核对组织或用户名、repo、workflow 文件名都相符，才换发短期凭证。
 4. 执行 `npm publish`。若是公开 repo 加上公开包，npm 还会自动附上 provenance（来源证明：公开记录这个版本是从哪个 repo、哪个 workflow 构建出来的）。
 
-要注意：npm 是**额外**接受 trusted publisher，原有的 token 和手动发布照样有效。npm CLI 会自动检测 OIDC 环境，有就优先使用，没有才回退到传统 token。所以设好之后，旧 token 仍然能发布，要到步骤 4 另外收回。
+我要特别提醒：npm 是**额外**接受 trusted publisher，原有的 token 和手动发布照样有效。npm CLI 会自动检测 OIDC 环境，有就优先使用，没有才回退到传统 token。所以设好之后，旧 token 仍然能发布，要到步骤 4 另外收回。
 
 ![GitHub Actions 用 OIDC 向 npm 换一次性的短期凭证来发布，不必存放 npm token](flow.zh-CN.webp){: w="1600" h="900" }
 _概念图：GitHub Actions 先出示身份证明，npm 核对设置后才换发这次发布用的短期凭证。公开 repo 加上公开包时，会自动附上 provenance。发布这一步不需要 npm token；安装私有依赖包仍要 read-only token。_
 
 ## 什么时候该用、什么时候还不行
 
-**先说结论：** 用 GitHub Actions（GitHub 托管的 runner）自动发布的包，适合现在就换；自己搭建的 runner 目前还不行。
+**先说结论：** 用 GitHub Actions（GitHub 托管的 runner）自动发布的包，我认为适合现在就换；自己搭建的 runner 目前还不行。
 
-**为什么是现在。** [npm 文档写明](https://docs.npmjs.com/about-access-tokens)，旧式（legacy）token 已于 2025 年 11 月移除，现在只剩 granular access token（细粒度令牌：可以限定它能访问哪些包、有哪些权限、何时到期）。而用 granular token 直接发布新版本的能力，文档写明将于 2027 年 1 月移除。也就是说，CI 若靠 token 直接发布，到时候就得换方法。npm 在 [CI/CD 说明](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow)里也建议：从 CI 发布包，用 trusted publishing，不要用 access token。
+**为什么是现在。** [npm 文档写明](https://docs.npmjs.com/about-access-tokens)，旧式（legacy）token 已于 2025 年 11 月移除，现在只剩 granular access token（细粒度令牌：可以限定它能访问哪些包、有哪些权限、何时到期）。而用 granular token 直接发布新版本的能力，文档写明将于 2027 年 1 月移除。我的理解是，CI 若靠 token 直接发布，到时候就得换方法。npm 在 [CI/CD 说明](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow)里也建议：从 CI 发布包，用 trusted publishing，不要用 access token。
 
-**适合用在：** 用 GitHub Actions、GitHub 托管 runner 自动发布的包。官方也支持 GitLab.com 的 shared runner 和 CircleCI cloud，设置方式见[同一份文档](https://docs.npmjs.com/trusted-publishers)；本文不展开这两种平台。
+**适合用在：** 用 GitHub Actions、GitHub 托管 runner 自动发布的包。官方也支持 GitLab.com 的 shared runner 和 CircleCI cloud，设置方式见[同一份文档](https://docs.npmjs.com/trusted-publishers)；这篇我不展开这两种平台。
 
 **目前还不行：** self-hosted runner（自己搭建的执行机器）。[文档写明](https://docs.npmjs.com/trusted-publishers)目前不支持，未来计划会支持。文档目前列出的支持平台只有上面这三种。
 
@@ -85,7 +85,7 @@ _概念图：GitHub Actions 先出示身份证明，npm 核对设置后才换发
 - **Multiple trusted publishers**：一个包最多可设置 10 个 trusted publisher。
 - **Single trusted publisher**：一个包一次只能设置 1 个。
 
-两种界面的默认值、期限以及能否修改都不一样，下面分开说明。请对照你在 npmjs.com 看到的界面，阅读文档对应的那一版。
+两种界面的默认值、期限以及能否修改都不一样，下面我分开说明。请对照你在 npmjs.com 看到的界面，阅读文档对应的那一版。
 
 要填的字段：
 
@@ -100,14 +100,14 @@ _概念图：GitHub Actions 先出示身份证明，npm 核对设置后才换发
 - Multiple 界面：`npm stage publish` 始终允许，`npm publish` 要另外勾选。按文档，2026-09-03 之后新建的设置，**默认只允许 `npm stage publish`**。
 - Single 界面：这一栏必填，两项至少勾选一项。
 
-无论哪一种界面，要让步骤 2 示例里的 `npm publish` 成功，**都要勾选 `npm publish`**。只允许 `npm stage publish` 是更严格的做法，留到后面的“进阶”再讲。
+无论哪一种界面，要让步骤 2 示例里的 `npm publish` 成功，**都要勾选 `npm publish`**。只允许 `npm stage publish` 是更严格的做法，我留到后面的“进阶”再讲。
 
 **保存前要知道：**
 
 1. 所有字段都区分大小写，必须完全一致。
 2. npm 保存时**不会验证**设置。填错不会当场报错，要到真正发布时才会失败。
 3. Multiple 界面的已有设置不能修改，填错只能删掉重建；Single 界面则可以随时修改或移除。
-4. Multiple 界面的新设置[必须在 2 天内完成第一次成功发布](https://docs.npmjs.com/trusted-publishers)，否则会过期，之后不能再使用或编辑，只能删掉重建。所以建议先看完步骤 2、把 workflow 准备好，再回来保存这张表。
+4. Multiple 界面的新设置[必须在 2 天内完成第一次成功发布](https://docs.npmjs.com/trusted-publishers)，否则会过期，之后不能再使用或编辑，只能删掉重建。所以我建议先看完步骤 2、把 workflow 准备好，再回来保存这张表。
 
 **你会得到：** npm 上的一条 Trusted Publisher 设置，等 workflow 来对。
 
@@ -145,16 +145,16 @@ jobs:
       - run: npm publish  # Or: npm stage publish
 ```
 
-逐行对照：
+我逐行说明：
 
 - `on: push: tags: v*`：只有推送 `v1.2.3` 这类 tag 才会发布。tag（标签）是给某次 commit（提交）标上的名称，常用来标记版本；普通的 commit 不会触发发布。
-- `permissions: id-token: write`：最关键的一行，让 GitHub 能为这个 job 签发 OIDC 身份证明。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)写明，它只允许获取 OIDC token，不会因此给其他资源写入权限。
+- `permissions: id-token: write`：我认为这是最关键的一行，让 GitHub 能为这个 job 签发 OIDC 身份证明。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)写明，它只允许获取 OIDC token，不会因此给其他资源写入权限。
 - `contents: read`：让 job 能读取 repo 内容。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc)的示例注明，`actions/checkout` 拉取代码需要这个权限。
 - `runs-on: ubuntu-latest`：使用 GitHub 托管的 runner。
 - `setup-node` 的 `registry-url` 指向 npm 官方注册表；`package-manager-cache: false` 按官方注释的做法：release 构建不要用缓存。
 - 最后依次安装依赖（`npm ci`）、构建、测试，再 `npm publish`。如果你在 Allowed actions 只允许 stage publish，这一行要改用注释里的 `npm stage publish`。
 
-发布这一步**不需要** `NODE_AUTH_TOKEN`，也**不需要**加 `--provenance`：只要是公开 repo、公开包，又是用 Trusted Publishing 发布，npm 会自动生成 provenance。`actions/checkout`、`actions/setup-node` 若出了更新的主版本，以各自 README 为准；本文示例照 npm 官方文档，使用 `@v6`。
+发布这一步**不需要** `NODE_AUTH_TOKEN`，也**不需要**加 `--provenance`：只要是公开 repo、公开包，又是用 Trusted Publishing 发布，npm 会自动生成 provenance。`actions/checkout`、`actions/setup-node` 若出了更新的主版本，以各自 README 为准；这篇的示例我照 npm 官方文档，使用 `@v6`。
 
 **有私有依赖包时**，在 `npm ci` 那一步加上：
 
@@ -188,7 +188,7 @@ jobs:
 
 ## 步骤 4：收回旧 token
 
-设好 Trusted Publishing，旧 token 不会自动失效。npm 是在原有的 token 和手动发布之外，**额外**接受 trusted publisher。所以要按文档的 Migration tip（迁移建议）依次收尾：
+设好 Trusted Publishing，旧 token 不会自动失效。npm 是在原有的 token 和手动发布之外，**额外**接受 trusted publisher。所以我会按文档的 Migration tip（迁移建议）依次收尾：
 
 1. 先设置好 Trusted Publishing，并确认发布成功。
 2. 到包的 **Settings → Publishing access**，选择 **Require two-factor authentication and disallow tokens**，再点击 **Update Package Settings**。之后 granular token 一律不能发布这个包；trusted publisher 用的是 OIDC，不受影响。
@@ -255,14 +255,14 @@ _概念图：左边是调用方 release.yml，右边是被调用方 publish.yml�
 
 ## 进阶：更严格的做法
 
-Trusted Publishing 去掉了长期 token，但 workflow 本身若被攻破，仍然可以发布。想多加关卡，文档建议以下几种，不必一次全做：
+Trusted Publishing 去掉了长期 token，但 workflow 本身若被攻破，仍然可以发布。想多加关卡，文档建议以下几种，我认为不必一次全做：
 
 - **environment 加人工批准：** 在 GitHub 为发布 job 指定 environment，并设置需要人工批准；npmjs.com 的 **Environment name** 要填同一个名称。
 - **tag protection rules：** 限制谁能推送发布用的 tag。
 - **只允许 stage publish：** Allowed actions 只保留 `npm stage publish`，workflow 的最后一行也改成 `npm stage publish`。每个版本会先进入暂存区，维护者用 2FA 批准后才公开；批准可以在 npmjs.com 账号设置的 **Staged Packages** 标签页点击 **Approve**，或使用 `npm stage approve <stage-id>`。文档把“trusted publisher 只允许 stage publish”视为更强的组合；如果配置了多个 publisher，也要逐个检查是否仍允许直接发布。这需要 npm CLI 11.15.0 及以上，细节见 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期检查：** 定期审计包的 trusted publisher 设置，删除不再使用的发布 token。
 
-这几道关卡怎么一步步设置，以及为什么带着 provenance 的版本仍可能是恶意的，见续篇[开了 Trusted Publishing 还不够：npm 发布流程也要上锁](/posts/npm-release-pipeline-lockdown/)。
+这几道关卡怎么一步步设置，以及为什么带着 provenance 的版本仍可能是恶意的，我在续篇[开了 Trusted Publishing 还不够：npm 发布流程也要上锁](/posts/npm-release-pipeline-lockdown/)里说明。
 
 ## 限制
 
@@ -313,6 +313,6 @@ _概念图：左边把本文步骤 0 到步骤 4 整理成六项清单，右边�
 
 ## 结论与下一步
 
-把 GitHub Actions 的发布从“放一把长期钥匙”改成“每次当场换短期凭证”之后，记得收回旧 token，必要时再加上批准或 stage publish。用户那一端还能怎么降低风险，请看[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)；若要给这些 workflow 加自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
+我建议把 GitHub Actions 的发布从“放一把长期钥匙”改成“每次当场换短期凭证”，之后记得收回旧 token，必要时再加上批准或 stage publish。用户那一端还能怎么降低风险，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里整理过；若要给这些 workflow 加自动化审查，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。
 
-官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。本站其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补](/posts/openssh-musl-password-bypass-alpine/)。
+官方说明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 为准，并可参阅 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 说明](https://docs.github.com/en/actions/concepts/security/openid-connect)。我写过的其他安全文章，也可看 [OpenSSH 密码验证绕过漏洞 CVE-2026-123158：Alpine 怎么修补](/posts/openssh-musl-password-bypass-alpine/)。

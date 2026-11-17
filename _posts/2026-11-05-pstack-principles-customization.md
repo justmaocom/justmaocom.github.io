@@ -12,7 +12,7 @@ image:
 
 以前 AI 程式助理做得不對，我會打一大段話解釋我到底要什麼。pstack 給了一個省事得多的辦法：直接說出一條原則的名稱，告訴它該往哪個方向調整，再確認它有沒有真的照做。
 
-這是系列的最後一篇，主要講三件事：怎麼在對話中途用原則名稱指揮 AI；怎麼把自己的習慣做成一個 mode，讓 AI 照你的方式做事；還有，如果想讓它在你睡覺時自己跑，提示該怎麼寫、權限和費用該怎麼設，早上起來又該怎麼檢查它做了什麼。
+這是系列的最後一篇，我主要講三件事：怎麼在對話中途用原則名稱指揮 AI；怎麼把自己的習慣做成一個 mode，讓 AI 照你的方式做事；還有，如果想讓它在你睡覺時自己跑，提示該怎麼寫、權限和費用該怎麼設，早上起來又該怎麼檢查它做了什麼。
 
 > pstack 系列｜第 4 篇（最後一篇）
 >
@@ -21,12 +21,12 @@ image:
 > - 下一篇：這是系列的最後一篇
 {: .prompt-info }
 
-> **版本**：本文以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北時間），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以這一版查證；我查證時，`cursor/plugins` 的 main 在 `2f87c85` 之後沒有改動 pstack。之後的版本，行為可能會改變。
+> **版本**：這篇我以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)為準，對應 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北時間），搭配 Claude Code 2.1.326。系列五篇在 2026-11-17 一起改以這一版查證；我查證時，`cursor/plugins` 的 main 在 `2f87c85` 之後沒有改動 pstack。之後的版本，行為可能會改變。
 {: .prompt-info }
 
 ## 開始之前
 
-pstack 是 Cursor 官方外掛庫裡的一整組 skill；所謂 skill，就是一份告訴 AI 怎麼完成某類工作的操作說明。安裝方法我在[第 1 篇](/posts/pstack-install-routing/)寫過了。如果想裝跟本文一樣的版本，可以先把 repo 下載到自己的電腦、切到本文用的 commit，再把這個資料夾加進外掛市集（marketplace，Claude Code 安裝外掛的來源目錄）：
+pstack 是 Cursor 官方外掛庫裡的一整組 skill；所謂 skill，就是一份告訴 AI 怎麼完成某類工作的操作說明。安裝方法我在[第 1 篇](/posts/pstack-install-routing/)寫過了。如果想裝跟這篇一樣的版本，可以先把 repo 下載到自己的電腦、切到我查證用的 commit，再把這個資料夾加進外掛市集（marketplace，Claude Code 安裝外掛的來源目錄）：
 
 ```bash
 git clone https://github.com/cursor/plugins.git ~/src/cursor-plugins
@@ -35,11 +35,11 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-如果直接用 `/plugin marketplace add cursor/plugins` 安裝，拿到的會是安裝當下的最新版，而不是固定在你看過的那個版本。這樣做有什麼風險，可以參考[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+如果直接用 `/plugin marketplace add cursor/plugins` 安裝，拿到的會是安裝當下的最新版，而不是固定在你看過的那個版本。這樣做有什麼風險，我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)談過。
 
 **指令要加前綴。** 在 Claude Code（在終端機裡使用的 AI 程式助理）裡，外掛的指令前面要加上外掛名稱，例如 `/pstack:correct`。下面的範例都用 Claude Code 的寫法；在 Cursor 裡，把 `pstack:` 拿掉就好。
 
-**這些 skill 都要由你主動呼叫。** pstack 的 58 個 skill 裡，除了 `/setup-pstack`，其他都設成不讓 AI 自己啟動（`disable-model-invocation: true`），原則也是。也就是說，AI 不能自己去呼叫這些 skill；不過 `/poteto-mode` 還是可以照它自己的流程讀取並套用相關原則，後面會再說明。
+**這些 skill 都要由你主動呼叫。** pstack 的 58 個 skill 裡，除了 `/setup-pstack`，其他都設成不讓 AI 自己啟動（`disable-model-invocation: true`），原則也是。也就是說，AI 不能自己去呼叫這些 skill；不過 `/poteto-mode` 還是可以照它自己的流程讀取並套用相關原則，後面我會再說明。
 
 **官方指南是照 Cursor 寫的。** 指南裡有些工具和指令是以 Cursor 的環境來介紹的，例如 `/loop` 和 `create-skill`；Claude Code 雖然也有 `/loop`，用法卻不一樣。pstack 附了一份 [Claude Code 對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md)，`/poteto-mode` 在 Claude Code 裡會先讀它，把 Cursor 的名稱對應到 Claude Code 的做法。下面遇到兩邊不一樣的地方，我會直接寫 Claude Code 的做法。
 
@@ -158,7 +158,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 ### 怎麼判斷它真的套用了
 
-點名了某條原則，不代表它真的照做。指南說，回覆裡要寫出這條規則**改變了哪個決定**；如果只引用了名稱、卻說不出改了哪個決定，那就是嘴上提了、實際上沒套用（[指南第 8 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L27)）。指南也建議不用背清單：先大致看過一遍，下次看到 AI 做了某條原則本來可以避免的事，再回來找那個名稱（[指南第 8 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L70)）。
+我不會因為點名了某條原則，就認定它真的照做。指南說，回覆裡要寫出這條規則**改變了哪個決定**；如果只引用了名稱、卻說不出改了哪個決定，那就是嘴上提了、實際上沒套用（[指南第 8 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L27)）。指南也建議不用背清單：先大致看過一遍，下次看到 AI 做了某條原則本來可以避免的事，再回來找那個名稱（[指南第 8 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/08-principles.md#L70)）。
 
 ## 做出自己的工作方式
 
@@ -183,7 +183,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 5. **修文字。** 用 `/unslop` 把每一行改得直接、好懂。
 6. **依你的要求交付。** 指南的完整流程是在 worktree（同一個 repo 的另一份獨立工作資料夾）裡 commit 再開 PR，不會直接推到 main；不過上面的提示明確要求先交草稿、不要 commit，所以這次它應該停在草稿，等你看過再決定要不要送審。
 
-**你會拿到**：一份 `<你的名字>-mode/SKILL.md` 草稿。Claude Code 會保護專案裡的 `.claude/` 資料夾，AI 要寫進去時，不是先問你，就是直接被擋下（[權限模式說明](https://code.claude.com/docs/en/permission-modes#protected-paths)）。如果被擋下，就讓它先寫到別的資料夾，你看過之後再自己搬進去。
+**你會拿到**：一份 `<你的名字>-mode/SKILL.md` 草稿。Claude Code 會保護專案裡的 `.claude/` 資料夾，AI 要寫進去時，不是先問你，就是直接被擋下（[權限模式說明](https://code.claude.com/docs/en/permission-modes#protected-paths)）。如果被擋下，我建議讓它先寫到別的資料夾，你看過之後再自己搬進去。
 
 **下一步**：讀一遍，問問自己「這像我嗎？少了什麼？」（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/automate-me/SKILL.md#L94-L96)）。要注意，它分析的是**你在這個專案的對話**；如果這些對話大多是特殊用途（例如一次性的測試），寫出來的就不會是你平常的樣子。之後習慣變了，再跑一次更新就好：
 
@@ -214,7 +214,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 ### /correct：讓同一種錯不可能再發生
 
-**什麼時候用**：你一再為同一種錯誤糾正 AI。這時該改的是專案，不是你的下一個提示。
+**什麼時候用**：你一再為同一種錯誤糾正 AI。我認為這時該改的是專案，不是你的下一個提示。
 
 **指令怎麼寫**：知道是哪種錯時，直接寫出來（取自[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L45)）：
 
@@ -241,7 +241,7 @@ _四條常用原則，以及什麼時候該說出它們的名稱。_
 
 **你會拿到**：每一類錯誤的證據、它選了哪個層級、為什麼更高的層級做不到，以及每一類各一個 commit。
 
-**下一步**：一個一個看 commit。它可能會動到 CI 設定或既有的測試，這些改動都要你看過才能推出去。所以 `/correct` 要在你看得到的對話裡跑，不要放進無人值守的提示。
+**下一步**：一個一個看 commit。它可能會動到 CI 設定或既有的測試，這些改動都要你看過才能推出去。所以我會在看得到的對話裡跑 `/correct`，不會放進無人值守的提示。
 
 `/reflect` 和 `/correct` 的差別在於：`/reflect` 是從一次對話改進 skill，`/correct` 則是改專案，讓某一類錯誤不再回來（[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L50)）。還有一點：**不要在任務做到一半時改 skill**，先把想改善的地方記下來，等任務結束再另外處理；如果需要提交，就另開一個 PR（[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L98)）。
 
@@ -281,12 +281,12 @@ _一份無人值守提示的六個部分。時間長度不是完成條件。_
 
 - **「我要去睡了」** 是告訴 `/poteto-mode`：這次對話裡已授權的工作就一路做下去，少停下來確認；但它還是得遵守你列的禁止事項，碰到必須確認的動作或真的卡住時，也要停下來（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L80)）。
 - **「怎樣算完成」** 要寫成每一輪都能實際檢查的條件，例如「所有測試通過」「舊的函式沒有人呼叫」。指南特別提醒：**時間長度不是完成條件**。「做四個小時」根本沒有東西可以檢查，你醒來只會看到它忙了四個小時，而不是一個結果（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L120)）。
-- **「工作分支」** 可以把提交紀錄分開，但同一個工作目錄裡還沒提交的變更並不會被隔開。如果不想干擾手上的工作，最好照指南的建議開一個新的 worktree；Claude Code 的 `-w`（`--worktree`）選項就能直接在獨立的 worktree 裡啟動（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
+- **「工作分支」** 可以把提交紀錄分開，但同一個工作目錄裡還沒提交的變更並不會被隔開。如果不想干擾手上的工作，我會照指南的建議開一個新的 worktree；Claude Code 的 `-w`（`--worktree`）選項就能直接在獨立的 worktree 裡啟動（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 - **「不用問我」** 是先替它回答那些它原本會停下來問的事。這個範本只放行在本機新分支上 commit；push 和開 PR 要你在提示和權限設定裡明確放行才可以（見下面的 Autopilot-stack），合併和其他不可逆的動作，還是要由人來確認。
-- **「不可以做」** 是界線。光寫在提示裡還不夠，還要用權限設定擋住，下一段會講。
-- **「如果真的卡住」** 是出口。與其讓它一整晚自己重新解讀目標，不如在真的走進死路時停下來，把狀況寫清楚。
+- **「不可以做」** 是界線。光寫在提示裡還不夠，還要用權限設定擋住，下一段我會講。
+- **「如果真的卡住」** 是出口。比起讓它一整晚自己重新解讀目標，我寧可它在真的走進死路時停下來，把狀況寫清楚。
 
-指南的範本最後一行用了 `/loop`，那是 Cursor 內建的指令，用來定時或在某個事件發生時叫醒 AI，不是 pstack 的 skill（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L35)）。Claude Code 也有自己的 `/loop`，但用法不一樣，這篇就不介紹了；上面的範本沒有用它，而是在同一個對話裡直接做到完成。
+指南的範本最後一行用了 `/loop`，那是 Cursor 內建的指令，用來定時或在某個事件發生時叫醒 AI，不是 pstack 的 skill（[指南第 7 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/07-overnight.md#L35)）。Claude Code 也有自己的 `/loop`，但用法不一樣，這篇我就不介紹了；上面的範本沒有用它，而是在同一個對話裡直接做到完成。
 
 **它會怎麼做**：
 
@@ -295,7 +295,7 @@ _一份無人值守提示的六個部分。時間長度不是完成條件。_
 3. **每一輪做最小的改動**，再拿完成條件檢查；有進展就 commit，沒幫助就丟掉，不留「也許有幫助」的東西。
 4. **自行處理途中發現、且有助於目標的問題**，不會停下來問你；只有不可逆的動作、無法用實驗回答的產品或偏好決定，以及真正的死路，才會留給你。
 5. **每一輪在決策紀錄記一列。**
-6. **達成完成條件才算成功。** 卡在原地就換個方法；如果碰到必須由你決定的事，或真的無法再往前，就把未完成的狀態和原因留下來，而不是放寬完成條件來宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)）。費用到了 `--max-budget-usd` 的上限時，Claude Code 會直接停掉這次執行，它不一定來得及留下說明，所以早上以決策紀錄最後一列和 commit 為準。
+6. **達成完成條件才算成功。** 卡在原地就換個方法；如果碰到必須由你決定的事，或真的無法再往前，就把未完成的狀態和原因留下來，而不是放寬完成條件來宣布成功（[autonomous-run playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L7-L13)）。費用到了 `--max-budget-usd` 的上限時，Claude Code 會直接停掉這次執行，它不一定來得及留下說明，所以早上我會以決策紀錄最後一列和 commit 為準。
 
 **你會拿到**：一則回覆，寫出完成條件、跑了幾輪、留下了什麼、丟掉了什麼、完成條件最後的狀態，以及一份決策紀錄。
 
@@ -327,7 +327,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 - `--disallowedTools`：禁止清單。禁止規則在每一種權限模式下都有效（[權限模式說明](https://code.claude.com/docs/en/permission-modes#available-modes)）。
 - `--max-budget-usd`：估計花費達到這個金額就停下來，只能搭配 `claude -p` 使用（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 
-如果 `claude -p` 沒設權限模式，需要核准的動作會直接被拒絕（[權限模式說明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。允許清單要是漏了必要的指令，任務可能就做不完；早上再根據紀錄判斷要不要調整。另外，這份範例只封鎖了部分工具和指令，並不等於完全禁止連網、刪檔或修改工作目錄以外的檔案，因為被允許執行的程式本身也可能做這些事。如果要強制限制網路和檔案範圍，還需要沙箱或容器這類隔離設定。
+如果 `claude -p` 沒設權限模式，需要核准的動作會直接被拒絕（[權限模式說明](https://code.claude.com/docs/en/permission-modes#tool-calls-denied-in-claude--p-and-agent-sdk-runs)）。允許清單要是漏了必要的指令，任務可能就做不完；早上我會再根據紀錄判斷要不要調整。另外，這份範例只封鎖了部分工具和指令，並不等於完全禁止連網、刪檔或修改工作目錄以外的檔案，因為被允許執行的程式本身也可能做這些事。如果要強制限制網路和檔案範圍，還需要沙箱或容器這類隔離設定。
 
 ### 想讓它停下來，或明天接著做
 
@@ -347,7 +347,7 @@ claude -p "$(cat overnight-prompt.txt)" \
 /pstack:poteto-mode autopilot these five changes. 可以 push 和開 PR，不要合併，我早上自己合併。
 ```
 
-如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，在允許清單加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，並在禁止清單加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。這些規則只比對指令的寫法，擋不住所有變形，所以真正的牆要放在 GitHub：替 main 開分支保護，要求一定要經過 PR、禁止 force push，並勾選「Do not allow bypassing the above settings」，因為分支保護預設不擋 repo 管理員，而 AI 用的就是你的帳號。也因為規則只比對字面，分支名稱裡不要出現「-f」或「main」（例如 `feat/add-format`、`feat/domain-check` 都會被擋），不然連正常的 push 也會被擋下。預設分支叫 master 的 repo，禁止規則裡的 main 要換成 master。另外，如果你沿用前面的六段範本，這次「不可以做」那一行要拿掉「連網」，push 和開 PR 本來就需要連網。
+如果用前面的 `claude -p` 設定，要把 `Bash(git push *)` 從禁止清單移掉，在允許清單加上 `Bash(git push -u origin feat/*)` 和 `Bash(gh pr create *)`，並在禁止清單加上 `Bash(git push *--force*)`、`Bash(git push *-f*)`、`Bash(git push *main*)` 和 `Bash(gh pr merge *)`。這些規則只比對指令的寫法，擋不住所有變形，所以我會把真正的牆放在 GitHub：替 main 開分支保護，要求一定要經過 PR、禁止 force push，並勾選「Do not allow bypassing the above settings」，因為分支保護預設不擋 repo 管理員，而 AI 用的就是你的帳號。也因為規則只比對字面，分支名稱裡不要出現「-f」或「main」（例如 `feat/add-format`、`feat/domain-check` 都會被擋），不然連正常的 push 也會被擋下。預設分支叫 master 的 repo，禁止規則裡的 main 要換成 master。另外，如果你沿用前面的六段範本，這次「不可以做」那一行要拿掉「連網」，push 和開 PR 本來就需要連網。
 
 ## 早上：用 /show-me-your-work 檢查決策紀錄
 
@@ -385,7 +385,7 @@ column -s$'\t' -t decisions.tsv
 
 `/poteto-mode` 也寫明，就算你說了「我要去睡了」，下面這些仍然**一定會停下來**：force push 到共用分支、部署、刪除資料、發訊息給客戶（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L78-L80)）。
 
-不過要注意，同一份 SKILL.md 也寫到：可以還原的事，以及團隊聊天、更新 ticket、啟動 eval 這類對外動作，都會直接做、不先問，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L76)）。所以別把「不可逆的動作要確認」理解成所有對外訊息都會先問你；這份文件對團隊內部訊息和客戶訊息的處理方式是不一樣的。如果不想讓它對外發訊息，就在「不可以做」裡寫清楚，並用 `--disallowedTools` 把那些 MCP 工具擋掉。
+不過我要提醒，同一份 SKILL.md 也寫到：可以還原的事，以及團隊聊天、更新 ticket、啟動 eval 這類對外動作，都會直接做、不先問，而且可以用任何 MCP 工具（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L76)）。所以別把「不可逆的動作要確認」理解成所有對外訊息都會先問你；這份文件對團隊內部訊息和客戶訊息的處理方式是不一樣的。如果不想讓它對外發訊息，就在「不可以做」裡寫清楚，並用 `--disallowedTools` 把那些 MCP 工具擋掉。
 
 ![可逆的動作放手讓它做，不可逆的動作一定先問；權限設定和費用上限是第二道防線](ask-line.webp){: w="800" h="450" }
 _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限設定是第二道。_
@@ -415,22 +415,22 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 有幾件事要知道：
 
 - **禁止規則永遠有效**，連 `bypassPermissions` 也擋得住；但在 `bypassPermissions` 下，允許清單沒有作用。
-- **有些資料夾受保護。** 寫入 `.git`、`.claude` 這類資料夾時，`default` 和 `acceptEdits` 會先問你，`dontAsk` 會直接拒絕（[受保護的路徑](https://code.claude.com/docs/en/permission-modes#protected-paths)）。這其實是好事：AI 沒辦法偷偷改掉自己的設定。所以讓 `/automate-me` 或 `/reflect` 寫 skill 時，要有心理準備它會在這裡停下來。
+- **有些資料夾受保護。** 寫入 `.git`、`.claude` 這類資料夾時，`default` 和 `acceptEdits` 會先問你，`dontAsk` 會直接拒絕（[受保護的路徑](https://code.claude.com/docs/en/permission-modes#protected-paths)）。我認為這其實是好事：AI 沒辦法偷偷改掉自己的設定。所以讓 `/automate-me` 或 `/reflect` 寫 skill 時，要有心理準備它會在這裡停下來。
 - **不要為了不被打擾就關掉所有檢查。** `bypassPermissions` 只適合放在隔離的容器或虛擬機裡（[常見設定](https://code.claude.com/docs/en/permission-modes#common-setups)）。
 
 ### 費用：先設上限
 
 無人值守的工作可能會派出好幾個子代理，花費也可能比你預期的高。
 
-- `claude -p` 加上 `--max-budget-usd`。這個金額是 Claude Code 自己估的，可能跟實際帳單有落差，也可能稍微超過，所以最好留一點空間；子代理的花費也會算進去；用 `--resume` 接續對話時，之前的花費不會算進這次的上限（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
+- `claude -p` 加上 `--max-budget-usd`。這個金額是 Claude Code 自己估的，可能跟實際帳單有落差，也可能稍微超過，所以我會留一點空間；子代理的花費也會算進去；用 `--resume` 接續對話時，之前的花費不會算進這次的上限（[CLI 說明](https://code.claude.com/docs/en/cli-reference)）。
 - 如果你用的是 Pro、Max 這類訂閱方案，又開了額外用量（usage credits），記得到 claude.ai 的 Settings → Usage 設定每月花費上限（[費用說明](https://code.claude.com/docs/en/costs)）。
 - 用 Cursor 的話，也先看一下你的方案用量和上限設定，再讓它自己跑。
 
-想多了解權限和供應鏈的風險，以及怎麼把權限收緊，可以看[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
+想多了解權限和供應鏈的風險，以及怎麼把權限收緊，可以看我寫的[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 完整範例：一天的流程
 
-延續第 3 篇的虛構例子：一個匯出資料的命令列工具。
+延續我在第 3 篇虛構的例子：一個匯出資料的命令列工具。
 
 **白天：用原則名稱指揮。** 我請它加一個新選項：
 
@@ -516,15 +516,15 @@ _界線畫在「能不能還原」。寫在提示裡是第一道防線，權限�
 - **讓 AI 讀所有專案的紀錄**：只讓 `/automate-me` 和 `/reflect` 讀這個專案的對話。
 - **跨廠商審查不是真的跨廠商**：看 Attention 的 `reviewed by`；在 Claude Code 裡，審查的還是 Claude 的模型。
 - **沒設費用上限**：`claude -p` 加 `--max-budget-usd`，也設好方案的花費上限。
-- **版本**：以上是照 pstack `0.15.43` 的說明檔整理的，之後的版本做法可能會變。
+- **版本**：以上是我照 pstack `0.15.43` 的說明檔整理的，之後的版本做法可能會變。
 
 ## 結論
 
-想用一句話改變 AI 的做法，就在對話中途輸入 `/pstack:principle-<名稱>`，再看它的回覆有沒有寫出這條原則改了哪個決定。
+想用一句話改變 AI 的做法，我會在對話中途輸入 `/pstack:principle-<名稱>`，再看它的回覆有沒有寫出這條原則改了哪個決定。
 
 想讓 AI 照你的方式工作，可以用 `/automate-me` 從你的對話裡整理出自己的 mode，用 `/reflect` 把一次對話的教訓寫回 skill，`/correct` 則直接改專案，讓同一種錯不再發生。
 
-想讓它在你不在時自己跑，先確認這類工作已經符合前面說的四個條件，再寫好目標、可以檢查的完成條件、決策紀錄、不用問的事、不可以做的事，以及卡住時怎麼停；接著用權限規則和隔離設定把界線真正落實，設好費用上限，早上再用 `/show-me-your-work` 從 Attention 開始檢查。在你授權的範圍內，可以還原的工作就放手讓它做完；不能還原的決定，還是留在你手上。
+想讓它在你不在時自己跑，先確認這類工作已經符合前面說的四個條件，再寫好目標、可以檢查的完成條件、決策紀錄、不用問的事、不可以做的事，以及卡住時怎麼停；接著用權限規則和隔離設定把界線真正落實，設好費用上限，早上再用 `/show-me-your-work` 從 Attention 開始檢查。我的看法是，在你授權的範圍內，可以還原的工作就放手讓它做完；不能還原的決定，還是留在你手上。
 
 ## 延伸閱讀
 

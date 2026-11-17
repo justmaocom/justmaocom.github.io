@@ -14,14 +14,14 @@ I built this project because my wife signed up for the Government Procurement Ac
 
 If you practice straight from the PDF question bank a few times, it's easy to end up memorizing the question order along with the answers. Before you even turn the page, the answer has already popped into your head. That kind of familiarity can't tell you whether you actually remember the material or just where the answer sits in the PDF.
 
-The problem to solve: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
+The problem I set out to solve: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
 
 ![On the left, a fixed question order lets you predict the answer; on the right, once the order is shuffled, understanding shows as "reloading"](pdf-order-memory.webp){: width="800" height="430" }
 _Once the question order is shuffled, familiarity can no longer stand in for understanding._
 
 ## A Web App That Turns the Official Question Bank Into Practice Records
 
-[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) is a practice site for the Government Procurement Act question bank. The version examined in this post is commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb). The package declares version `0.1.0`, requires Python `3.11` or later, and uses FastAPI, SQLAlchemy, Jinja2, pdfplumber, and python-docx. All of this is listed in [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21). The project is released under the [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20).
+[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) is a practice site for the Government Procurement Act question bank. The version I examined for this post is commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb). The package declares version `0.1.0`, requires Python `3.11` or later, and uses FastAPI, SQLAlchemy, Jinja2, pdfplumber, and python-docx. All of this is listed in [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21). The project is released under the [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20).
 
 It takes the official PDF or DOCX files you've already downloaded locally and writes the questions into a database through [`parse_command`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L86). The browser-facing routes cover randomized practice, instant answer checking, per-session scores, and cross-session weak-area stats, all wired up in [`src/api/main.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/main.py#L5-L40).
 
@@ -57,7 +57,7 @@ Actual practice only begins in the third stage. [`create_session`](https://githu
 
 ## Weak Areas Aren't Guessed; They Accumulate by Category
 
-The part most worth checking here is what "cross-session weak areas" actually computes.
+I think the part most worth checking here is what "cross-session weak areas" actually computes.
 
 [`get_weakness`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L173-L225) first looks up practice records by `anonymous_id`, then groups every answer by question category. Each category's accuracy is the number of correct answers divided by the total number of answers, and the results are sorted from lowest to highest accuracy. The frontend then filters for categories below `80%` and takes up to five of them to build a "practice weak areas" button. The condition lives in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L48-L69).
 
@@ -67,7 +67,7 @@ const weakIds = weakCats.map(c => c.category_id).join(',');
 ```
 {: file="src/templates/weakness.html" }
 
-So this assessment has a clear denominator, threshold, and sort order. It computes the cumulative accuracy of all past answers in each category. It isn't an ability-estimation model, and it doesn't give extra weight to recent results. If you answer the same question several times, every attempt counts toward the stats. These limits follow from how the code counts `SessionAnswer.id` rows, not from the README's description of the feature.
+So this assessment has a clear denominator, threshold, and sort order. It computes the cumulative accuracy of all past answers in each category. It isn't an ability-estimation model, and it doesn't give extra weight to recent results. If you answer the same question several times, every attempt counts toward the stats. I worked out these limits from how the code counts `SessionAnswer.id` rows, not from the README's description of the feature.
 
 ## The Price of Convenience: Format Coupling and Anonymous Identity
 
@@ -75,17 +75,17 @@ The question-bank parser depends directly on the layout text and answer format o
 
 The runtime isn't a single static web page, either. [`docker-compose.yml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/docker-compose.yml#L1-L29) starts the application and PostgreSQL 16, and persists data in a `pgdata` volume. If practice records need to survive a disk failure, you'll have to arrange backups separately when deploying.
 
-Cross-session identity currently relies on `gpa_anonymous_id` in the browser's `localStorage`, which the frontend puts into the `/api/weakness` query string. This flow is in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36). The matching route only accepts `anonymous_id` and has no account-authentication dependency. That's very convenient for a household tool, but it isn't an access-control design suitable for storing official exam scores.
+Cross-session identity currently relies on `gpa_anonymous_id` in the browser's `localStorage`, which the frontend puts into the `/api/weakness` query string. This flow is in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36). The matching route only accepts `anonymous_id` and has no account-authentication dependency. I find that very convenient for a household tool, but it isn't an access-control design suitable for storing official exam scores.
 
 ## Good for Home Practice, Not a Ready-Made Official Exam System
 
 If your question bank comes from a fixed source, your users are a well-defined group, and what you need is shuffled question order plus a view of the categories you keep getting wrong, this project already wires the necessary pieces together. When the question bank changes, [`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) can update, keep, or soft-delete existing questions, so you don't have to wipe the database every time.
 
-If you want to make it publicly available to many users, you'll first need to handle accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, you'll also want failure reports and tests for new formats in the parser. The current code is suited for use as a personal practice tool and shouldn't be treated as an official exam platform as-is.
+If you want to make it publicly available to many users, you'll first need to handle accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, you'll also want failure reports and tests for new formats in the parser. As I see it, the current code is suited for use as a personal practice tool and shouldn't be treated as an official exam platform as-is.
 
 ## Run the Tests First, Then Plug In Your Own Question Bank
 
-Confirm the dependencies, the CLI entry point, and the core behavior before dealing with the official question-bank files. The commands below were actually run on macOS with Python `3.14.2` and uv `0.9.17`.
+I'd confirm the dependencies, the CLI entry point, and the core behavior before dealing with the official question-bank files. I actually ran the commands below on macOS with Python `3.14.2` and uv `0.9.17`.
 
 ```bash
 git clone https://github.com/7a6ac0/gpa-question-webapp.git
@@ -96,21 +96,21 @@ uv run pytest -q
 ```
 {: .nolineno }
 
-The result was `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. This only confirms that installation works and the tests pass at the current commit; it doesn't mean every version of the official PDF will parse successfully. As a next step, download one category's file from the [Public Construction Commission question bank page](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion), put it in `data/`, and process it with the import command in the [project README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58).
+I got `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. This only confirms that installation works and the tests pass at the current commit; it doesn't mean every version of the official PDF will parse successfully. As a next step, download one category's file from the [Public Construction Commission question bank page](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion), put it in `data/`, and process it with the import command in the [project README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58).
 
 ## What Really Matters Is a Practice Record You Can Look Back On
 
 Everything above confirms only that these features exist; it can't prove the project will raise exam scores. I still believe this project's value lies in closing a review loop.
 
-A fixed PDF gives you questions and answers; the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For this household need, the tech choices are just a means to an end. The real product is being able to keep repeating the loop of "answer, find weak areas, practice again."
+A fixed PDF gives you questions and answers; the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For my family's need, the tech choices are just a means to an end. The real product is being able to keep repeating the loop of "answer, find weak areas, practice again."
 
 ## Get Your First Question Bank Running End to End
 
 The opening question was: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
 
-This project's answer is concrete. The parser turns the PDF into queryable questions, each session draws questions afresh, and answer records accumulate by category. What it tackles is the familiarity caused by a fixed question order. It's meant for personal or small-scale practice and doesn't include the permissions and management features an official exam would need.
+This project is my answer, and it's a concrete one. The parser turns the PDF into queryable questions, each session draws questions afresh, and answer records accumulate by category. What it tackles is the familiarity caused by a fixed question order. It's meant for personal or small-scale practice and doesn't include the permissions and management features an official exam would need.
 
-The smallest next step is to clone the project and run the tests. Once your local environment checks out, validate the parsing results with one official question-bank file.
+The smallest next step I'd suggest is to clone the project and run the tests. Once your local environment checks out, validate the parsing results with one official question-bank file.
 
 ## Further Reading
 

@@ -10,7 +10,7 @@ image:
   alt: "Set up npm trusted publishing on GitHub Actions so each release uses a short-lived credential, not a long-lived token."
 ---
 
-The short version: if GitHub Actions publishes your npm package, you can switch to npm's trusted publishing and stop storing a long-lived token in CI. Once that works, you still need to retire your old tokens before the risk actually goes down.
+The short version: if GitHub Actions publishes your npm package, I recommend switching to npm's trusted publishing so you can stop storing a long-lived token in CI. Once that works, you still need to retire your old tokens before the risk actually goes down.
 
 A few terms first:
 
@@ -23,11 +23,11 @@ A few terms first:
 
 Why switch? A token is a passcode that stands in for your account password; whoever has it can do whatever that token allows in your name. If your automated publishing works by putting an `NPM_TOKEN` in GitHub Actions secrets (where GitHub stores passwords and other sensitive values), that is a long-lived token: it stays valid until it is revoked or expires. If it leaks, someone else can publish a new version as you.
 
-[Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/) looks at this risk from the user's side: in the Nx case, according to [Nx's security advisory](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c), an attacker obtained an npm publish token through a GitHub Actions injection flaw. This post looks at the **publisher** side and removes one specific risk: a long-lived token sitting in CI. To be clear, trusted publishing cannot stop that kind of incident by itself. If malicious commands have already been injected into the workflow, it can still publish. To add a human check on each version, see "Stricter Options" later in this post.
+In [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), I looked at this risk from the user's side: in the Nx case, according to [Nx's security advisory](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c), an attacker obtained an npm publish token through a GitHub Actions injection flaw. In this post I look at the **publisher** side and remove one specific risk: a long-lived token sitting in CI. To be clear, trusted publishing cannot stop that kind of incident by itself. If malicious commands have already been injected into the workflow, it can still publish. To add a human check on each version, see "Stricter Options" later in this post.
 
-This post covers only GitHub-hosted runners (machines provided by GitHub) and the matching settings on npmjs.com. For adding automated review to a workflow, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
+In this post I cover only GitHub-hosted runners (machines provided by GitHub) and the matching settings on npmjs.com. For adding automated review to a workflow, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
 
-> **Version note:** This post follows npm's official guide, [Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers), as read on 2026-11-11. npm is still changing this feature (for example, configurations created after 2026-09-03 allow only stage publish by default). Treat the official docs as the source of truth for the current form and defaults.
+> **Version note:** This post is based on npm's official guide, [Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers), as I read it on 2026-11-11. npm is still changing this feature (for example, configurations created after 2026-09-03 allow only stage publish by default). Treat the official docs as the source of truth for the current form and defaults.
 {: .prompt-info }
 
 ## What Trusted Publishing Is, and How It Works
@@ -36,25 +36,25 @@ In one sentence: [trusted publishing](https://docs.npmjs.com/trusted-publishers)
 
 It relies on OIDC (OpenID Connect), a standard that lets systems present proof of identity to each other. On each publish, GitHub issues a short-lived identity document (technically, a JWT) that names the repository and the workflow. npm checks it against the settings you saved on npmjs.com, and only then issues a short-lived credential for this publish. According to the docs, that credential is cryptographically signed, specific to your workflow, and cannot be extracted or reused.
 
-The flow has four steps:
+I think of the flow as four steps:
 
 1. The workflow starts on a GitHub-hosted runner. The job that publishes (a group of steps inside a workflow) needs the `id-token: write` permission to request an identity document.
 2. GitHub issues an OIDC identity document that names the repository and the workflow.
 3. npm checks that the organization or user, the repository, and the workflow filename all match, then issues the short-lived credential.
 4. The job runs `npm publish`. For a public repository and a public package, npm also attaches provenance automatically (a public record of which repository and workflow built that version).
 
-One catch: npm accepts trusted publishers **in addition to** existing tokens and manual publishes. The npm CLI detects an OIDC environment and uses it first, falling back to traditional tokens only when OIDC is not available. So after setup, your old tokens can still publish until you shut them off in Step 4.
+One catch I want to point out: npm accepts trusted publishers **in addition to** existing tokens and manual publishes. The npm CLI detects an OIDC environment and uses it first, falling back to traditional tokens only when OIDC is not available. So after setup, your old tokens can still publish until you shut them off in Step 4.
 
 ![GitHub Actions trades an OIDC identity for a short-lived npm credential, so no npm token is stored](flow.en.webp){: w="1600" h="900" }
 _A concept illustration: GitHub Actions presents an identity, npm checks your settings, and only then issues a short-lived credential for this publish. A public repository plus a public package also gets provenance. Publishing itself needs no npm token; installing private dependencies still needs a read-only token._
 
 ## When to Use It, and When You Cannot Yet
 
-**The short version:** if you publish automatically with GitHub Actions on GitHub-hosted runners, it makes sense to switch now. Self-hosted runners are not supported yet.
+**The short version:** if you publish automatically with GitHub Actions on GitHub-hosted runners, I think it makes sense to switch now. Self-hosted runners are not supported yet.
 
-**Why now.** [npm's docs say](https://docs.npmjs.com/about-access-tokens) legacy tokens were removed in November 2025, leaving only granular access tokens (tokens you can limit by package, permission, and expiry date). The docs also say the ability to publish new versions directly with a granular token will be removed in January 2027. In other words, if your CI publishes directly with a token, you will need a different method by then. npm's [CI/CD guide](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow) also recommends trusted publishing instead of access tokens for publishing from CI.
+**Why now.** [npm's docs say](https://docs.npmjs.com/about-access-tokens) legacy tokens were removed in November 2025, leaving only granular access tokens (tokens you can limit by package, permission, and expiry date). The docs also say the ability to publish new versions directly with a granular token will be removed in January 2027. As I read it, if your CI publishes directly with a token, you will need a different method by then. npm's [CI/CD guide](https://docs.npmjs.com/using-private-packages-in-a-ci-cd-workflow) also recommends trusted publishing instead of access tokens for publishing from CI.
 
-**Good fit:** packages you publish automatically with GitHub Actions on GitHub-hosted runners. npm also supports GitLab.com shared runners and CircleCI cloud; see [the same page](https://docs.npmjs.com/trusted-publishers). This post does not walk through those platforms.
+**Good fit:** packages you publish automatically with GitHub Actions on GitHub-hosted runners. npm also supports GitLab.com shared runners and CircleCI cloud; see [the same page](https://docs.npmjs.com/trusted-publishers). I don't walk through those platforms in this post.
 
 **Not yet:** self-hosted runners (machines you run yourself). The [docs say](https://docs.npmjs.com/trusted-publishers) they are not currently supported, but are planned for future releases. The docs currently list only these three supported platforms.
 
@@ -85,7 +85,7 @@ On [npmjs.com](https://www.npmjs.com), open your package, go to **Settings**, fi
 - **Multiple trusted publishers:** each package can have up to 10 trusted publishers.
 - **Single trusted publisher:** each package can have only one at a time.
 
-The two differ in defaults, deadlines, and whether you can edit a configuration, so the rules below are split by interface. Compare the docs with what you see on npmjs.com, and follow the matching version.
+The two differ in defaults, deadlines, and whether you can edit a configuration, so I split the rules below by interface. Compare the docs with what you see on npmjs.com, and follow the matching version.
 
 The fields are:
 
@@ -100,14 +100,14 @@ The fields are:
 - Multiple interface: `npm stage publish` is always allowed, and `npm publish` must be selected separately. According to the docs, configurations created after 2026-09-03 **allow only `npm stage publish` by default**.
 - Single interface: this field is required, and you must select at least one option.
 
-On either interface, if you want the `npm publish` command in the Step 2 example to succeed, **you must select `npm publish`**. Allowing only `npm stage publish` is a stricter setup, covered in "Stricter Options."
+On either interface, if you want the `npm publish` command in the Step 2 example to succeed, **you must select `npm publish`**. Allowing only `npm stage publish` is a stricter setup, which I cover in "Stricter Options."
 
 **Before you save:**
 
 1. Every field is case-sensitive and must match exactly.
 2. npm does **not** verify the configuration when you save it. A mistake shows no error now; it fails only when you try to publish.
 3. On the Multiple interface, an existing configuration cannot be edited; if something is wrong, delete it and create a new one. On the Single interface, you can modify or remove it at any time.
-4. On the Multiple interface, [a new configuration must complete its first successful publish within 2 days](https://docs.npmjs.com/trusted-publishers). Otherwise it expires and can no longer be used or edited; you have to delete it and start over. So it helps to read Step 2 and get the workflow ready before you come back and save this form.
+4. On the Multiple interface, [a new configuration must complete its first successful publish within 2 days](https://docs.npmjs.com/trusted-publishers). Otherwise it expires and can no longer be used or edited; you have to delete it and start over. So I suggest reading Step 2 and getting the workflow ready before you come back and save this form.
 
 **What you get:** a trusted publisher record on npm, waiting for the workflow to match it.
 
@@ -145,16 +145,16 @@ jobs:
       - run: npm publish  # Or: npm stage publish
 ```
 
-Line by line:
+I'll go through it line by line:
 
 - `on: push: tags: v*` publishes only when you push a tag such as `v1.2.3`. A tag is a name attached to a specific commit (a saved change), often used to mark a version; ordinary commits do not trigger a publish.
-- `permissions: id-token: write` is the critical line. It lets GitHub issue an OIDC identity document for this job. [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token) say it only allows fetching an OIDC token; it does not grant write access to other resources.
+- `permissions: id-token: write` is the line I consider most critical. It lets GitHub issue an OIDC identity document for this job. [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token) say it only allows fetching an OIDC token; it does not grant write access to other resources.
 - `contents: read` lets the job read the repository. An example in [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc) notes that `actions/checkout` needs it to check out your code.
 - `runs-on: ubuntu-latest` uses a GitHub-hosted runner.
 - In `setup-node`, `registry-url` points at the official npm registry, and `package-manager-cache: false` follows the official comment: never use caching in release builds.
 - The job then installs dependencies (`npm ci`), builds, tests, and runs `npm publish`. If you allowed only stage publish in Allowed actions, change that last line to `npm stage publish`, as the comment suggests.
 
-The publish step does **not** need `NODE_AUTH_TOKEN`, and it does **not** need `--provenance`. When you publish with trusted publishing from a public repository to a public package, npm generates provenance automatically. If `actions/checkout` or `actions/setup-node` has a newer major version, follow that action's README; this example uses `@v6`, as in the official npm docs.
+The publish step does **not** need `NODE_AUTH_TOKEN`, and it does **not** need `--provenance`. When you publish with trusted publishing from a public repository to a public package, npm generates provenance automatically. If `actions/checkout` or `actions/setup-node` has a newer major version, follow that action's README; I use `@v6` in this example, as the official npm docs do.
 
 **If the package has private dependencies**, add this to the `npm ci` step:
 
@@ -188,7 +188,7 @@ If the publish fails, see "Common Mistakes and Fixes" below. On the Multiple int
 
 ## Step 4: Retire Your Old Tokens
 
-Setting up trusted publishing does not disable old tokens. npm accepts trusted publishers **in addition to** existing tokens and manual publishes. Follow the docs' migration tip, in this order:
+Setting up trusted publishing does not disable old tokens. npm accepts trusted publishers **in addition to** existing tokens and manual publishes. I'd follow the docs' migration tip, in this order:
 
 1. Set up trusted publishing and confirm that a publish works.
 2. On the package, go to **Settings → Publishing access**, select **Require two-factor authentication and disallow tokens**, then click **Update Package Settings**. After that, granular tokens cannot publish this package at all; trusted publishers use OIDC, so they keep working.
@@ -255,14 +255,14 @@ _A concept illustration: on the left, the caller `release.yml`; on the right, th
 
 ## Stricter Options
 
-Trusted publishing removes the long-lived token, but a compromised workflow can still publish. If you want extra gates, the docs suggest these. You do not need all of them:
+Trusted publishing removes the long-lived token, but a compromised workflow can still publish. If you want extra gates, the docs suggest these. I don't think you need all of them:
 
 - **Environment approval:** give the publish job a GitHub environment that requires a human approval, and enter the same name in **Environment name** on npmjs.com.
 - **Tag protection rules:** limit who can push the tags that trigger a release.
 - **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the **Staged Packages** tab in your npmjs.com account settings or with `npm stage approve <stage-id>`. The docs treat a stage-only trusted publisher as a stronger combination; check every configured publisher for any remaining direct-publish permissions. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
 - **Regular reviews:** audit the package's trusted publishers periodically, and delete publish tokens you no longer use.
 
-For a step-by-step setup of these gates, and why a release with provenance can still be malicious, see the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/).
+I cover a step-by-step setup of these gates, and why a release with provenance can still be malicious, in the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/).
 
 ## Limits You Should Know First
 
@@ -313,6 +313,6 @@ Where people most often get stuck, and what to do:
 
 ## What to Do Next
 
-Once GitHub Actions publishes with a short-lived credential instead of a long-lived key, retire the old tokens, and add an approval or stage publish if you want a tighter gate. For defenses on the user side, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). To add automated review to these workflows, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
+I recommend having GitHub Actions publish with a short-lived credential instead of a long-lived key. Once it does, retire the old tokens, and add an approval or stage publish if you want a tighter gate. I covered defenses on the user side in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). To add automated review to these workflows, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
 
-Treat [Trusted publishing](https://docs.npmjs.com/trusted-publishers) as the official reference, along with [provenance](https://docs.npmjs.com/generating-provenance-statements), [about access tokens](https://docs.npmjs.com/about-access-tokens), [staged publishing](https://docs.npmjs.com/staged-publishing), and [GitHub's OIDC documentation](https://docs.github.com/en/actions/concepts/security/openid-connect). For another security write-up on this site, see [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/).
+Treat [Trusted publishing](https://docs.npmjs.com/trusted-publishers) as the official reference, along with [provenance](https://docs.npmjs.com/generating-provenance-statements), [about access tokens](https://docs.npmjs.com/about-access-tokens), [staged publishing](https://docs.npmjs.com/staged-publishing), and [GitHub's OIDC documentation](https://docs.github.com/en/actions/concepts/security/openid-connect). For another security write-up of mine, see [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/).

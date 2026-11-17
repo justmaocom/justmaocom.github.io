@@ -12,14 +12,14 @@ image:
 
 Claude Code, an AI coding assistant you use in the terminal, runs commands on its own, such as running tests, installing packages, and calling `git`. These commands run under your account, so by default they can read any file you can read, including SSH keys and cloud credentials. Claude Code has a built-in sandbox that keeps these commands inside limits the operating system enforces, which restrict where they can write and which sites they can connect to.
 
-But the sandbox is **off by default**. Even when it's on, the official docs state that it still allows reading `~/.ssh` and `~/.aws/credentials` by default. Many people assume "it's on, so it's safe," but a few steps are still missing.
+But the sandbox is **off by default**. Even when it's on, the official docs state that it still allows reading `~/.ssh` and `~/.aws/credentials` by default. Many people assume "it's on, so it's safe," but I think a few steps are still missing.
 
-This post walks you through these steps: turn on `/sandbox`, confirm it actually blocks, keep keys and tokens out, and turn off "retry outside the sandbox." Then it lists what the sandbox does not cover and how to fill those gaps. Each step includes the results I actually got on my own Mac, and at the end there is a `settings.json` you can copy as is.
+In this post I walk you through these steps: turn on `/sandbox`, confirm it actually blocks, keep keys and tokens out, and turn off "retry outside the sandbox." Then I list what the sandbox does not cover and how to fill those gaps. Each step includes the results I actually got on my own Mac, and at the end there is a `settings.json` you can copy as is.
 
-> **Version and test run**: this post follows [Sandboxing](https://code.claude.com/docs/en/sandboxing), [Permissions](https://code.claude.com/docs/en/permissions), [Settings reference](https://code.claude.com/docs/en/settings-reference), and the [changelog](https://code.claude.com/docs/en/changelog), read on 2026-11-13 (Taipei time). I ran through it the same day with Claude Code 2.1.323 on macOS, the latest version that day (released November 12). Several November releases fixed sandbox and permission-rule bugs one after another. For example, 2.1.321 fixed read-only commands running outside the sandbox without a prompt, and deny rules not applying when `cp` or `mv` wrote into a folder. 2.1.323 fixed the sandbox possibly turning off mid-conversation, and `excludedCommands` letting commands it didn't list run outside the sandbox. Before you follow along, run `claude update` in your terminal, then check the version with `claude --version`.
+> **Version and test run**: this post follows [Sandboxing](https://code.claude.com/docs/en/sandboxing), [Permissions](https://code.claude.com/docs/en/permissions), [Settings reference](https://code.claude.com/docs/en/settings-reference), and the [changelog](https://code.claude.com/docs/en/changelog), which I read on 2026-11-13 (Taipei time). I ran through it the same day with Claude Code 2.1.323 on macOS, the latest version that day (released November 12). Several November releases fixed sandbox and permission-rule bugs one after another. For example, 2.1.321 fixed read-only commands running outside the sandbox without a prompt, and deny rules not applying when `cp` or `mv` wrote into a folder. 2.1.323 fixed the sandbox possibly turning off mid-conversation, and `excludedCommands` letting commands it didn't list run outside the sandbox. Before you follow along, run `claude update` in your terminal, then check the version with `claude --version`.
 {: .prompt-info }
 
-This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). That post only asks you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. For why you should limit an agent's permissions, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). This post doesn't repeat that.
+This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). In that post I only asked you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. I covered why you should limit an agent's permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), so I won't repeat it here.
 
 ## A Few Terms First
 
@@ -73,7 +73,7 @@ set
 
 ## When to Turn It On
 
-It's worth turning on if any of these apply:
+I think it's worth turning on if any of these apply:
 
 - You often press "allow" to let Claude run commands, or you want it to run them without asking you every time. With the sandbox on, the sandbox stops actions that go out of bounds, so you don't have to review every command yourself.
 - You let Claude read things you didn't write, such as someone else's repo, issues, web pages, or package source code. That content may hide text that tells the AI to run commands.
@@ -112,7 +112,7 @@ On the Mode tab, pick one of two options:
 - **auto-allow**: commands that run in the sandbox no longer ask you one by one. Deny rules still apply, and ask rules that target specific content, such as `Bash(git push *)`, still prompt you to confirm.
 - **regular permissions**: the sandbox still applies its limits, but each command still asks you through the normal permission flow.
 
-Both modes have exactly the same file and network limits. The only difference is whether you get asked. Choose auto-allow if you want to press "allow" less often, or regular permissions if you want to review every command yourself. One thing to note: with auto-allow, Claude no longer asks before it uses commands to change files in the working directory. That holds even in Manual mode, which normally asks before every file edit.
+Both modes have exactly the same file and network limits. The only difference is whether you get asked. Choose auto-allow if you want to press "allow" less often, or regular permissions if you want to review every command yourself. One thing I want to point out: with auto-allow, Claude no longer asks before it uses commands to change files in the working directory. That holds even in Manual mode, which normally asks before every file edit.
 
 Claude Code saves the mode you pick in the panel only to `.claude/settings.local.json` in **this project**. To turn on the sandbox for every project, set `"sandbox": { "enabled": true }` in `~/.claude/settings.json`. With only `enabled` set, the mode defaults to auto-allow. To switch to regular permissions, also add `"autoAllowBashIfSandboxed": false`.
 
@@ -150,7 +150,7 @@ deny network-outbound example.com:443 (host is not on the allow list)
 </sandbox_violations>
 ```
 
-Compare 3 and 4: in `bypassPermissions` mode, domains outside the list go through without a prompt, and only `strictAllowlist` stops them.
+I think the most important comparison is 3 versus 4: in `bypassPermissions` mode, domains outside the list go through without a prompt, and only `strictAllowlist` stops them.
 
 ## Step 2: Confirm It Actually Blocks
 
@@ -163,7 +163,7 @@ The official docs give two commands for this check. **Ask Claude to run them.** 
 
 The first command tries to create an empty file in your home directory, which tests that commands can't write outside the working directory. The second tells curl to skip the proxy and connect directly, which tests that commands can't connect out on their own.
 
-Keep three things in mind during the check:
+During the check, I'd keep three things in mind:
 
 1. **Use Manual mode.** If Claude asks whether to retry outside the sandbox, **say no**. In `bypassPermissions` mode, or when an allow rule happens to match the command, the retry runs outside the sandbox without asking, and the check no longer tells you anything (Step 4 turns this retry off).
 2. **Don't start Claude Code in your home directory.** If you started it there, or added your home directory as a working directory, `touch` can write there anyway, so test again from a project folder.
@@ -238,7 +238,7 @@ The file couldn't be opened, and the token was gone from the environment.
 - Switch the remote to HTTPS. That needs an HTTPS credential such as a personal access token, and the settings above already removed `GITHUB_TOKEN` from the sandbox, so weigh the tradeoff.
 - Use the official `excludedCommands` to move commands such as `git push` out of the sandbox. Excluded commands run with your full permissions and can connect to any host, so think it through before you use it.
 
-> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so start with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials). I didn't test this mode.
+> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so I'd start with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials). I didn't test this mode.
 {: .prompt-tip }
 
 ## Step 4: Turn Off Retries Outside the Sandbox
@@ -262,7 +262,7 @@ touch: ../outside/probe-T12.txt: Operation not permitted
 
 The second attempt worked, and the file really was created outside the working directory. In Manual mode, the retry stops at the confirmation step. Because I was in non-interactive mode with nobody to press "allow," it was denied with `Run outside of the sandbox`.
 
-To keep every command Claude runs inside the sandbox, close this escape hatch:
+To keep every command Claude runs inside the sandbox, I'd close this escape hatch:
 
 ```json
 {
@@ -308,7 +308,7 @@ The sandbox covers only commands. The items below are outside its scope and need
 1	FAKE-SECRET-FOR-TEST
 ```
 
-The file that `wc` couldn't open in the sandbox, the Read tool read in full. There was also a twist. The first time I asked, Claude refused to use Read on its own, saying it would respect the sandbox settings. But once I explained that this was an authorized test with a fake file, it read it. So don't count on the AI's self-restraint as a defense: text hidden in a web page or repo can talk it into things too. To actually close this gap, add deny rules to your permission settings:
+The file that `wc` couldn't open in the sandbox, the Read tool read in full. There was also a twist. The first time I asked, Claude refused to use Read on its own, saying it would respect the sandbox settings. But once I explained that this was an authorized test with a fake file, it read it. So I don't count on the AI's self-restraint as a defense: text hidden in a web page or repo can talk it into things too. To actually close this gap, I'd add deny rules to the permission settings:
 
 ```json
 {
@@ -339,7 +339,7 @@ the working directories. Ask the user to add the directory with /add-dir, or to
 remove that setting.
 ```
 
-**Programs Claude Code starts itself.** [Hooks](/posts/claude-code-hooks-automate-checks/), local MCP servers, plugin monitors, LSP servers, status line commands, and `apiKeyHelper` all run with your full permissions. So do mods, which are plugins that run their own code inside Claude Code. Check what one does before you install it, because the sandbox can't help here. To keep credential environment variables away from these programs too, the official docs offer the `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` environment variable. With or without the sandbox, it removes credentials from the environment of every subprocess.
+**Programs Claude Code starts itself.** [Hooks](/posts/claude-code-hooks-automate-checks/), local MCP servers, plugin monitors, LSP servers, status line commands, and `apiKeyHelper` all run with your full permissions. So do mods, which are plugins that run their own code inside Claude Code. I'd check what one does before installing it, because the sandbox can't help here. To keep credential environment variables away from these programs too, the official docs offer the `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` environment variable. With or without the sandbox, it removes credentials from the environment of every subprocess.
 
 **Commands you type yourself with `!`.** In most cases these run outside the sandbox, even with Strict sandbox mode on. Step 3 relies on this when you run `git push` yourself. The flip side is that the sandbox doesn't protect you from commands you type here.
 
@@ -354,7 +354,7 @@ remove that setting.
 
 Settings that live only in `~/.claude/settings.json` can't stop any of this.
 
-Before you open an unfamiliar repo, look at these two files. A safer approach is to save your sandbox settings to a separate file, such as `~/.claude/sandbox-strict.json`, holding the `sandbox` section of the complete settings in the next section (the outermost level is `{ "sandbox": { ... } }`). Then pass it with `--settings` when you start Claude Code:
+Before opening an unfamiliar repo, I'd look at these two files. I think a safer approach is to save your sandbox settings to a separate file, such as `~/.claude/sandbox-strict.json`, holding the `sandbox` section of the complete settings in the next section (the outermost level is `{ "sandbox": { ... } }`). Then pass it with `--settings` when you start Claude Code:
 
 ```bash
 claude --settings ~/.claude/sandbox-strict.json
@@ -372,7 +372,7 @@ When `--settings` turns off retries outside the sandbox, the sandbox enters what
 touch: ../outside/probe-T15b.txt: Operation not permitted
 ```
 
-**The domain allowlist checks only hostnames.** The proxy allows a connection based on the hostname it requests, and by default it doesn't decrypt or inspect encrypted traffic. The official docs warn that allowing a broad domain such as `github.com` can become a channel for sending data out. Put only the domains you really need on the allowlist. Also, when you choose "Yes, and don't ask again" in the network prompt, Claude Code saves a `WebFetch(domain:...)` allow rule, and that rule also lets the WebFetch tool reach that domain.
+**The domain allowlist checks only hostnames.** The proxy allows a connection based on the hostname it requests, and by default it doesn't decrypt or inspect encrypted traffic. The official docs warn that allowing a broad domain such as `github.com` can become a channel for sending data out. I'd put only the domains that are really needed on the allowlist. Also, when you choose "Yes, and don't ask again" in the network prompt, Claude Code saves a `WebFetch(domain:...)` allow rule, and that rule also lets the WebFetch tool reach that domain.
 
 **git worktree.** If you open Claude Code in a worktree, as in [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/), the sandbox allows writes to the main repo's shared `.git` folder, so `git commit` works as usual. The `hooks/` and `config` inside it are still not writable, though. Since 2.1.323, `git worktree add`, `move`, and `remove` fail in the sandbox because of read-only restrictions, and so does committing in a worktree that this conversation didn't open or add. Create and remove worktrees yourself in the terminal.
 
@@ -380,7 +380,7 @@ To contain everything above as well, run the whole of Claude Code inside a conta
 
 ## The Complete settings.json
 
-Here are the previous steps combined, for `~/.claude/settings.json`. If the file already has `permissions` or `sandbox`, merge these entries in instead of overwriting the whole file:
+Below, I've combined the previous steps into one configuration for `~/.claude/settings.json`. If the file already has `permissions` or `sandbox`, merge these entries in instead of overwriting the whole file:
 
 ```json
 {
@@ -430,20 +430,20 @@ With the sandbox on, normal work occasionally gets blocked too. Start by reading
 | `CONNECT tunnel failed, response 403`, or `deny network-outbound <domain>` inside `<sandbox_violations>` | It tried to reach a domain that isn't on the allowlist | If it really needs that domain, add it to `allowedDomains`, or allow it in the prompt |
 | `Could not resolve host` | The tool didn't use the proxy and tried to connect directly | Usually a tool that doesn't support proxies, such as plain `ssh` or a database client. Run it yourself with `!` |
 
-The rule of thumb: open only the one folder or domain that's actually needed, and don't drop a whole tool into `excludedCommands` just to save effort.
+My rule of thumb: open only the one folder or domain that's actually needed, and don't drop a whole tool into `excludedCommands` just to save effort.
 
 To turn the sandbox off, temporarily or for good, go to the settings file where you turned it on and change `"enabled"` to `false` (if you used the panel, that's `.claude/settings.local.json` in the project; if you set it in your user settings, it's `~/.claude/settings.json`). Save, then restart Claude Code. If you passed it with `--settings`, just start without that file next time.
 
 ## Conclusion
 
-The sandbox is off by default, and even when it's on it blocks only writes and network access. You have to cover reads and environment variables yourself. I ran through it once, and everything I tested matched the official docs. Follow the order in this post:
+The sandbox is off by default, and even when it's on it blocks only writes and network access. You have to cover reads and environment variables yourself. I ran through it once, and everything I tested matched the official docs. I suggest following the order in this post:
 
 1. Turn it on with `/sandbox`.
 2. Ask Claude to run two commands to confirm writes and network access are blocked.
 3. List the keys and tokens to protect in `sandbox.credentials`.
 4. Turn off retries outside the sandbox with `allowUnsandboxedCommands: false`.
 
-Finally, remember that the sandbox covers only commands. Claude's file tools depend on permission rules (in my test, the Read tool went straight past the sandbox), hooks and MCP servers run with your full permissions, and a repo's settings can loosen the sandbox, so start with `--settings` when you open an unfamiliar repo.
+Finally, I want to remind you again that the sandbox covers only commands. Claude's file tools depend on permission rules (in my test, the Read tool went straight past the sandbox), hooks and MCP servers run with your full permissions, and a repo's settings can loosen the sandbox, so start with `--settings` when you open an unfamiliar repo.
 
 ## Further Reading
 

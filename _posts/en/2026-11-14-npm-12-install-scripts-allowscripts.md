@@ -12,7 +12,7 @@ image:
 
 After upgrading to npm 12, you might see something confusing: `npm install` finishes successfully and the packages are there, but a feature no longer works. A dependency's install script may have been skipped.
 
-npm 12 no longer runs these scripts by default. Your job now is to check which packages need review, understand each script's purpose and source, approve the ones you need, and commit the list to version control. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. These two protections do different jobs, and both have limits.
+npm 12 no longer runs these scripts by default. In this post I explain what to do next: check which packages need review, understand each script's purpose and source, approve the ones you need, and commit the list to version control. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. In my view, these two protections do different jobs, and both have limits. I put the steps together from the official docs, and I have not included hands-on test results for the npm commands.
 
 A few terms first:
 
@@ -25,14 +25,14 @@ A few terms first:
 
 Why review install scripts? Malicious code can run at this stage, before your application even loads the package. `tensorlake@0.5.144`, published on October 8, 2026, is one example. According to the [official security advisory](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2), it used `preinstall` to steal GitHub and npm tokens, cloud credentials, and AI tool and MCP configuration.
 
-The [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/) covers the publisher side. This post looks at the installer side: how to manage scripts, avoid freshly published versions, and why the tensorlake incident calls for a specific response order.
+My [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/) covers the publisher side. In this post I look at the installer side: how to manage scripts, avoid freshly published versions, and why the tensorlake incident calls for a specific response order.
 
-> **Version note:** This post is based on the official npm CLI 12.2.2 docs [npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/), [npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/), and [config](https://docs.npmjs.com/cli/v12/using-npm/config/), as read on 2026-11-13, plus GitHub's [npm v12 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/). It does not include hands-on test results for these npm commands. For exact commands and defaults, defer to the docs for your npm version.
+> **Version note:** This post is based on the official npm CLI 12.2.2 docs [npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/), [npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/), and [config](https://docs.npmjs.com/cli/v12/using-npm/config/), as I read them on 2026-11-13, plus GitHub's [npm v12 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/). I have not included hands-on test results for these npm commands. For exact commands and defaults, defer to the docs for your npm version.
 {: .prompt-info }
 
 ## What Changed in npm 12
 
-GitHub's [July 8, 2026 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) announced that npm v12 is generally available and tagged `latest`. The relevant changes are:
+GitHub's [July 8, 2026 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) announced that npm v12 is generally available and tagged `latest`. I've summarized the relevant changes below:
 
 - **Dependency install scripts no longer run by default.** This covers `preinstall`, `install`, `postinstall`, and implicit node-gyp builds triggered by `binding.gyp`. The policy also covers `prepare` scripts for dependencies installed from git, local files, or links.
 - **By default, npm skips the scripts and continues installing.** It lists packages awaiting approval at the end. So a successful install only means the packages are present; it does not mean their required build or download steps have completed.
@@ -43,7 +43,7 @@ The same release also blocks git dependencies (`allow-git`) and remote URL depen
 ![npm 12 checks allowScripts to decide whether to run a script, skip it, or list it for review](gate.en.webp){: w="1600" h="900" }
 _With the defaults in place, scripts matching an approval run. Explicitly denied scripts are skipped; unreviewed scripts are skipped and listed. Approvals pin versions by default, so upgrades need another review._
 
-Packages that compile or download native code, such as image-processing libraries and database drivers, are more likely to be affected. The official docs use `canvas` and `sharp` in approval examples, but that does not mean every project needs to approve them. Check the versions and installation methods your project actually uses.
+Packages that compile or download native code, such as image-processing libraries and database drivers, are more likely to be affected. The official docs use `canvas` and `sharp` in approval examples, but I don't take that to mean every project needs to approve them. Check the versions and installation methods your project actually uses.
 
 ## Step 1: Check Your npm Version
 
@@ -57,7 +57,7 @@ npm -v
 - **11.x starting at 11.16.0**: GitHub's [June announcement](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/) says these versions show warnings to help you prepare for migration, but those warnings are not the same as npm 12's default blocking. Use `npm approve-scripts --allow-scripts-pending` to inspect the list, then approve or deny packages individually.
 - **Older versions**: check that your Node.js version meets the target npm version's requirements before upgrading. To follow this post, you can explicitly select npm 12 with `npm install -g npm@12`.
 
-Team members and CI should use the same npm version. The same `allowScripts` list is not guaranteed to block anything under an older npm version. Also check whether any settings override the defaults.
+I recommend that team members and CI use the same npm version. The same `allowScripts` list is not guaranteed to block anything under an older npm version. Also check whether any settings override the defaults.
 
 ## Step 2: See Which Packages Need Review
 
@@ -69,15 +69,15 @@ npm install-scripts ls
 
 This read-only command lists packages with install scripts that are not yet covered by an `allowScripts` rule. Explicitly denied packages do not appear. For a new project, first run `npm install` with npm 12's defaults, then inspect its final output and this list.
 
-Next, inspect the scripts for each version. If the list includes `canvas@3.2.0`, for example:
+Next, I'd inspect the scripts for each version. If the list includes `canvas@3.2.0`, for example:
 
 ```bash
 npm view canvas@3.2.0 scripts
 ```
 
-`npm view` shows what the currently configured registry reports, which may not match what is installed locally. Also inspect that version's installed `package.json`, the files its scripts call, and where any downloaded programs come from. Transitive dependencies may be nested, and several versions of the same package may be installed. Do not review only the copy at the top level.
+`npm view` shows what the currently configured registry reports, which may not match what is installed locally. I'd also inspect that version's installed `package.json`, the files its scripts call, and where any downloaded programs come from. Transitive dependencies may be nested, and several versions of the same package may be installed. Do not review only the copy at the top level.
 
-These guidelines can help:
+When deciding, I'd follow these guidelines:
 
 - **It compiles or downloads native code**: the script may be necessary, but still check its source, download location, and purpose. Needing a build is not enough reason to approve it.
 - **It only sends usage statistics or prints ads or thank-you messages**: deny it if the functionality you need does not depend on it.
@@ -86,7 +86,7 @@ These guidelines can help:
 
 ## Step 3: Approve or Deny, Rebuild, Then Commit
 
-These commands use the official docs' example package names. Replace them with packages you have reviewed:
+For these commands, I've kept the official docs' example package names. Replace them with packages you have reviewed:
 
 ```bash
 npm install-scripts approve canvas sharp
@@ -97,7 +97,7 @@ npm install-scripts deny telemetry-pkg
 
 **Approvals pin versions by default.** `approve` writes `package@version` entries to limit approval to reviewed versions. One detail matters: the [docs](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/) say a package name matches all installed versions of that package. If two versions are installed, review both before approving the name.
 
-The resulting `package.json` looks roughly like this. This fragment is assembled from the docs; the versions are illustrative. Check what the command actually generates:
+The resulting `package.json` looks roughly like this. I assembled this fragment from the docs; the versions are illustrative. Check what the command actually generates:
 
 ```json
 {
@@ -110,7 +110,7 @@ The resulting `package.json` looks roughly like this. This fragment is assembled
 ```
 
 - `true` allows and `false` denies. Denials use names without versions, and an existing denial takes priority over approval.
-- `--no-allow-scripts-pin` records only the name and allows future versions too. It is generally best avoided.
+- `--no-allow-scripts-pin` records only the name and allows future versions too. I'd generally avoid it.
 - `approve --all` approves all pending packages at once. Use it only after reviewing each one.
 - If the lockfile lacks a `resolved` URL, npm may be unable to verify the version and fall back to **name-only approval with a warning**. That broadens the approval, so do not ignore the warning. If `omit-lockfile-registry-resolved` is enabled, adjust it first, then follow the [docs](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/) to restore the lockfile's source data. Next, remove the broad name-only approval, reapprove, and inspect the diff to confirm that only version-specific rules remain.
 
@@ -122,7 +122,7 @@ npm rebuild canvas sharp
 
 According to the [npm rebuild docs](https://docs.npmjs.com/cli/v12/commands/npm-rebuild/), this runs the lifecycle scripts for those packages. Then run your project's tests and build to check the features you actually need.
 
-Inspect the diff before committing. Commit the approval list, and include the lockfile if it also has changes you intend to keep:
+Before committing, I'd inspect the diff. Commit the approval list, and include the lockfile if it also has changes you intend to keep:
 
 ```bash
 git diff -- package.json package-lock.json
@@ -139,11 +139,11 @@ git commit -m "chore(deps): approve required install scripts"
 strict-allow-scripts=true
 ```
 
-According to the [docs](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts), unreviewed install scripts then cause installation to fail; explicitly denied scripts are still skipped. After committing the settings and list, have CI run `npm ci` and your existing tests with the same npm version to confirm that a clean install can build successfully.
+According to the [docs](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts), unreviewed install scripts then cause installation to fail; explicitly denied scripts are still skipped. After committing the settings and list, I recommend having CI run `npm ci` and your existing tests with the same npm version to confirm that a clean install can build successfully.
 
 ## Step 4: Add a 7-Day Cooldown in .npmrc
 
-Script review controls what can run during installation. A cooldown controls how recent a selected version can be. It gives new releases more time to be discovered, reported, and removed if they are malicious; it does not guarantee detection within seven days.
+Script review controls what can run during installation. A cooldown controls how recent a selected version can be. It gives new releases more time to be discovered, reported, and removed if they are malicious, but I wouldn't assume a malicious version will be caught within seven days.
 
 Start with this in the project's root `.npmrc`:
 
@@ -159,9 +159,9 @@ If an internal package truly needs to be available immediately, add an exception
 min-release-age-exclude[]=@your-org/internal-tool
 ```
 
-Replace the example with your actual package. You can exempt an entire scope with `@your-org/*`, but that lets more packages bypass the cooldown. Start with individual packages that need an exception.
+Replace the example with your actual package. You can exempt an entire scope with `@your-org/*`, but that lets more packages bypass the cooldown. I'd start with individual packages that need an exception.
 
-Keep two things in mind:
+When setting exceptions, I'd keep two things in mind:
 
 - **Only matching packages are exempt.** Their dependencies still follow the cooldown unless they also match an exception.
 - **An exception does not change the download source.** The exception list matches names only; it does not configure which registry npm uses. The docs also advise owning your private scope on the public npm registry, so others cannot publish packages under the same name first.
@@ -169,13 +169,13 @@ Keep two things in mind:
 ![The tensorlake malicious release window compared with a seven-day cooldown](cooldown.en.webp){: w="1600" h="900" }
 _The tensorlake incident illustrates the principle: if resolution applies the seven-day limit without an exception or override, 0.5.144 is too new during its release window. The scope-wide exception shown in the image is only an optional example._
 
-The advisory says `tensorlake@0.5.144` was on npm for about 1 hour 40 minutes (2026-10-08 01:12–02:54 UTC, 09:12–10:54 Taipei time). In other words, with the cooldown applied during resolution, it would have been removed before it was old enough to be selected. This shows the buffer a cooldown can provide, **not a guarantee for every installation scenario**. The docs also do not say whether versions already recorded in a lockfile are rechecked, so do not treat the cooldown as a malware scan of existing dependencies.
+The advisory says `tensorlake@0.5.144` was on npm for about 1 hour 40 minutes (2026-10-08 01:12–02:54 UTC, 09:12–10:54 Taipei time). In other words, with the cooldown applied during resolution, it would have been removed before it was old enough to be selected. This shows the buffer a cooldown can provide, **not a guarantee for every installation scenario**. The docs also do not say whether versions already recorded in a lockfile are rechecked, so I wouldn't treat the cooldown as a malware scan of existing dependencies.
 
 **Urgent fixes can be blocked too.** The docs say that if the cooldown blocks a patched version needed by `npm audit fix`, npm keeps the vulnerable version, warns, and exits with a failure. Verify the patched version and its source, then temporarily exempt that package. Remove the exception after updating and validating. Lowering the age also relaxes the policy, but affects other packages at the same time.
 
 If the same config file sets `before`, which selects versions published before an absolute date, `before` takes priority. Across configuration sources, npm's normal precedence applies. Check whether CI arguments, environment variables, or personal settings change the project's intended limit.
 
-Commit the shared `.npmrc` settings after checking that the file contains no tokens or other secrets, so the team and CI use the same policy.
+Finally, I'd check that the shared `.npmrc` contains no tokens or other secrets, then commit it so the team and CI use the same policy.
 
 ## Step 5: Allow Scripts for Global Installs and npx
 
@@ -201,7 +201,7 @@ npm config set allow-scripts=canvas,sharp --location=user
 
 ## After Installing Malware: The Special Response Order in the tensorlake Incident
 
-Rotating credentials is a necessary response, but this incident adds a trap: the malware installs a persistent `gh-token-monitor` service that deletes the user's home directory when it detects revocation of the stolen GitHub token. The advisory therefore requires isolating the machine and removing the service before revoking tokens. **The following procedure is specific to this incident; do not apply it as a fixed sequence for every compromise.**
+Rotating credentials is a necessary response, but this incident adds a trap: the malware installs a persistent `gh-token-monitor` service that deletes the user's home directory when it detects revocation of the stolen GitHub token. The advisory therefore requires isolating the machine and removing the service before revoking tokens. **The following procedure, which I compiled from the advisory, is specific to this incident; do not apply it as a fixed sequence for every compromise.**
 
 According to the [official advisory](https://github.com/tensorlakeai/tensorlake/security/advisories/GHSA-8g63-53c9-65j2), the affected packages are npm's `tensorlake@0.5.144` and the `tensorlake-native-*` packages at that version. The PyPI and crates.io packages and the tensorlake CLI were not affected. An attacker used a compromised maintainer account to publish through the project's own release workflow, so the malicious version carried valid npm provenance. Provenance shows where and how a package was built; it cannot guarantee the code is free of malicious behavior.
 
@@ -209,13 +209,13 @@ The payload collected GitHub, npm, and cloud credentials, SSH and GPG keys, `.en
 
 ### Check Whether You Were Affected
 
-Start with lockfiles and installation records. There is no need to execute the suspicious package:
+I'd start with lockfiles and installation records. There is no need to execute the suspicious package:
 
 - Find the `tensorlake` and `tensorlake-native-*` entries and check whether their corresponding `version` is `0.5.144`. Some lockfile formats store names and versions separately; searching only for the literal `tensorlake@0.5.144` can miss matches.
 - `npm list tensorlake` shows only the currently installed version. Even if the package has since been removed or downgraded, that does not prove it was never installed.
 - Check historical CI logs, especially for resolution to that version during 2026-10-08 01:12–02:54 UTC. The current lockfile does not replace installation history either.
 
-The advisory says to treat a machine and its accessible credentials as compromised if it installed 0.5.144 with install scripts enabled. Finding the version is the starting point for investigation; also establish whether scripts ran and which credentials were accessible.
+The advisory says to treat a machine and its accessible credentials as compromised if it installed 0.5.144 with install scripts enabled. I'd treat finding the version as the starting point for investigation; also establish whether scripts ran and which credentials were accessible.
 
 ### Follow the Advisory
 
@@ -256,6 +256,6 @@ _This is the special sequence in the tensorlake advisory: remove the persistent 
 | The cooldown blocks an urgent patch | Verify the source, exempt only that package temporarily, and remove the exception after validation |
 | A global or one-off tool needs install scripts | Specify the tool and version, then list approved script packages with `--allow-scripts` |
 
-Start with your existing project's review list. Restore necessary scripts after review, then share the list and `.npmrc` through version control with your team and CI. Whenever you upgrade a dependency, review the new version's scripts too.
+I recommend starting with your existing project's review list. Restore necessary scripts after review, then share the list and `.npmrc` through version control with your team and CI. Whenever you upgrade a dependency, review the new version's scripts too.
 
-For removing long-lived publishing tokens, see the [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/). For related AI tool and MCP risks, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). For a broader workflow review, see the [OWASP Agentic Top 10 checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
+For removing long-lived publishing tokens, see my [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/). For related AI tool and MCP risks, see [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). I cover a broader workflow review in the [OWASP Agentic Top 10 checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/).

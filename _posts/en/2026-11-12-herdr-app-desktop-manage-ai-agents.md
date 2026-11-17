@@ -10,15 +10,15 @@ image:
   alt: "Organize AI agents across repos with spaces and tabs in the Herdr desktop app, and see from the sidebar which one is waiting for you."
 ---
 
-When several AI agents write code in different projects at the same time, the usual sticking point is this: you can't tell which one has stopped to wait for your answer, so you end up flipping through the windows one by one.
+When several AI agents write code in different projects at the same time, I think the usual sticking point is this: you can't tell which one has stopped to wait for your answer, so you end up flipping through the windows one by one.
 
 The Herdr desktop app (the program is called herdr-app) is built for exactly this. According to the official README, it is a desktop app for terminals and coding agents. It groups your work into spaces, shows which agents need you, and keeps the programs in your terminals running after you close the window. According to the official homepage, it is free, and the app, herdr-core, and Herdr TUI are all open source under the Apache 2.0 license.
 
-This is a follow-along beginner's guide: install the app, start an agent from the tab bar, organize work with spaces and tabs, and find the agent waiting for you in the agents sidebar. Then it covers what happens after you close the window, plus telemetry, automatic updates, and mod safety. If you can't remember the shortcuts, that's fine: the command palette finds every action by name and also lists its key.
+I wrote this as a follow-along beginner's guide: install the app, start an agent from the tab bar, organize work with spaces and tabs, and find the agent waiting for you in the agents sidebar. Then I cover what happens after you close the window, plus telemetry, automatic updates, and mod safety. If you can't remember the shortcuts, that's fine: the command palette finds every action by name and also lists its key.
 
-This article is based on the official docs and includes no screenshots of the app; the three images are concept diagrams made by this site.
+I based this post on the official docs and included no screenshots of the app; the three images are concept diagrams I made.
 
-> **Version note:** This article follows the official docs for herdr-app v0.1.15 (released on 2026-11-11, Taipei time; confirmed on 2026-11-12 as still the current version on releases.herdr.dev and Homebrew). Herdr App has not reached 1.0 yet and changes quickly, so treat the [official README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md) as authoritative for how things work and which keys to press.
+> **Version note:** I wrote this post from the official docs for herdr-app v0.1.15 (released on 2026-11-11, Taipei time; on 2026-11-12 I confirmed it was still the current version on releases.herdr.dev and Homebrew). Herdr App has not reached 1.0 yet and changes quickly, so treat the [official README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md) as authoritative for how things work and which keys to press.
 {: .prompt-info }
 
 ## A Few Terms First
@@ -43,13 +43,13 @@ herdr.dev has two programs with very similar names. According to the official FA
 
 The two **don't share agents**: according to the official FAQ, an agent started in one does not show up in the other. The phone app works only with herdr-core (which comes with Herdr App), not with Herdr TUI. According to the phone app page, Herdr TUI and herdr-core can both be installed on the same computer.
 
-How to choose: this site suggests picking one as your main tool. Because agents aren't shared, running a few in each brings back the old problem of not knowing who is waiting for you. If you want to stay in the terminal, read [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/); if you want a desktop window, or want to check on agents from your phone, read on.
+How to choose: I suggest picking one as your main tool. Because agents aren't shared, running a few in each brings back the old problem of not knowing who is waiting for you. If you want to stay in the terminal, read [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/); if you want a desktop window, or want to check on agents from your phone, read on.
 
 ## When It Fits
 
 - You run two or more agents at once, in different repos or on different tasks, and want one window that shows which one is waiting for you: a good fit.
 - You want to close the window and let agents keep working: a good fit. According to the official docs, closing the window doesn't stop the terminals (see Step 5), and work on an SSH machine keeps going while your laptop sleeps (see Step 6).
-- You only run one agent and your current setup works fine: you don't have to switch (this site's view).
+- You only run one agent and your current setup works fine: you don't have to switch (my view).
 
 ## Before You Start
 
@@ -72,14 +72,14 @@ brew install --cask herdr-app
 
 According to the Homebrew cask data, the app is installed to `/Applications/Herdr.app` and you also get a `herdr-app` command; the cask data also marks the app as updating itself (`auto_updates: true`). See "How Automatic Updates Work" below.
 
-> **No installer for Intel Macs:** The README says macOS builds are available for Apple Silicon only, and Intel Mac users can build from source; the official install script also stops on an Intel Mac. This post doesn't cover building from source. Not sure which kind of Mac you have? Open the Apple menu in the top-left corner and choose About This Mac. If the Chip line starts with Apple M, it's Apple Silicon. If you see a Processor line that says Intel, it's an Intel Mac.
+> **No installer for Intel Macs:** The README says macOS builds are available for Apple Silicon only, and Intel Mac users can build from source; the official install script also stops on an Intel Mac. I don't cover building from source in this post. Not sure which kind of Mac you have? Open the Apple menu in the top-left corner and choose About This Mac. If the Chip line starts with Apple M, it's Apple Silicon. If you see a Processor line that says Intel, it's an Intel Mac.
 {: .prompt-warning }
 
 ### Linux and Windows: Download the Script and Read It Before Running
 
 For Linux and Windows, the official options are install scripts (the other route is building from source). An install script is a prepared list of commands that downloads and installs the app when you run it. According to the README, both install scripts download and run code, and you can read them first if you prefer.
 
-The README's Linux command is `curl -fsSL https://releases.herdr.dev/app/install.sh | sh`. The `|` in the middle hands the downloaded content straight to `sh`, which runs it. So the script runs the moment it finishes downloading, and you never get a chance to look at it first. This site suggests splitting that into two steps. First, download it to a file:
+The README's Linux command is `curl -fsSL https://releases.herdr.dev/app/install.sh | sh`. The `|` in the middle hands the downloaded content straight to `sh`, which runs it. So the script runs the moment it finishes downloading, and you never get a chance to look at it first. I suggest splitting that into two steps. First, download it to a file:
 
 ```bash
 curl -fsSL https://releases.herdr.dev/app/install.sh -o herdr-app-install.sh
@@ -91,15 +91,15 @@ Open it in a text editor and read it. Once you understand it and it looks fine, 
 sh herdr-app-install.sh
 ```
 
-If you can't tell what the script does, don't run it yet. According to the comments at the top of the script and its contents, on Linux it:
+If you can't tell what the script does, don't run it yet. I read the comments at the top of the script and its contents. On Linux, it:
 
 - Installs the app to `~/.local/share/herdr-app`, puts the `herdr-app` command in `~/.local/bin`, and adds a launcher and icon.
 - Installs herdr-core to `~/.local/bin/herdr-core` (along with `hc`) only if the machine doesn't have it yet; after that, the app keeps it up to date.
 - Downloads the release manifest (`latest.json`), checks the download's SHA-256 (a fingerprint computed from the file's contents; if the file changes even slightly, the fingerprint changes) against it, and stops if they don't match.
 
-`~` stands for your user folder (your home folder). PATH is the list of folders the terminal looks in to find commands. If the installer asks, add `~/.local/bin` to it, so that typing `herdr-app` in a terminal finds the command. Running the script again later updates the app. The script supports macOS too (the app goes in `~/Applications/Herdr.app`), but for Mac users this site suggests the dmg or Homebrew above.
+`~` stands for your user folder (your home folder). PATH is the list of folders the terminal looks in to find commands. If the installer asks, add `~/.local/bin` to it, so that typing `herdr-app` in a terminal finds the command. Running the script again later updates the app. The script supports macOS too (the app goes in `~/Applications/Herdr.app`), but on a Mac I suggest the dmg or Homebrew above.
 
-**Windows** (x64, Windows 10 1803 or later): The official command, run in PowerShell, is `irm https://releases.herdr.dev/app/install.ps1 | iex` (the download page writes it as `powershell -c "irm https://releases.herdr.dev/app/install.ps1 | iex"`), which also runs the script right after downloading. This site suggests splitting it into two steps here too. First, download the script to a file in PowerShell:
+**Windows** (x64, Windows 10 1803 or later): The official command, run in PowerShell, is `irm https://releases.herdr.dev/app/install.ps1 | iex` (the download page writes it as `powershell -c "irm https://releases.herdr.dev/app/install.ps1 | iex"`), which also runs the script right after downloading. I suggest splitting it into two steps here too. First, download the script to a file in PowerShell:
 
 ```powershell
 irm https://releases.herdr.dev/app/install.ps1 -OutFile herdr-app-install.ps1
@@ -153,7 +153,7 @@ To split a pane: on macOS, press `cmd-d` to split right and `cmd-shift-d` to spl
 
 ### Default Keyboard Shortcuts
 
-Compiled from the official default key files ([macOS](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json), [Linux/Windows](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)). `cmd-shift-p` means pressing Command, Shift, and P together. On a Mac, `cmd` is the ⌘ Command key and `ctrl` is the Control key; they are different keys. For other actions and their keys, open the command palette with `cmd-shift-p` (`ctrl-shift-p` on Linux/Windows).
+I compiled this table from the official default key files ([macOS](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json), [Linux/Windows](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)). `cmd-shift-p` means pressing Command, Shift, and P together. On a Mac, `cmd` is the ⌘ Command key and `ctrl` is the Control key; they are different keys. For other actions and their keys, open the command palette with `cmd-shift-p` (`ctrl-shift-p` on Linux/Windows).
 
 | Action | macOS | Linux/Windows |
 | --- | --- | --- |
@@ -175,14 +175,14 @@ Compiled from the official default key files ([macOS](https://github.com/herdrde
 
 ### Using It With git worktree
 
-If you followed [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/) and gave each agent its own working directory (a worktree), this site suggests one space per worktree, or at least a pane of its own, so each agent edits files only in its own directory. The app can also manage worktrees itself. According to the built-in guide, the space menu and the + menu have New worktree, Open worktree (open an existing one), and Remove worktree. A new worktree goes in `~/.herdr/worktrees/<repo name>/<branch name>` on that machine, and the Spaces sidebar lists the spaces for those worktrees under the original repo's space.
+If you followed [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/) and gave each agent its own working directory (a worktree), I suggest one space per worktree, or at least a pane of its own, so each agent edits files only in its own directory. The app can also manage worktrees itself. According to the built-in guide, the space menu and the + menu have New worktree, Open worktree (open an existing one), and Remove worktree. A new worktree goes in `~/.herdr/worktrees/<repo name>/<branch name>` on that machine, and the Spaces sidebar lists the spaces for those worktrees under the original repo's space.
 
 ## Step 4: Check the Agents Sidebar to Find the One Waiting for You
 
 ![The four states in the agents sidebar, Working, Blocked, Done, and Idle, what each means and what to do](agents.en.webp){: w="1600" h="900" }
 _Concept diagram: what the four states mean and how this site suggests handling them; a worker without a pane opens in peek over your current tab when you click it. The colors are this site's illustration colors, not the app's interface colors._
 
-According to the README, the agents sidebar brings the agents from all your spaces into one list, including programs started by another agent (the docs call them workers). Agents that report status show one of the four states below. The right-hand column is this site's suggestion.
+According to the README, the agents sidebar brings the agents from all your spaces into one list, including programs started by another agent (the docs call them workers). Agents that report status show one of the four states below. The right-hand column is my suggestion.
 
 | State | Official meaning (plain English) | What this site suggests you do |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ Sounds and notifications: according to the built-in guide, when an agent needs y
 
 ### When No Status Shows Up
 
-Work through the official FAQ item by item:
+I would work through the official FAQ item by item:
 
 1. **The agent doesn't report status.** Only agents that report via OSC 7501 have a status; others still run, just without one. According to the herdr-core page, herdr-core doesn't read the text on screen and has no built-in list of agents, so it doesn't guess. Older agent versions may not report yet, so update the agent first.
 2. **The agent runs inside tmux started within Herdr.** Its status can't reach Herdr that way; run the agent directly in a Herdr pane. If you've never used tmux, skip this one.
@@ -328,7 +328,7 @@ Two more points about the config folder:
 
 ## Wrapping Up
 
-After these steps, you'll have one desktop window with a space for each repo and a tab for each task, and the agents sidebar tells you which agent is waiting for you.
+After these steps, you'll have one desktop window with a space for each repo and a tab for each task, and the agents sidebar tells you which agent is waiting for you. I've summed up the key points below:
 
 - Install: on an Apple Silicon Mac, use the dmg or `brew install --cask herdr-app`; on Linux and Windows, download the script and read it before running; there is no installer for Intel Macs.
 - Start agents: from the + in the tab bar, or directly in a pane. The first time macOS asks for permission, click Allow.

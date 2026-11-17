@@ -10,12 +10,12 @@ image:
   alt: "When the AI writes both code and tests, check what it can't change: tests placed where you approved and expected values from the spec."
 ---
 
-> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All four skills covered here are still there, but three things are different. `implement-spec`, previously an experimental skill, moved into the official plugin; it implements a whole spec at once, using worktrees (several working folders of the same repo) to work on multiple tickets in parallel, as an alternative to running `implement` one ticket at a time. `retro`, which moved into the official plugin at the same time, is the last step of the main flow and looks back on the work after `code-review`. And the glossary that `tdd` and `diagnosing-bugs` read was renamed from `CONTEXT.md` to `GLOSSARY.md`. Starting with `1.3.1`, `ask-matt` suggests running `retro` after a bug is fixed. A full update of this series is planned.
+> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All four skills covered here are still there, but three things are different. `implement-spec`, previously an experimental skill, moved into the official plugin; it implements a whole spec at once, using worktrees (several working folders of the same repo) to work on multiple tickets in parallel, as an alternative to running `implement` one ticket at a time. `retro`, which moved into the official plugin at the same time, is the last step of the main flow and looks back on the work after `code-review`. And the glossary that `tdd` and `diagnosing-bugs` read was renamed from `CONTEXT.md` to `GLOSSARY.md`. Starting with `1.3.1`, `ask-matt` suggests running `retro` after a bug is fixed. I plan to fully update this series for the new version.
 {: .prompt-warning }
 
-In the previous post, I used `to-tickets` to split per-seat billing into three tickets, and each one was labeled `ready-for-agent`, meaning it had all the information needed to hand off to an AI. Now it's time to open a fresh conversation and have the AI implement one of them: "Deactivate a member and release the seat." It will change the code on its own, write the tests on its own, and finally report back that "all tests pass."
+In the walkthrough in my previous post, `to-tickets` split per-seat billing into three tickets, and each one was labeled `ready-for-agent`, meaning it had all the information needed to hand off to an AI. Now it's time to open a fresh conversation and have the AI implement one of them: "Deactivate a member and release the seat." It will change the code on its own, write the tests on its own, and finally report back that "all tests pass."
 
-But the AI wrote those tests too. They might just be vouching for the code it wrote, without ever checking against the requirements. When the AI writes both the code and the tests, what should you look at to know it actually got things right?
+But the AI wrote those tests too. My worry is that they might just be vouching for the code it wrote, without ever checking against the requirements. When the AI writes both the code and the tests, what should you look at to know it actually got things right?
 
 `mattpocock/skills` hands this stage to four skills: `implement`, `tdd`, `diagnosing-bugs`, and `prototype`. Each one watches a different signal.
 
@@ -25,7 +25,7 @@ But the AI wrote those tests too. They might just be vouching for the code it wr
 > - Next (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The skill invocations in the per-seat billing example are inferred from the original instructions; the red and green test outputs shown in the post are real execution results.
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the skill invocations in the per-seat billing example from the original instructions; the red and green test outputs shown in the post are real results from my own runs.
 {: .prompt-info }
 
 ## A Few Terms First
@@ -69,7 +69,7 @@ Commit your work to the current branch.
 ```
 {: file="skills/engineering/implement/SKILL.md" }
 
-Line by line, the AI does these five things:
+Reading it line by line, I count five things the AI does:
 
 1. Reads the spec or tickets you point it to, and implements what they describe.
 2. Uses `tdd` wherever it can, and only writes tests at seams agreed on in advance.
@@ -77,7 +77,7 @@ Line by line, the AI does these five things:
 4. Calls `code-review` when done to review the changes.
 5. Commits the result to the current branch.
 
-Note point 3: the full test suite runs only once at the end, so test files this ticket doesn't touch won't run until then. If this change accidentally breaks something elsewhere, you won't find out until that point either.
+I'd pay attention to point 3: the full test suite runs only once at the end, so test files this ticket doesn't touch won't run until then. If this change accidentally breaks something elsewhere, you won't find out until that point either.
 
 `implement` never starts on its own. Its front matter sets [`disable-model-invocation: true`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/SKILL.md#L4), and `agents/openai.yaml` also sets [`allow_implicit_invocation: false`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/implement/agents/openai.yaml#L5). The AI won't run it just because the conversation drifts toward "let's start coding"; you have to invoke it explicitly.
 
@@ -135,7 +135,7 @@ Once there's a loop, the remaining five phases run in order:
 4. **Fix and add a regression test.** A regression test confirms the same bug won't come back. Write a failing regression test first, then fix. This assumes [a proper test seam can be found](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L114-L128); if it can't, that tells you something too: the current code structure offers no way for a test to keep this bug from coming back.
 5. **[Clean up](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L130-L138).** Rerun the original loop, confirm the regression test passes, delete output starting with `[DEBUG-`, and write the hypothesis that was finally confirmed into the commit or PR message.
 
-The hypotheses in step 2 should be phrased as "If the cause is X, then changing Y will make the bug disappear." For the seat example, that could be: "If the cause is that deactivation doesn't remove the member from the assigned list, then adding that removal to the deactivation flow will make available seats go up correctly." Any hypothesis that can't produce a prediction should be dropped or rewritten.
+The hypotheses in step 2 should be phrased as "If the cause is X, then changing Y will make the bug disappear." For the seat example, I would write: "If the cause is that deactivation doesn't remove the member from the assigned list, then adding that removal to the deactivation flow will make available seats go up correctly." Any hypothesis that can't produce a prediction should be dropped or rewritten.
 
 When step 4 can't find a test seam, [`ask-matt` hands the follow-up to `improve-codebase-architecture`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L42), which I'll cover in the next post.
 
@@ -165,7 +165,7 @@ The last rule covers how to wrap up a prototype. Validated decisions go into the
 
 I asked at the start: if the AI writes both the code and the tests, won't the tests just vouch for the code? `tdd` relies on two rules to prevent that.
 
-**The first rule is that you confirm where tests go.** As mentioned above, the seams the AI lists need your approval before tests can be written there. You can use this step to designate behaviors spelled out in the requirements, like "available seats go up after a member is deactivated," as things that must be verified.
+**The first rule is that you confirm where tests go.** As mentioned above, the seams the AI lists need your approval before tests can be written there. I'd suggest using this step to designate behaviors spelled out in the requirements, like "available seats go up after a member is deactivated," as things that must be verified.
 
 **The second rule is that expected values need an independent source.** When `tdd` explains [the tautology anti-pattern](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31), it requires expected values to come from something outside the code, such as known-correct values, hand-worked examples, or the spec. `tests.md` contrasts the two approaches using the same summing function:
 
@@ -186,16 +186,16 @@ test("calculateTotal sums line items", () => {
 
 The first version recomputes `expected` with `reduce`. The test computes the answer exactly the way the code does, so it will always pass. The second version writes `15` directly. That number can be checked against the spec or by hand, so if the code gets the math wrong, the test fails.
 
-That said, both rules are just instructions written in Markdown, with no code enforcing them. The [`tdd` folder](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd) contains only `SKILL.md`, `tests.md`, `mocking.md`, and an `agents/openai.yaml`, with no check scripts at all. If you approve the seams the AI lists without looking closely, the first rule has no effect.
+That said, both rules are just instructions written in Markdown, with no code enforcing them. I looked through the [`tdd` folder](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd), and it contains only `SKILL.md`, `tests.md`, `mocking.md`, and an `agents/openai.yaml`, with no check scripts at all. If you approve the seams the AI lists without looking closely, the first rule has no effect.
 
-So whether the tests count comes down to two things you have to check yourself: the list of seams you confirmed, and whether each expected value can be traced back to the spec.
+So in my view, whether the tests count comes down to two things you have to check yourself: the list of seams you confirmed, and whether each expected value can be traced back to the spec.
 
 ![On the left, an exam where the AI writes the questions, answers them, and grades them; the answer key column says "Calculate it the same way as the answer," stamped with a score of 100; on the right, an exam whose questions come from seams you confirmed, with the answer key reading "15, from the spec," graded by node --test; at the bottom: "Writing your own questions, answering them, and grading yourself"](tautological-test-exam.webp){: width="800" height="450" }
 _If the expected value is recomputed with the code's own algorithm, the test will always pass._
 
 ## Where Your Time Goes
 
-With these four skills, you no longer have to go by gut feeling to decide whether the work is done; the first three let you look at tests or commands that can be rerun, and `prototype` looks at how people react after actually trying it. Still, each of these steps takes someone's effort, and most of it falls on you:
+With these four skills, you no longer have to go by gut feeling to decide whether the work is done; the first three let you look at tests or commands that can be rerun, and `prototype` looks at how people react after actually trying it. Still, by my tally, each of these steps takes someone's effort, and most of it falls on you:
 
 | Step | Who puts in the effort | What they put in |
 | --- | --- | --- |
@@ -207,11 +207,11 @@ With these four skills, you no longer have to go by gut feeling to decide whethe
 | After `prototype` is delivered | You or a domain expert | Actually click through every scenario or variant, and say what's wrong |
 | Wrapping up `prototype` | The team | Maintain the `prototype/<name>` branch and leave a note on the ticket pointing to it |
 
-The most time-consuming part is phase 1 of `diagnosing-bugs`. The skill argues that [once the loop is right, the bug is 90% fixed](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37), so that's where the time goes; without a loop, you don't move on to the next phase.
+In my view, the most time-consuming part is phase 1 of `diagnosing-bugs`. The skill argues that [once the loop is right, the bug is 90% fixed](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37), so that's where the time goes; without a loop, you don't move on to the next phase.
 
 ## Which One to Use When
 
-Pick based on what you have in front of you:
+I'd suggest picking based on what you have in front of you:
 
 | Your situation | Skill to use | When it doesn't fit |
 | --- | --- | --- |
@@ -224,7 +224,7 @@ Pick based on what you have in front of you:
 
 ## Simulated Scenario: Implementing "Deactivate a Member and Release the Seat"
 
-The skill invocations below were not actually run, because `implement` modifies the project and commits. The flow is inferred from the original instructions in version `1.2.3`. The red and green tests, however, were actually run on Node.js v25.2.1, and the code is a minimal example written for this post, not taken from `mattpocock/skills`.
+I didn't actually run the skill invocations below, because `implement` modifies the project and commits. I inferred the flow from the original instructions in version `1.2.3`. The red and green tests, however, I did run on Node.js v25.2.1, and the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
 
 Assume the first two tickets, "Show the workspace's purchased and available seats" and "Assign an available seat to a member," are already done. You open a new conversation and attach the third ticket:
 
@@ -339,11 +339,11 @@ This view only applies to projects that follow this workflow of writing a spec f
 
 ## Summary
 
-When the AI writes both the code and the tests, judging whether it got things right means looking at what the AI can't change on its own. For new features, check whether the tests are written at seams you confirmed and whether the expected values come from the spec. For bug fixes, check whether there's a command that has gone red for this symptom. When the design isn't settled yet, click through the prototype yourself, or have someone who knows the business do it, before going further.
+When the AI writes both the code and the tests, I'd judge whether it got things right by looking at what the AI can't change on its own. For new features, check whether the tests are written at seams you confirmed and whether the expected values come from the spec. For bug fixes, check whether there's a command that has gone red for this symptom. When the design isn't settled yet, click through the prototype yourself, or have someone who knows the business do it, before going further.
 
-This post only covers the stage of turning tickets into code. The next post turns to reviewing code structure and this round's changes, and to resolving merge conflicts, covering `codebase-design`, `improve-codebase-architecture`, `code-review`, and `resolving-merge-conflicts`.
+In this post I only cover the stage of turning tickets into code. In the next post I'll turn to reviewing code structure and this round's changes, and to resolving merge conflicts, covering `codebase-design`, `improve-codebase-architecture`, `code-review`, and `resolving-merge-conflicts`.
 
-In your own project, the next step is to open a new conversation and run `$implement` on a ticket that's labeled `ready-for-agent` and has no prerequisites. When the AI lists test seams, confirm them one by one; once it has written the tests, check that every expected value can be found in the spec.
+In your own project, I'd suggest opening a new conversation next and running `$implement` on a ticket that's labeled `ready-for-agent` and has no prerequisites. When the AI lists test seams, confirm them one by one; once it has written the tests, check that every expected value can be found in the spec.
 
 ## Further Reading
 

@@ -12,12 +12,12 @@ image:
 
 Monday morning. You install a skill a teammate recommended in Claude Code, then add an MCP server in Cursor that can read GitHub issues. Your config grows by a dozen lines. Harmless enough.
 
-From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. This post answers two questions: what new exposure did that create, and which gaps are most worth fixing first?
+From that moment, your coding agent reads instructions you never wrote, runs code you never looked at, and holds your GitHub token. In this post I want to answer two questions: what new exposure did that create, and which gaps are most worth fixing first?
 
-> I label three kinds of statements: **Fact** (stated by a linked public source), **Inference** (my conclusion from the facts), and **Opinion** (my judgment—feel free to disagree). All sources were rechecked on October 16, 2026.
+> I label three kinds of statements: **Fact** (stated by a linked public source), **Inference** (my conclusion from the facts), and **Opinion** (my judgment—feel free to disagree). I rechecked all sources on October 16, 2026.
 {: .prompt-info }
 
-The short version: no need to panic, but treat skills and MCP servers as code that runs on your machine, not as a bit of config.
+My short answer: no need to panic, but I'd treat skills and MCP servers as code that runs on your machine, not as a bit of config.
 
 ## Five Terms First
 
@@ -29,11 +29,11 @@ The short version: no need to panic, but treat skills and MCP servers as code th
 | Token | A string that stands in for your username and password; whoever holds it can act as you within what it allows. |
 | Sandbox | A fence around a program that limits which files it can read or write and whether it can reach the network. |
 
-For a walkthrough of how skills are installed and invoked, see [mattpocock/skills Series (1)](/posts/mattpocock-skills-setup-routing-guide/).
+For a walkthrough of how skills are installed and invoked, see my earlier post [mattpocock/skills Series (1)](/posts/mattpocock-skills-setup-routing-guide/).
 
 ## The Setup: You Just Hired Two Contractors
 
-Picture your coding agent as a very capable assistant who believes whatever they're told. Installing a skill hands them a work manual someone else wrote. Connecting an MCP server introduces them to an outside vendor who describes what it can do.
+I think of a coding agent as a very capable assistant who believes whatever they're told. Installing a skill hands them a work manual someone else wrote. Connecting an MCP server introduces them to an outside vendor who describes what it can do.
 
 The assistant follows the manual and trusts the vendor's self-description. The catch: you wrote neither, and the assistant is holding your keys.
 
@@ -41,7 +41,7 @@ The assistant follows the manual and trusts the vendor's self-description. The c
 
 **Fact**: The [Claude Code security docs](https://code.claude.com/docs/en/security#mcp-security) say Anthropic does not security-audit or manage any MCP server; it only reviews connectors against its listing criteria before adding them to the Anthropic Directory.
 
-In other words, the vendors themselves put the responsibility on you.
+As I read it, the vendors themselves put the responsibility on you.
 
 ## The Attack Surface: Four Entry Points
 
@@ -58,16 +58,16 @@ The AI isn't good at telling who said what. Your instructions, web pages, issue 
 2. Exposure to content someone else controls
 3. A way to send things out (a network request, loading an image, even just giving you a link)
 
-It isn't a formal standard, but it's an excellent way to check your own setup. The defenses below keep coming back to these three.
+It isn't a formal standard, but I think it's an excellent way to check your own setup. I keep coming back to these three in the defenses below.
 
 ### Entry 2: Malicious or Tampered Skills and MCP Servers
 
-Both boil down to someone else's code plus someone else's text. The risk comes in two flavors:
+Both boil down to someone else's code plus someone else's text. I split the risk into two flavors:
 
 - **Bad from the start**: instructions hidden in the description, or scripts that quietly do something else.
 - **Fine at first, changed later**: a stolen maintainer account, a swapped package version, or a server that silently rewrites its tool descriptions.
 
-The second is sneakier, because you already reviewed and approved it.
+I find the second sneakier, because you already reviewed and approved it.
 
 ### Entry 3: Excessive Permissions and Exposed Credentials
 
@@ -108,9 +108,9 @@ The same post covers two extensions:
 
 **Fact**: Per [Cursor's advisory GHSA-4cxx-hrm3-49rm](https://github.com/cursor/cursor/security/advisories/GHSA-4cxx-hrm3-49rm) and the [CVE record](https://www.cve.org/CVERecord?id=CVE-2025-54135): before 1.3.9 (the CVE record's wording; the advisory's affected-versions field says up to 1.2.1), Cursor let the agent create new files in the workspace without approval. Editing an existing hidden config file (a dotfile, a name starting with a dot, like `.cursor/mcp.json`) required approval, but creating one didn't. So if `.cursor/mcp.json` didn't exist yet, an attacker could chain an indirect prompt injection to have the agent write it, add a new MCP server, and execute arbitrary code. The fix is in 1.3.9. The advisory rates it CVSS 3.1 8.5 (CVSS is the industry's standard vulnerability severity score, out of 10); the CVE record says 8.6, though both list the same vector.
 
-**Inference**: Running that vector through the CVSS 3.1 formula myself gives 8.5, so this post uses the advisory's 8.5.
+**Inference**: Running that vector through the CVSS 3.1 formula myself gives 8.5, so I use the advisory's 8.5 in this post.
 
-**Inference**: This chains Entry 1 (hidden instructions) with Entry 4 (auto-execution). A config file is itself a place that can run code; whether the agent may write it deserves the same strictness as whether it may run shell commands.
+**Inference**: This chains Entry 1 (hidden instructions) with Entry 4 (auto-execution). A config file is itself a place that can run code; in my view, whether the agent may write it deserves the same strictness as whether it may run shell commands.
 
 ### Case 4: mcp-remote's CVE-2025-6514 (Patched)
 
@@ -120,7 +120,7 @@ The same post covers two extensions:
 
 **Fact**: The MCP best practices have a matching rule: clients [must not open authorization URLs with shell commands](https://modelcontextprotocol.io/docs/2025-06-18/tutorials/security/security_best_practices#oauth-authorization-url-validation) and must reject dangerous URL schemes.
 
-**Inference**: "Just connecting to an MCP server" is an execution risk, not only a data risk. Choosing which server to connect to is the same kind of decision as choosing which package to install.
+**Inference**: "Just connecting to an MCP server" is an execution risk, not only a data risk. To me, choosing which server to connect to is the same kind of decision as choosing which package to install.
 
 ### Case 5: Malicious Nx Releases Enlist Local AI Tools (Real Incident, August 2025)
 
@@ -138,7 +138,7 @@ The same post covers two extensions:
 ![On the left, three conditions: can read private data, touches outside content, can send things out, drawn as three overlapping circles. On the right, least privilege, sandbox with network off (noting that MCP servers need their own isolation), and review plus pinning each cut one of them; the bottom reads "All three together is dangerous; cut at least one"](trifecta-cut.en.webp){: width="800" height="450" }
 _The goal isn't a smarter AI; it's an AI that can't do much damage even when fooled._
 
-**Opinion**: No single trick solves prompt injection. The practical approach today is to assume your agent will read malicious content someday, and make sure that when it does, it can't do much harm.
+**Opinion**: No single trick solves prompt injection. I think the practical approach today is to assume your agent will read malicious content someday, and make sure that when it does, it can't do much harm.
 
 ### 1. Least Privilege: Just Enough Keys
 
@@ -169,7 +169,7 @@ _The goal isn't a smarter AI; it's an AI that can't do much damage even when foo
 - Install skills from a fixed commit, not a moving main.
 - MCP servers are often launched with `npx` or `uvx` (commands that download a package and run it directly). Pin the version; avoid `@latest` (always fetch the newest) or leaving the version out. In the Nx incident, auto-installing the latest version is exactly what hit people who didn't even use Nx.
 
-Concretely (replace `<commit>` with the commit you reviewed):
+Here's a concrete example I wrote (replace `<commit>` with the commit you reviewed):
 
 ```bash
 # MCP: pin a version you have audited (at least 0.1.16, which includes the CVE-2025-6514 fix); not plain npx mcp-remote or @latest
@@ -182,7 +182,7 @@ git -C some-skill checkout <commit>
 
 - Invariant also recommends [pinning MCP servers and tool descriptions and checking them with a hash](https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks), which targets Case 1's rug pull.
 
-**Opinion**: Pinning matters more for agents than for ordinary projects. Swap out a normal package and your tests might break. Swap out a skill's instructions and nothing breaks; the AI just starts doing something else.
+**Opinion**: I think pinning matters more for agents than for ordinary projects. Swap out a normal package and your tests might break. Swap out a skill's instructions and nothing breaks; the AI just starts doing something else.
 
 ## Checklist
 
@@ -216,9 +216,9 @@ _Three stages: before, during, and after._
 
 ## Conclusion
 
-Installing third-party skills and MCP servers puts someone else's code and someone else's words next to your agent. The code brings ordinary supply-chain risk; the words bring AI-specific prompt-injection risk. The agent's permissions decide how much damage either can do.
+As I see it, installing third-party skills and MCP servers puts someone else's code and someone else's words next to your agent. The code brings ordinary supply-chain risk; the words bring AI-specific prompt-injection risk. The agent's permissions decide how much damage either can do.
 
-**Opinion**: The first thing worth doing isn't buying a guardrail product that claims to catch 95% of attacks (Willison is skeptical of those claims too: in web application security, he says, 95% is very much a failing grade). It's two boring things: shrink the agent's tokens to the minimum, and pin the version of every skill and MCP server you install. The first limits what a fooled agent can do; the second limits what can change without you knowing.
+**Opinion**: I think the first thing worth doing isn't buying a guardrail product that claims to catch 95% of attacks (Willison is skeptical of those claims too: in web application security, he says, 95% is very much a failing grade). It's two boring things: shrink the agent's tokens to the minimum, and pin the version of every skill and MCP server you install. The first limits what a fooled agent can do; the second limits what can change without you knowing.
 
 It's the same lesson as my earlier post on the [HEIF image and SSO attack chain](/posts/openai-libheif-sso-attack-chain/): how much damage a small entry point does depends on how much trust sits behind it.
 

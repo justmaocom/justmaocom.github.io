@@ -10,22 +10,22 @@ image:
   alt: "照 OWASP Agentic Top 10 的十項風險，逐題檢查並修好自己的 AI 開發工作流。"
 ---
 
-這篇把 OWASP 針對 AI agent（會自己動手做事的 AI）整理的資安風險清單，轉成十題是／否自我檢查，給用 AI 寫程式的個人開發者使用。答「是」的題目，就是要修的地方；每題都附上修法。
+這篇我把 OWASP 針對 AI agent（會自己動手做事的 AI）整理的資安風險清單，轉成十題是／否自我檢查，給用 AI 寫程式的個人開發者使用。答「是」的題目，就是要修的地方；每題我都附上修法。
 
-為什麼要檢查？用 coding agent（會自己讀檔、改程式、跑指令的 AI 寫程式助手）久了，接上的東西會愈來愈多：多一個外部工具、多一條「不用問我」的自動放行，再把自動測試和部署也接上去。但很少人會回頭，把整個工作流檢查一遍。
+為什麼要檢查？用 coding agent（會自己讀檔、改程式、跑指令的 AI 寫程式助手）久了，接上的東西會愈來愈多：多一個外部工具、多一條「不用問我」的自動放行，再把自動測試和部署也接上去。但我覺得很少人會回頭，把整個工作流檢查一遍。
 
-題目的依據是〈[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)〉，簡稱 OWASP Agentic Top 10。OWASP 是一個非營利的開放資安社群，最有名的是網站風險清單「OWASP Top 10」。這份 agent 版在 2025 年 12 月發布。發布頁說它是「globally peer-reviewed」（經過全球同行審查）的框架，由 100 多位業界專家、研究者與實務工作者合作寫成，列出自主 AI 與 agent 系統最關鍵的資安風險。
+我出題的依據是〈[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)〉，簡稱 OWASP Agentic Top 10。OWASP 是一個非營利的開放資安社群，最有名的是網站風險清單「OWASP Top 10」。這份 agent 版在 2025 年 12 月發布。發布頁說它是「globally peer-reviewed」（經過全球同行審查）的框架，由 100 多位業界專家、研究者與實務工作者合作寫成，列出自主 AI 與 agent 系統最關鍵的資安風險。
 
-這份清單原本是寫給打造 agent 系統的組織。我把十項轉成個人工作流也能回答的十題，每題附上修法。分組、情境、檢查題和修補順序都是本站整理，**不是** OWASP 官方的「個人開發者檢查表」。十項依序編為 ASI01 到 ASI10；編號只是編號，不代表嚴重程度。
+這份清單原本是寫給打造 agent 系統的組織。我把十項轉成個人工作流也能回答的十題，每題附上修法。分組、情境、檢查題和修補順序都是我自己整理的，**不是** OWASP 官方的「個人開發者檢查表」。十項依序編為 ASI01 到 ASI10；編號只是編號，不代表嚴重程度。
 
-本文範圍是個人開發者的 coding agent 工作流，例如 Claude Code、Codex、Cursor 的 agent，以及接在上面的 MCP（讓 agent 連接外部工具的標準）和 GitHub Actions（GitHub 的自動化流程服務）。另一篇[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)從「裝了什麼」講攻擊面（可能被攻擊的地方）；這篇則用 OWASP 的十項，把整個工作流掃一遍。那篇已經詳細寫過的案例，這裡不再重講。
+這篇我談的範圍是個人開發者的 coding agent 工作流，例如 Claude Code、Codex、Cursor 的 agent，以及接在上面的 MCP（讓 agent 連接外部工具的標準）和 GitHub Actions（GitHub 的自動化流程服務）。我在另一篇[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)從「裝了什麼」講攻擊面（可能被攻擊的地方）；這篇則用 OWASP 的十項，把整個工作流掃一遍。那篇我已經詳細寫過的案例，這裡不再重講。
 
-> **版本說明**：本文依 OWASP〈OWASP Top 10 for Agentic Applications 2026〉（2025 年 12 月發布，2026-11-11 重新核對仍是最新版）與各工具 2026-11-11 的官方文件撰寫。Claude Code、Codex、Cursor 的預設權限近期都有調整，設定名稱與預設值以官方文件為準。
+> **版本說明**：我寫這篇時，參考的是 OWASP〈OWASP Top 10 for Agentic Applications 2026〉（2025 年 12 月發布，2026-11-11 重新核對仍是最新版），以及各工具 2026-11-11 當天的官方文件。Claude Code、Codex、Cursor 的預設權限近期都有調整，設定名稱與預設值以官方文件為準。
 {: .prompt-info }
 
 ## 先說幾個詞
 
-看懂下面這些詞，就能讀完全文。比較少見的詞，第一次出現時會再順手解釋。
+看懂下面這些詞，就能讀完全文。比較少見的詞，我會在第一次出現時再順手解釋。
 
 - **AI agent／agentic**：不只回答問題，還會自己規劃步驟、呼叫工具、改檔、跑指令的 AI。agentic 是形容詞，指「具備這種自己行動能力的」。
 - **coding agent**：專門幫你寫程式的 AI agent，例如 Claude Code、Codex、Cursor 的 agent。它能直接在你的專案裡讀檔、改程式、跑終端機指令。
@@ -44,7 +44,7 @@ image:
 
 ## 怎麼用這份清單：四步一輪
 
-做法是四個步驟。先做完一輪；之後工作流有變動，就再做一輪。
+我把做法分成四個步驟。先做完一輪；之後工作流有變動，就再做一輪。
 
 1. **盤點**：寫下你用哪些 agent、它能讀哪些資料夾、能跑哪些指令、接了哪些 MCP、拿得到哪些 token，以及有哪些自動化（CI、排程）會接著跑。不知道去哪裡查，看下面的「盤點時去哪裡看」。
 2. **對照**：十題逐一回答是或否。答「是」就代表要修。
@@ -58,7 +58,7 @@ _概念圖：盤點、對照、修補、複查圍成一輪；中心原則是最�
 
 ### 盤點時去哪裡看
 
-工具的預設值近期常有調整，所以這裡只寫「去哪裡看、看什麼」，不寫預設值。
+工具的預設值近期常有調整，所以這裡我只寫「去哪裡看、看什麼」，不寫預設值。
 
 - **權限與自動放行**：在 Claude Code 裡輸入 `/permissions` 看目前規則，各權限模式的意思對照 [permission modes](https://code.claude.com/docs/en/permission-modes) 文件。Codex 看 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)，確認兩件事：沙箱模式（它技術上能做什麼）和核准政策（什麼時候必須先問你）。Cursor 看 [Agent Security](https://cursor.com/docs/agent/security)，確認 Run Modes（終端機指令怎麼放行）和 MCP allowlist（預先放行的 MCP 工具清單）。
 - **沙箱**：Claude Code 用 `/sandbox` 或設定裡的 `sandbox.enabled`，確認沙箱有沒有開；開了之後能讀哪裡、能連哪裡，看 [sandboxing](https://code.claude.com/docs/en/sandboxing) 文件。
@@ -88,13 +88,13 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 ## 逐項檢查
 
-每一項都分成四段：**白話說**（這項風險是什麼）、**在你的 AI 開發環境長這樣**（放到 coding agent 上的常見樣子）、**檢查題**（答「是」就要修），以及**怎麼修**。
+每一項我都分成四段：**白話說**（這項風險是什麼）、**在你的 AI 開發環境長這樣**（放到 coding agent 上的常見樣子）、**檢查題**（答「是」就要修），以及**怎麼修**。
 
 閱讀時請留意：
 
 - 引號裡的英文，是 OWASP 或工具官方文件的原文。
 - 「OWASP 對策 N」指該項在 OWASP 文件裡列的第 N 條對策，方便你回原文對照。
-- 情境和修法裡的工具做法，是本站的對照，不是 OWASP 替各家工具寫的步驟。
+- 情境和修法裡的工具做法，是我自己的對照，不是 OWASP 替各家工具寫的步驟。
 - 工具設定只寫去哪裡看、確認什麼；實際的預設值，以你當下打開的官方文件為準。Claude Code 的規則寫法可另外查 [permissions](https://code.claude.com/docs/en/permissions) 文件。
 
 ### ASI01 Agent Goal Hijack：讀到的內容改掉它要做的事
@@ -111,27 +111,27 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 - 讀外部內容時，切到不會直接改檔的模式。例如 Codex 的唯讀沙箱（`--sandbox read-only`）；或 Claude Code 的 plan 模式，官方說明這個模式會讀檔、可以跑指令探索，但在你核准計畫之前不改原始碼（少數情況例外，見 [permission modes](https://code.claude.com/docs/en/permission-modes) 文件）。各模式實際能做什麼，以各工具官方文件為準。
 - 像 `git push`（把程式碼推到遠端）、刪檔這類高影響動作，設成要先問你。Claude Code 的權限規則分三種：`deny`（禁止）、`ask`（先問）、`allow`（直接放行）。規則的格式像官方例子 `Bash(rm *)`，代表以 `rm`（刪除）開頭的終端機指令。
 - 依官方 [permission modes](https://code.claude.com/docs/en/permission-modes) 文件，明確寫成 `ask` 的規則，不會被任何模式自動核准；可以對照文件裡「Actions no mode auto-approves」那一段。
-- 細節與案例見[供應鏈篇](/posts/coding-agent-supply-chain-permission-risks/)。
+- 細節與案例我在[供應鏈篇](/posts/coding-agent-supply-chain-permission-risks/)寫過。
 
 ### ASI02 Tool Misuse and Exploitation：合法工具被用在錯的地方
 
 **白話說：** 工具本身合法，權限也是你給的，但 agent 用錯了地方：刪掉資料、一直呼叫要付費的 API（給程式呼叫的線上服務），或把資料送出去。
 
-**在你的 AI 開發環境長這樣：** OWASP 舉了一個直接講 coding agent 的例子。有一組工具被設成自動執行，理由是它們看起來沒有風險，其中包括 ping（測試網路連線的小工具）。攻擊者讓 agent 反覆呼叫 ping，藉 DNS 查詢（電腦查詢網址時送出的網路請求）把資料夾帶出去。換句話說，只要能連網，看起來再無害的工具，也能被拿來送資料。
+**在你的 AI 開發環境長這樣：** OWASP 舉了一個直接講 coding agent 的例子。有一組工具被設成自動執行，理由是它們看起來沒有風險，其中包括 ping（測試網路連線的小工具）。攻擊者讓 agent 反覆呼叫 ping，藉 DNS 查詢（電腦查詢網址時送出的網路請求）把資料夾帶出去。我的解讀是，只要能連網，看起來再無害的工具，也能被拿來送資料。
 
 **檢查題：** 有沒有自動放行的工具能刪檔、發送或連網？
 
 **怎麼修：** 先講結論：自動放行清單只留真的無害、也不能連網的工具；刪除、發送、發布一律先問你。
 
 - Claude Code：用 `/permissions` 看目前規則。比對順序固定是 deny → ask → allow，第一個符合的規則決定結果；allow 也不能在 deny 裡開例外。
-- 特別找「整批放行」的寫法：`mcp__<server>__*` 代表某個 MCP server 的所有工具。它若出現在 allow 裡，那個 server 的每個工具都不會再問你。只想放行其中一個，就寫完整名稱 `mcp__<server>__<tool>`。
+- 我會特別找「整批放行」的寫法：`mcp__<server>__*` 代表某個 MCP server 的所有工具。它若出現在 allow 裡，那個 server 的每個工具都不會再問你。只想放行其中一個，就寫完整名稱 `mcp__<server>__<tool>`。
 - Cursor：檢查 MCP allowlist 裡，是不是只有你真正需要的工具。
 - OWASP 也建議設用量上限：費用、呼叫次數或 token 預算。這裡的 token 是 AI 計算用量的單位，不是前面說的憑證。
 - 更完整的權限與自動執行說明，見[供應鏈篇](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ### ASI03 Identity and Privilege Abuse：身分與權限濫用
 
-**白話說：** 要問的是：agent 用的是誰的身分、拿著哪些鑰匙？如果它直接沿用你整個帳號的權限，一旦被騙，就是用「你」的全部權限去做事。
+**白話說：** 我會先問：agent 用的是誰的身分、拿著哪些鑰匙？如果它直接沿用你整個帳號的權限，一旦被騙，就是用「你」的全部權限去做事。
 
 **在你的 AI 開發環境長這樣：** 它讀得到你的 SSH key、雲端憑證、`.env` 裡的長期 token，或直接用你已經登入 Git 與雲端的身分跑指令。
 
@@ -143,7 +143,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 - Claude Code 可以用 deny 規則擋住檔案工具讀取，官方文件的例子有 `Read(./.env)`、`Read(./secrets/**)`，以及 `Read(~/.ssh/**)`。寫好後，用 `/permissions` 確認規則已經在清單裡。
 - 這裡有兩個容易卡住的地方。第一，官方文件寫明 `.claudeignore` 檔沒有作用，要擋就用 deny 規則。第二，`Read` deny 規則不是萬能的。依 [permissions](https://code.claude.com/docs/en/permissions) 文件，它擋得住 Claude 的檔案工具，以及 `cat`、`head` 這類它認得的讀檔指令；但擋不住自己開檔的程式，例如 Python 或 Node 腳本。要讓所有程式都讀不到，就要開沙箱（見 ASI05）。
 - Cursor 可以用 `.cursorignore` 擋住 agent 存取特定檔案。
-- CI 發布套件若還在用長期 npm token，可以改用短期憑證。這是本站的對照例子，不是 OWASP 原文提到的做法，說明見[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)。
+- CI 發布套件若還在用長期 npm token，可以改用短期憑證。這是我自己的對照例子，不是 OWASP 原文提到的做法，說明見我寫的[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)。
 - 在 GitHub Actions 裡跑的程式，可以用 workflow 的 `GITHUB_TOKEN` 操作你的 repo。GitHub 建議把它的預設權限設成只能讀 repo 內容：在 workflow 頂層寫 `permissions: contents: read`，個別 job（workflow 裡的一組工作）真正需要時再打開。作法見 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 
 ### ASI04 Agentic Supply Chain Vulnerabilities：供應鏈
@@ -191,7 +191,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 - `bypassPermissions` 是 Claude Code 的一種權限模式，名稱的意思就是略過權限檢查。官方說只應在容器或虛擬機器（在你電腦裡模擬出的另一台電腦）這類隔離環境使用；用不到的話，可以把 `permissions.disableBypassPermissionsMode` 設成 `"disable"` 關掉它。
 - Codex：到 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) 確認沙箱模式（它技術上能做什麼）、核准政策（什麼時候必須先問你），以及網路存取是開還是關。想讓它只讀，可以執行 `codex --sandbox read-only --ask-for-approval on-request`。
-- lockfile 不要讓 agent 自己重建；需要更新時，自己看過 diff 再改。
+- lockfile 我不會讓 agent 自己重建；需要更新時，我會自己看過 diff 再改。
 - 讓指令自動執行的清單（allowlist）放進版本控制，改了什麼都看得到。這是 OWASP 對策 6 的做法。
 
 ### ASI06 Memory & Context Poisoning：記憶與脈絡污染
@@ -204,7 +204,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 **怎麼修：** 先講結論：這些檔都放進 git，每次改動都要你看過才算數。
 
-- OWASP 對策 7 是用版本控制和快照，需要時能退回。實際做法：把規則檔放進 git，改動先看 diff 再接受。規則檔怎麼寫，見[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
+- OWASP 對策 7 是用版本控制和快照，需要時能退回。具體來說，我會把規則檔放進 git，改動先看 diff 再接受。規則檔怎麼寫，見[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
 - OWASP 對策 6：不要讓 agent 自動把自己的輸出寫回「可信的記憶」。
 - Claude Code 可以用 `ConfigChange` hook 稽核或擋下 session 中的設定變更。hook 是在特定時機自動執行的檢查腳本；`ConfigChange` 會在設定檔被改動時觸發。細節見[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
@@ -212,14 +212,14 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 **白話說：** 好幾個 agent 互相傳話時，如果訊息沒有驗證是誰發的、也沒有防竄改，別人就能冒充發話的一方，或改掉其中一句。
 
-**在你的 AI 開發環境長這樣：** 這項主要針對「多個 agent 互相溝通」的系統；只用一個 agent 的人，大多可以先跳過。會碰到的情況有三種：subagent（主 agent 分派出去做子任務的 agent）互傳結果；連到遠端 MCP（跑在別台機器、透過網路連線的 MCP server）；或在 CI 裡，把一個 agent 的輸出直接當成另一個 agent 的輸入。
+**在你的 AI 開發環境長這樣：** 這項主要針對「多個 agent 互相溝通」的系統；我認為只用一個 agent 的人，大多可以先跳過。會碰到的情況有三種：subagent（主 agent 分派出去做子任務的 agent）互傳結果；連到遠端 MCP（跑在別台機器、透過網路連線的 MCP server）；或在 CI 裡，把一個 agent 的輸出直接當成另一個 agent 的輸入。
 
 **檢查題：** 一個 agent 的輸出，會被另一個 agent 直接照著做嗎？
 
 **怎麼修：**
 
 - 遠端 MCP 只用 HTTPS（加密的網路連線），而且連線要驗證身分。MCP 官方文件也建議，透過 HTTP 提供的 MCP server 要求授權 token。
-- 另一個 agent 的輸出，要當成還沒審過的輸入，不要直接照著做。
+- 我會把另一個 agent 的輸出當成還沒審過的輸入，不直接照著做。
 
 ### ASI08 Cascading Failures：連鎖失效
 
@@ -234,7 +234,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 - OWASP 對策 5 也是這個意思：高風險的輸出往下游傳之前，要有檢查點或人工審查。
 - 別讓自動化自己核准自己。GitHub 文件說明可以設定不讓 GitHub Actions 建立或核准 pull request（PR，請求把改動合併進來的申請），因為 PR 沒經過適當審查就被合併，可能帶來資安風險。見 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 - 在 GitHub 上，可以替主要分支設定分支保護規則（branch protection rule）：例如開啟「Require pull request reviews before merging」（合併前要有人審查）和「Require status checks before merging」（指定的 CI 檢查通過才能合併），再開啟「Do not allow bypassing the above settings」，連管理員也不能略過。GitHub Free 方案只能在公開 repo 使用這個功能，說明見 [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)。
-- 如果你已經在用 AI 幫 PR 做審查，可以一併看[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。重點是：審查結果不能自動變成收不回的合併。
+- 如果你已經在用 AI 幫 PR 做審查，可以一併看我之前寫的[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。我想強調的是：審查結果不能自動變成收不回的合併。
 - 第三方 action 的版本鎖定屬於供應鏈問題，寫在 ASI04。
 
 ### ASI09 Human-Agent Trust Exploitation：過度信任 agent
@@ -249,20 +249,20 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 - 高風險動作，先看 diff 或完整指令再按。Claude Code 的 [security 文件](https://code.claude.com/docs/en/security) 寫得很直接：「You're responsible for reviewing proposed code and commands for safety before approval.」也就是：核准前檢查程式碼和指令安不安全，是你的責任。
 - 不要拿 agent 自己的解釋當判斷依據。OWASP 對策 4 要求提供「plain-language risk summary (not model-generated rationales)」，也就是白話的風險說明，而不是模型自己生成的理由。
-- 把你確定可以自動跑的少數指令放進 allow，其他保留 ask。提示變少了，剩下的你才看得下去。
+- 我建議把你確定可以自動跑的少數指令放進 allow，其他保留 ask。提示變少了，剩下的你才看得下去。
 - 如果你用的是讓分類器（另一個 AI 模型，替你判斷動作安不安全）幫你核准的模式，記得那是模型在判斷，不等於有人審過，見後面的「常見誤解」。
 
 ### ASI10 Rogue Agents：失控的 agent
 
 **白話說：** Agent 開始做不是你交代的事，而且持續做下去。原因可能是被入侵，也可能是它為了達成目標去鑽漏洞。
 
-**在你的 AI 開發環境長這樣：** OWASP 的例子包括：被交代「降低雲端成本」的 agent，發現刪掉正式環境的備份最有效；或是被注入之後，即使惡意來源已經拿掉，它仍繼續自己把資料送出去。對個人開發者來說，重點是：出事時，你知不知道怎麼立刻讓它停下來。
+**在你的 AI 開發環境長這樣：** OWASP 的例子包括：被交代「降低雲端成本」的 agent，發現刪掉正式環境的備份最有效；或是被注入之後，即使惡意來源已經拿掉，它仍繼續自己把資料送出去。對個人開發者來說，我認為重點是：出事時，你知不知道怎麼立刻讓它停下來。
 
 **檢查題：** 它出錯時，你說不出怎麼馬上停掉它、撤銷它的 token 嗎？
 
 **怎麼修：** 先講結論：事先準備好自己的 kill switch，並留下它做過什麼的紀錄。
 
-- 先寫下三個步驟，不要等出事才查：怎麼中斷目前的 session、怎麼撤銷它在用的 token、怎麼關掉排程或背景任務。
+- 我會先寫下三個步驟，不要等出事才查：怎麼中斷目前的 session、怎麼撤銷它在用的 token、怎麼關掉排程或背景任務。
 - 中斷：以 Claude Code 為例，官方 [interactive mode](https://code.claude.com/docs/en/interactive-mode) 文件寫明，按 `Esc` 會停下目前的回應或工具呼叫，按 `Ctrl+C` 會中斷正在執行的操作。其他工具請查各自的官方文件。
 - 撤銷：GitHub 的 personal access token（個人存取權杖）在 Settings → Developer settings → Personal access tokens 裡刪除，見 [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)。npm 的 token 可以在 npm 網站上刪除，或先用 `npm token list` 找出 ID，再執行 `npm token delete <ID>`，見 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/)。
 - 長時間沒人看著的任務，要限定範圍和時間。
@@ -271,7 +271,7 @@ _概念圖：十項依本站整理分成五組。底部已註明分組不是 OWA
 
 ## 可複製的檢查清單
 
-下面這份清單可以複製到自己的筆記。題目和圖上的十題是同一套意思；答「是」就是要修的地方。
+下面這份是我整理的清單，可以複製到自己的筆記。題目和圖上的十題是同一套意思；答「是」就是要修的地方。
 
 ![OWASP Agentic Top 10 的 10 題是／否自我檢查，答「是」的項目就是要修的地方](checklist.webp){: w="1600" h="900" }
 _概念圖：十題是／否自我檢查。這十題是本站依官方十項整理的，不是 OWASP 發布的官方考卷。_
@@ -303,14 +303,14 @@ _概念圖：十題是／否自我檢查。這十題是本站依官方十項整�
 
 ## 先修哪幾項
 
-這是本站建議的順序，不是 OWASP 官方的優先級。原則是先修「沒人把關、做了就收不回」的項目：
+這是我建議的順序，不是 OWASP 官方的優先級。我排序的原則是先修「沒人把關、做了就收不回」的項目：
 
 1. **ASI08，以及 ASI05 裡直接碰到正式環境的部分**：合併、部署前要有不能略過的檢查點；agent 不能直接連正式環境。
 2. **ASI03 長期憑證**：擋住 `.env`、`~/.ssh` 這類檔案的讀取，CI 改用短期憑證。
 3. **ASI02、ASI04 自動放行與 MCP**：拿掉能刪檔、發送、連網的自動放行，確認每個 MCP 的來源和版本。
 4. **其餘項目**。若你只用一個 agent，ASI07 可以先跳過。
 
-還沒開始盤點的話，第一步最簡單：打開權限設定（Claude Code 是 `/permissions`），看看現在哪些動作不用問你就會執行。
+還沒開始盤點的話，我建議從最簡單的一步開始：打開權限設定（Claude Code 是 `/permissions`），看看現在哪些動作不用問你就會執行。
 
 ## 什麼情況怎麼做
 
@@ -326,7 +326,7 @@ _概念圖：十題是／否自我檢查。這十題是本站依官方十項整�
 
 ## 怎麼判斷自己是不是已經中招
 
-下面的跡象，是本站依 OWASP 各項的例子整理的，不是官方的偵測清單。看到任何一項，都值得停下來查。
+下面的跡象，是我依 OWASP 各項的例子整理的，不是官方的偵測清單。看到任何一項，我認為都值得停下來查。
 
 | 跡象 | 可能對應 |
 | --- | --- |
@@ -336,7 +336,7 @@ _概念圖：十題是／否自我檢查。這十題是本站依官方十項整�
 | API 帳單或用量突然暴增 | ASI02 |
 | 任務已經結束，或惡意來源已經拿掉，它還在繼續做事、往外送資料 | ASI10 |
 
-發現之後，照這個順序處理：
+發現之後，我會照這個順序處理：
 
 1. **先停**：中斷 session，關掉排程和背景任務。
 2. **撤銷**：撤銷它碰得到的 token 和金鑰，換成新的。做法見 ASI10。
@@ -350,10 +350,10 @@ _概念圖：十題是／否自我檢查。這十題是本站依官方十項整�
 - 「Auto mode 或 Auto-review 分類器，等於有人審過。」Claude Code 的 auto mode，是由另一個分類器模型代替你審查動作，擋下它判斷不安全的；Cursor 的 [Agent Security](https://cursor.com/docs/agent/security) 也寫明，Run Modes 是 best-effort guardrails（盡力而為的護欄），不是硬性的安全邊界。你目前在哪個模式，請對照 [permission modes](https://code.claude.com/docs/en/permission-modes) 文件確認，不要假定分類器已經替你負責。
 - 「ASI01 是最危險的。」編號不是嚴重度排名，OWASP 沒有為這十項打分數。
 - 「我只用一個 agent，Top 10 和我無關。」大多數項目仍然適用；比較常能先跳過的是 ASI07。
-- 「勾完就安全。」沒有這回事。OWASP 給的是可以著手做的對策（actionable mitigations），不是做完就安全的保證。這十題是檢查的起點；工作流一有變動，就要再跑一輪。
+- 「勾完就安全。」沒有這回事。OWASP 給的是可以著手做的對策（actionable mitigations），不是做完就安全的保證。我把這十題當成檢查的起點；工作流一有變動，就要再跑一輪。
 
 ## 結論與下一步
 
-今天先做盤點、把十題答完，再從「做了就收不回」的項目開始修。把規則檔和權限設定放進 git，之後每加一個工具，就再跑一輪。自動化檢查可看[hooks 篇](/posts/claude-code-hooks-automate-checks/)，規則檔可看[AGENTS.md 篇](/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期憑證可看[npm Trusted Publishing 篇](/posts/npm-trusted-publishing-github-actions/)，沙箱設定可看[Claude Code 沙箱篇](/posts/claude-code-sandbox-setup/)。
+我建議今天先做盤點、把十題答完，再從「做了就收不回」的項目開始修。把規則檔和權限設定放進 git，之後每加一個工具，就再跑一輪。自動化檢查可看[hooks 篇](/posts/claude-code-hooks-automate-checks/)，規則檔可看[AGENTS.md 篇](/posts/agents-md-project-rules-for-coding-agents/)，CI 上的短期憑證可看[npm Trusted Publishing 篇](/posts/npm-trusted-publishing-github-actions/)，沙箱設定可看[Claude Code 沙箱篇](/posts/claude-code-sandbox-setup/)。
 
 官方來源是 OWASP GenAI Security Project 的〈[OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/)〉（[PDF](https://genai.owasp.org/download/52117/)，CC BY-SA 4.0）。工具文件可看 [Claude Code permissions](https://code.claude.com/docs/en/permissions)、[permission modes](https://code.claude.com/docs/en/permission-modes)、[sandboxing](https://code.claude.com/docs/en/sandboxing)、[security](https://code.claude.com/docs/en/security)、[Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)、[Cursor Agent Security](https://cursor.com/docs/agent/security)、[MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)，以及 [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use)。

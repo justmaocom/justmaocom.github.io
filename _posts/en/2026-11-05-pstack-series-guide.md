@@ -10,18 +10,18 @@ image:
   alt: "Four parts: install, understand, prove it works, then steer and run alone; start where you're stuck."
 ---
 
-Maybe you've heard of pstack, opened the repo, and found nothing but a long list of skill names. Or maybe you landed on one of the posts from a search and want to know what comes before and after it. I wrote this series in four parts, each covering one stretch of coding with AI. This guide won't rehash the details; it just answers three questions: what pstack is, how the four parts fit together, and which one you should start with.
+Maybe you've heard of pstack, opened the repo, and found nothing but a long list of skill names. Or maybe you landed on one of the posts from a search and want to know what comes before and after it. I wrote this series in four parts, each covering one stretch of coding with AI. In this guide, I won't rehash the details; I'll just answer three questions: what pstack is, how the four parts fit together, and which one you should start with.
 
 > pstack series | Guide
 >
 > - Start from the beginning (Part 1): [Install, Pick Models, Start With /poteto-mode](/posts/pstack-install-routing/)
 >
-> All five posts in the series are pinned to pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) (commit `2f87c85`). Details are in the version notes below.
+> I pinned all five posts in this series to pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) (commit `2f87c85`). Details are in the version notes below.
 {: .prompt-info }
 
 ## What pstack Is
 
-[pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) is a collection of skills that [Lauren Tan](https://x.com/poteto) (known online as poteto) maintains in Cursor's official plugin repo, [`cursor/plugins`](https://github.com/cursor/plugins), under the MIT license. You can think of a skill as a set of instructions telling an AI coding assistant how to handle one kind of work. By AI coding assistant, I mean tools like Cursor or Claude Code that can read and write your project files and write code for you.
+[pstack](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack) is a collection of skills that [Lauren Tan](https://x.com/poteto) (known online as poteto) maintains in Cursor's official plugin repo, [`cursor/plugins`](https://github.com/cursor/plugins), under the MIT license. I think of a skill as a set of instructions telling an AI coding assistant how to handle one kind of work. By AI coding assistant, I mean tools like Cursor or Claude Code that can read and write your project files and write code for you.
 
 In version `0.15.43`, pstack has **58** skills, **24** principles (each one a short, specific rule named `principle-*`), and **22** playbooks (a fixed set of steps for one kind of task, living under `/poteto-mode`). Also, don't confuse it with the Unix command `pstack` (which prints a process's call stack); here I mean this set of AI skills.
 
@@ -41,15 +41,15 @@ Pulling together what I wrote across the four posts, this skill set fits situati
 - You want "prove it works" to be a routine: reproduce, clean up, check the blast radius, actually exercise the change with a verification skill, open a PR, and still press merge yourself at the end ([Part 3](/posts/pstack-build-verify-merge/)).
 - You want to steer mid-task with principle names, turn your habits into your own mode, and let it run unattended within permission and spending limits ([Part 4](/posts/pstack-principles-customization/)).
 
-On the other hand, you don't need the whole set in cases like these:
+On the other hand, I don't think you need the whole set in cases like these:
 
-- **Small, obvious changes**: just tell the AI; you don't need pstack (Parts 1 and 2 both say this, and Part 2 says outright that most changes don't need those tools).
+- **Small, obvious changes**: just tell the AI; you don't need pstack (I say this in both Parts 1 and 2, and Part 2 says outright that most changes don't need those tools).
 - **You don't want to spend extra usage on a careful process**: pstack sends out subagents and assembles reviewers, and the more they read and write, the more usage you burn (see the caveats in Parts 1 and 2).
-- **Unattended runs with every check turned off**, or `bypassPermissions` outside an isolated environment: Part 4 explicitly argues against this. Irreversible actions such as merging, force-pushing, deleting data, and messaging customers should still be a human's call.
+- **Unattended runs with every check turned off**, or `bypassPermissions` outside an isolated environment: I argue explicitly against this in Part 4. Irreversible actions such as merging, force-pushing, deleting data, and messaging customers should still be a human's call.
 
 ## How the Four Parts Connect
 
-The order of the four parts follows a single piece of work: install the tools, understand the code and then design, prove it works, and finally steer with principles and let it run on its own within limits.
+I ordered the four parts to follow a single piece of work: install the tools, understand the code and then design, prove it works, and finally steer with principles and let it run on its own within limits.
 
 ![Series map: install and playbooks, understand then design, prove then review, principles and run alone](series-map.en.webp){: w="800" h="450" }
 _The four parts are ordered by workflow; each covers one stretch, and the details live in that post._
@@ -97,14 +97,14 @@ _Figure out which step you're stuck on, then open the matching part. You don't h
 
 ## Version Notes
 
-> **Version**: this guide is based on pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The counts and behavior may change in later versions.
+> **Version**: I based this guide on pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), which is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version on 2026-11-17; when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The counts and behavior may change in later versions.
 {: .prompt-info }
 
-If you want the same version as this guide, clone the repo, check out `2f87c85`, and then add it as a marketplace. For the step-by-step details and the risks of not pinning a version, see [Part 1](/posts/pstack-install-routing/) and [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+If you want the same version as this guide, I suggest cloning the repo, checking out `2f87c85`, and then adding it as a marketplace. For the step-by-step details and the risks of not pinning a version, see [Part 1](/posts/pstack-install-routing/) and [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Conclusion
 
-pstack is a set of skills in Cursor's official plugin repo; the version this guide pins has 58 skills, 24 principles, and 22 playbooks. Run `/setup-pstack` once, remember `/poteto-mode` for everyday work, and ask `/poteto-help` when you're stuck. In order, the four parts cover installing and picking a playbook, understanding before designing, proving it works before review, and steering with principles so it can run on its own within limits. You don't have to read them in order, though; find the step you're stuck on and start there.
+pstack is a set of skills in Cursor's official plugin repo; the version this guide pins has 58 skills, 24 principles, and 22 playbooks. I suggest running `/setup-pstack` once, remembering `/poteto-mode` for everyday work, and asking `/poteto-help` when you're stuck. In order, the four parts cover installing and picking a playbook, understanding before designing, proving it works before review, and steering with principles so it can run on its own within limits. You don't have to read them in order, though; find the step you're stuck on and start there.
 
 ## Further Reading
 

@@ -12,14 +12,14 @@ image:
 
 Claude Code（在终端里使用的 AI 编程助手）会自己执行命令：跑测试、装依赖、调用 `git`。这些命令用的是你的账号，所以默认能读你读得到的所有文件，包括 SSH 密钥和云服务凭证。Claude Code 内置沙箱（sandbox），可以把这些命令关在操作系统强制执行的范围里，限制它们能写到哪里、能连到哪些网站。
 
-但沙箱**默认是关闭的**。就算打开了，官方文档也写明：默认仍读得到 `~/.ssh` 和 `~/.aws/credentials`。很多人以为“开了就安全”，其实还差几步。
+但沙箱**默认是关闭的**。就算打开了，官方文档也写明：默认仍读得到 `~/.ssh` 和 `~/.aws/credentials`。很多人以为“开了就安全”，我认为其实还差几步。
 
-这篇一步步带你做完这几件事：开启 `/sandbox`、确认它真的挡得住、把密钥和 token 挡在外面、关掉“沙箱外重试”，最后列出沙箱管不到的地方，以及怎么补。每一步都附上我在自己的 Mac 上实际跑出来的结果，文末还有一份可以直接复制的 `settings.json`。
+这篇我会一步步带你做完这几件事：开启 `/sandbox`、确认它真的挡得住、把密钥和 token 挡在外面、关掉“沙箱外重试”，最后列出沙箱管不到的地方，以及怎么补。每一步都附上我在自己的 Mac 上实际跑出来的结果，文末还有一份可以直接复制的 `settings.json`。
 
-> **版本与实测**：本文依据 2026-11-13（台北时间）读取的 [Sandboxing](https://code.claude.com/docs/en/sandboxing)、[Permissions](https://code.claude.com/docs/en/permissions)、[Settings reference](https://code.claude.com/docs/en/settings-reference) 与 [changelog](https://code.claude.com/docs/en/changelog) 整理，并在同一天用 macOS 上的 Claude Code 2.1.323（当天最新版，11 月 12 日发布）实际跑过一遍。11 月的几个版本接连修复了沙箱与权限规则的问题，例如 2.1.321 修复了只读命令未经提示就在沙箱外执行，以及 `cp`／`mv` 写入文件夹时拒绝规则失效；2.1.323 修复了沙箱可能在对话中途关闭、`excludedCommands` 让没列出的命令跑出沙箱。照着做之前，请先在终端执行 `claude update` 更新，再用 `claude --version` 确认版本。
+> **版本与实测**：我写这篇时，参考的是 2026-11-13（台北时间）当天的 [Sandboxing](https://code.claude.com/docs/en/sandboxing)、[Permissions](https://code.claude.com/docs/en/permissions)、[Settings reference](https://code.claude.com/docs/en/settings-reference) 与 [changelog](https://code.claude.com/docs/en/changelog)，并在同一天用 macOS 上的 Claude Code 2.1.323（当天最新版，11 月 12 日发布）实际跑过一遍。11 月的几个版本接连修复了沙箱与权限规则的问题，例如 2.1.321 修复了只读命令未经提示就在沙箱外执行，以及 `cp`／`mv` 写入文件夹时拒绝规则失效；2.1.323 修复了沙箱可能在对话中途关闭、`excludedCommands` 让没列出的命令跑出沙箱。照着做之前，请先在终端执行 `claude update` 更新，再用 `claude --version` 确认版本。
 {: .prompt-info }
 
-这篇是[OWASP Agentic Top 10 检查表：AI 工作流十项风险与修复方法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的实操续篇。那篇只要你“确认 `/sandbox` 有没有开”，这篇示范开了之后怎么设置。为什么要限制 agent 的权限，见[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)，这里不再重讲。
+这篇是[OWASP Agentic Top 10 检查表：AI 工作流十项风险与修复方法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的实操续篇。那篇我只请你“确认 `/sandbox` 有没有开”，这篇示范开了之后怎么设置。为什么要限制 agent 的权限，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里谈过，这里不再重讲。
 
 ## 先认识几个术语
 
@@ -36,13 +36,13 @@ Claude Code（在终端里使用的 AI 编程助手）会自己执行命令：�
 
 ## 我是怎么实测的
 
-为了让结果可以复现，先交代做法：
+为了让结果可以复现，先交代我的做法：
 
-- **环境**：macOS（Apple Silicon）、Claude Code 2.1.323，2026-11-13 上午（台北时间）。没有测 Linux 和 WSL2。
+- **环境**：macOS（Apple Silicon）、Claude Code 2.1.323，2026-11-13 上午（台北时间）。我没有测 Linux 和 WSL2。
 - **方式**：`/sandbox` 面板只能在交互界面里操作，在非交互模式（`claude -p`，把问题直接作为参数交给 Claude、跑完就退出）会回复 `/sandbox isn't available in this environment.`。所以我把每一步要设置的内容写成 JSON 文件，用 `claude -p "请用 Bash 执行……" --settings 文件` 传入。这和在面板或 `settings.json` 里设置的是同一组键值。
 - **不拿真的密钥测**：我建了一个假的“诱饵文件” `~/.sandboxlab-canary/secret.txt`（内容是 `FAKE-SECRET-FOR-TEST`，21 bytes）代替 `~/.ssh`，再用假的环境变量 `SANDBOXLAB_FAKE_TOKEN` 代替 `GITHUB_TOKEN`。测完都删掉了。
 - **非交互模式没有人能点“允许”**：所以凡是“会弹出询问”的情况，下面的结果都是被拒绝。你在平常的交互界面里操作时，会看到确认对话框。
-- 输出中的主目录路径已改写成 `~`，测试文件夹缩写成 `…/sandboxlab`，其余照原样，只删掉了 curl 的进度条。
+- 输出中的主目录路径已改写成 `~`，测试文件夹缩写成 `…/sandboxlab`，其余照原样，我只删掉了 curl 的进度条。
 
 ## 沙箱挡什么、默认放行什么
 
@@ -73,7 +73,7 @@ set
 
 ## 什么时候该开
 
-符合下面任一种情况，就值得开：
+符合下面任一种情况，我认为就值得开：
 
 - 你常点“允许”让 Claude 跑命令，或想让它不必每次问你就能跑。开了沙箱之后，越界的操作由沙箱挡下，不必再靠你逐条检查每个命令。
 - 你会让 Claude 读不是你写的东西，例如别人的 repo、issue、网页或依赖包的源代码。这些内容可能藏着要 AI 执行命令的文字。
@@ -112,7 +112,7 @@ sudo dnf install bubblewrap socat
 - **auto-allow**：在沙箱里跑的命令不再逐条询问你。拒绝规则仍然有效，`Bash(git push *)` 这类指定内容的询问规则也照样会弹出确认。
 - **regular permissions**：沙箱照样限制，但每条命令仍按一般权限流程问你。
 
-两种模式的文件与网络限制完全相同，差别只在要不要问你。想少点几次“允许”就选 auto-allow，想每条命令都自己看过就选 regular permissions。要注意一点：选了 auto-allow 之后，Claude 用命令改工作目录里的文件就不会再问你；即使你用的是平时改文件都会先问的 Manual 模式也一样。
+两种模式的文件与网络限制完全相同，差别只在要不要问你。想少点几次“允许”就选 auto-allow，想每条命令都自己看过就选 regular permissions。有一点我要提醒：选了 auto-allow 之后，Claude 用命令改工作目录里的文件就不会再问你；即使你用的是平时改文件都会先问的 Manual 模式也一样。
 
 在面板选的模式只会存进**这个项目**的 `.claude/settings.local.json`。要让所有项目都开沙箱，在 `~/.claude/settings.json` 设置 `"sandbox": { "enabled": true }`。只写 `enabled` 时，默认就是 auto-allow；要改成 regular permissions，再加上 `"autoAllowBashIfSandboxed": false`。
 
@@ -150,7 +150,7 @@ deny network-outbound example.com:443 (host is not on the allow list)
 </sandbox_violations>
 ```
 
-第 3 组和第 4 组的对比最值得注意：在 `bypassPermissions` 模式下，列表外的域名会不问就放行，要加 `strictAllowlist` 才挡得住。
+我觉得第 3 组和第 4 组的对比最值得注意：在 `bypassPermissions` 模式下，列表外的域名会不问就放行，要加 `strictAllowlist` 才挡得住。
 
 ## 步骤二：确认真的挡得住
 
@@ -163,7 +163,7 @@ deny network-outbound example.com:443 (host is not on the allow list)
 
 第一行尝试在主目录建一个空文件，测试“写不到工作目录以外”。第二行让 curl 不走代理、直接联网，测试“没办法自己联网”。
 
-检查时注意三件事：
+检查时，我会注意三件事：
 
 1. **用 Manual 模式。** 如果 Claude 问你要不要改到沙箱外重试，**拒绝**。在 `bypassPermissions` 模式，或有允许规则刚好匹配这条命令时，重试会不问就在沙箱外跑，检查就不准了（第四步会关掉这个重试）。
 2. **不要在主目录启动 Claude Code。** 如果你在主目录启动，或把主目录加成了工作目录，`touch` 本来就写得进去，换一个项目文件夹再测。
@@ -207,7 +207,7 @@ curl: (6) Could not resolve host: example.com
 
 `"mode": "deny"` 对文件的意思是沙箱里的命令不能读，对环境变量的意思是每条沙箱命令执行前先把它移除。把列表换成你电脑上真的有的凭证，例如其他云服务的配置文件，或其他存放 token 的环境变量。
 
-建议放在用户设置 `~/.claude/settings.json`，所有项目都会生效。各层设置的 `deny` 会合并，任何一层都可以再加，但没有一层能去掉别层加的 `deny`。不过，这不代表别人的 repo 就动不了你的保护：repo 的设置优先于用户设置，还有别的办法放宽沙箱，步骤五会说明怎么防。
+我建议放在用户设置 `~/.claude/settings.json`，所有项目都会生效。各层设置的 `deny` 会合并，任何一层都可以再加，但没有一层能去掉别层加的 `deny`。不过，这不代表别人的 repo 就动不了你的保护：repo 的设置优先于用户设置，还有别的办法放宽沙箱，步骤五会说明怎么防。
 
 **怎么确认：** 下面的检查都只输出“文件大小”或“有没有设置”，不会把密钥或 token 的内容输出到对话里。
 
@@ -238,7 +238,7 @@ unset
 - 把 remote 换成 HTTPS。但这需要 personal access token 之类的 HTTPS 凭证，而上面的设置已经把 `GITHUB_TOKEN` 从沙箱里移除了，要自己权衡。
 - 用官方的 `excludedCommands` 把 `git push` 等命令移出沙箱。但被移出的命令会用你的完整权限执行、能连任何主机，用之前请想清楚。
 
-> 想让工具在沙箱里照常登录、又不让它看到真正的 token，官方另有 `"mode": "mask"`：命令只看到一个替代值，代理在发出请求时才换成真的。它要搭配实验性的 `network.tlsTerminate`，而且 macOS 上对文件使用 `mask` 的效果等于 `deny`。设置较复杂，入门先用 `deny`，细节见 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。这个模式我没有实测。
+> 想让工具在沙箱里照常登录、又不让它看到真正的 token，官方另有 `"mode": "mask"`：命令只看到一个替代值，代理在发出请求时才换成真的。它要搭配实验性的 `network.tlsTerminate`，而且 macOS 上对文件使用 `mask` 的效果等于 `deny`。设置较复杂，我建议入门先用 `deny`，细节见 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。这个模式我没有实测。
 {: .prompt-tip }
 
 ## 步骤四：关掉“沙箱外重试”
@@ -262,7 +262,7 @@ touch: ../outside/probe-T12.txt: Operation not permitted
 
 第二次成功了，文件真的建在了工作目录外面。换成 Manual 模式时，重试会停在确认步骤；我用的是非交互模式，没有人点“允许”，结果是 `Run outside of the sandbox` 被拒绝。
 
-想让 Claude 跑的命令都留在沙箱里，就关掉这个逃生口：
+想让 Claude 跑的命令都留在沙箱里，我会关掉这个逃生口：
 
 ```json
 {
@@ -308,7 +308,7 @@ touch: ../outside/probe-T13.txt: Operation not permitted
 1	FAKE-SECRET-FOR-TEST
 ```
 
-沙箱里的 `wc` 打不开的文件，Read 工具照样读到了内容。还有个插曲：第一次问时，Claude 自己拒绝用 Read，说要尊重沙箱的设置；但我说明这是授权测试、文件是假的之后，它就读了。所以别把 AI 的“自觉”当成防线，藏在网页或 repo 里的文字一样可能说服它。要真正补上这一块，在权限设置里加拒绝规则：
+沙箱里的 `wc` 打不开的文件，Read 工具照样读到了内容。还有个插曲：第一次问时，Claude 自己拒绝用 Read，说要尊重沙箱的设置；但我说明这是授权测试、文件是假的之后，它就读了。所以我不会把 AI 的“自觉”当成防线，藏在网页或 repo 里的文字一样可能说服它。要真正补上这一块，我会在权限设置里加拒绝规则：
 
 ```json
 {
@@ -339,7 +339,7 @@ the working directories. Ask the user to add the directory with /add-dir, or to
 remove that setting.
 ```
 
-**Claude Code 自己启动的程序。** [Hooks](/posts/claude-code-hooks-automate-checks/)、本地的 MCP server、插件的 monitor、LSP server、状态栏命令、`apiKeyHelper`，都以你的完整权限执行。Mod（在 Claude Code 里执行自己代码的插件）也一样。装之前先看清楚它会做什么，沙箱帮不上忙。想让这些程序也拿不到凭证类的环境变量，官方提供 `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 环境变量，不管有没有沙箱，都会把凭证从所有子进程的环境里移除。
+**Claude Code 自己启动的程序。** [Hooks](/posts/claude-code-hooks-automate-checks/)、本地的 MCP server、插件的 monitor、LSP server、状态栏命令、`apiKeyHelper`，都以你的完整权限执行。Mod（在 Claude Code 里执行自己代码的插件）也一样。装之前我会先看清楚它会做什么，这部分沙箱帮不上忙。想让这些程序也拿不到凭证类的环境变量，官方提供 `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB` 环境变量，不管有没有沙箱，都会把凭证从所有子进程的环境里移除。
 
 **你自己用 `!` 输入的命令。** 大多数情况下在沙箱外执行，即使开了 Strict sandbox mode 也一样。步骤三自己输入 `git push` 推送，靠的就是这一点；反过来说，在这里输入的命令没有沙箱帮你挡。
 
@@ -354,7 +354,7 @@ remove that setting.
 
 只写在 `~/.claude/settings.json` 的设置挡不住这些。
 
-打开不熟悉的 repo 前，先看一下这两个文件。更稳妥的做法是把沙箱设置另存一份，例如 `~/.claude/sandbox-strict.json`，内容是下一节完整设置里的 `sandbox` 那一段（最外层是 `{ "sandbox": { ... } }`），再用 `--settings` 传入启动：
+打开不熟悉的 repo 前，我会先看一下这两个文件。我觉得更稳妥的做法是把沙箱设置另存一份，例如 `~/.claude/sandbox-strict.json`，内容是下一节完整设置里的 `sandbox` 那一段（最外层是 `{ "sandbox": { ... } }`），再用 `--settings` 传入启动：
 
 ```bash
 claude --settings ~/.claude/sandbox-strict.json
@@ -372,7 +372,7 @@ claude --settings ~/.claude/sandbox-strict.json
 touch: ../outside/probe-T15b.txt: Operation not permitted
 ```
 
-**域名允许列表只看主机名。** 代理按连接请求的主机名放行，默认不解密、也不检查加密流量的内容。官方警告，允许 `github.com` 这类范围很大的域名，可能成为把数据送出去的通道。允许列表只放真正需要的域名。另外，在网络确认对话框选“Yes, and don't ask again”时，Claude Code 会保存一条 `WebFetch(domain:...)` 允许规则，这条规则也让 WebFetch 工具可以连到那个域名。
+**域名允许列表只看主机名。** 代理按连接请求的主机名放行，默认不解密、也不检查加密流量的内容。官方警告，允许 `github.com` 这类范围很大的域名，可能成为把数据送出去的通道。允许列表我只会放真正需要的域名。另外，在网络确认对话框选“Yes, and don't ask again”时，Claude Code 会保存一条 `WebFetch(domain:...)` 允许规则，这条规则也让 WebFetch 工具可以连到那个域名。
 
 **git worktree。** 如果你按照[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)的方式，在 worktree 里开 Claude Code，沙箱会允许写入主 repo 共用的 `.git` 文件夹，所以 `git commit` 照常工作；但其中的 `hooks/` 和 `config` 仍不能写。从 2.1.323 起，沙箱里的 `git worktree add`、`move`、`remove` 会因为只读而失败，在不是这次对话开启或加入的 worktree 里 commit 也一样。创建和移除 worktree 请自己在终端里做。
 
@@ -380,7 +380,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 
 ## 完整的 settings.json
 
-把前面几步合起来，放在 `~/.claude/settings.json`。如果文件里已经有 `permissions` 或 `sandbox`，把内容合并进去，不要整份覆盖：
+下面这份是我把前面几步合起来的设置，可以放在 `~/.claude/settings.json`。如果文件里已经有 `permissions` 或 `sandbox`，把内容合并进去，不要整份覆盖：
 
 ```json
 {
@@ -430,20 +430,20 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 | `CONNECT tunnel failed, response 403`，或 `<sandbox_violations>` 里写着 `deny network-outbound 域名` | 连到不在允许列表上的域名 | 确定需要的话，把域名加进 `allowedDomains`，或在确认对话框点允许 |
 | `Could not resolve host` | 工具没有走代理，自己直接联网 | 多半是不支持代理的工具（例如直接用 `ssh`、数据库客户端），自己用 `!` 执行 |
 
-原则是：只开刚好够用的那一个文件夹或域名，不要为了省事把整个工具丢进 `excludedCommands`。
+我的原则是：只开刚好够用的那一个文件夹或域名，不要为了省事把整个工具丢进 `excludedCommands`。
 
 要暂时或永久关掉沙箱，到你当初开启它的那个配置文件，把 `"enabled"` 改成 `false`（用面板开的，在项目的 `.claude/settings.local.json`；设在用户设置的，在 `~/.claude/settings.json`），保存后重启 Claude Code。用 `--settings` 传入的，下次启动时不带那个文件就好。
 
 ## 结论
 
-沙箱默认关闭，开了也只挡写入和网络，读取和环境变量要自己补。我实际跑过一遍，实测到的每一项都和官方文档说的一致。按这篇的顺序做：
+沙箱默认关闭，开了也只挡写入和网络，读取和环境变量要自己补。我实际跑过一遍，实测到的每一项都和官方文档说的一致。我建议按这篇的顺序做：
 
 1. 用 `/sandbox` 开启。
 2. 让 Claude 跑两行命令，确认写入和网络挡得住。
 3. 用 `sandbox.credentials` 列出要保护的密钥和 token。
 4. 用 `allowUnsandboxedCommands: false` 关掉沙箱外重试。
 
-最后记得，沙箱只包住命令：Claude 的文件工具要靠权限规则（实测中 Read 工具就绕过了沙箱），hooks 和 MCP server 以你的完整权限执行，repo 的设置也能把沙箱放宽，打开不熟悉的 repo 时用 `--settings` 启动。
+最后我再提醒一次，沙箱只包住命令：Claude 的文件工具要靠权限规则（实测中 Read 工具就绕过了沙箱），hooks 和 MCP server 以你的完整权限执行，repo 的设置也能把沙箱放宽，打开不熟悉的 repo 时用 `--settings` 启动。
 
 ## 延伸阅读
 

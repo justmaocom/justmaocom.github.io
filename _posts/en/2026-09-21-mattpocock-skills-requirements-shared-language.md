@@ -10,12 +10,12 @@ image:
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
 ---
 
-> **Version note (checked 2026-10-19):** This post is based on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it with `git mv CONTEXT.md GLOSSARY.md`. All five skills covered here are still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). A full update of this series is planned.
+> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it with `git mv CONTEXT.md GLOSSARY.md`. When I checked, all five skills covered here were still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). I plan a full update of this series.
 {: .prompt-warning }
 
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.
 
-A skill, as used in this post, can be thought of as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks the work of clarifying requirements into interviewing, vocabulary curation, and re-explaining. This post lays out how five related skills divide the work and what stays in the project once the interview is over.
+I think of a skill, as used in this post, as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks the work of clarifying requirements into interviewing, vocabulary curation, and re-explaining. In this post, I lay out how five related skills divide the work and what stays in the project once the interview is over.
 
 > mattpocock/skills Series | Part 2
 >
@@ -23,7 +23,7 @@ A skill, as used in this post, can be thought of as a set of instructions that t
 > - Next (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
 {: .prompt-info }
 
 ## How the Five Skills Relate
@@ -61,7 +61,7 @@ Both starting points use the same interview approach. The difference is whether 
 
 ## domain-modeling Builds a Project Glossary
 
-The "domain" in `domain-modeling` means the things and rules the project deals with. In this post's example, that's workspaces, members, seats, and how billing works. This skill writes confirmed names into `CONTEXT.md`. You can think of that file as a glossary specific to the project.
+The "domain" in `domain-modeling` means the things and rules the project deals with. In this post's example, that's workspaces, members, seats, and how billing works. This skill writes confirmed names into `CONTEXT.md`. I think of that file as a glossary specific to the project.
 
 If you're only reading the glossary and reusing existing names, you don't need to invoke `domain-modeling` explicitly. It only needs to step in when an existing definition might be wrong, a name isn't clear enough, or an important decision needs to be recorded.
 
@@ -82,7 +82,7 @@ It asks the AI to re-explain what it just said and add the background needed to 
 
 If the project uses multiple glossary files, it first looks up the right one in `CONTEXT-MAP.md`. The full instruction is a single paragraph; you can check it in [`wait-what/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/wait-what/SKILL.md#L1-L7).
 
-Its instruction only asks for the previous message to be re-explained; it doesn't rerun the whole interview. If the problem isn't a single message you didn't follow but requirements that are still vague overall, go back to `grill-with-docs` and continue the interview.
+Its instruction only asks for the previous message to be re-explained; it doesn't rerun the whole interview. If the problem isn't a single message you didn't follow but requirements that are still vague overall, I'd suggest going back to `grill-with-docs` and continuing the interview.
 
 ## Interview Results Don't All Go Into the Same Document
 
@@ -103,13 +103,13 @@ _Interview results are written to the glossary, an ADR, or a later spec dependin
 
 The two starting points don't have their own question banks; both hand the interview to `grilling`. And `grilling` has no fixed number of rounds or questions either. If a question needs an earlier answer, the AI saves it for later. The interview ends only when every question has been dealt with and you've confirmed that both sides understand things the same way.
 
-How long the interview takes depends on how much is still undecided, not on which skill you used. Rather than counting how many questions the AI asked, check three things: which questions already have answers, which are still waiting on earlier answers, and whether terms and ADRs were written to the right place.
+How long the interview takes depends on how much is still undecided, not on which skill you used. Rather than counting how many questions the AI asked, I'd check three things: which questions already have answers, which are still waiting on earlier answers, and whether terms and ADRs were written to the right place.
 
-Because `grill-with-docs` modifies project documentation, the team still needs to review whether newly added terms are worth adopting, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
+Because `grill-with-docs` modifies project documentation, I think the team still needs to review whether newly added terms are worth adopting, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
 
 ## Check Whether You Have a Project First, Then Pick a Starting Point
 
-First determine whether you already have a project folder holding code and docs, then look at what you're stuck on: the requirements, the vocabulary, or the last explanation.
+I'd first ask whether you already have a project folder holding code and docs, then look at what you're stuck on: the requirements, the vocabulary, or the last explanation.
 
 | Current situation | Choose | What not to expect from it |
 | --- | --- | --- |
@@ -119,7 +119,7 @@ First determine whether you already have a project folder holding code and docs,
 | You only need to sort out project terminology or key decisions | `domain-modeling` | It won't capture every requirements answer |
 | You didn't follow the last explanation | `wait-what` | It won't rerun the whole interview |
 
-This table helps you choose a starting point; it isn't an order of execution. Normally you only invoke one starting point, and the rest of the flow takes over on its own.
+I put this table together to help you choose a starting point; it isn't an order of execution. Normally you only invoke one starting point, and the rest of the flow takes over on its own.
 
 `grill-with-docs` suits requirements that can be fully clarified in a single conversation. If the requirements are too big to clarify in one conversation, [the `ask-matt` routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L38-L46) point you to `wayfinder` instead. `wayfinder` is a separate skill for exploring large pieces of work first to figure out where to start.
 
@@ -157,7 +157,7 @@ A person who has joined the workspace. Becoming a member and getting a billable 
 _Avoid_: user, seat
 ```
 
-This is illustrative content organized according to [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30), not actual output from the tool. Each `_Avoid_` line lists names that are easy to mix up and should be avoided from now on.
+This is illustrative content I organized according to [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30), not actual output from the tool. Each `_Avoid_` line lists names that are easy to mix up and should be avoided from now on.
 
 Only with these definitions in place can the second round follow up on whether a pending invitation takes up a seat, what happens to the assignment when a member is deactivated, and when adding or removing seats affects the price. If the existing code bills directly by the number of active members, the AI also has to point out that the new definition differs from the current behavior and ask you to confirm whether to change it.
 
@@ -169,7 +169,7 @@ When this stretch of the flow is done, the requirements still haven't been turne
 
 ## What Matters More to Me Is What Gets Left Behind
 
-At this point, both the invocation rules and the document-keeping rules can be checked against the original sources. But the rules themselves can't prove that a shared vocabulary will necessarily improve how a team works together.
+At this point, both the invocation rules and the document-keeping rules I've described can be checked against the original sources. But the rules themselves can't prove that a shared vocabulary will necessarily improve how a team works together.
 
 I still think that, once requirements are clarified, what's most worth leaving behind is vocabulary the next person can reuse directly, plus the few decisions that are hard to understand from the code alone. The Q&A stays in the conversation; the confirmed definitions make it into the project.
 
@@ -177,9 +177,9 @@ This view only applies to projects maintained by several people, or ones that ta
 
 ## Make the Same Word Mean the Same Thing First
 
-If you want to try this flow, start by finding the one word in your requirements that's most likely to be ambiguous, such as "seat." Invoke `grill-with-docs` inside the project, confirm how it relates to "member" first, and then discuss whether inviting a member takes up a seat and when billing stops after deactivation.
+If you want to try this flow, I'd suggest starting by finding the one word in your requirements that's most likely to be ambiguous, such as "seat." Invoke `grill-with-docs` inside the project, confirm how it relates to "member" first, and then discuss whether inviting a member takes up a seat and when billing stops after deactivation.
 
-The goal of the interview isn't to pile up questions, but to make sure the same word always means the same thing throughout the spec that follows. The next post covers how to use `to-spec` to write the spec, and then `to-tickets` to break it down into tickets you can start working on right away.
+The goal of the interview isn't to pile up questions, but to make sure the same word always means the same thing throughout the spec that follows. In the next post, I'll cover how to use `to-spec` to write the spec, and then `to-tickets` to break it down into tickets you can start working on right away.
 
 ## Further Reading
 

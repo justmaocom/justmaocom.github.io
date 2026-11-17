@@ -10,15 +10,15 @@ image:
   alt: "在 Herdr 桌面 App 用 space 和标签页整理多个 repo 的 AI，从侧边栏看出哪个在等你。"
 ---
 
-同时让好几个 AI 在不同的项目里写代码，最常卡住的地方是：不知道哪一个停下来在等你回答，只好一个窗口一个窗口切过去看。
+同时让好几个 AI 在不同的项目里写代码，我认为最常卡住的地方是：不知道哪一个停下来在等你回答，只好一个窗口一个窗口切过去看。
 
 Herdr 桌面 App（程序名 herdr-app）就是处理这件事的工具。按官方 README 的介绍，它是给终端和 coding agent 用的桌面 App：把工作分进一个个 space，让你看出哪些 agent 需要你，而且关掉窗口后，终端里的程序还会继续跑。依官方首页，它是免费的，App、herdr-core 和 Herdr TUI 都以 Apache 2.0 许可证开源。
 
-这篇是照着做的入门：装好 App、从标签栏开一个 agent、用 space 和标签页整理工作、从 agents 侧边栏找出在等你的那个，再说明关掉窗口之后会怎样，以及遥测、自动更新和 mod 的安全注意事项。快捷键记不住也没关系，命令面板（command palette）可以按名字找到每个操作，还会列出它的快捷键。
+这篇我写成照着做的入门：装好 App、从标签栏开一个 agent、用 space 和标签页整理工作、从 agents 侧边栏找出在等你的那个，再说明关掉窗口之后会怎样，以及遥测、自动更新和 mod 的安全注意事项。快捷键记不住也没关系，命令面板（command palette）可以按名字找到每个操作，还会列出它的快捷键。
 
-本文依官方文档整理，没有附 App 的界面截图；文中三张图都是本站画的概念图。
+这篇我依官方文档整理，没有附 App 的界面截图；文中三张图都是我画的概念图。
 
-> **版本说明**：本文依 herdr-app v0.1.15（2026-11-11 台北时间发布；2026-11-12 确认 releases.herdr.dev 和 Homebrew 上都还是这一版）的官方文档撰写。Herdr App 还没到 1.0，更新很快，操作方式与快捷键请以[官方 README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)为准。
+> **版本说明**：我写这篇时，参考的是 herdr-app v0.1.15（2026-11-11 台北时间发布；我在 2026-11-12 确认过 releases.herdr.dev 和 Homebrew 上都还是这一版）的官方文档。Herdr App 还没到 1.0，更新很快，操作方式与快捷键请以[官方 README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)为准。
 {: .prompt-info }
 
 ## 先说几个词
@@ -43,13 +43,13 @@ herdr.dev 上有两个名字很像的程序。依官方 FAQ：
 
 两者**不共享 agent**：依官方 FAQ，在其中一个里启动的 agent，不会出现在另一个里。手机 App 只支持 herdr-core（随 Herdr App 附带），不支持 Herdr TUI。依手机 App 页面，Herdr TUI 和 herdr-core 可以同时装在同一台电脑上。
 
-怎么选：本站建议挑一个当主力。因为 agent 不共享，两边各开几个，又会回到“不知道谁在等你”的老问题。想留在终端里用的，看[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)；想要一个桌面窗口、或想用手机查看 agent 的，继续往下读。
+怎么选：我建议挑一个当主力。因为 agent 不共享，两边各开几个，又会回到“不知道谁在等你”的老问题。想留在终端里用的，看[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)；想要一个桌面窗口、或想用手机查看 agent 的，继续往下读。
 
 ## 什么时候适合用
 
 - 同时让两个以上的 agent 在不同 repo 或不同工作上跑，想在一个窗口里看出哪个在等你：适合。
 - 想关掉窗口、让 agent 继续干活：适合。依官方文档，关掉窗口不会停掉终端（见步骤 5）；放在 SSH 机器上的工作，笔记本电脑睡眠时也会继续（见步骤 6）。
-- 只跑一个 agent，而且目前的做法已经顺手：不一定要换（本站看法）。
+- 只跑一个 agent，而且目前的做法已经顺手：不一定要换（我的看法）。
 
 ## 开始前要准备
 
@@ -72,14 +72,14 @@ brew install --cask herdr-app
 
 依 Homebrew 的 cask 信息，App 会装到 `/Applications/Herdr.app`，同时多一个 `herdr-app` 命令；信息里也标明 App 会自己更新（`auto_updates: true`），更新方式见后面“自动更新怎么运作”一节。
 
-> **Intel Mac 没有安装包**：README 写明 macOS 版只提供 Apple Silicon，Intel Mac 要自己从源代码构建；官方安装脚本遇到 Intel Mac 也会直接停下。本文不讲从源代码构建。不确定自己的 Mac 是哪一种：点左上角苹果菜单 >“关于本机”，“芯片”写 Apple M 开头的就是 Apple Silicon，写“处理器”和 Intel 的就是 Intel Mac。
+> **Intel Mac 没有安装包**：README 写明 macOS 版只提供 Apple Silicon，Intel Mac 要自己从源代码构建；官方安装脚本遇到 Intel Mac 也会直接停下。这篇我不讲从源代码构建。不确定自己的 Mac 是哪一种：点左上角苹果菜单 >“关于本机”，“芯片”写 Apple M 开头的就是 Apple Silicon，写“处理器”和 Intel 的就是 Intel Mac。
 {: .prompt-warning }
 
 ### Linux 与 Windows：先下载脚本、读过再运行
 
 Linux 和 Windows 官方只提供安装脚本（另一条路是从源代码构建）。安装脚本是一份写好的命令清单，运行后会自动下载并安装 App。README 自己就提醒，这两个安装脚本会下载并运行代码，想先读过可以先读。
 
-官方 README 给的 Linux 写法是 `curl -fsSL https://releases.herdr.dev/app/install.sh | sh`。中间的 `|` 会把下载到的内容直接交给 `sh` 运行，等于下载完立刻运行，你没有机会先看。本站建议拆成两步。先下载成文件：
+官方 README 给的 Linux 写法是 `curl -fsSL https://releases.herdr.dev/app/install.sh | sh`。中间的 `|` 会把下载到的内容直接交给 `sh` 运行，等于下载完立刻运行，你没有机会先看。我建议拆成两步。先下载成文件：
 
 ```bash
 curl -fsSL https://releases.herdr.dev/app/install.sh -o herdr-app-install.sh
@@ -91,15 +91,15 @@ curl -fsSL https://releases.herdr.dev/app/install.sh -o herdr-app-install.sh
 sh herdr-app-install.sh
 ```
 
-看不懂脚本在做什么，就先别运行。依脚本开头的注释和内容，它在 Linux 上会：
+看不懂脚本在做什么，就先别运行。我读了脚本开头的注释和内容，它在 Linux 上会：
 
 - 把 App 装到 `~/.local/share/herdr-app`，把 `herdr-app` 命令放到 `~/.local/bin`，并加上启动器和图标。
 - 只有在机器上还没有 herdr-core 时，才把它装到 `~/.local/bin/herdr-core`（连同 `hc`）；之后由 App 让它保持最新。
 - 下载发布清单（`latest.json`），比对下载文件的 SHA-256（由文件内容算出的一串指纹，文件只要差一点，指纹就不同），不一致就停下来。
 
-`~` 代表你的用户文件夹（主目录）。PATH 是终端找命令时会去查看的文件夹列表；安装程序要求的话，把 `~/.local/bin` 加进去，之后在终端输入 `herdr-app` 才找得到。之后再运行一次脚本，就是更新 App。这个脚本也支持 macOS（App 会放在 `~/Applications/Herdr.app`），不过 Mac 用户本站建议用上面的 dmg 或 Homebrew。
+`~` 代表你的用户文件夹（主目录）。PATH 是终端找命令时会去查看的文件夹列表；安装程序要求的话，把 `~/.local/bin` 加进去，之后在终端输入 `herdr-app` 才找得到。之后再运行一次脚本，就是更新 App。这个脚本也支持 macOS（App 会放在 `~/Applications/Herdr.app`），不过用 Mac 的话，我建议用上面的 dmg 或 Homebrew。
 
-**Windows**（x64、Windows 10 1803 以上）：官方写法是在 PowerShell 运行 `irm https://releases.herdr.dev/app/install.ps1 | iex`（下载页写成 `powershell -c "irm https://releases.herdr.dev/app/install.ps1 | iex"`），同样是下载完直接运行。本站建议同样拆成两步。先在 PowerShell 把脚本下载成文件：
+**Windows**（x64、Windows 10 1803 以上）：官方写法是在 PowerShell 运行 `irm https://releases.herdr.dev/app/install.ps1 | iex`（下载页写成 `powershell -c "irm https://releases.herdr.dev/app/install.ps1 | iex"`），同样是下载完直接运行。我建议同样拆成两步。先在 PowerShell 把脚本下载成文件：
 
 ```powershell
 irm https://releases.herdr.dev/app/install.ps1 -OutFile herdr-app-install.ps1
@@ -153,7 +153,7 @@ _概念图：一台机器 → space（通常是一个 repo）→ 标签页（一
 
 ### 默认快捷键
 
-依官方默认按键文件（[macOS](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json)、[Linux／Windows](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)）整理。`cmd-shift-p` 的意思是同时按 Command、Shift 和 P。Mac 上的 `cmd` 是 ⌘ Command 键，`ctrl` 是 control 键，两个不一样。其他操作和它们的快捷键，可以按 `cmd-shift-p`（Linux／Windows 是 `ctrl-shift-p`）打开命令面板查看。
+下表是我依官方默认按键文件（[macOS](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.macos.json)、[Linux／Windows](https://github.com/herdrdev/herdr-app/blob/v0.1.15/defaults/keys.json)）整理的。`cmd-shift-p` 的意思是同时按 Command、Shift 和 P。Mac 上的 `cmd` 是 ⌘ Command 键，`ctrl` 是 control 键，两个不一样。其他操作和它们的快捷键，可以按 `cmd-shift-p`（Linux／Windows 是 `ctrl-shift-p`）打开命令面板查看。
 
 | 操作 | macOS | Linux／Windows |
 | --- | --- | --- |
@@ -175,14 +175,14 @@ _概念图：一台机器 → space（通常是一个 repo）→ 标签页（一
 
 ### 搭配 git worktree
 
-如果你照[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)，给每个 agent 开了一份独立的工作目录（worktree），本站建议每个 worktree 开一个 space，或至少给它一个自己的 pane，让每个 agent 只在自己的那份目录里改文件。App 本身也能管理 worktree。依内置指南，space 菜单和 + 菜单里有 New worktree（新建）、Open worktree（打开已有的）和 Remove worktree（删除）；新建的 worktree 会放在那台机器的 `~/.herdr/worktrees/<repo 名称>/<分支名称>`，Spaces 侧边栏会把这些 worktree 的 space 收在原来 repo 的 space 下面。
+如果你照[git worktree 教程：让两个 AI 在同一个 repo 分开工作](/posts/git-worktree-parallel-ai-agents/)，给每个 agent 开了一份独立的工作目录（worktree），我建议每个 worktree 开一个 space，或至少给它一个自己的 pane，让每个 agent 只在自己的那份目录里改文件。App 本身也能管理 worktree。依内置指南，space 菜单和 + 菜单里有 New worktree（新建）、Open worktree（打开已有的）和 Remove worktree（删除）；新建的 worktree 会放在那台机器的 `~/.herdr/worktrees/<repo 名称>/<分支名称>`，Spaces 侧边栏会把这些 worktree 的 space 收在原来 repo 的 space 下面。
 
 ## 步骤 4：看 agents 侧边栏，找出在等你的那个
 
 ![agents 侧边栏的四种状态 Working、Blocked、Done、Idle，各代表什么、你该做什么](agents.zh-CN.webp){: w="1600" h="900" }
 _概念图：四种状态的意思，以及本站建议的处理方式；没有 pane 的 worker，点一下会以 peek 打开在当前的标签页上。图上的颜色是本站配图用的，不是 App 界面的配色。_
 
-依 README，agents 侧边栏会把各个 space 里的 agent 集中成一张列表，也包括由另一个 agent 启动的程序（官方称为 worker）。会报告状态的 agent，状态有下面四种。最右列是本站的建议。
+依 README，agents 侧边栏会把各个 space 里的 agent 集中成一张列表，也包括由另一个 agent 启动的程序（官方称为 worker）。会报告状态的 agent，状态有下面四种。最右列是我的建议。
 
 | 状态 | 官方定义（通俗版） | 本站建议你该做什么 |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ _概念图：四种状态的意思，以及本站建议的处理方式；没有 
 
 ### 状态没出现时
 
-依官方 FAQ 逐项检查：
+我会依官方 FAQ 逐项检查：
 
 1. **agent 不会报告状态。** 只有会用 OSC 7501 报告的 agent 才有状态，其他的照样能跑，只是没有状态。依 herdr-core 页面，herdr-core 不读屏幕上的文字，也没有内置的 agent 列表，不会靠猜。旧版的 agent 可能还不会报告，先把 agent 更新到新版。
 2. **agent 跑在 Herdr 里再开的 tmux 里。** 这样状态报告不到 Herdr，请直接在 Herdr 的 pane 里跑 agent。没用过 tmux 的话，这项可以跳过。
@@ -328,7 +328,7 @@ _概念图：在 Settings → Privacy，或在 settings.json 加上 `"telemetry"
 
 ## 整理一下
 
-做完这几步，你会有一个桌面窗口：每个 repo 一个 space、每件工作一个标签页，从 agents 侧边栏就看得出哪个 agent 在等你。
+做完这几步，你会有一个桌面窗口：每个 repo 一个 space、每件工作一个标签页，从 agents 侧边栏就看得出哪个 agent 在等你。我把这篇的重点整理成下面几条：
 
 - 安装：Apple Silicon Mac 用 dmg 或 `brew install --cask herdr-app`；Linux、Windows 先下载脚本、读过再运行；Intel Mac 没有安装包。
 - 开 agent：从标签栏的 + 开，或直接在 pane 里启动；macOS 第一次弹出权限询问时，点“允许”。

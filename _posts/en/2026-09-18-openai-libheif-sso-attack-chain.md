@@ -15,9 +15,9 @@ mermaid: true
 >
 > Hacktron AI, [original post](https://x.com/HacktronAI/status/2100795824812777893)
 
-You open an SSO access review sheet, and the service name field just says "forum." The next column asks for the products and external resources reachable after login, and ChatGPT, Codex, and GitHub show up one after another. This scenario comes from the [incident write-up](https://www.hacktron.ai/blog/hacking-openai) Hacktron published in September 2026. How does an image upload bug on a forum end up touching an internal code repository?
+You open an SSO access review sheet, and the service name field just says "forum." The next column asks for the products and external resources reachable after login, and ChatGPT, Codex, and GitHub show up one after another. I based this scenario on the [incident write-up](https://www.hacktron.ai/blog/hacking-openai) Hacktron published in September 2026. How does an image upload bug on a forum end up touching an internal code repository?
 
-The image-decoding vulnerability and Discourse's fix can both be fully verified from public sources. The OpenAI SSO misconfiguration, the employee account takeover, and the internal pull request, on the other hand, rest only on the research team's word. You have to keep those two kinds of evidence apart to see what this incident is really warning us about.
+The image-decoding vulnerability and Discourse's fix can both be fully verified from public sources. The OpenAI SSO misconfiguration, the employee account takeover, and the internal pull request, on the other hand, rest only on the research team's word. I keep those two kinds of evidence apart to see what this incident is really warning us about.
 
 ## First, Separate the Two Vulnerabilities From the Attack Chain
 
@@ -25,9 +25,9 @@ This disclosure covers two different problems. The first is CVE-2026-32882 in `l
 
 The second problem is in OpenAI SSO. According to [Hacktron's incident report](https://www.hacktron.ai/blog/hacking-openai#intro), the team first gained access to the Discourse environment behind `community.openai.com`, then used an authentication configuration issue to take over the ChatGPT accounts of several OpenAI employees. The team says Codex on one of those accounts was already connected to OpenAI's GitHub organization, so they used Codex to open pull request `#1186742` in an internal monorepo, and then stopped testing.
 
-For the second half of the chain, there is no public OpenAI SSO configuration, login exchange, or internal pull request to check against. So this post can only confirm that "Hacktron reports this." It cannot go further and conclude that Slack, email, or other connectors were also accessed. That distinction matters.
+For the second half of the chain, there is no public OpenAI SSO configuration, login exchange, or internal pull request to check against. So I can only confirm that "Hacktron reports this." I will not go further and conclude that Slack, email, or other connectors were also accessed. That distinction matters.
 
-Laying out the timeline shows the two kinds of evidence interleaved:
+When I lay out the timeline, the two kinds of evidence show up interleaved:
 
 | Time | What happened | Evidence source and limits |
 | --- | --- | --- |
@@ -38,9 +38,9 @@ Laying out the timeline shows the two kinds of evidence interleaved:
 | 2026-07-27 | Discourse commits an isolation fix for image processing | [Public commit](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec); verifiable line by line |
 | 2026-07-28 | Discourse publishes GHSA-vhm9-85gw-x335 | [Public security advisory](https://github.com/discourse/discourse/security/advisories/GHSA-vhm9-85gw-x335); lists versions and rebuild steps |
 
-A tight timeline does not mean every step has the same quality of evidence. Whether the vulnerability exists can be checked against the advisory and the fix. Whether the attackers actually walked the whole path can, for now, only be judged from the research team's own records. The internal pull request is not public, so outsiders cannot check its contents; that row has to stop at "the team says it opened a PR," and we cannot infer from it how wide the access went.
+A tight timeline does not mean every step has the same quality of evidence. Whether the vulnerability exists can be checked against the advisory and the fix. Whether the attackers actually walked the whole path can, for now, only be judged from the research team's own records. The internal pull request is not public, so outsiders cannot check its contents; I stop that row at "the team says it opened a PR," and do not infer from it how wide the access went.
 
-In the diagram below, the green block and solid lines mark the parts you can verify against the public advisory and source code. The orange block and dashed lines mark the sequence of events as described in Hacktron's report, for which no configuration details have been disclosed.
+In the diagram below, I use the green block and solid lines to mark the parts you can verify against the public advisory and source code. The orange block and dashed lines mark the sequence of events as described in Hacktron's report, for which no configuration details have been disclosed.
 
 ```mermaid
 sequenceDiagram
@@ -70,7 +70,7 @@ sequenceDiagram
   end
 ```
 
-The key point in the diagram is that every time the chain crosses a privilege boundary, the security problem you have to deal with changes:
+To me, the key point in the diagram is that every time the chain crosses a privilege boundary, the security problem you have to deal with changes:
 
 | Boundary crossed | Capability gained at that point | Evidence status | What to follow up on in a review |
 | --- | --- | --- | --- |
@@ -80,7 +80,7 @@ The key point in the diagram is that every time the chain crosses a privilege bo
 | Employee account to Codex | Use of the account's existing product capabilities | Hacktron report only | Agent permissions and available connectors |
 | Codex to GitHub | Opening a pull request in an internal repo on the account's behalf | Hacktron report only | GitHub authorization scope, org policy, and audit logs |
 
-These five rows cannot be collapsed into a single sentence like "the forum had a bug." Each row has different people responsible for the fix, different records to check, and different controls that can reduce the impact.
+I would not collapse these five rows into a single sentence like "the forum had a bug." Each row has different people responsible for the fix, different records to check, and different controls that can reduce the impact.
 
 ## How a HEIF Image Reaches a Native Decoder
 
@@ -95,7 +95,7 @@ The fix uses two strategies at once, and each answers a different question:
 | Update `libheif` | Fixes the known boundary calculation bug | Keep tracking distro backports and future decoder bugs |
 | Isolate ImageMagick | Limits what the image process can read, write, and connect to | Confirm kernel support, allowlists, and the actual execution path |
 
-Do only the first, and the next decoder bug still runs with the old privileges. Do only the second, and the known vulnerability stays in the image. Fixing the known bug and limiting the consequences of unknown bugs are two separate jobs, and you need both.
+Do only the first, and the next decoder bug still runs with the old privileges. Do only the second, and the known vulnerability stays in the image. As I see it, fixing the known bug and limiting the consequences of unknown bugs are two separate jobs, and you need both.
 
 The upstream `libheif` [fix commit](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae) rewrites the overlap area calculation in `HeifPixelImage::overlay`, converting the additions to `int64_t` before comparing bounds. The commit title is just "simplify overlay overlap area computation," with no indication that it is a security fix. The diff shows what the code changed, but it is not enough to reconstruct the full exploit, and it does not explain why downstream packages missed the fix.
 
@@ -105,11 +105,11 @@ Remote code execution on the forum only explains the first leg of the attack cha
 
 Hacktron says it verified an account takeover path that required no user interaction, then used Codex in a compromised account to operate on GitHub. The public material does not disclose the specific fields involved in the SSO misconfiguration, token contents, the session exchange flow, or the fix diff, so outsiders cannot reproduce this leg from what is available.
 
-That is as far as we can say with confidence. What exists is an incident narrative: Hacktron says it reported the issue to OpenAI, but the core configuration has not been made public. It cannot be treated as a reproducible description of an OpenAI SSO vulnerability.
+That is as far as I can say with confidence. What exists is an incident narrative: Hacktron says it reported the issue to OpenAI, but the core configuration has not been made public. I would not treat it as a reproducible description of an OpenAI SSO vulnerability.
 
-To examine this leg, you can split "login" into three layers. The first is identity verification: who does the system think is logging in? The second is service trust: which products does a login session established on one service carry over to? The third is agent authorization: which external resources can Codex operate on behalf of this identity?
+To examine this leg, I split "login" into three layers. The first is identity verification: who does the system think is logging in? The second is service trust: which products does a login session established on one service carry over to? The third is agent authorization: which external resources can Codex operate on behalf of this identity?
 
-What this case lacks most is technical detail on the second layer. The public material does not say what credentials the forum side held, what login session OpenAI SSO accepted, or which piece of decision logic the fix changed. For the third layer, all we know is the outcome Hacktron describes: Codex was connected to GitHub and was used to open a pull request. Keeping the three layers apart stops a vague "SSO was broken" from covering up every open question.
+What this case lacks most is technical detail on the second layer. The public material does not say what credentials the forum side held, what login session OpenAI SSO accepted, or which piece of decision logic the fix changed. For the third layer, all I know is the outcome Hacktron describes: Codex was connected to GitHub and was used to open a pull request. Keeping the three layers apart stops a vague "SSO was broken" from covering up every open question.
 
 ![An SSO access review form where forum, ChatGPT, Codex, and GitHub are crammed into a field meant for a single line](sso-review-form.webp){: width="960" height="540" }
 _When a login identity carries over to other services, one line on the review form quickly stops being enough._
@@ -122,11 +122,11 @@ Debian's [DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/msg
 
 A version inventory also cannot answer the isolation question. The Discourse advisory calls the new Landlock and seccomp restrictions defense in depth and notes that whether they take effect depends on kernel support. No matter how new the package version is, it will not tell you whether that layer of restriction is actually active on a given host.
 
-If your asset inventory only records `libheif 1.19.8`, it is missing the information needed to judge patch status. At a minimum, keep the upstream version, the full distro package revision, and the identifier of the image actually deployed. The first two tell you which backports the package includes; the last tells you whether the patched package actually made it into the runtime environment.
+If your asset inventory only records `libheif 1.19.8`, it is missing the information needed to judge patch status. At a minimum, I recommend keeping the upstream version, the full distro package revision, and the identifier of the image actually deployed. The first two tell you which backports the package includes; the last tells you whether the patched package actually made it into the runtime environment.
 
 This is also why "the scanner shows upstream version X" is not enough to close a ticket. The scan result is where the investigation starts; the distro advisory and the running image together determine the current state.
 
-Once the package is fixed, you still have to confirm the running program has been replaced. [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/) is one example: on Alpine, the fix is not complete until sshd has been restarted successfully after the package upgrade.
+Once the package is fixed, you still have to confirm the running program has been replaced. I covered one example in [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/): on Alpine, the fix is not complete until sshd has been restarted successfully after the package upgrade.
 
 ## Isolating Image Processing Has Deployment Prerequisites
 
@@ -140,11 +140,11 @@ Update the decoder, and isolate the decoding process too.
 
 If you run Discourse yourself, the security advisory gives clear patched versions and rebuild steps. Check the actual package revision inside your deployed image, compare it against the distro's security advisory, and then confirm that your current kernel provides the isolation features Discourse needs. Updating only through the web interface does not prove the underlying image has been replaced.
 
-If you maintain another service that accepts HEIF or AVIF uploads, Discourse's version numbers do not apply. Instead, find out which process parses untrusted images, which `libheif` package it uses, and which paths that process can read and write and whether it can make network connections. Discourse's `SafeExec` implementation is a useful reference case, but you cannot lift it directly into another framework as a fix.
+If you maintain another service that accepts HEIF or AVIF uploads, Discourse's version numbers do not apply. Instead, find out which process parses untrusted images, which `libheif` package it uses, and which paths that process can read and write and whether it can make network connections. I would treat Discourse's `SafeExec` implementation as a useful reference case, but I would not lift it directly into another framework as a fix.
 
 If you only use a hosted service and cannot inspect the provider's images yourself, your work shifts to inventorying identities and connectors. List every product reachable after an SSO login, and every external resource that agents such as Codex have been authorized to operate on. That list is exactly the management question this case's public material leaves open.
 
-The same chain of events lands on several different owners. You can use the table below to assign checks directly:
+The same chain of events lands on several different owners. I put together the table below, which you can use to assign checks directly:
 
 | Area of responsibility | First question to answer | Records to leave when done |
 | --- | --- | --- |
@@ -154,11 +154,11 @@ The same chain of events lands on several different owners. You can use the tabl
 | Identity management | Which services a forum login session carries over to | List of SSO services, trust settings, and session rules |
 | AI tool management | Which external resources each agent connector can operate on | Connector list, authorization scope, owner, and how to revoke |
 
-If the only answer a row can give is "the system blocks it," the check is not finished. Each row should leave behind configuration, versions, or records that can be re-verified.
+If the only answer a row can give is "the system blocks it," I treat the check as unfinished. Each row should leave behind configuration, versions, or records that can be re-verified.
 
 ## Start by Checking the Deployed Image Against Package Advisories
 
-For self-hosted Discourse, you can work through the following in order:
+For self-hosted Discourse, I would work through the following in order:
 
 1. In the Discourse security advisory, find the release line you are on and its patched version.
 2. Check the full `libheif` package revision in your deployed image and compare it against that Linux distribution's security advisory.
@@ -187,15 +187,15 @@ This judgment does not require assuming the AI agent itself has a vulnerability.
 
 It also changes how you frame incident exercises. If the question stops at "what can someone see after an employee account is compromised," you need to push further and ask "what can this account command the agent to do." Reading data, modifying code, and opening pull requests are different permissions, and they cannot be glossed over with a single "connected to GitHub."
 
-Hacktron also says that HEIF Heist, the research effort covering multiple targets, ran for two months with three researchers and cost less than US$3,000 in tokens. [The cost section of the original post](https://www.hacktron.ai/blog/hacking-openai#costs-of-finding-these-vulnerabilities) does not provide per-run logs, and its scope is broader than this OpenAI incident. The number cannot be used to estimate the cost of a typical attack, but it can remind people running exercises that they should no longer assume that reliably exploiting a memory corruption bug is work only large teams can afford.
+Hacktron also says that HEIF Heist, the research effort covering multiple targets, ran for two months with three researchers and cost less than US$3,000 in tokens. [The cost section of the original post](https://www.hacktron.ai/blog/hacking-openai#costs-of-finding-these-vulnerabilities) does not provide per-run logs, and its scope is broader than this OpenAI incident. I would not use the number to estimate the cost of a typical attack, but it can remind people running exercises that they should no longer assume that reliably exploiting a memory corruption bug is work only large teams can afford.
 
-The more practical change is to fold agent permissions into every identity review. Record the resource scope when a connector is added, re-confirm it when someone changes roles, and be able to revoke it all at once when an incident happens. None of this depends on the undisclosed details of OpenAI SSO, and it can also shrink the consequences of other account takeover incidents.
+The more practical change, I think, is to fold agent permissions into every identity review. Record the resource scope when a connector is added, re-confirm it when someone changes roles, and be able to revoke it all at once when an incident happens. None of this depends on the undisclosed details of OpenAI SSO, and it can also shrink the consequences of other account takeover incidents.
 
 ## Start by Checking What Your Logins and Image Process Can Touch
 
 How does an image upload bug on a forum end up touching an internal code repository? According to Hacktron's account, the first vulnerability gained execution on the forum, a second SSO problem extended control of the forum to employees' ChatGPT accounts and Codex, and an existing GitHub connection then extended the impact to an internal repository. The first half has public fixes you can verify; the second half lacks reproducible configuration data.
 
-The smallest first step is to open your current access review sheet. Find one service that you can log in to via SSO and that supports agent connectors, and add a column for "external resources operable after login." On the technical side, start with the package revision of your image-processing process and its file and network permissions.
+The smallest first step I would suggest is to open your current access review sheet. Find one service that you can log in to via SSO and that supports agent connectors, and add a column for "external resources operable after login." On the technical side, start with the package revision of your image-processing process and its file and network permissions.
 
 ## Further Reading
 
@@ -204,4 +204,4 @@ The smallest first step is to open your current access review sheet. Find one se
 - [Discourse's image-processing isolation fix](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec): see how the `ImageMagick` wrapper, allowed read/write paths, and network restrictions land in code.
 - [Debian security advisory DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/msg00328.html): check the full package revision and the format compatibility change caused by one of its fixes.
 - [libheif's overlay calculation fix](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae): compare the boundary calculation changes in `HeifPixelImage::overlay` directly.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): the same lesson for coding agents, where the damage from a small entry point depends on how much trust sits behind it.
+- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): my post applying the same lesson to coding agents, where the damage from a small entry point depends on how much trust sits behind it.

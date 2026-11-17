@@ -10,34 +10,34 @@ image:
   alt: "六篇按开发顺序排列，合起来覆盖官方插件的 25 个 skill；先找出你卡在哪一步，再从那一篇读起。"
 ---
 
-> **版本提醒（2026-10-19 核实）**：本系列六篇都以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方插件从下文所说的 25 个 skill 变为 27 个：[第 5 篇](/posts/mattpocock-skills-design-review-integration/)介绍的 `resolving-merge-conflicts` 已被移除；新增的 `implement-spec`、`pr`、`retro` 本系列还没有介绍；[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的词汇表 `CONTEXT.md` 也改名为 `GLOSSARY.md`。其余 24 个 skill 都还在。本系列之后会按新版全面更新。
+> **版本提醒（2026-10-19 核实）**：这个系列的六篇，我都以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方插件从下文所说的 25 个 skill 变为 27 个：[第 5 篇](/posts/mattpocock-skills-design-review-integration/)介绍的 `resolving-merge-conflicts` 已被移除；新增的 `implement-spec`、`pr`、`retro` 我还没在本系列介绍；[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的词汇表 `CONTEXT.md` 也改名为 `GLOSSARY.md`。其余 24 个 skill 都还在。我之后会按新版全面更新这个系列。
 {: .prompt-warning }
 
-你可能听人提过 `mattpocock/skills`，打开仓库却看到一长串 skill 名称；也可能是从搜索点进其中一篇，想知道前后还有什么。这个系列写了六篇，每篇处理开发流程里的一段。这篇导读不重复细节，只回答三件事：这套 skill 是什么、六篇怎么串起来，以及你该从哪一篇开始。
+你可能听人提过 `mattpocock/skills`，打开仓库却看到一长串 skill 名称；也可能是从搜索点进其中一篇，想知道前后还有什么。这个系列我写了六篇，每篇处理开发流程里的一段。这篇导读我不重复细节，只回答三件事：这套 skill 是什么、六篇怎么串起来，以及你该从哪一篇开始。
 
 > mattpocock/skills 系列｜导读
 >
 > - 从头开始（第 1 篇）：[先设置项目规则，再用 ask-matt 找下一步](/posts/mattpocock-skills-setup-routing-guide/)
 >
-> 本系列以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准，各篇开头另外注明了之后的版本变动。
+> 这个系列我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准，各篇开头另外注明了之后的版本变动。
 {: .prompt-info }
 
 ## mattpocock/skills 是什么
 
-[`mattpocock/skills`](https://github.com/mattpocock/skills) 是 Matt Pocock 公开的一整套 skill。skill 可以理解成一份“告诉 AI 编程助手怎么完成某项工作”的操作说明，比如怎么访谈需求，或者怎么把规格拆成一张张工作单。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的 AI 工具。
+[`mattpocock/skills`](https://github.com/mattpocock/skills) 是 Matt Pocock 公开的一整套 skill。我会把 skill 理解成一份“告诉 AI 编程助手怎么完成某项工作”的操作说明，比如怎么访谈需求，或者怎么把规格拆成一张张工作单。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的 AI 工具。
 
-作者在 [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19) 里说，这些 skill 刻意做得小、容易改，也能自由组合。官方插件的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) 收录了 25 个 skill，这个系列六篇合起来，正好把这 25 个都介绍了一遍。仓库里另外还有仍在试验或目前不主动推广的条目，不在系列范围内。
+作者在 [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19) 里说，这些 skill 刻意做得小、容易改，也能自由组合。官方插件的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) 收录了 25 个 skill，这个系列我用六篇，正好把这 25 个都介绍了一遍。仓库里另外还有仍在试验或目前不主动推广的条目，不在系列范围内。
 
 有两件事先知道，读起来会顺很多：
 
 - **大部分工作要由你点名启动。** 很多 skill 设置成只能由人启动，AI 不会自己跑。
 - **`ask-matt` 像服务台，不是总管。** 你描述现在卡在哪里，它建议下一个该用的 skill，但不会自动把整套流程跑完。
 
-安装方式、第一次要做的设置，都写在[第 1 篇](/posts/mattpocock-skills-setup-routing-guide/)，这里不再重复。
+安装方式、第一次要做的设置，我都写在[第 1 篇](/posts/mattpocock-skills-setup-routing-guide/)，这里不再重复。
 
 ## 适合谁、不适合谁
 
-从六篇的内容来看，这套 skill 最适合下面这类项目：
+从六篇的内容来看，我认为这套 skill 最适合下面这类项目：
 
 - 由好几个人一起维护，或者一个功能要分好几次对话才能做完。
 - 用工作跟踪工具（比如 GitHub Issues）记录待办事项、交接工作。
@@ -49,18 +49,18 @@ image:
 - 只是讨论一个还没成型的想法，用 `grill-me` 访谈一次就够了，不用给每个名词建文档（第 2 篇）。
 - 不在项目文件夹里的一次性工作，不必为了一个 skill 建一整套项目设置（第 1 篇）。
 
-它做不到的事也要先说清楚。第 1 篇提过，这套流程不保证能缩短开发时间；它直接带来的好处，是把项目惯例写成文档，并在你不确定下一步时给出建议。第 4 篇也提醒，这些规则只是写在 Markdown 里的指令，没有程序强制执行；AI 列出要测试的位置时，你如果没细看就点同意，这道把关就等于没起作用。
+它做不到的事，我也要先说清楚。我在第 1 篇提过，这套流程不保证能缩短开发时间；它直接带来的好处，是把项目惯例写成文档，并在你不确定下一步时给出建议。我在第 4 篇也提醒过，这些规则只是写在 Markdown 里的指令，没有程序强制执行；AI 列出要测试的位置时，你如果没细看就点同意，这道把关就等于没起作用。
 
 ## 六篇怎么串起来
 
-六篇的顺序，就是一个功能从需求到合并的顺序。前五篇是一条主线，第 6 篇处理写代码以外、却经常拖慢进度的事。
+我按一个功能从需求到合并的顺序排这六篇。前五篇是一条主线，第 6 篇处理写代码以外、却经常拖慢进度的事。
 
 ![系列地图：第 1 到第 5 篇依次是设置与找下一步、厘清需求、规格与工作单、实现与测试、审查与合并，第 6 篇处理查资料、交接、学习等写代码以外的事，每篇下方列出覆盖的 skill](series-map.zh-CN.webp){: width="800" height="450" }
 _六篇按开发顺序排列，每篇负责一段，第 6 篇补上写代码以外的事。_
 
 主线大致是这样走的：先用 `grill-with-docs` 把需求问清楚；功能大到要分好几次对话时，用 `to-spec` 整理规格、`to-tickets` 拆成工作单；然后每张工作单开一次新对话，用 `implement` 实现，它会在过程中用 `tdd`，最后再跑 `code-review`。其他 skill 大多是岔路：别人提交的反馈交给 `triage`，大到列不完决策的工作交给 `wayfinder`，出了 bug 用 `diagnosing-bugs`。
 
-六篇用的是同一个例子：给一个订阅服务加上按席位计费。从第 1 篇的模拟场景开始，一直沿用到第 6 篇，所以按顺序读，能看到同一个功能是怎么一步步往下推进的。
+六篇我用的是同一个例子：给一个订阅服务加上按席位计费。从第 1 篇的模拟场景开始，一直沿用到第 6 篇，所以按顺序读，能看到同一个功能是怎么一步步往下推进的。
 
 ## 六篇各讲什么
 
@@ -78,19 +78,19 @@ _六篇按开发顺序排列，每篇负责一段，第 6 篇补上写代码以�
 
 ### 第 3 篇：先找出缺口，再决定要写规格还是拆工作单
 
-需求谈完了，下一步是写规格、拆工作单，还是去问掌握答案的人？这篇说明 `to-spec`、`to-tickets`、`triage`、`wayfinder` 和 `to-questionnaire` 各自补哪一种缺口。关键是先看缺的是哪种信息，而不是把五个都跑一遍。
+需求谈完了，下一步是写规格、拆工作单，还是去问掌握答案的人？这篇说明 `to-spec`、`to-tickets`、`triage`、`wayfinder` 和 `to-questionnaire` 各自补哪一种缺口。我认为关键是先看缺的是哪种信息，而不是把五个都跑一遍。
 
 → [第 3 篇：先找出缺口，再决定要写规格还是拆工作单](/posts/mattpocock-skills-specs-work-breakdown/)
 
 ### 第 4 篇：AI 开工写代码前，先决定要看哪一种信号
 
-代码和测试都由 AI 写的时候，你要看什么才知道它做对了？这篇介绍 `implement`、`tdd`、`diagnosing-bugs` 和 `prototype`，答案是看 AI 自己改不了的东西：你确认过的测试位置、来自规格的预期值，以及一条对 bug 亮过红灯的命令。文中从红灯到绿灯的测试是实际跑过的。
+代码和测试都由 AI 写的时候，你要看什么才知道它做对了？这篇介绍 `implement`、`tdd`、`diagnosing-bugs` 和 `prototype`，答案是看 AI 自己改不了的东西：你确认过的测试位置、来自规格的预期值，以及一条对 bug 亮过红灯的命令。文中从红灯到绿灯的测试，是我实际跑过的。
 
 → [第 4 篇：AI 开工写代码前，先决定要看哪一种信号](/posts/mattpocock-skills-implementation-feedback-loops/)
 
 ### 第 5 篇：代码写完之后，谁来看结构、审修改、解冲突
 
-测试通过，不代表结构没有越改越乱，也不代表修改符合需求。这篇介绍 `codebase-design`、`improve-codebase-architecture`、`code-review` 和 `resolving-merge-conflicts`：定期给项目做体检，审查分“照规矩写了吗”和“照需求做了吗”两边看，遇到合并冲突先弄清两边各想做什么。文中实际制造了一次合并冲突。
+测试通过，不代表结构没有越改越乱，也不代表修改符合需求。这篇介绍 `codebase-design`、`improve-codebase-architecture`、`code-review` 和 `resolving-merge-conflicts`：定期给项目做体检，审查分“照规矩写了吗”和“照需求做了吗”两边看，遇到合并冲突先弄清两边各想做什么。文中的合并冲突是我实际制造出来的。
 
 → [第 5 篇：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)
 
@@ -102,7 +102,7 @@ _六篇按开发顺序排列，每篇负责一段，第 6 篇补上写代码以�
 
 ## 按你的情况选起点
 
-不一定要从头读到尾。先想想你现在卡在哪里：
+不一定要从头读到尾。我建议先想想你现在卡在哪里：
 
 ![阅读路线：第一次用读第 1、2、3 篇；需求说不清读第 2 篇；不知道该写规格还是开工作单读第 3 篇；想让 AI 写的代码可信读第 4、5 篇；审查修改、整理结构或处理合并冲突读第 5 篇；交接、查资料或学新东西读第 6 篇；想看完整流程就从第 1 篇读到第 6 篇](reading-paths.zh-CN.webp){: width="800" height="450" }
 _先找到自己卡住的地方，再从对应的那一篇读起。_
@@ -121,7 +121,7 @@ _先找到自己卡住的地方，再从对应的那一篇读起。_
 
 ## 版本说明
 
-六篇在 2026 年 9 月 21 日到 10 月 14 日之间发布，内容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。系列写作期间仓库还在更新，各篇开头的提示框另外注明了之后的版本变动。实际使用前，建议对照仓库当前的版本。
+这六篇我在 2026 年 9 月 21 日到 10 月 14 日之间发布，内容都以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。我写这个系列时仓库还在更新，之后的版本变动，我另外注明在各篇开头的提示框里。实际使用前，我建议对照仓库当前的版本。
 
 ## 延伸阅读
 
