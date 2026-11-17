@@ -10,18 +10,18 @@ image:
   alt: "用 git worktree 帮两个 AI 各开一个工作目录，停在自己的分支上干活，做完再收掉。"
 ---
 
-如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
+如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。我认为更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
 
-本文只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，请看[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)。
+这篇我只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，我在[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)里讲过。
 
-> **版本说明**：本文依据 2026-11-11 读取的 git-scm.com [git-worktree 手册](https://git-scm.com/docs/git-worktree)（Git 2.56.0 版）撰写；git worktree 的多重 checkout 官方仍标记为实验性，之后行为可能改变，以手册为准。
+> **版本说明**：我写这篇时，参考的是 2026-11-11 当天 git-scm.com 上的 [git-worktree 手册](https://git-scm.com/docs/git-worktree)（Git 2.56.0 版）；git worktree 的多重 checkout 官方仍标记为实验性，之后行为可能改变，以手册为准。
 {: .prompt-info }
 
 ## worktree 是什么
 
 git 手册介绍 worktree 的第一句话是：一个 repo 可以有好几个工作目录，让你同时 checkout 不止一个分支。checkout 的意思，是把某个分支或 commit（一次存档记录）的文件内容放到文件夹里让你编辑。
 
-工作目录（working tree）是你实际打开、编辑文件的那个文件夹。git 把“一个工作目录，加上它自己的 HEAD（标明这个文件夹当前停在哪个分支、哪个 commit）等数据”合称为 worktree。你用 `git clone` 或 `git init` 得到的第一个，叫 main worktree（主工作目录）；之后用 `git worktree add` 加出来的，叫 linked worktree。[手册的说明段](https://git-scm.com/docs/git-worktree#_description)这样定义：一个 repo 会有一个主工作目录，以及零个或多个 linked worktree。手册把 bare repository（裸仓库）排除在这条定义之外，本文不会用到它。
+工作目录（working tree）是你实际打开、编辑文件的那个文件夹。git 把“一个工作目录，加上它自己的 HEAD（标明这个文件夹当前停在哪个分支、哪个 commit）等数据”合称为 worktree。你用 `git clone` 或 `git init` 得到的第一个，叫 main worktree（主工作目录）；之后用 `git worktree add` 加出来的，叫 linked worktree。[手册的说明段](https://git-scm.com/docs/git-worktree#_description)这样定义：一个 repo 会有一个主工作目录，以及零个或多个 linked worktree。手册把 bare repository（裸仓库）排除在这条定义之外，这篇我不会用到它。
 
 这些工作目录[共用几乎所有东西](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)，只有少数属于各个 worktree 自己的数据是分开的，例如 HEAD 和暂存区（index，也就是 `git add` 之后、commit 之前放东西的地方）。整理一下：
 
@@ -35,18 +35,18 @@ _概念图，不是实际界面。上方是所有工作目录共用的历史记�
 
 还有一件实现上的事情要知道：linked worktree 顶层的 `.git` [不是一个完整的文件夹，而是一个小文件](https://git-scm.com/docs/git-worktree#_details)，指向主 repo 里为这个 worktree 保留的管理数据（手册称为 administrative files）。也就是说，linked worktree 的文件夹本身不是完整的 repo。不要把它当成独立的 repo 复制到别处，也不要删掉这个 `.git` 文件。
 
-> **进阶：** 若你希望某个 worktree 有自己的配置，例如不同的 `user.email`，可先执行 `git config extensions.worktreeConfig true`，再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。一般情况用共用的配置就够了。
+> **进阶：** 若你希望某个 worktree 有自己的配置，例如不同的 `user.email`，可先执行 `git config extensions.worktreeConfig true`，再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。我认为一般情况用共用的配置就够了。
 {: .prompt-tip }
 
 ## 什么时候该用、什么时候不用
 
-适合使用 worktree 的情况大致有三种：
+我认为适合使用 worktree 的情况大致有三种：
 
 - 想同时让两个 AI（或你和一个 AI）各做一件事，而且不要改到同一批文件。
 - 手上已经改到一半，暂时不想用 stash 把修改收起来，却又要去修一件急事。这是[手册举的官方场景](https://git-scm.com/docs/git-worktree#_examples)。
 - 只想在一个用完就丢的干净文件夹里跑测试或试东西。这时可用稍后会提到的 `-d`。
 
-不需要 worktree 的情况：一次只做一件事，或改动很小、切换分支就够了。这些是使用上的建议，不是手册里的硬性规定。
+不需要 worktree 的情况：一次只做一件事，或改动很小、切换分支就够了。这些是我的使用建议，不是手册里的硬性规定。
 
 有一种情况则明确不适合。submodule 是把另一个 repo 当成子文件夹挂进来的做法；挂着这些子 repo 的外层，手册称为 superproject。
 
@@ -57,7 +57,7 @@ _概念图，不是实际界面。上方是所有工作目录共用的历史记�
 > 翻译：多重 checkout 总体上仍属实验性质，对 submodule 的支持也不完整。不建议对 superproject 做多重 checkout。
 {: .prompt-warning }
 
-不确定自己的 repo 有没有用 submodule，可以这样确认。用了 submodule 的 repo，最上层会有一个叫 `.gitmodules` 的配置文件，[手册说明](https://git-scm.com/docs/gitmodules)每个 submodule 在里面各有一段配置。这个文件名以点开头，文件资源管理器默认可能会把它隐藏，所以用命令确认更准确：
+不确定自己的 repo 有没有用 submodule，可以这样确认。用了 submodule 的 repo，最上层会有一个叫 `.gitmodules` 的配置文件，[手册说明](https://git-scm.com/docs/gitmodules)每个 submodule 在里面各有一段配置。这个文件名以点开头，文件资源管理器默认可能会把它隐藏，所以我建议用命令确认，结果更准确：
 
 ```bash
 git submodule status
@@ -69,7 +69,7 @@ git submodule status
 
 下面的命令都是打开终端、在原来的 repo 文件夹里执行。我用一个叫 `myapp` 的文件夹做例子；新开的 worktree 会关联到你执行命令时所在的这个 repo。
 
-建议把新的 worktree 放在 repo 文件夹**旁边**，例如 `../myapp-login`。`../` 表示上一级文件夹，所以 `myapp-login` 会和 `myapp` 并排。不要放在 repo 里面，以免它和项目里的普通文件混在一起。这是我的建议，手册没有规定路径。
+我建议把新的 worktree 放在 repo 文件夹**旁边**，例如 `../myapp-login`。`../` 表示上一级文件夹，所以 `myapp-login` 会和 `myapp` 并排。不要放在 repo 里面，以免它和项目里的普通文件混在一起。这是我的建议，手册没有规定路径。
 
 最常用的写法，是一边开新分支、一边开新文件夹。`-b` 后面接新分支的名字，再接新文件夹的路径：
 
@@ -110,9 +110,9 @@ cd ../myapp-login
 
 ## 同一个分支一次只能在一个地方
 
-[手册写明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)：如果某个分支已经在别的 worktree 被 checkout，再对它执行 `add` 会被拒绝，除非加上 `--force`。这是保护，避免两个文件夹同时改同一条分支。**不建议用 `--force` 绕过。**
+[手册写明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)：如果某个分支已经在别的 worktree 被 checkout，再对它执行 `add` 会被拒绝，除非加上 `--force`。这是保护，避免两个文件夹同时改同一条分支。**我不建议用 `--force` 绕过。**
 
-切换分支时也有同样的保护。[`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) 和 `git checkout` 遇到已经被别的 worktree 占用的分支，会拒绝切换过去。所以主文件夹不能直接切换到 AI 正在用的那条分支。想看那条分支改了什么，不用切换过去，步骤 3 会教你用 `git diff` 直接比较。
+切换分支时也有同样的保护。[`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) 和 `git checkout` 遇到已经被别的 worktree 占用的分支，会拒绝切换过去。所以主文件夹不能直接切换到 AI 正在用的那条分支。想看那条分支改了什么，不用切换过去，步骤 3 我会教你用 `git diff` 直接比较。
 
 ![同一个分支已经在一个工作目录里，另一个工作目录就不能再用它](one-branch-one-place.zh-CN.webp){: w="1600" h="900" }
 _概念图，不是实际界面。左边的工作目录已经占用了这条分支，右边再想用同一条时会被挡住。_
@@ -153,7 +153,7 @@ git merge feature-login
 - `git diff main...feature-login`：列出 `feature-login` 从和 `main` 分叉那一刻起改了哪些地方。[手册说明](https://git-scm.com/docs/git-diff)，三个点的写法是从两条分支的共同起点开始比较。先看一遍，确认没问题再合并。
 - `git merge feature-login`：[把那条分支上的 commit 合并进当前所在的分支](https://git-scm.com/docs/git-merge)，也就是 `main`。
 
-合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，可以参考 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
+合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，我在 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)里讲过。
 
 **做法二：推送上去开 PR。** 想让别人或自动审查先看一遍，就把分支推送到远程 repo（放在 GitHub 这类网站上的那一份），再到网站上开 PR（pull request，请求把分支合并进主分支）：
 
@@ -198,7 +198,7 @@ git branch -D feature-login
 
 [`-D`](https://git-scm.com/docs/git-branch#Documentation/git-branch.txt--D) 等于 `--delete --force`，不管有没有合并都会直接删除。
 
-如果不小心用 `rm -rf` 或把文件夹扔进回收站，`git worktree list` 可能会把那一条标成 `prunable`。请先预览会清掉什么，再真正清理：
+如果不小心用 `rm -rf` 或把文件夹扔进回收站，`git worktree list` 可能会把那一条标成 `prunable`。我建议先预览会清掉什么，再真正清理：
 
 ```bash
 git worktree prune -n -v
@@ -271,7 +271,7 @@ git worktree add --lock --reason "放在外接硬盘" -b feature-usb ../myapp-us
 git worktree unlock ../myapp-usb
 ```
 
-手册提供了连续两次 `--force` 来强制处理已锁定的 worktree，但建议先 `unlock`，不要一开始就强行删除。
+手册提供了连续两次 `--force` 来强制处理已锁定的 worktree，但我建议先 `unlock`，不要一开始就强行删除。
 
 ## 搬家：move 与 repair
 
@@ -327,6 +327,6 @@ git worktree repair ../tasks/myapp-typo ../tasks/myapp-login
 
 ## 结论与下一步
 
-下次要让两个 AI 同时动手，先用 `git worktree add -b` 各开一个文件夹。做完把成果合并回 `main`（或推送上去开 PR），再 `git worktree remove`，并记得删除用完的分支。repo 里若有 submodule（最上层有 `.gitmodules`），就别用这个方法。
+下次要让两个 AI 同时动手，我建议先用 `git worktree add -b` 各开一个文件夹。做完把成果合并回 `main`（或推送上去开 PR），再 `git worktree remove`，并记得删除用完的分支。repo 里若有 submodule（最上层有 `.gitmodules`），我就不会用这个方法。
 
-接下来，可以给每个工作目录里的 AI 写好项目规则，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)；若要把审查自动化，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。命令的细节以 [git-worktree 手册](https://git-scm.com/docs/git-worktree)为准，自动清理的宽限期见 [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)。
+接下来，可以给每个工作目录里的 AI 写好项目规则，写法我在[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)里讲过；若要把审查自动化，可以看我写的[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。命令的细节以 [git-worktree 手册](https://git-scm.com/docs/git-worktree)为准，自动清理的宽限期见 [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)。
