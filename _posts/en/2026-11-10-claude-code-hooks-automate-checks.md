@@ -12,16 +12,16 @@ image:
 
 After I ask an AI to edit a file, I still have to remember: did formatting run? Did the tests pass? Did it touch `.env` by mistake? You don't have to repeat these reminders every time. Claude Code, an AI coding assistant you use in the terminal, offers hooks: commands you write in advance that run at fixed points in a conversation, instead of waiting for the AI to decide whether to run them.
 
-This post explains what hooks are, when they help, and how to set up four common checks in a project: auto-format after edits, block that change when a sensitive file is targeted, run tests when a turn ends, and put project rules back after the conversation is compacted. It also covers what hooks cannot block, because they are not a security boundary.
+In this post I explain what hooks are, when they help, and how to set up four common checks in a project: auto-format after edits, block that change when a sensitive file is targeted, run tests when a turn ends, and put project rules back after the conversation is compacted. I also cover what hooks cannot block, because they are not a security boundary.
 
-> **Version**: this post follows the [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide) and the [Hooks reference](https://code.claude.com/docs/en/hooks) (including [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)), read on 2026-11-10 (Taipei time). That day, the latest Claude Code on npm was 2.1.322. Later versions may change events and fields.
+> **Version**: this post follows the [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide) and the [Hooks reference](https://code.claude.com/docs/en/hooks) (including [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)), as I read them on 2026-11-10 (Taipei time). That day, the latest Claude Code on npm was 2.1.322. Later versions may change events and fields.
 {: .prompt-info }
 
-For the permission risks that come with third-party skills and MCP servers, see [this earlier post](/posts/coding-agent-supply-chain-permission-risks/). This post focuses only on everyday checks you can configure yourself.
+If you're concerned about the permission risks that come with third-party skills and MCP servers, I covered them in [this earlier post](/posts/coding-agent-supply-chain-permission-risks/). Here I focus only on everyday checks you can configure yourself.
 
 ## What Hooks Are, and When to Use Them
 
-A hook is a command you define that Claude Code runs at key points in its lifecycle. Hooks make selected actions run deterministically instead of relying on the model to decide whether to run them. Use them for work that shouldn't need a fresh judgment each time: formatting, running tests, or blocking an edit to a given file and explaining why. Decisions that need discretion still belong to you or to the permission settings.
+A hook is a command you define that Claude Code runs at key points in its lifecycle. Hooks make selected actions run deterministically instead of relying on the model to decide whether to run them. I think they fit work that shouldn't need a fresh judgment each time: formatting, running tests, or blocking an edit to a given file and explaining why. Decisions that need discretion still belong to you or to the permission settings.
 
 Common moments include:
 
@@ -41,7 +41,7 @@ _A concept illustration, not the real UI. The four moments can be: before a tool
 
 ## Where to Put the Settings
 
-The examples in this post go in `.claude/settings.json` at the project root. You can commit that file so everyone on the project shares it. Other locations include `~/.claude/settings.json`, which applies to all of your projects on this machine, and `.claude/settings.local.json`, which stays out of version control. Hooks from the different layers are merged; one layer does not replace another.
+I put every example in this post in `.claude/settings.json` at the project root. You can commit that file so everyone on the project shares it. Other locations include `~/.claude/settings.json`, which applies to all of your projects on this machine, and `.claude/settings.local.json`, which stays out of version control. Hooks from the different layers are merged; one layer does not replace another.
 
 The file is JSON: no comments, and no trailing comma after the last item. The structure has three layers: the event name, a group of rules with a matcher, then the hooks to run.
 
@@ -75,7 +75,7 @@ Add this to the project's `.claude/settings.json` (if the file already has a `"h
 }
 ```
 
-**What it does:** after a tool successfully edits a file, the command reads the file path from the input JSON and runs `npx prettier --write` on it. This is adapted from the official guide's Prettier example: the path is stored in a variable, then quoted and passed to `npx prettier --write`, so a path with spaces or apostrophes is not split.
+**What it does:** after a tool successfully edits a file, the command reads the file path from the input JSON and runs `npx prettier --write` on it. I adapted this from the official guide's Prettier example: the path is stored in a variable, then quoted and passed to `npx prettier --write`, so a path with spaces or apostrophes is not split.
 
 **What you get:** on success, the conversation usually shows no message; check whether the file was reformatted. The official check is to ask Claude to add a line with single-quoted strings to a JavaScript file, then open the file and see whether they were rewritten to double quotes (with Prettier's default settings).
 
@@ -83,7 +83,7 @@ Add this to the project's `.claude/settings.json` (if the file already has a `"h
 
 ## Block That Edit to a Sensitive File: PreToolUse
 
-**When to use it:** you don't want Claude to change `.env`, files under `.git/`, or `package-lock.json` with `Edit` or `Write`. This means blocking that change and feeding the reason back to Claude, not "the AI can't touch these files."
+**When to use it:** you don't want Claude to change `.env`, files under `.git/`, or `package-lock.json` with `Edit` or `Write`. What I mean here is blocking that change and feeding the reason back to Claude, not "the AI can't touch these files."
 
 First add `.claude/hooks/protect-files.sh` (the official guide's protected-file example, including Windows path normalization):
 
@@ -131,7 +131,7 @@ _A concept illustration, not a real permission screen. This hook blocks that Edi
 
 **What you get:** if the path matches a protected pattern, that change does not run, and Claude sees the reason.
 
-**Next step:** remember that matching only `Edit|Write` does not catch changes made through `Bash` or `PowerShell`; the limits section covers how to close that gap. To run tests when a turn ends, add a Stop hook.
+**Next step:** remember that matching only `Edit|Write` does not catch changes made through `Bash` or `PowerShell`; I cover how to close that gap in the limits section. To run tests when a turn ends, add a Stop hook.
 
 ## Run Tests When the Turn Ends: Stop
 
@@ -139,7 +139,7 @@ _A concept illustration, not a real permission screen. This hook blocks that Edi
 
 A Stop hook has no matcher. It runs whenever a reply ends, and it does not run if you interrupted. If the hook caused the conversation to continue, `stop_hook_active` in the input is `true`. The official docs say to check this field, or to read the transcript, so you don't keep blocking on a condition that will never resolve. After stop hooks have continued the turn eight times in a row, Claude Code ends the turn anyway; the count resets each time Claude calls a tool.
 
-Add `.claude/hooks/run-tests-on-stop.sh`. This example uses `bun test` to match the Bun scenario later in the post; swap in your own test command, such as `npm test` or `pytest`:
+Add `.claude/hooks/run-tests-on-stop.sh`. I chose `bun test` here to match the Bun scenario later in the post; swap in your own test command, such as `npm test` or `pytest`:
 
 ```bash
 #!/bin/bash
@@ -239,24 +239,24 @@ You can add these four hooks one at a time; you don't have to enable them all at
 
 ## Limits to Know Before You Rely on Them
 
-These limits come from the official docs; read them before you depend on hooks.
+I collected these limits from the official docs; read them before you depend on hooks.
 
-**A matcher compares tool names only.** `"Edit|Write"` does not fire when Claude changes files with `Bash` or `PowerShell`. The official suggestion: if your hook must see every file change, such as for compliance scanning or audit logging, add a Stop hook that scans the working tree once per turn; for per-call coverage, also match `Bash|PowerShell` and have the script list modified and untracked files with `git status --porcelain`. To run a hook when a specific file changes on disk, whoever wrote it, use [FileChanged](https://code.claude.com/docs/en/hooks#filechanged). So the protection script above should be read as "blocks that Edit or Write," not as "the AI can never touch these files."
+**A matcher compares tool names only.** `"Edit|Write"` does not fire when Claude changes files with `Bash` or `PowerShell`. The official suggestion: if your hook must see every file change, such as for compliance scanning or audit logging, add a Stop hook that scans the working tree once per turn; for per-call coverage, also match `Bash|PowerShell` and have the script list modified and untracked files with `git status --porcelain`. To run a hook when a specific file changes on disk, whoever wrote it, use [FileChanged](https://code.claude.com/docs/en/hooks#filechanged). So I describe the protection script above only as "blocks that Edit or Write," and you shouldn't read it as "the AI can never touch these files."
 
 ![The front gate is guarded, a side path is not; matching only Edit and Write misses changes made through commands](bash-bypass.webp){: w="1280" h="720" }
 _A concept illustration. The matcher watches named tools; changes made through Bash or PowerShell take another path._
 
-**The `if` field is best-effort only.** Besides a matcher, tool events can take an `if` filter, using permission-rule syntax on the tool name and arguments, for example `"Edit(*.ts)"`. The official docs call this best-effort. For a hard allow or deny, use the permission system, not a hook alone. `if` only works on tool-related events; adding it to any other event prevents the hook from running.
+**The `if` field is best-effort only.** Besides a matcher, tool events can take an `if` filter, using permission-rule syntax on the tool name and arguments, for example `"Edit(*.ts)"`. The official docs call this best-effort. For a hard allow or deny, I'd use the permission system, not a hook alone. `if` only works on tool-related events; adding it to any other event prevents the hook from running.
 
 **A hook that returns allow does not bypass deny.** Deny rules in settings, including enterprise managed deny lists, still apply. By contrast, a hook's deny holds in every permission mode. Exit code 0 is not an approval either.
 
 **PostToolUse can't undo what already happened.** The hook runs after the tool has executed, so file writes, commands, and network requests have already taken effect. Exit code 2 can't roll them back here either; it only passes a message to Claude. To block or change a call before it runs, use PreToolUse.
 
-**Hooks run with your full user permissions.** The official warning: command hooks execute shell commands with your full user permissions, and can modify, delete, or access any files your account can access. Review the commands, and try them in a safe setting, before you add them. Before you use hooks in a shared or production environment, read [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations). In an interactive session you're asked whether to trust the folder; with `claude -p` or the SDK, the official docs say the dialog is never shown and the folder is treated as trusted, so hooks in a repo's `.claude/settings.json` may run in a directory you've never confirmed. So hooks are not a security boundary, and they can't block every path. To have the operating system limit what commands can read and write, see [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/).
+**Hooks run with your full user permissions.** The official warning: command hooks execute shell commands with your full user permissions, and can modify, delete, or access any files your account can access. Review the commands, and try them in a safe setting, before you add them. Before you use hooks in a shared or production environment, read [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations). In an interactive session you're asked whether to trust the folder; with `claude -p` or the SDK, the official docs say the dialog is never shown and the folder is treated as trusted, so hooks in a repo's `.claude/settings.json` may run in a directory you've never confirmed. So I don't treat hooks as a security boundary, and they can't block every path. To have the operating system limit what commands can read and write, see my post [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/).
 
 ## Conclusion
 
-Hooks make formatting, sensitive-file reminders, and end-of-turn tests happen at fixed times, without asking again. Start by adding one hook in the project's `.claude/settings.json`, confirm it in `/hooks`, then add more as you need them. Keep in mind that a matcher compares tool names only, so Bash or PowerShell can go around a rule that only watches Edit and Write; `if` is best-effort; allow does not bypass deny; and PostToolUse can't undo work that's already done. Treat hooks as fixed checks that save repetition, not as the last line of defense.
+Hooks make formatting, sensitive-file reminders, and end-of-turn tests happen at fixed times, without asking again. I suggest starting with one hook in the project's `.claude/settings.json`, confirming it in `/hooks`, then adding more as you need them. Keep in mind that a matcher compares tool names only, so Bash or PowerShell can go around a rule that only watches Edit and Write; `if` is best-effort; allow does not bypass deny; and PostToolUse can't undo work that's already done. To me, hooks are fixed checks that save repetition, not the last line of defense.
 
 ## Further Reading
 

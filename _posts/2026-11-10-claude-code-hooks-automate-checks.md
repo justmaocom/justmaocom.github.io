@@ -12,16 +12,16 @@ image:
 
 每次請 AI 改完檔，我都還要自己想：排版有沒有跑？測試有沒有過？有沒有不小心改到 `.env`？這些事其實不必每次開口。Claude Code（在終端機裡使用的 AI 程式助理）提供 hooks：在對話過程的固定時機，執行你事先寫好的指令，而不是等 AI 自己決定要不要做。
 
-這篇說明 hooks 是什麼、什麼時候適合用，以及怎麼在專案裡設定四種常見檢查：改完檔自動排版、碰到敏感檔時擋下該次修改、收工時跑測試，還有對話被壓縮後把專案規則補回來。最後會說明它擋不下什麼，因為 hooks 不是安全邊界。
+這篇我會說明 hooks 是什麼、什麼時候適合用，以及怎麼在專案裡設定四種常見檢查：改完檔自動排版、碰到敏感檔時擋下該次修改、收工時跑測試，還有對話被壓縮後把專案規則補回來。最後我會說明它擋不下什麼，因為 hooks 不是安全邊界。
 
-> **版本**：本文依 2026-11-10（台北時間）讀取的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)與 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）整理。當天 npm 上最新的 Claude Code 版本是 2.1.322。之後的版本可能會調整事件與欄位。
+> **版本**：我寫這篇時，參考的是 2026-11-10（台北時間）當天的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)與 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）。當天 npm 上最新的 Claude Code 版本是 2.1.322。之後的版本可能會調整事件與欄位。
 {: .prompt-info }
 
-若你關心的是第三方 skill 和 MCP 帶來的權限風險，見[先前這篇](/posts/coding-agent-supply-chain-permission-risks/)。本篇只談日常可以自己設定的自動檢查。
+若你關心的是第三方 skill 和 MCP 帶來的權限風險，我在[先前這篇](/posts/coding-agent-supply-chain-permission-risks/)談過。這篇我只談日常可以自己設定的自動檢查。
 
 ## hooks 是什麼，什麼時候用
 
-Hook 是你定義的指令，Claude Code 會在生命週期的關鍵時機執行它。官方的說法是：某些動作會固定發生，而不依賴模型自己選擇要不要跑。適合用在不需要臨場判斷、每次都該做的事，例如排版、跑測試、或在改到特定檔案時先擋下來並說明原因。需要斟酌的決定，還是留給你或權限設定。
+Hook 是你定義的指令，Claude Code 會在生命週期的關鍵時機執行它。官方的說法是：某些動作會固定發生，而不依賴模型自己選擇要不要跑。我認為它適合用在不需要臨場判斷、每次都該做的事，例如排版、跑測試、或在改到特定檔案時先擋下來並說明原因。需要斟酌的決定，還是留給你或權限設定。
 
 常見的時機包括：
 
@@ -41,7 +41,7 @@ _概念圖，不是實際介面。四個時機依序可以是：工具執行前�
 
 ## 設定放在哪裡
 
-本篇的範例都寫在專案根目錄的 `.claude/settings.json`。這個檔可以提交到 repo，讓同一專案的人共用。其他位置還有：只作用於你本機所有專案的 `~/.claude/settings.json`，以及不會進版控的 `.claude/settings.local.json`。各層的 hooks 會合併生效，不會互相取代。
+這篇的範例，我都寫在專案根目錄的 `.claude/settings.json`。這個檔可以提交到 repo，讓同一專案的人共用。其他位置還有：只作用於你本機所有專案的 `~/.claude/settings.json`，以及不會進版控的 `.claude/settings.local.json`。各層的 hooks 會合併生效，不會互相取代。
 
 設定檔是 JSON，不能有註解，也不能在最後一個項目後面多寫逗號。結構是三層：先寫事件名稱，再寫一組帶 matcher 的規則，最後是要執行的 hooks。
 
@@ -75,7 +75,7 @@ Matcher 是用來過濾「這次要不要跑」的條件。對 PreToolUse 和 Po
 }
 ```
 
-**它會做什麼：** 工具成功改檔後，這條指令從輸入的 JSON 取出檔案路徑，交給 `npx prettier --write` 就地排版。這是依官方指南的 Prettier 範例改寫的：先把路徑存進變數、再加引號交給 `npx prettier --write`，路徑裡有空白或單引號也不會被拆開。
+**它會做什麼：** 工具成功改檔後，這條指令從輸入的 JSON 取出檔案路徑，交給 `npx prettier --write` 就地排版。這是我依官方指南的 Prettier 範例改寫的：先把路徑存進變數、再加引號交給 `npx prettier --write`，路徑裡有空白或單引號也不會被拆開。
 
 **你會得到什麼：** 成功時，對話裡通常不會跳出訊息；要看的是檔案是否已被重排。官方的檢查方式是：請 Claude 在 JavaScript 檔裡加上單引號字串，再開檔確認是否被改成雙引號（依 Prettier 預設設定）。
 
@@ -83,7 +83,7 @@ Matcher 是用來過濾「這次要不要跑」的條件。對 PreToolUse 和 Po
 
 ## 改到敏感檔時擋下該次修改：PreToolUse
 
-**什麼時候用：** 你不希望 Claude 用 `Edit` 或 `Write` 直接改 `.env`、`.git/` 裡的檔，或 `package-lock.json`。這裡說的是擋下該次修改並把原因回饋給 Claude，不是「AI 不能碰這些檔」。
+**什麼時候用：** 你不希望 Claude 用 `Edit` 或 `Write` 直接改 `.env`、`.git/` 裡的檔，或 `package-lock.json`。我這裡說的是擋下該次修改並把原因回饋給 Claude，不是「AI 不能碰這些檔」。
 
 先新增 `.claude/hooks/protect-files.sh`（官方指南保護檔範例的寫法，並處理 Windows 路徑的反斜線）：
 
@@ -131,7 +131,7 @@ _概念圖，不是實際權限畫面。這個 hook 擋的是該次 Edit 或 Wri
 
 **你會得到什麼：** 若路徑符合保護條件，該次修改不會執行，Claude 會看到擋下的原因。
 
-**下一步：** 請記得，只用 `Edit|Write` 擋不住透過 `Bash` 或 `PowerShell` 改檔的情況，限制一節會說明怎麼補。若還想在收工時跑測試，接著設定 Stop。
+**下一步：** 請記得，只用 `Edit|Write` 擋不住透過 `Bash` 或 `PowerShell` 改檔的情況，限制一節我會說明怎麼補。若還想在收工時跑測試，接著設定 Stop。
 
 ## 收工時跑測試：Stop
 
@@ -139,7 +139,7 @@ _概念圖，不是實際權限畫面。這個 hook 擋的是該次 Edit 或 Wri
 
 Stop hook 沒有 matcher。它在每次回覆結束時都會跑，使用者中斷時不會跑。若 hook 讓對話繼續，輸入裡的 `stop_hook_active` 會是 `true`。官方提醒一定要檢查這個欄位，或改讀對話紀錄，以免在永遠不會滿足的條件上一直擋下去。連續擋下並讓對話繼續八次之後，Claude Code 會強制結束這一輪；Claude 一旦再呼叫工具，這個計數就會歸零。
 
-新增 `.claude/hooks/run-tests-on-stop.sh`。這裡用 `bun test`，配合後面的 Bun 情境；請換成你專案自己的測試指令，例如 `npm test` 或 `pytest`：
+新增 `.claude/hooks/run-tests-on-stop.sh`。我在這裡用 `bun test`，配合後面的 Bun 情境；請換成你專案自己的測試指令，例如 `npm test` 或 `pytest`：
 
 ```bash
 #!/bin/bash
@@ -239,24 +239,24 @@ exit 0
 
 ## 使用前要先知道的限制
 
-這些限制都來自官方文件，使用前請先看過。
+這些限制是我從官方文件整理出來的，使用前請先看過。
 
-**Matcher 只比工具名稱。** `"Edit|Write"` 在 Claude 改用 `Bash` 或 `PowerShell` 改檔時不會觸發。官方建議：若必須看到每一次改檔，例如做合規掃描或稽核紀錄，加一個 Stop hook，在每輪結束時掃描工作目錄；若要在每次呼叫時都看到，另外 match `Bash|PowerShell`，並用 `git status --porcelain` 列出已修改和尚未追蹤的檔案。若只在意某個檔案被寫入，不論是誰寫的，改用 [FileChanged](https://code.claude.com/docs/en/hooks#filechanged)。因此，上面的保護腳本只能寫成「擋下該次 Edit 或 Write」，不要理解成 AI 完全不能碰到這些檔。
+**Matcher 只比工具名稱。** `"Edit|Write"` 在 Claude 改用 `Bash` 或 `PowerShell` 改檔時不會觸發。官方建議：若必須看到每一次改檔，例如做合規掃描或稽核紀錄，加一個 Stop hook，在每輪結束時掃描工作目錄；若要在每次呼叫時都看到，另外 match `Bash|PowerShell`，並用 `git status --porcelain` 列出已修改和尚未追蹤的檔案。若只在意某個檔案被寫入，不論是誰寫的，改用 [FileChanged](https://code.claude.com/docs/en/hooks#filechanged)。因此，我只把上面的保護腳本說成「擋下該次 Edit 或 Write」，不要理解成 AI 完全不能碰到這些檔。
 
 ![正門有人看守，側路仍可繞過；只比對 Edit 和 Write 擋不住經由指令改檔](bash-bypass.webp){: w="1280" h="720" }
 _概念圖。Matcher 守的是指定的工具名稱；經由 Bash 或 PowerShell 改檔，會走另一條路。_
 
-**`if` 只能盡量過濾。** 除了 matcher，工具事件還能加 `if`，用權限規則的語法依工具名稱和參數決定要不要啟動 hook，例如 `"Edit(*.ts)"`。官方寫明它是 best-effort（盡力而為，不保證每次都濾對）。真正要強制允許或禁止時，應使用權限系統，而不是只靠 hook。`if` 只對工具相關事件有效，加在其他事件上反而會讓 hook 完全不跑。
+**`if` 只能盡量過濾。** 除了 matcher，工具事件還能加 `if`，用權限規則的語法依工具名稱和參數決定要不要啟動 hook，例如 `"Edit(*.ts)"`。官方寫明它是 best-effort（盡力而為，不保證每次都濾對）。真正要強制允許或禁止時，我會用權限系統，而不是只靠 hook。`if` 只對工具相關事件有效，加在其他事件上反而會讓 hook 完全不跑。
 
 **Hook 回傳 allow，不會繞過 deny。** 設定裡的拒絕規則，包括組織代管的拒絕清單，仍然有效。相對地，hook 的 deny 在各種權限模式都有效。結束碼 0 也不等於核准。
 
 **PostToolUse 不能還原已經發生的事。** 工具執行完才會跑到這個 hook，檔案寫入、指令執行或網路請求都已經生效。Exit 2 在這裡也不能撤回，只能把說明交給 Claude。要事先阻擋或改寫呼叫，用 PreToolUse。
 
-**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。所以 hooks 不是安全邊界，擋不住所有修改途徑。要由作業系統限制指令能讀寫的範圍，見[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)。
+**Hook 以你的完整使用者權限執行。** 官方警告：command hook 會用你的帳號權限執行指令，能改、刪或讀取這個帳號能碰到的任何檔案。加進設定前，先自己看過、在安全的環境試跑指令。在共用或正式環境使用前，請先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。互動工作階段會先問你是否信任該資料夾；但用 `claude -p` 或 SDK 時，官方說明不會跳出這個對話，會直接把資料夾視為已信任，因此 repo 裡的 `.claude/settings.json` 也可能在你從未確認過的目錄裡被執行。所以我不把 hooks 當成安全邊界，它擋不住所有修改途徑。要由作業系統限制指令能讀寫的範圍，可以參考我寫的[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)。
 
 ## 結論
 
-Hooks 讓排版、敏感檔提醒和收工測試在固定時機自動發生，不必每次再開口。先從專案的 `.claude/settings.json` 加一個 hook，用 `/hooks` 確認它出現在清單裡，再依需要往上加。同時要記得：matcher 只看工具名稱，Bash 或 PowerShell 可以繞過只看守 Edit 和 Write 的規則；`if` 只是盡量過濾；allow 不會繞過 deny；PostToolUse 無法還原已執行的動作。把它當成提高效率的固定檢查，而不是最後一道防線。
+Hooks 讓排版、敏感檔提醒和收工測試在固定時機自動發生，不必每次再開口。我建議先從專案的 `.claude/settings.json` 加一個 hook，用 `/hooks` 確認它出現在清單裡，再依需要往上加。同時要記得：matcher 只看工具名稱，Bash 或 PowerShell 可以繞過只看守 Edit 和 Write 的規則；`if` 只是盡量過濾；allow 不會繞過 deny；PostToolUse 無法還原已執行的動作。在我看來，它是提高效率的固定檢查，而不是最後一道防線。
 
 ## 延伸閱讀
 
