@@ -2,7 +2,7 @@
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
 # sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述、
-# llms.txt 的文章清單、給 agent 的 Markdown 版本。
+# llms.txt 的文章清單、給 agent 的 Markdown 版本、文章的 BreadcrumbList。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -12,6 +12,7 @@
 
 require 'cgi'
 require 'json'
+require 'uri'
 require 'yaml'
 
 config = YAML.load_file(File.expand_path('../_config.yml', __dir__))
@@ -31,6 +32,7 @@ config['languages'].each do |lang|
   description = ->(html) { html[/<meta name="description" content="([^"]*)"/, 1] }
   home_description = (description[File.read("#{ root }/index.html")] rescue nil)
   json_ld = ->(html) { JSON.parse(html[%r{<script type="application/ld\+json">(.*?)</script>}m, 1]) }
+  breadcrumbs = ->(html) { html.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json) }.select { |d| d['@type'] == 'BreadcrumbList' } }
   # [說明, 檔案, 檔案內容應滿足的條件]
   checks = [
     ['文章 JSON-LD 的 author', Dir["#{ root }/posts/*/index.html"],
@@ -69,7 +71,20 @@ config['languages'].each do |lang|
     # Cloudflare 把帶 Accept: text/markdown 的請求改寫到這些檔案，少一份 agent 就會拿到 404
     ['文章與「關於」頁有 Markdown 版本', Dir["#{ root }/{posts/*,about}/index.html"].map { |file| file.sub(/html\z/, 'md') },
      ->(s) { !s.strip.empty? && s !~ /<!DOCTYPE|\{% (?:end)?raw %\}/i }],
-    ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }]
+    ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }],
+    # 首頁 → 分類 → 文章。分類網址要與頁面上的分類連結相同、指向已建置的分類頁；
+    # 最後一項沒有 item，名稱與 <title> 相同（seo-tag 的 headline 會把 ' 換成 ’，不能拿來比）
+    ['文章的 BreadcrumbList', Dir["#{ root }/posts/*/index.html"],
+     ->(s) {
+       items = breadcrumbs[s].then { |lists| lists.size == 1 ? lists[0]['itemListElement'] : [] }
+       categories = items[1...-1].to_a
+       # 只看文章底部的分類連結，內文也可能連到分類頁
+       links = s[%r{class="post-tail-wrapper.*?</div>}m].to_s.scan(%r{href="(#{ config['baseurl'] }#{ prefix }/categories/[^"]+)"}).flatten.map { |href| "#{ config['url'] }#{ href }" }
+       items.size >= 2 && items.map { |i| i['position'] } == (1..items.size).to_a &&
+         items[0]['item'] == "#{ origin }#{ prefix }/" && categories.map { |i| i['item'] } == links &&
+         categories.all? { |i| File.exist?("#{ root }#{ URI.decode_uri_component(i['item'].delete_prefix("#{ origin }#{ prefix }")) }index.html") } &&
+         !items[-1].key?('item') && items[-1]['name'] == title[s].delete_suffix(" | #{ suffix }")
+     }]
   ]
 
   summary = checks.map do |desc, files, valid|
