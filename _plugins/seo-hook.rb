@@ -14,6 +14,8 @@
 # - 每頁第一張封面圖是 LCP 元素，主題卻對所有圖片加 loading="lazy"，瀏覽器要等版面算完才開始下載。
 #   這裡改成立即載入並提高優先度。
 # - seo-tag 把圖片型別寫成 imageObject，schema.org 的型別名稱有分大小寫，改成 ImageObject。
+# - 文章頁另外輸出一段 BreadcrumbList JSON-LD（首頁 → 分類 → 子分類 → 文章），分類網址取自
+#   jekyll-archives 產生的分類頁。
 #
 # 與其他 hook 一樣以精確字串比對改寫輸出，成品由 tools/check-seo.rb 檢查。
 
@@ -93,6 +95,29 @@ module SeoHook
     doc.output = doc.output.sub('"@type":"imageObject"', '"@type":"ImageObject"')
   end
 
+  # 首頁 → 分類 → 子分類 → 文章。polyglot 只補 href="…" 的語系前綴，這裡的網址要自己帶上。
+  # 最後一項不寫 item，Google 會用本頁網址；item 不能寫成 @id，check-i18n 要求 @id 都是本頁網址。
+  def add_breadcrumb(doc)
+    site = doc.site
+    lang = site.active_lang == site.default_lang ? '' : "/#{ site.active_lang }"
+    base = "#{ site.config['url'] }#{ site.baseurl }#{ lang }"
+    # 與主題 topbar 的 {{ tabs.home | capitalize }} 相同
+    home = site.data.dig('locales', site.config['lang'], 'tabs', 'home').to_s.capitalize
+    categories = Array(doc.data['categories']).filter_map do |name|
+      archive = site.pages.find { |page| page.data['layout'] == 'category' && page.title == name }
+      { 'name' => name, 'item' => "#{ base }#{ archive.url }" } if archive
+    end
+    items = [{ 'name' => home, 'item' => "#{ base }/" }, *categories, { 'name' => doc.data['title'] }]
+    data = {
+      '@context' => 'https://schema.org',
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => items.each.with_index(1).map { |item, i| { '@type' => 'ListItem', 'position' => i }.merge(item) }
+    }
+    json = JSON.generate(data).gsub('</', '<\/')
+    # 接在 seo-tag 那段之後，check-seo 讀第一段 JSON-LD 當文章資料
+    doc.output = doc.output.sub(JSON_LD) { "#{ $& }#{ $1 }#{ json }#{ $3 }" }
+  end
+
   def drop_tab_lastmod(sitemap)
     site = sitemap.site
     origin = "#{ site.config['url'] }#{ site.baseurl }"
@@ -150,6 +175,7 @@ Jekyll::Hooks.register [:documents, :pages], :post_render do |doc|
   SeoHook.retitle_listing(doc)
   SeoHook.prioritize_cover(doc)
   SeoHook.fix_image_type(doc)
+  SeoHook.add_breadcrumb(doc) if doc.data['layout'] == 'post'
   SeoHook.fix_tab(doc) if doc.is_a?(Jekyll::Document) && doc.collection.label == 'tabs'
 end
 

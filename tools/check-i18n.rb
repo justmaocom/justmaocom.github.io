@@ -33,10 +33,13 @@ failures = []
   checks = [
     ['og:url', html, ->(s) { head[s].scan(/property="og:url" content="([^"]*)"/).flatten }, is_local_page],
     ['JSON-LD @id', html, ->(s) { head[s].scan(/"@id":"([^"]*)"/).flatten }, is_local_page],
-    # 只取最外層的 url；author、image 的 url 不屬於本頁
+    # 只取最外層的 url；author、image 的 url 不屬於本頁，BreadcrumbList 沒有 url
     ['JSON-LD url', html,
-     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json)['url'] } },
+     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json) }.reject { |d| d['@type'] == 'BreadcrumbList' }.map { |d| d['url'] } },
      is_local_page],
+    ['JSON-LD 麵包屑網址', html,
+     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json) }.select { |d| d['@type'] == 'BreadcrumbList' }.flat_map { |d| d['itemListElement'].filter_map { |i| i['item'] } } },
+     ->(url, _) { url.start_with?("#{ origin }/#{ lang }/") }],
     ['JSON-LD 作者網址', html,
      ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).flat_map { |(json)| JSON.parse(json).then { |d| [d.dig('author', 'url'), d.dig('mainEntity', 'url')] } }.compact },
      ->(url, _) { url.start_with?("#{ origin }/#{ lang }/") }],
