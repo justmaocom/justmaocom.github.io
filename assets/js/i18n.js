@@ -9,6 +9,8 @@
  *    進來的，留在他點的那個語系版本（Google 不建議自動把使用者帶到另一個語系）。
  *    站內換頁不會再導向，所以使用者點進其他語系的連結後就留在那裡。
  * 2. 在頂欄搜尋框旁加上語系選單，選了之後記住該選擇。
+ * 3. 上面沒導向、但瀏覽器語系和頁面不同的站外訪客，在視窗底部顯示提示列，
+ *    由使用者自己決定要不要切換。點連結等同在選單選了該語系；關閉後不再顯示。
  */
 (() => {
   'use strict';
@@ -35,6 +37,13 @@
     'zh-CN': '切换语言',
     en: 'Switch language'
   };
+  // 提示列寫給看得懂目標語系的讀者，所以依目標語系取字串，不是依目前頁面
+  const HINT = {
+    'zh-TW': { text: '本頁也有繁體中文版。', link: '切換到繁體中文', close: '關閉' },
+    'zh-CN': { text: '本页也有简体中文版。', link: '切换到简体中文', close: '关闭' },
+    en: { text: 'This page is also available in English.', link: 'Switch to English', close: 'Close' }
+  };
+  const HINT_KEY = 'site-lang-hint-dismissed';
   // 搜尋引擎與預覽機器人不做導向，讓它們依 hreflang 各自收錄
   // Search Console 的網址檢查與 Rich Results Test 用 Google-InspectionTool，UA 裡沒有 bot 字樣
   const BOT =
@@ -159,11 +168,62 @@
     trigger.before(group);
   }
 
+  // 條件與 redirect() 互補：站外進來、沒手動選過語系，只是不自動導向
+  function buildHint() {
+    if (BOT.test(navigator.userAgent) || !isExternalEntry() || stored()) return;
+    try {
+      if (localStorage.getItem(HINT_KEY)) return;
+    } catch (e) {
+      /* 讀不到就照常顯示，關閉只對這一頁有效 */
+    }
+
+    const target = detect();
+    const path = alternates()[target];
+    if (target === current || !path) return;
+
+    const s = HINT[target];
+    const hint = document.createElement('aside');
+    hint.className = 'lang-hint';
+    hint.lang = target;
+    hint.setAttribute('aria-label', LANGS[target]);
+
+    const text = document.createElement('span');
+    text.textContent = s.text;
+
+    const link = document.createElement('a');
+    link.href = path;
+    link.hreflang = target;
+    link.textContent = s.link;
+    link.addEventListener('click', () => remember(target));
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'lang-hint-close';
+    close.setAttribute('aria-label', s.close);
+    close.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    close.addEventListener('click', () => {
+      hint.remove();
+      try {
+        localStorage.setItem(HINT_KEY, '1');
+      } catch (e) {
+        /* 寫不進去就只關這一次 */
+      }
+    });
+
+    hint.append(text, link, close);
+    document.body.append(hint);
+  }
+
+  function init() {
+    buildSwitcher();
+    buildHint();
+  }
+
   if (redirect()) return;
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', buildSwitcher);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    buildSwitcher();
+    init();
   }
 })();
