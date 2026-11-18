@@ -264,6 +264,51 @@ html.mermaid-zoom-open {
   }
 }
 
+/* --- 語系提示列（搭配 assets/js/i18n.js）：fixed 在視窗底部，插入時不推擠版面（不影響 CLS） --- */
+
+.lang-hint {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  /* 比照主題的 #back-to-top；手機版展開的側欄（z-index 2）要蓋過它 */
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: max-content;
+  max-width: calc(100% - 2rem);
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 1.5rem;
+  background: var(--card-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--text-color);
+  font-size: 0.875rem;
+  transform: translateX(-50%);
+
+  a {
+    color: var(--link-color);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+}
+
+.lang-hint-close {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted-color);
+
+  &:hover,
+  &:focus-visible {
+    background: var(--btn-border-color);
+    color: var(--text-color);
+  }
+}
+
 /* --- 專案頁卡片（搭配 _includes/projects.html） --- */
 
 /* 每欄至少 18rem 且至少半寬：寬度夠時一行兩張，不夠時自動變一欄，不會出現第三欄 */
