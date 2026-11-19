@@ -70,7 +70,7 @@ config['languages'].each do |lang|
      ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }],
     # Cloudflare 把帶 Accept: text/markdown 的請求改寫到這些檔案，少一份 agent 就會拿到 404
     ['文章與「關於」頁有 Markdown 版本', Dir["#{ root }/{posts/*,about}/index.html"].map { |file| file.sub(/html\z/, 'md') },
-     ->(s) { !s.strip.empty? && s !~ /<!DOCTYPE|\{% (?:end)?raw %\}/i }],
+     ->(s) { !s.strip.empty? && s !~ /\A\s*<!DOCTYPE|\{% (?:end)?raw %\}/i }],
     ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }],
     # 首頁 → 分類 → 文章。分類網址要與頁面上的分類連結相同、指向已建置的分類頁；
     # 最後一項沒有 item，名稱與 <title> 相同（seo-tag 的 headline 會把 ' 換成 ’，不能拿來比）
