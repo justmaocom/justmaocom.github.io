@@ -22,6 +22,26 @@ default_lang = config['default_lang']
 tabs = Dir[File.expand_path('../_tabs/*.md', __dir__)].map { |file| File.basename(file, '.md') }
 failures = []
 
+# 文章會在程式碼區塊展示 HTML 原始碼，所以 <!DOCTYPE 不看已閉合的 fenced code；未閉合的整段保留
+def markdown_without_closed_fences(text)
+  lines = text.lines
+  kept = []
+  i = 0
+  while i < lines.size
+    line = lines[i]
+    if (m = line.match(/\A {0,3}(`{3,}|~{3,})(.*)\r?\n?\z/)) && (m[1].start_with?('~') || !m[2].include?('`'))
+      close = /\A {0,3}#{Regexp.escape(m[1][0])}{#{m[1].size},}[ \t]*\r?\n?\z/
+      j = (i + 1...lines.size).find { |k| lines[k].match?(close) }
+      return (kept + lines[i..]).join unless j
+      i = j + 1
+      next
+    end
+    kept << line
+    i += 1
+  end
+  kept.join
+end
+
 config['languages'].each do |lang|
   root = lang == default_lang ? site_dir : "#{ site_dir }/#{ lang }"
   prefix = lang == default_lang ? '' : "/#{ lang }"
@@ -70,7 +90,7 @@ config['languages'].each do |lang|
      ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }],
     # Cloudflare 把帶 Accept: text/markdown 的請求改寫到這些檔案，少一份 agent 就會拿到 404
     ['文章與「關於」頁有 Markdown 版本', Dir["#{ root }/{posts/*,about}/index.html"].map { |file| file.sub(/html\z/, 'md') },
-     ->(s) { !s.strip.empty? && s !~ /<!DOCTYPE|\{% (?:end)?raw %\}/i }],
+     ->(s) { !s.strip.empty? && s !~ /\{% (?:end)?raw %\}/i && markdown_without_closed_fences(s) !~ /<!DOCTYPE/i }],
     ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }],
     # 首頁 → 分類 → 文章。分類網址要與頁面上的分類連結相同、指向已建置的分類頁；
     # 最後一項沒有 item，名稱與 <title> 相同（seo-tag 的 headline 會把 ' 換成 ’，不能拿來比）
