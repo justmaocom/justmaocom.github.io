@@ -33,13 +33,13 @@ i18n_site:
     home_title: 只是一根毛 JustMao｜Coding Agent 工作流程、Skill 与信息安全
     tagline: 从问题开始，把答案写下来
     description: >-
-      JustMao 的个人网站，记录 coding agent 的 skill 与工作流程、agent 带来的信息安全问题，以及开源工具的源代码拆解。
+      JustMao 的个人技术博客，分享 Coding Agent 的 Skill 与工作流程、Claude Code 与 Codex 的配置、Agent 权限与供应链风险，以及开源工具的源代码拆解。文章附操作示例、核查版本、失败场景与检查清单，帮助工程师梳理需求、验证修改，判断哪些工作可以交给 AI，哪些仍需由人把关。
   en:
     title: JustMao
     home_title: "JustMao — Coding Agent Skills, Workflows & Security"
     tagline: Start with a question, write down the answer
     description: >-
-      JustMao's personal site: coding agent skills and workflows, security problems that agents bring in, and source-code deep dives into open-source tools.
+      JustMao's tech blog: coding agent skills and workflows, Claude Code and Codex setup, agent permissions and supply-chain risk, and open-source code deep dives.
 
 # Change to your timezone › https://zones.arilyn.cc
 timezone: Asia/Taipei
@@ -65,7 +65,7 @@ author:
 tagline: 從問題開始，把答案寫下來 # it will display as the subtitle
 
 description: >- # used by seo meta and the atom feed
-  JustMao 的個人網站，記錄 coding agent 的 skill 與工作流程、agent 帶來的資安問題，以及開源工具的原始碼拆解。
+  JustMao 的個人技術部落格，分享 Coding Agent 的 Skill 與工作流程、Claude Code 與 Codex 的設定、Agent 權限與供應鏈風險，以及開源工具的原始碼拆解。文章附操作範例、查證版本、失敗情境與檢查清單，幫助工程師釐清需求、驗證修改，判斷哪些工作可以交給 AI，哪些仍需由人把關。
 
 # Fill in the protocol & hostname for your site.
 # E.g. 'https://username.github.io', note that it does not end with a '/'.

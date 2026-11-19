@@ -1,6 +1,6 @@
 ---
 title: "AI 寫程式變快了，產品為什麼還是交不出去？我怎麼理解 AI 原生開發流程"
-description: "讀完 Anthropic 的 AI-native SDLC playbook，我用候補通知功能拆解六個開發階段，附需求草稿、提示詞、測試情境、PR 範例與上線演練，再談個人部落格可以怎麼開始。"
+description: "AI 寫程式變快，為什麼產品仍交不出去？我讀 Anthropic 的 AI-native SDLC playbook，用假想的候補通知功能走過規劃、設計、開發、測試、部署與維護六階段，附需求草稿、提示詞、驗收情境、PR 範例與停止上線的演練，說明交接證據與人的決策責任，並示範如何縮小到個人部落格的小型修改。"
 date: 2026-10-29 08:30:00 +0800
 categories: [AI, 軟體開發]
 tags: [ai-native-sdlc, coding-agent, workflow, claude-code]

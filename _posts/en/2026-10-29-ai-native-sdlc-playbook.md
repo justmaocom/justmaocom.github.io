@@ -1,6 +1,6 @@
 ---
 title: "AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC"
-description: "My reading of Anthropic's AI-native SDLC playbook, with a waitlist feature worked through six stages, sample prompts, test cases, a PR template, and a smaller example for my blog."
+description: "My reading of Anthropic's AI-native SDLC playbook: a sample waitlist feature through six stages, with prompts, acceptance tests, PR review, and a drill for stopping a release."
 date: 2026-10-29 08:30:00 +0800
 categories: [AI, Software Development]
 tags: [ai-native-sdlc, coding-agent, workflow, claude-code]
