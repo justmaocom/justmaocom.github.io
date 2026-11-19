@@ -84,7 +84,7 @@ _snapshot 給出 `@e1`，點下去之後網址變了（實際輸出）_
 
 ## 步驟三：驗收一個本機表單
 
-實際用途通常是檢查你自己正在做的網頁。我寫了一個訂閱表單，只有一個 Email 欄位和一個 Subscribe 按鈕。送出後，按鈕下方應該顯示「Thanks! We sent a confirmation to」加上你填的 Email。下面是完整的 `site/index.html`。請照原樣存檔，不要重新排版，步驟四的錯誤行號才會和我的一樣：
+實際用途通常是檢查你自己正在做的網頁。我寫了一個訂閱表單，只有一個 Email 欄位和一個 Subscribe 按鈕。送出後，按鈕下方應該顯示「Thanks! We sent a confirmation to」加上你填的 Email。這個示範只更新頁面文字，不會真的寄出確認信。下面是完整的 `site/index.html`。請照原樣存檔，不要重新排版，步驟四的錯誤行號才會和我的一樣：
 
 ```html
 <!doctype html>
@@ -107,7 +107,7 @@ document.getElementById('f').addEventListener('submit', e => {
 ```
 {: file="site/index.html" }
 
-在 `site` 的上一層資料夾執行下面這行，用 Python 內建的 HTTP 伺服器把它開在 8765 埠。我自己就是在 `site` 的上一層用這行啟動的。任何能提供靜態檔案的伺服器都可以，只要網址是 `http://localhost:8765/`：
+在 `site` 的上一層資料夾執行下面這行，用 Python 內建的 HTTP 伺服器把它開在 8765 埠。啟動後，讓這個終端機保持執行，另開一個終端機操作 agent-browser。任何能提供靜態檔案的伺服器都可以，只要網址是 `http://localhost:8765/`：
 
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
@@ -122,22 +122,7 @@ agent-browser snapshot -i
 
 snapshot 列出三個元素，標題是 `e1`，Email 欄位是 `e2`，Subscribe 按鈕是 `e3`。
 
-想知道每個 ref 對應畫面上的哪裡，可以用 `screenshot --annotate`，它會在截圖上標出編號。下面兩張圖來自我最後另外跑的一次。那時其他步驟都做完了，我開了一個新的 session，先用 `set viewport 1280 800` 設定視窗大小，再依序執行下面的指令。新 session 的 ref 一樣從 `e1` 開始。依 Snapshots 文件，重新 `open` 會讓舊的 ref 失效，所以這段請在步驟四做完、`close` 之後再試：
-
-```bash
-agent-browser set viewport 1280 800
-agent-browser open http://localhost:8765/
-agent-browser snapshot -i
-agent-browser screenshot --annotate shots/annotated.png
-agent-browser close
-```
-
-![終端機實際輸出：snapshot -i 列出 heading、textbox "Email"、button "Subscribe" 三個元素；screenshot --annotate 存檔並印出 [1] @e1、[2] @e2、[3] @e3 的對照表](term-annotate.webp){: w="1102" h="388" }
-
-![agent-browser 用 --annotate 拍下的截圖：標題、Email 欄位、Subscribe 按鈕分別框上紅色的 1、2、3](page-annotated.webp){: w="1280" h="800" }
-_截圖上的 [2]、[3] 就是 snapshot 裡的 `@e2`、`@e3`_
-
-回到正式驗收的 session。我填 Email、按 Subscribe，再確認感謝訊息出現、頁面沒有 JavaScript 錯誤：
+接著填 Email、按 Subscribe，再確認感謝訊息出現，並檢查 JavaScript 錯誤：
 
 ```bash
 agent-browser fill @e2 "reader@example.com"
@@ -157,7 +142,7 @@ _正常版本的感謝訊息出現了，`errors` 也沒有任何輸出_
 
 - `wait --text "Thanks"` 等到頁面上出現這段文字才往下走，等不到就報錯。依 `wait --help`，`--text` 是子字串比對。官方 core skill 也建議用這種等待，不要用 `wait 2000` 這類固定毫秒數。
 - `get text "#msg"` 讀出 `#msg` 元素的完整內容，確認填進去的 Email 有帶到。`"#msg"` 一定要加引號。我第一次嘗試時，包指令的腳本把引號弄丟了，實際執行的是 `agent-browser get text #msg`。shell 把 `#` 之後當成註解，agent-browser 回了 `Missing arguments for: get text`。
-- `errors` 列出頁面上的 JavaScript 錯誤和未捕捉的例外。這次沒有任何輸出，代表沒有錯誤。
+- `errors` 列出頁面上的 JavaScript 錯誤和未捕捉的例外。這次沒有任何輸出，代表工具沒有記錄到這輪操作的 JavaScript 錯誤；仍要搭配頁面結果判斷功能是否正常。
 
 > 不要照抄文件範例裡的 ref。我第一次嘗試時照文件範例寫了 `fill @e1`，得到 `✗ Unknown ref: e1`。接下來的 `click @e2` 回報 `✓ Done`，但那次的 `e2` 是標題，不是按鈕，所以後面的 `wait` 等了 25000ms 後逾時。原因是那次我沒有先 `close`。同一個 session 先開過 example.com，它的連結已經用掉 `e1`，表單的標題、Email 欄位、按鈕就被編成 `e2`、`e3`、`e4`。依 Snapshots 文件，換頁會讓舊的 ref 失效，但編號不會回收重用。所以在同一個 session 裡換頁後，編號會接著往下排。每次操作前，都要用最新一次 snapshot 給的 ref。
 {: .prompt-warning }
@@ -202,13 +187,31 @@ _壞掉的版本在畫面上看不出錯誤，只是什麼都沒出現_
 1. `wait --text "Thanks" --timeout 5000` 印出 `✗ Wait timed out after 5000ms`，預期的訊息沒有出現。
 2. `errors` 印出 `TypeError: Cannot set properties of null (setting 'textContent')`，位置是 `broken.html:15:49`，就是我打錯字的第 15 行。`getElementById("mesage")` 找不到元素，回傳 `null`，對 `null` 設定 `textContent` 就會丟出這個錯誤。
 
-`console` 這次沒有輸出，最後的 `screenshot` 存下了上面那張空白的畫面。
+`console` 這次沒有輸出，最後的 `screenshot` 存下了上面那張沒有感謝訊息的畫面。
 
 所以驗收時，請確認預期的結果出現了，而且 `errors` 沒有輸出。動作回報 `✓ Done`，不等於驗收通過。
 
+### 補充：在截圖上標出 ref
+
+想知道每個 ref 對應畫面上的哪裡，可以用 `screenshot --annotate`。下面兩張圖來自我另外跑的一次。我用新的 session，先設定視窗大小，再打開表單並拍下註記截圖。若要試這段，請先關掉步驟四的 session：
+
+```bash
+agent-browser close
+agent-browser set viewport 1280 800
+agent-browser open http://localhost:8765/
+agent-browser snapshot -i
+agent-browser screenshot --annotate shots/annotated.png
+agent-browser close
+```
+
+![終端機實際輸出：snapshot -i 列出 heading、textbox "Email"、button "Subscribe" 三個元素；screenshot --annotate 存檔並印出 [1] @e1、[2] @e2、[3] @e3 的對照表](term-annotate.webp){: w="1102" h="388" }
+
+![agent-browser 用 --annotate 拍下的截圖：標題、Email 欄位、Subscribe 按鈕分別框上紅色的 1、2、3](page-annotated.webp){: w="1280" h="800" }
+_截圖上的 [2]、[3] 就是 snapshot 裡的 `@e2`、`@e3`_
+
 ## 步驟五：交給 AI 自己跑
 
-上面的指令是我寫成幾個 shell 腳本執行的，AI 沒有參與。要讓 AI 在改完網頁後自己做這些事，有三種方式。前兩種我沒有實際試，第三種有。
+上面的指令是我寫成幾個 shell 腳本執行的，AI 沒有參與。下面介紹三種把檢查交給 AI 的方式。前兩種把流程交給既有的 coding agent；第三種用內建的 `chat` 檢查已經開好的本機網站。我只實測了第三種。
 
 ### 方式一：裝官方 skill
 
@@ -248,7 +251,7 @@ core skill 提醒，預設的 session 是整台電腦共用的一個瀏覽器，
 
 agent-browser 也有一個 `chat` 指令。依 `chat --help`，它把你用自然語言寫的指示交給 AI 模型，由模型轉成 agent-browser 指令，在你選的 session 裡執行。它不能自己建立或切換 session。執行 `chat` 需要 `AI_GATEWAY_API_KEY`。依 `--help`，`AI_GATEWAY_URL` 是 Vercel AI Gateway 的 base URL，預設是 `https://ai-gateway.vercel.sh`。預設模型是 `anthropic/claude-sonnet-4.6`，可以用 `--model` 換。
 
-我手邊有一個 OpenAI 相容的 LiteLLM 服務，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。金鑰和網址都只放在環境變數裡，沒有寫進任何檔案。然後我用 `gpt-6.1-sol` 模型請它檢查壞掉的那一頁：
+我手邊有一個 OpenAI 相容的 LiteLLM 服務，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。金鑰和網址都只放在環境變數裡，沒有寫進任何檔案。確認本機 HTTP 伺服器仍在執行後，先用 `agent-browser close` 關掉上一輪的瀏覽器，再用 `gpt-6.1-sol` 模型請它檢查壞掉的那一頁：
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."
@@ -301,9 +304,9 @@ action policy 的結果和文件不同。我先用 Security 文件裡的範例 `
 
 ## 下一步：放進你的流程
 
-要讓 AI 每次都做驗收，可以把規則放在它一定會讀到或一定會執行的地方：
+要把驗收變成固定流程，可以把操作規則寫進專案指引，或設定自動檢查：
 
-- 把步驟五的範本寫進 `AGENTS.md`，每個 agent 開工時都會讀到。
+- 把步驟五的範本寫進 `AGENTS.md`，讓支援這份指引的 coding agent 在開工時讀取。
 - 用 hook 在 AI 回報完成前自動跑一次檢查，做法可以參考〈[Claude Code hooks 教學](/posts/claude-code-hooks-automate-checks/)〉。
 - 合併前先證明它能用，我在〈[pstack 系列（3）](/posts/pstack-build-verify-merge/)〉寫過這個流程。
 

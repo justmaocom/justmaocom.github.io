@@ -84,7 +84,7 @@ Line by line:
 
 ## Step 3: Test a local form
 
-In practice you'll usually check a page you're building. I wrote a newsletter form with one Email field and one Subscribe button. After you submit it, the text "Thanks! We sent a confirmation to" plus your email should appear below the button. Here's the complete `site/index.html`. Save it exactly as is, without reformatting, so the error line number in Step 4 matches mine:
+In practice you'll usually check a page you're building. I wrote a newsletter form with one Email field and one Subscribe button. After you submit it, the text "Thanks! We sent a confirmation to" plus your email should appear below the button. This demo only updates the page text; it doesn't send a confirmation email. Here's the complete `site/index.html`. Save it exactly as is, without reformatting, so the error line number in Step 4 matches mine:
 
 ```html
 <!doctype html>
@@ -107,7 +107,7 @@ document.getElementById('f').addEventListener('submit', e => {
 ```
 {: file="site/index.html" }
 
-From the folder that contains `site`, run the line below to serve it on port 8765 with Python's built-in HTTP server. That's the line I ran, from the folder above `site`. Any static file server works, as long as the URL is `http://localhost:8765/`:
+From the folder that contains `site`, run the line below to serve it on port 8765 with Python's built-in HTTP server. Leave that terminal running and open another terminal for agent-browser commands. Any static file server works, as long as the URL is `http://localhost:8765/`:
 
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
@@ -122,22 +122,7 @@ agent-browser snapshot -i
 
 The snapshot lists three elements. The heading is `e1`, the Email field is `e2`, and the Subscribe button is `e3`.
 
-To see which ref matches which part of the screen, use `screenshot --annotate`. It draws the numbers on the screenshot. The next two images come from a separate run I did last. After every other step was done, I opened a new session, set the window size with `set viewport 1280 800`, and ran the commands below. The new session's refs also start at `e1`. According to the Snapshots docs, opening the page again invalidates the old refs, so try this part after Step 4 and a `close`:
-
-```bash
-agent-browser set viewport 1280 800
-agent-browser open http://localhost:8765/
-agent-browser snapshot -i
-agent-browser screenshot --annotate shots/annotated.png
-agent-browser close
-```
-
-![Real terminal output: snapshot -i lists three elements, a heading, textbox "Email", and button "Subscribe"; screenshot --annotate saves the file and prints a legend mapping [1] @e1, [2] @e2, and [3] @e3](term-annotate.webp){: w="1102" h="388" }
-
-![Screenshot taken by agent-browser with --annotate: the heading, the Email field, and the Subscribe button are boxed in red and labeled 1, 2, and 3](page-annotated.webp){: w="1280" h="800" }
-_Labels [2] and [3] on the screenshot are `@e2` and `@e3` from the snapshot_
-
-Back in the main test session, I filled in the email, clicked Subscribe, then checked that the thank-you message appeared and the page had no JavaScript errors:
+Next, I filled in the email, clicked Subscribe, then checked for the thank-you message and JavaScript errors:
 
 ```bash
 agent-browser fill @e2 "reader@example.com"
@@ -157,7 +142,7 @@ Each of these commands checks one thing:
 
 - `wait --text "Thanks"` waits until that text appears on the page and fails if it never does. According to `wait --help`, `--text` is a substring match. The core skill also recommends this kind of wait over a fixed wait such as `wait 2000`.
 - `get text "#msg"` reads the full text of the `#msg` element, so you can confirm the email you typed made it in. Always quote `"#msg"`. On my first attempt, the wrapper script lost the quotes, so the command that ran was `agent-browser get text #msg`. The shell treated everything after `#` as a comment, and agent-browser replied `Missing arguments for: get text`.
-- `errors` lists JavaScript errors and uncaught exceptions on the page. It printed nothing here, which means there were no errors.
+- `errors` lists JavaScript errors and uncaught exceptions on the page. It printed nothing here, so the tool recorded no JavaScript errors during this run. You still need to check the page's result to tell whether the feature works.
 
 > Don't copy refs from the docs examples. On my first attempt I wrote `fill @e1` straight from a docs example and got `✗ Unknown ref: e1`. The next command, `click @e2`, reported `✓ Done`, but in that run `e2` was the heading, not the button, so the `wait` after it timed out after 25000ms. The cause was that I hadn't run `close` first. The same session had already opened example.com, whose link used up `e1`, so the form's heading, Email field, and button were numbered `e2`, `e3`, and `e4`. According to the Snapshots docs, navigating to another page invalidates the old refs, but their IDs aren't recycled. So within one session, the numbers keep counting up after each navigation. Before every action, use the refs from the latest snapshot.
 {: .prompt-warning }
@@ -202,13 +187,31 @@ _In the broken version, nothing on screen shows an error, and the message never 
 1. `wait --text "Thanks" --timeout 5000` printed `✗ Wait timed out after 5000ms`, so the expected message never appeared.
 2. `errors` printed `TypeError: Cannot set properties of null (setting 'textContent')` at `broken.html:15:49`, which is line 15, where I put the typo. `getElementById("mesage")` finds no element and returns `null`, and setting `textContent` on `null` throws this error.
 
-`console` printed nothing this time, and the last `screenshot` saved the empty screen shown above.
+`console` printed nothing this time, and the last `screenshot` captured the page shown above, with the thank-you message missing.
 
 So when you test a page, confirm that the expected result appeared and that `errors` prints nothing. `✓ Done` on an action doesn't mean the page passed.
 
+### Extra: Label refs on a screenshot
+
+To see which ref matches which part of the screen, use `screenshot --annotate`. The next two images come from a separate run. I used a new session, set the window size, then opened the form and took an annotated screenshot. To try this, first close the session from Step 4:
+
+```bash
+agent-browser close
+agent-browser set viewport 1280 800
+agent-browser open http://localhost:8765/
+agent-browser snapshot -i
+agent-browser screenshot --annotate shots/annotated.png
+agent-browser close
+```
+
+![Real terminal output: snapshot -i lists three elements, a heading, textbox "Email", and button "Subscribe"; screenshot --annotate saves the file and prints a legend mapping [1] @e1, [2] @e2, and [3] @e3](term-annotate.webp){: w="1102" h="388" }
+
+![Screenshot taken by agent-browser with --annotate: the heading, the Email field, and the Subscribe button are boxed in red and labeled 1, 2, and 3](page-annotated.webp){: w="1280" h="800" }
+_Labels [2] and [3] on the screenshot are `@e2` and `@e3` from the snapshot_
+
 ## Step 5: Hand it to the AI
 
-I ran the commands above from a few shell scripts I wrote, with no AI involved. There are three ways to get an AI to do this on its own after it changes a page. I didn't try the first two. I tried the third.
+I ran the commands above from a few shell scripts I wrote, with no AI involved. Below are three ways to hand the check to an AI. The first two give the workflow to your existing coding agent; the third uses the built-in `chat` command to check a local site that's already running. I only tested the third.
 
 ### Option 1: Install the official skill
 
@@ -248,7 +251,7 @@ Take a new snapshot whenever the page or its content changes.
 
 agent-browser also has a `chat` command. According to `chat --help`, it sends your plain-language instruction to an AI model, which turns it into agent-browser commands and runs them in the session you select. It can't create or switch sessions. `chat` needs `AI_GATEWAY_API_KEY`. According to `--help`, `AI_GATEWAY_URL` is the Vercel AI Gateway base URL, with a default of `https://ai-gateway.vercel.sh`. The default model is `anthropic/claude-sonnet-4.6`, and `--model` picks a different one.
 
-I have access to an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and the URL stayed in environment variables and never went into any file. Then I asked the `gpt-6.1-sol` model to check the broken page:
+I have access to an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and the URL stayed in environment variables and never went into any file. With the local HTTP server still running, first run `agent-browser close` to close the previous browser, then ask the `gpt-6.1-sol` model to check the broken page:
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."
@@ -301,9 +304,9 @@ According to the Security docs, the domain limit isn't an operating system firew
 
 ## Next: build it into your workflow
 
-To make the AI test its work every time, put the rules where it will always read them or where they always run:
+To make testing part of your workflow, add the steps to your project instructions or set up an automatic check:
 
-- Put the template from Step 5 in `AGENTS.md`, so every agent reads it when it starts.
+- Put the template from Step 5 in `AGENTS.md`, so coding agents that support it can read the steps when they start.
 - Use a hook to run a check automatically before the AI reports it's done. See [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 - Prove it works before you merge. I described that flow in [pstack, Part 3](/posts/pstack-build-verify-merge/).
 

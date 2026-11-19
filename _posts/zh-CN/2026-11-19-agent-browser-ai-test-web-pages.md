@@ -84,7 +84,7 @@ _snapshot 给出 `@e1`，点击之后网址变了（实际输出）_
 
 ## 步骤三：验收一个本地表单
 
-实际用途通常是检查你自己正在开发的网页。我写了一个订阅表单，只有一个 Email 输入框和一个 Subscribe 按钮。提交后，按钮下方应该显示“Thanks! We sent a confirmation to”加上你填的 Email。下面是完整的 `site/index.html`。请原样保存，不要重新排版，这样步骤四的报错行号才会和我的一致：
+实际用途通常是检查你自己正在开发的网页。我写了一个订阅表单，只有一个 Email 输入框和一个 Subscribe 按钮。提交后，按钮下方应该显示“Thanks! We sent a confirmation to”加上你填的 Email。这个示例只更新页面文本，不会真的发送确认邮件。下面是完整的 `site/index.html`。请原样保存，不要重新排版，这样步骤四的报错行号才会和我的一致：
 
 ```html
 <!doctype html>
@@ -107,7 +107,7 @@ document.getElementById('f').addEventListener('submit', e => {
 ```
 {: file="site/index.html" }
 
-在 `site` 的上一级文件夹运行下面这条命令，用 Python 内置的 HTTP 服务器在 8765 端口提供页面。我自己就是在 `site` 的上一级文件夹用这条命令启动的。任何能提供静态文件的服务器都可以，只要网址是 `http://localhost:8765/`：
+在 `site` 的上一级文件夹运行下面这条命令，用 Python 内置的 HTTP 服务器在 8765 端口提供页面。启动后，让这个终端保持运行，另开一个终端操作 agent-browser。任何能提供静态文件的服务器都可以，只要网址是 `http://localhost:8765/`：
 
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
@@ -122,22 +122,7 @@ agent-browser snapshot -i
 
 snapshot 列出了三个元素，标题是 `e1`，Email 输入框是 `e2`，Subscribe 按钮是 `e3`。
 
-想知道每个 ref 对应画面上的哪个位置，可以用 `screenshot --annotate`，它会在截图上标出编号。下面两张图来自我最后单独跑的一次。那时其他步骤都已完成，我新开了一个 session，先用 `set viewport 1280 800` 设置窗口大小，再依次运行下面的命令。新 session 的 ref 同样从 `e1` 开始。根据 Snapshots 文档，重新 `open` 会让旧的 ref 失效，所以这一段请在步骤四做完、`close` 之后再试：
-
-```bash
-agent-browser set viewport 1280 800
-agent-browser open http://localhost:8765/
-agent-browser snapshot -i
-agent-browser screenshot --annotate shots/annotated.png
-agent-browser close
-```
-
-![终端实际输出：snapshot -i 列出 heading、textbox "Email"、button "Subscribe" 三个元素；screenshot --annotate 保存文件并打印 [1] @e1、[2] @e2、[3] @e3 的对照表](term-annotate.webp){: w="1102" h="388" }
-
-![agent-browser 用 --annotate 拍下的截图：标题、Email 输入框、Subscribe 按钮分别框上红色的 1、2、3](page-annotated.webp){: w="1280" h="800" }
-_截图上的 [2]、[3] 就是 snapshot 里的 `@e2`、`@e3`_
-
-回到正式验收的 session。我填写 Email、点击 Subscribe，再确认感谢消息出现、页面没有 JavaScript 错误：
+接着填写 Email、点击 Subscribe，再确认感谢消息出现，并检查 JavaScript 错误：
 
 ```bash
 agent-browser fill @e2 "reader@example.com"
@@ -157,7 +142,7 @@ _正常版本的感谢消息出现了，`errors` 也没有任何输出_
 
 - `wait --text "Thanks"` 等到页面上出现这段文本才继续，等不到就报错。根据 `wait --help`，`--text` 是子字符串匹配。官方 core skill 也建议用这种等待方式，不要用 `wait 2000` 这类固定毫秒数。
 - `get text "#msg"` 读取 `#msg` 元素的完整内容，确认填进去的 Email 已经带上。`"#msg"` 一定要加引号。我第一次尝试时，封装命令的脚本把引号弄丢了，实际运行的是 `agent-browser get text #msg`。shell 把 `#` 之后的内容当成注释，agent-browser 返回了 `Missing arguments for: get text`。
-- `errors` 列出页面上的 JavaScript 错误和未捕获的异常。这次没有任何输出，说明没有错误。
+- `errors` 列出页面上的 JavaScript 错误和未捕获的异常。这次没有任何输出，说明工具没有记录到这轮操作的 JavaScript 错误；仍要结合页面结果判断功能是否正常。
 
 > 不要照搬文档示例里的 ref。我第一次尝试时照着文档示例写了 `fill @e1`，得到 `✗ Unknown ref: e1`。接下来的 `click @e2` 返回 `✓ Done`，但那次的 `e2` 是标题，不是按钮，所以后面的 `wait` 等了 25000ms 后超时。原因是那次我没有先 `close`。同一个 session 之前打开过 example.com，它的链接已经占用了 `e1`，表单的标题、Email 输入框、按钮就被编成了 `e2`、`e3`、`e4`。根据 Snapshots 文档，跳转页面会让旧的 ref 失效，但编号不会回收复用。所以在同一个 session 里跳转后，编号会接着往后排。每次操作前，都要用最近一次 snapshot 给出的 ref。
 {: .prompt-warning }
@@ -202,13 +187,31 @@ _坏掉的版本在画面上看不出错误，只是什么都没出现_
 1. `wait --text "Thanks" --timeout 5000` 打印 `✗ Wait timed out after 5000ms`，预期的消息没有出现。
 2. `errors` 打印 `TypeError: Cannot set properties of null (setting 'textContent')`，位置是 `broken.html:15:49`，正是我写错的第 15 行。`getElementById("mesage")` 找不到元素，返回 `null`，给 `null` 设置 `textContent` 就会抛出这个错误。
 
-`console` 这次没有输出，最后的 `screenshot` 保存了上面那张空白的画面。
+`console` 这次没有输出，最后的 `screenshot` 保存了上面那张没有感谢消息的画面。
 
 所以验收时，请确认预期的结果出现了，而且 `errors` 没有输出。操作返回 `✓ Done`，不等于验收通过。
 
+### 补充：在截图上标出 ref
+
+想知道每个 ref 对应画面上的哪个位置，可以用 `screenshot --annotate`。下面两张图来自我单独跑的一次。我用了新的 session，先设置窗口大小，再打开表单并拍下带编号的截图。如果要试这一段，请先关闭步骤四的 session：
+
+```bash
+agent-browser close
+agent-browser set viewport 1280 800
+agent-browser open http://localhost:8765/
+agent-browser snapshot -i
+agent-browser screenshot --annotate shots/annotated.png
+agent-browser close
+```
+
+![终端实际输出：snapshot -i 列出 heading、textbox "Email"、button "Subscribe" 三个元素；screenshot --annotate 保存文件并打印 [1] @e1、[2] @e2、[3] @e3 的对照表](term-annotate.webp){: w="1102" h="388" }
+
+![agent-browser 用 --annotate 拍下的截图：标题、Email 输入框、Subscribe 按钮分别框上红色的 1、2、3](page-annotated.webp){: w="1280" h="800" }
+_截图上的 [2]、[3] 就是 snapshot 里的 `@e2`、`@e3`_
+
 ## 步骤五：交给 AI 自己跑
 
-上面的命令是我写成几个 shell 脚本运行的，AI 没有参与。要让 AI 改完网页后自己做这些事，有三种方式。前两种我没有实际试过，第三种试过。
+上面的命令是我写成几个 shell 脚本运行的，AI 没有参与。下面介绍三种把检查交给 AI 的方式。前两种把流程交给已有的 coding agent；第三种用内置的 `chat` 检查已经启动的本地网站。我只实测了第三种。
 
 ### 方式一：安装官方 skill
 
@@ -248,7 +251,7 @@ core skill 提醒，默认的 session 是整台电脑共用的一个浏览器，
 
 agent-browser 还有一个 `chat` 命令。根据 `chat --help`，它把你用自然语言写的指示交给 AI 模型，由模型转成 agent-browser 命令，在你选定的 session 里运行。它不能自己创建或切换 session。运行 `chat` 需要 `AI_GATEWAY_API_KEY`。根据 `--help`，`AI_GATEWAY_URL` 是 Vercel AI Gateway 的 base URL，默认是 `https://ai-gateway.vercel.sh`。默认模型是 `anthropic/claude-sonnet-4.6`，可以用 `--model` 更换。
 
-我手上有一个 OpenAI 兼容的 LiteLLM 服务，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。密钥和网址都只放在环境变量里，没有写进任何文件。然后我用 `gpt-6.1-sol` 模型让它检查坏掉的那一页：
+我手上有一个 OpenAI 兼容的 LiteLLM 服务，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。密钥和网址都只放在环境变量里，没有写进任何文件。确认本地 HTTP 服务器仍在运行后，先用 `agent-browser close` 关闭上一轮的浏览器，再用 `gpt-6.1-sol` 模型让它检查坏掉的那一页：
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."
@@ -301,9 +304,9 @@ action policy 的结果和文档不一致。我先用 Security 文档里的示�
 
 ## 下一步：放进你的流程
 
-要让 AI 每次都做验收，可以把规则放在它一定会读到或一定会运行的地方：
+要把验收变成固定流程，可以把操作规则写进项目指引，或设置自动检查：
 
-- 把步骤五的模板写进 `AGENTS.md`，每个 agent 开始工作时都会读到。
+- 把步骤五的模板写进 `AGENTS.md`，让支持这份指引的 coding agent 在开始工作时读取。
 - 用 hook 在 AI 报告完成前自动运行一次检查，做法可以参考《[Claude Code hooks 教程](/posts/claude-code-hooks-automate-checks/)》。
 - 合并前先证明它能用，我在《[pstack 系列（3）](/posts/pstack-build-verify-merge/)》里写过这个流程。
 
