@@ -32,10 +32,9 @@ def markdown_without_closed_fences(text)
     if (m = line.match(/\A {0,3}(`{3,}|~{3,})(.*)\r?\n?\z/)) && (m[1].start_with?('~') || !m[2].include?('`'))
       close = /\A {0,3}#{Regexp.escape(m[1][0])}{#{m[1].size},}[ \t]*\r?\n?\z/
       j = (i + 1...lines.size).find { |k| lines[k].match?(close) }
-      if j
-        i = j + 1
-        next
-      end
+      return (kept + lines[i..]).join unless j
+      i = j + 1
+      next
     end
     kept << line
     i += 1
