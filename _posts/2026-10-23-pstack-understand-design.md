@@ -1,6 +1,6 @@
 ---
 title: "pstack 系列（2）：改程式之前，先看懂再設計"
-description: "改程式之前，怎麼讓 AI 先看懂現有程式、再比較幾種設計？這篇教你在 Claude Code 用 pstack 的 /how、/why、/architect、/interrogate 和 /arena：什麼時候用、指令怎麼寫、會拿到什麼、下一步怎麼接。"
+description: "改程式之前，怎麼讓 AI 先看懂現有程式、再比較幾種設計？這篇教你在 Claude Code 用 pstack 的 /how、/why、/architect、/interrogate、/arena，以及依情況加用的 /teach、/recall、/swarm、試作和寫計畫。"
 date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
@@ -10,7 +10,7 @@ image:
   alt: "用 /how、/why 看懂程式，用 /architect、/arena 設計，改完以 /interrogate 審查。"
 ---
 
-AI 程式助理接到「改一下這個功能」，常常直接從第一個看起來合理的地方動手，用的也是它第一個想到的做法。這篇教你用 pstack 的五個 skill 把順序倒過來：先讓 AI 說清楚程式現在怎麼運作、為什麼長這樣，再讓它比較幾種設計，改完之後再找別的模型挑毛病。每個 skill 我都會說明什麼時候用、指令怎麼寫（附可以直接複製再改寫的範例）、它會一步一步做什麼、你會拿到什麼，以及下一步怎麼接。最後我用一個虛構的例子把五個串起來，再附一張「什麼時候用哪一個」的對照表。
+AI 程式助理接到「改一下這個功能」，常常直接從第一個看起來合理的地方動手，用的也是它第一個想到的做法。這篇教你用 pstack 的五個 skill 把順序倒過來：先讓 AI 說清楚程式現在怎麼運作、為什麼長這樣，再讓它比較幾種設計，改完之後再找別的模型挑毛病。每個 skill 我都會說明什麼時候用、指令怎麼寫（附可以直接複製再改寫的範例）、它會一步一步做什麼、你會拿到什麼，以及下一步怎麼接。接著介紹依情況加用的三個 skill 和兩個 playbook：`/teach`、`/recall`、`/swarm`、試作和寫計畫。最後我用一個虛構的例子把主線的五個串起來，再附一張「什麼時候用哪一個」的對照表。
 
 > pstack 系列｜第 2 篇
 >
@@ -28,7 +28,7 @@ pstack 是 Cursor 官方外掛庫裡的一整組 skill。skill 是一份告訴 A
 
 **指令要加前綴。** pstack 的文件用 Cursor 的寫法，例如 `/how`。在 Claude Code（在終端機裡使用的 AI 程式助理）裡，外掛的指令前面要加上外掛名稱，寫成 `/pstack:how`。下面的範例我都用 Claude Code 的寫法；在 Cursor 裡，把 `pstack:` 拿掉就好。
 
-**這五個 skill 不會自己啟動。** 它們都設定成不讓 AI 自行呼叫，所以你要親自輸入指令。另一個做法是把任務交給 `/pstack:poteto-mode`，讓它依任務自己排順序：例如在提示裡寫「先不要改任何程式」，它就會走唯讀調查，先追查相關的程式，遇到「為什麼」的問題再加上 `/why`。
+**這些 skill 不會自己啟動。** 它們都設定成不讓 AI 自行呼叫，所以你要親自輸入指令。另一個做法是把任務交給 `/pstack:poteto-mode`，讓它依任務自己排順序：例如在提示裡寫「先不要改任何程式」，它就會走唯讀調查，先追查相關的程式，遇到「為什麼」的問題再加上 `/why`。
 
 下面我會常用到「子代理」這個詞：skill 執行時，會另外派出幾個 AI 分頭做事，每一個就是一個子代理。派出去的子代理越多，用掉的額度通常也越多。
 
@@ -190,10 +190,170 @@ _幾個模型各自試著弄壞同一份改動，只留下重跑後仍失敗的�
 
 **你會拿到**：一份合併後的結果，加上一段簡短的說明：選了哪份當底和原因、評審的結論（或這次跳過了評審）、每一項嫁接來自哪份候選、哪些被捨棄和原因、有沒有候選收斂或缺席，以及驗證的結果。
 
-**下一步**：如果產出是程式，合併前可以再跑 `/interrogate`。如果你要的是「每個套件都檢查一遍」這種**覆蓋**，而不是比較做法，那是另一個 skill `/swarm` 的工作，不要用 `/arena`。
+**下一步**：如果產出是程式，合併前可以再跑 `/interrogate`。如果你要的是「每個套件都檢查一遍」這種**覆蓋**，而不是比較做法，那是另一個 skill `/swarm` 的工作（下一節會介紹），不要用 `/arena`。
 
 ![/arena 的六個階段：定規則、分頭做、評審、選底稿、嫁接、驗證](arena-phases.webp){: w="800" h="450" }
 _候選越多，派出的子代理就越多：N 份候選，再加最多一位評審。_
+
+## 依情況加用：三個 skill 和兩個 playbook
+
+上面五個是主線，下面這幾個只在特定情況才用。`/teach` 和 `/recall` 幫你看懂程式和自己做過的事；`/swarm` 讓幾個 worker 平行檢查；試作和寫計畫是 `/poteto-mode` 底下的 playbook，要透過它來跑，沒有單獨的指令。
+
+### /teach：摘要不夠，要真的弄懂
+
+**什麼時候用**：`/how` 給的說明不夠，你想真的弄懂一個改動或一塊程式。例如要審一個 PR、接手不熟的模組，或想確認一個修法處理的是原因，而不是症狀。它也能拿來問 AI 自己的做法（[指南第 3 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L37-L51)）。
+
+**指令怎麼寫**：說出你想弄懂什麼。指南建議加一句「說服我」，讓說明變成一段你能檢驗的論證，而不只是導覽：
+
+```text
+/pstack:teach 這個 PR 怎麼改了重試的流程？說服我它修的是原因，不是症狀。
+```
+
+問 AI 自己的做法：
+
+```text
+/pstack:teach 你為什麼這樣實作，而不是用佇列？你取捨了什麼、為什麼？
+```
+
+指南提到，要 AI 解釋自己的做法，對它也有幫助：它得回去讀程式、替每個說法找證據，不能很有把握地帶過就算了。
+
+**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L11-L17)）：
+
+1. **先決定你該帶走哪幾件事。** 從對話判斷你為什麼問（要改、要審、要除錯，還是剛接手）和你已經懂什麼，再挑出幾個重點。你顯然已經懂的就跳過。它不會出題考你。
+2. **讓 `/how` 和 `/why` 去查。** 它自己先讀程式找方向，再平行跑 `/how` 和 `/why`，把結果合在一起。一整個子系統就兩個都跑；小改動可能只跑其中一個。
+3. **先給最短的完整答案。** 先用一兩句說它是什麼，再接到你眼前的案例，之後才往機制、理由和邊界情況深入。你問了才加深，不會一次倒出一大段。
+4. **圖一張一張疊上去。** 有三個以上的部分時，它不畫一張全部擠在一起的大圖，而是畫一系列，每張重畫前一張、再多加一個部分。
+5. **保留 `/why` 的不確定用語。** 為了教學它可以改寫，但 `/why` 標成推論或「紀錄裡找不到」的地方會原樣保留，因為那是查證的結果，不是語氣。
+
+**你會拿到**：一段白話的解釋，而不是「我做了什麼」的報告。開頭先講重點，接著說它是什麼、怎麼運作、為什麼這樣，最後列出值得再用 `/how` 或 `/why` 追下去的線索（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L21)）。它的目標是讓你懂，不會改任何程式（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L9)）。
+
+**下一步**：弄懂了、準備動手，就接 `/architect`。它列出的線索裡還有你在意的，再單獨跑 `/how` 或 `/why`。
+
+### /recall：接回舊題目之前，先找回自己的脈絡
+
+**什麼時候用**：要開始或接回一個做過的題目，想先找回自己最近在這個題目上做到哪裡。舊對話裡有新開的 AI 不知道的前後文，所以指南建議先載入，再交代新的任務（[指南第 3 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L53-L65)）。如果你只是要接回**某一個**對話，那是 Session pickup playbook 的工作，不是 `/recall`，我寫在[第 4 篇](/posts/pstack-principles-customization/)。
+
+**指令怎麼寫**：說清楚題目和時間範圍；有新的資料要它處理，就接在後面：
+
+```text
+/pstack:recall 幫我整理上週做匯出功能的進度
+```
+
+```text
+/pstack:recall 我昨天在虛擬列表上做的事，然後讀這份 bug 回報。
+```
+
+**它會怎麼做**（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L17-L22)）：
+
+1. **先分類。** 要接回某一個對話，就改走 Session pickup。如果你已經給了完整的狀態（路徑、分支、改了什麼），它直接拿來用，不再翻紀錄。
+2. **先鎖定範圍。** 包括時間（「最近」預設是最近 7 天）、題目和專案（預設是目前這個；沒有你的要求，不讀其他專案的紀錄）。它會先把範圍說給你聽。
+3. **分頭翻你的對話紀錄。** 平行派出幾個用快速、便宜模型的子代理，每個負責一部分，只讀和題目有關的對話與段落。每個都用同樣的格式回報：題目、你的目標、做過的決定、還沒完成的事、卡住或被糾正的地方，以及產出（PR、ticket、分支）。只有一兩個對話時，就不派子代理，直接搜。在 Claude Code 裡，它讀的是 `~/.claude/projects/` 底下這個專案的對話紀錄（`.jsonl` 檔），只讀這個專案的資料夾（[Claude Code 對照文件](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L57)）。
+4. **掃共享紀錄。** 題目指名了某個功能、檔案、子系統或 bug 時，這一步一定會做。版本控制、issue 系統、聊天頻道、文件和錯誤追蹤，每個來源各派一位子代理，去問「現在的狀態是什麼、試過哪些沒成功、使用者還在回報什麼」。沒有接上的 MCP 就跳過，並且說明。
+5. **對照實際狀態。** 用 `git` 和 `gh` 確認前面找到的 PR、分支和 ticket 現在的狀態。
+
+**你會拿到**：一份照固定格式寫的簡報（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L24-L33)）。
+
+- **Capsule**：最多 5 點，說明這件工作是什麼、整體進行到哪裡。
+- **Threads**：每條工作一行，前面標一個狀態，例如 `[merged #N]`、`[open PR #N]`、`[in flight <branch>]`、`[reverted #N]`。
+- **Problems**：最多 5 個反覆出現的問題，包括使用者一直回報的症狀，以及上線後又被 revert 的修法，讓下一次從上次失敗的地方開始。
+- **Next move**：最有用的下一步。
+
+從對話紀錄找到的內容會附上對話 ID，從共享紀錄找到的會附上來源，例如 PR 編號或 ticket ID。
+
+**下一步**：照 Next move 開一個新任務，交給 `/pstack:poteto-mode`。
+
+> `/recall` 會讀你過去的對話紀錄；題目指名了功能或 bug 時，還會透過你接上的 MCP 去讀 issue、聊天頻道和錯誤追蹤。和 `/why` 一樣，開始之前先確認你願意讓 AI 讀到哪些資料。
+{: .prompt-tip }
+
+### /swarm：要的是覆蓋，不是比較做法
+
+**什麼時候用**：平行做能換到覆蓋，或能讓幾個獨立的嘗試比賽的時候。例如每個套件各檢查一次，或讓幾個 worker 同時試著重現一個偶發的失敗。它和 `/arena` 的差別在於：`/arena` 把同一份任務做 N 次，再選底稿、嫁接優點；`/swarm` 把工作切成幾塊各做各的，或讓幾個 worker 拿同一份任務比賽，選法事先講好，不選底稿也不嫁接（[指南第 4 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L47-L55)）。
+
+**指令怎麼寫**：說清楚怎麼切、每一塊怎麼檢查，以及最後要一份報告：
+
+```text
+/pstack:swarm 用每個套件自己的 check.sh 檢查 packages/ 底下的每個套件。一個套件一個 worker，最後給我一份報告。
+```
+
+要比賽時，事先講好怎麼選：
+
+```text
+/pstack:swarm 派 3 個 worker，各自試著重現這個偶發失敗的測試。先重現的就算數。
+```
+
+**它會怎麼做**：它會先開一份待辦清單，分成四個階段（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/swarm/SKILL.md#L11-L41)）。
+
+1. **Frame（定範圍）**：先寫下怎樣算完成，以及最後要交回什麼。再決定形狀：切成幾塊、讓 N 個 worker 拿同一份任務比賽，或兩者混用。比賽的話，派出去之前先宣告選法：`first pass`（第一個通過的）、`rank all`（全部排名）或 `best-of`（挑最好的）。worker 的模型讀 `/setup-pstack` 設定裡的 `swarm workers` 那一行，沒有這一行時用 Opus 5.5（high）。worker 要寫檔時，各給一個自己的輸出位置；要驗證或量測某些 commit 時，任務說明會寫明確切的 SHA 和量法。
+2. **Fan out（分頭做）**：一次派出全部 N 個 worker。每份任務說明都能單獨讀懂，寫明目標、範圍、負責哪一塊、怎麼驗證、回報什麼。回報用 `PASS`、`ISSUES` 或 `BLOCKED`，並附上證據；能證明有問題的 worker，要列出每一個能證明的問題，不能只報第一個。在 Cursor 裡 worker 預設跑在雲端，在 Claude Code 裡則改成每個 worker 各用一個 worktree（[Claude Code 對照文件](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L24)）。有 worker 沒交東西，就用剩下的 N-1 個繼續，並記下來。
+3. **Aggregate（彙整）**：結果沒記下任務說明要求的 SHA 和量法，就丟掉、重派一次；第二次還是沒有，就記成缺口。缺口不算通過。覆蓋型的工作，每一塊都要有結果；比賽則照事先宣告的選法挑。
+4. **Report（報告）**：在對話裡交回一份彙整報告，不貼 worker 的原始輸出。
+
+**你會拿到**：一份報告，包括結果表、每個問題一行的摘要，以及缺口或缺席的 worker；用了比賽時，也會寫出選法。
+
+**下一步**：`ISSUES` 列出的問題一項一項修。`BLOCKED` 和缺口要另外處理，不要當成通過。
+
+### 試作：用跑得起來的東西做決定
+
+試作走的是 `/poteto-mode` 底下的 Prototype playbook，沒有單獨的指令。
+
+**什麼時候用**：一個跑一下就能回答的開放問題，例如版面、互動、時序或某種做法。指南的建議是不要採用第一個設計，而是要幾個方案，再從看得到的證據挑；不只介面，行為和演算法也適用（[指南第 4 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L67-L83)）。另外，`/poteto-mode` 遇到跑一下就能解決的分歧時，本來就會先試作，而不是停下來問你（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L21)）。
+
+**指令怎麼寫**：說出要比較什麼，以及你想看到的證據：
+
+```text
+/pstack:poteto-mode 幫新的下拉選單試作幾個方案，放在同一個切換器後面，每個都截圖給我比較。
+```
+
+設計比較大時，可以和 `/architect` 一起用，並留一個由你審查的關卡：
+
+```text
+/pstack:poteto-mode 我們要替外部 webhook 加上流量限制。先用 /architect 設計，開放的問題用試作回答。繼續之前先讓我看過。
+```
+
+**它會怎麼做**（[Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L5-L12)）：這是唯一一個把「最小改動」和驗證標準倒過來的 playbook。速度優先，程式品質不重要，也不做計畫；嚴謹的地方在於用最低的成本選對設計。它也會提出你沒要求的變化。
+
+1. **先講清楚要做哪個決定。** 例如哪種版面、哪種互動、哪種密度，或是哪種行為、時序、做法。沒有要做的決定就不試作，改走一般的 Feature playbook。
+2. **方向還很開放時，先找參考。** 搜尋前例，整理主題、配色和版面的參考，讓你先挑方向再動手。方向已經定了就跳過。
+3. **在暫存資料夾裡做拋棄式的版本。** 和正式程式分開。視覺的決定，用能呈現想法的最輕技術，例如純 HTML、CSS、JavaScript；行為或時序的決定，寫一支最小的腳本。不用正式框架，不寫測試，也不做抽象。
+4. **方案放在同一個切換器後面。** 用按鈕或快捷鍵切換，每個方案都標上名稱。
+5. **在對應的介面驗證。** 視覺的決定，替每個方案截圖並實際操作；行為或時序的決定，記錄時間、印出輸出或看畫面。這時觀察本身就是測試。截圖要靠操作畫面的 skill，例如 `cursor-team-kit` 的 `control-ui`（見[第 1 篇](/posts/pstack-install-routing/)）。
+6. **列出方案、取捨和建議。**
+
+**你會拿到**：試過哪些方案、證據（視覺的決定是截圖，行為的決定是觀察到的輸出或時間）、取捨、它的建議，以及暫存資料夾的路徑。它會明說試作是拋棄式的（[Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L14)）。
+
+**下一步**：選定方向之後，交給 Feature playbook 正式實作，或先用 `/architect` 定出形狀。試作的程式不要直接合併進專案。
+
+### 寫計畫：設計定了，再拆成 PR
+
+寫計畫走的是 `/poteto-mode` 底下的 Multi-phase plan playbook。pstack 刻意沒有做規劃用的 skill；作者在 README 寫明自己不相信先做計畫，認為最好的規格就是程式碼（[README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L268-L270)）。
+
+**什麼時候用**：工作會跨好幾個 PR，而且設計已經定了（[指南第 4 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L95-L111)）。只動一兩個檔案、做法很明顯的改動，它會說不需要計畫，然後停下來。
+
+**指令怎麼寫**：設計定了之後再要，並寫出每個 PR 要怎麼證明能用：
+
+```text
+/pstack:poteto-mode 把這個設計寫成計畫。拆成小的、可以驗證的 PR，每個都有自己的驗證步驟。
+```
+
+做遷移時，把標準寫進提示：
+
+```text
+/pstack:poteto-mode 規劃把 UI 元件庫遷移到新的樣式系統。拆成小的、可以驗證的 PR，每個都要做畫面回歸檢查。結果要和原本完全一樣，連 bug 也一樣。
+```
+
+「連 bug 也一樣」是為了不讓遷移順手修掉東西；不然新舊兩邊的結果就沒辦法比對了。
+
+**它會怎麼做**（[Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L5-L9)）：
+
+1. **改動小就跳過。** 一兩個檔案、做法很明顯時，說明不需要計畫，然後停下。
+2. **先用試作解決還沒定的問題。** 只有跑什麼都決定不了的產品或偏好問題，才問你。
+3. **寫計畫檔。** 開頭寫這次改了什麼、PR 的合併順序，以及依賴關係：哪些 PR 互相獨立、可以直接從主幹分出來，哪些要等誰，每個 PR 可以碰哪些檔案。接著每個 PR 一節，一個 PR 只做一件事、有自己的證據。每一節用核取方塊列出它依賴什麼、要改哪些檔案、要做的那個改動、你會看到的結果，以及怎麼驗證。
+4. **只有測試不算驗證。** 每個 PR 要勾滿單元測試、實際操作和效能三格，才算驗證過。實際操作要在真的介面上跑一個具體情境，並寫出怎樣算通過；效能要寫出指標、量法、先量好的主幹基準，以及超過多少算失敗。改到互動的 PR，合併前要等你審過。
+5. **交回計畫檔的路徑就停下。** 你明確說開始，它才會執行。
+
+**你會拿到**：計畫檔的路徑、各個 PR 的編號和依賴、哪些 PR 要你審過才能合併，以及還沒證明的部分（[Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L11)）。計畫裡也會寫明之後由哪個 playbook 執行（[指南第 10 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md#L45)）。
+
+**下一步**：讀過計畫，同意之後再叫它開始。工作會跨好幾天時，指南建議可以暫時把計畫 commit 進 repo，讓其他 agent 看到進度，做完再刪掉。
 
 ## 一個完整的例子（虛構）
 
@@ -247,39 +407,45 @@ _候選越多，派出的子代理就越多：N 份候選，再加最多一位�
 
 ## 什麼時候用哪一個
 
-pstack 指南先講了一句我認為很重要的話：**大部分的改動，這些都不需要。**下面是它建議的分法，我再加上 `/how` 和 `/why`：
+pstack 指南先講了一句我認為很重要的話：**大部分的改動，這些都不需要。**下面是它建議的分法，我再加上 `/how`、`/why`、`/teach` 和 `/recall`：
 
 | 情況 | 用哪個 |
 | --- | --- |
 | 要改一塊不熟的程式，先弄懂它現在怎麼運作 | `/how` |
 | 想知道為什麼這樣寫、改之前哪些不能動 | `/why`（要它最後列出哪些要保留、哪些要避免） |
+| 摘要不夠，想真的弄懂一個改動或一塊程式 | `/teach` |
+| 接回做過的題目，先找回自己做到哪裡 | `/recall`（只接回某一個對話時，用 Session pickup） |
 | 一個已經改完的小改動，但你不放心 | 只用 `/interrogate` |
 | 改動會跨過函式的邊界，或改變某段程式歸誰負責 | `/architect`（設計大或有爭議時，它會帶上 `/arena`） |
 | 一個單獨的決定，例如命名、資料格式、演算法 | 直接用 `/arena` |
 | 有爭議、改錯代價很高的設計 | 先 `/architect`，合併前再 `/interrogate` |
-| 要做覆蓋，例如每個套件都檢查一遍 | 不是這五個，用 `/swarm` |
+| 要做覆蓋，例如每個套件都檢查一遍，或讓幾個 worker 比賽 | `/swarm` |
+| 跑一下就能回答的問題，例如版面、時序或做法 | 用 `/poteto-mode` 試作，不要用討論的 |
+| 會跨好幾個 PR 的工作 | 設計定了之後，用 `/poteto-mode` 寫計畫 |
 | 想交給 AI 自己判斷 | `/poteto-mode`，它已經內建這套分法 |
 
 ## 注意事項
 
-- **額度**：派出的子代理越多，通常越耗額度。`/how` 只派一個子代理；`/why` 的說明檔沒有規定要派幾個；`/interrogate` 每個模型派一位對手，每位都要在自己的 worktree 裡實際跑程式；`/arena` 是 N 份候選，再加最多一位評審；`/architect` 遇到大型或有爭議的設計時，會跑一整場 `/arena`，這時派出的子代理最多。小改動不值得動用 `/architect` 或 `/arena`。
+- **額度**：派出的子代理越多，通常越耗額度。`/how` 只派一個子代理；`/why` 的說明檔沒有規定要派幾個；`/interrogate` 每個模型派一位對手，每位都要在自己的 worktree 裡實際跑程式；`/arena` 是 N 份候選，再加最多一位評審；`/architect` 遇到大型或有爭議的設計時，會跑一整場 `/arena`，這時派出的子代理最多。`/teach` 會實際跑 `/how` 和 `/why`（小改動可能只跑一個）；`/recall` 會平行派子代理翻你的對話紀錄，題目指名功能或 bug 時，每個共享紀錄的來源再各派一位；`/swarm` 切成幾塊就派幾個 worker。小改動不值得動用 `/architect` 或 `/arena`。
 - **`/architect` 預設不會停**：想在實作前看設計，要在提示裡寫明「設計完先停下來給我看」。
 - **不要只採用第一個設計**：第一次做出來的設計，往往只是模型第一個想到的形狀。重要的設計，用 `/architect` 或 `/arena` 多看幾種。
-- **不要審抽象的計畫**：`/interrogate` 只留下跑得出來的問題，一份沒有程式的計畫，能打破的東西很少。把它用在實際的程式改動上。
+- **不要審抽象的計畫**：`/interrogate` 只留下跑得出來的問題，一份沒有程式的計畫，能打破的東西很少。開放的問題先用試作解決，再把 `/interrogate` 用在實際的程式改動上。
+- **試作是拋棄式的**：試作的程式不寫測試、不做抽象。選定方向後，要照 Feature playbook 重新實作，不要直接合併。
 - **不要全盤接受審查意見**：`/interrogate` 只留下重跑證明得了的問題，也會列出丟掉了哪些、為什麼；但最後由你決定，兩個方向都可以推翻。
-- **平行的 AI 不要共用一個工作目錄**：它們會互相覆蓋，也分不出誰改了什麼。用 `/arena` 時，可以要求每份候選用自己的 worktree。
+- **平行的 AI 不要共用一個工作目錄**：它們會互相覆蓋，也分不出誰改了什麼。用 `/arena` 時，可以要求每份候選用自己的 worktree；`/swarm` 在 Claude Code 裡預設就讓每個 worker 用自己的 worktree。
 - **版本**：以上是我依 pstack `0.15.43` 的說明檔整理的，之後的版本可能會改變做法。
 
 ## 結論
 
-用 pstack 改程式之前，我建議的順序是：先用 `/how` 弄懂程式現在怎麼跑，需要時用 `/why` 找出不能動的理由；再用 `/architect` 比較兩種設計、畫好型別草稿，想先看過就在提示裡要它停下來；遇到單獨的決定，用 `/arena` 讓幾份候選比一比；程式改完，用 `/interrogate` 讓幾個模型實際跑程式、想辦法把它弄壞，只留下證明得了的問題，再自己決定改哪些。不是每次都要五個全跑：小改動直接改，改完不放心再審查就好。
+用 pstack 改程式之前，我建議的順序是：先用 `/how` 弄懂程式現在怎麼跑，需要時用 `/why` 找出不能動的理由；再用 `/architect` 比較兩種設計、畫好型別草稿，想先看過就在提示裡要它停下來；遇到單獨的決定，用 `/arena` 讓幾份候選比一比；程式改完，用 `/interrogate` 讓幾個模型實際跑程式、想辦法把它弄壞，只留下證明得了的問題，再自己決定改哪些。摘要不夠時用 `/teach`，接回舊題目先跑 `/recall`，要覆蓋或比賽就用 `/swarm`。跑一下就能回答的問題，交給 `/poteto-mode` 試作；跨好幾個 PR 的工作，等設計定了再請它寫計畫。不是每次都要全部跑一遍：小改動直接改，改完不放心再審查就好。
 
 ## 延伸閱讀
 
 - [指南：Understand the code](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md)：`/how`、`/why`、`/teach`、`/recall` 各自適合的情況。
 - [指南：Design](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md)：`/architect`、`/arena`、`/swarm`、`/interrogate` 和試作。
 - [指南：Recipes and pitfalls](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md)：可以直接複製的提示和常見陷阱。
-- 五個 skill 的說明檔：[how](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/how/SKILL.md)、[why](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/why/SKILL.md)、[architect](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/architect/SKILL.md)、[interrogate](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md)、[arena](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/arena/SKILL.md)。
+- skill 的說明檔：[how](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/how/SKILL.md)、[why](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/why/SKILL.md)、[architect](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/architect/SKILL.md)、[interrogate](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/interrogate/SKILL.md)、[arena](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/arena/SKILL.md)、[teach](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md)、[recall](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md)、[swarm](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/swarm/SKILL.md)。
+- playbook 的說明檔：[Prototype](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md)、[Multi-phase plan](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md)。
 - [pstack 系列（1）：安裝、選模型，再用 /poteto-mode 挑 playbook](/posts/pstack-install-routing/)：怎麼安裝，以及 `/poteto-mode` 怎麼替任務排順序。
 - [自己寫 Agent Skill](/posts/agent-skill-authoring-guide/)：從寫 skill 的角度看 SKILL.md 的結構和測試。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：agent 讀得到哪些檔案、權限怎麼收。
