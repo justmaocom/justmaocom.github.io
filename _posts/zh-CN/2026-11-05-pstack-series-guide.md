@@ -101,16 +101,21 @@ _先找出你现在卡在哪一步，再点进对应的那一篇；不必把四�
 四篇的例子都是已经有代码的项目，pstack 也没有专为新项目写的 playbook。repo 还是空的时候，我建议按 [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) 这条原则安排顺序。它要求先做能帮到之后每个阶段的东西，例如 CI、测试和共享类型。
 
 1. 按[第 1 篇](/posts/pstack-install-routing/)安装。`/setup-pstack` 问要不要生成验证用的 skill 时，先拒绝，因为项目还不能启动。
-2. 跳过[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 没有代码和历史可读。直接用同一篇的原型和 `/architect` 决定核心的数据形状。
-3. 用写计划把工作拆成 PR。第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架。`/tdd` 找不到现成的测试路径时，不会为了走流程从零建一条（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)），所以测试框架要先放进来。
+2. 跳过[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 没有代码和历史可读。直接用 `/architect` 和原型决定核心的数据形状。原型是 `/pstack:poteto-mode` 下面的 Prototype playbook，没有单独的命令，所以两者写进同一个提示：
+
+   ```text
+   /pstack:poteto-mode 我要从零做一个<要做的东西>。先用 /architect 定出核心的类型和模块边界，开放的问题用原型回答。继续之前先让我看过。
+   ```
+
+3. 用 `/pstack:poteto-mode` 写计划，把工作拆成 PR。pstack 没有规划用的 skill，你要它把设计写成计划，它就会走 [Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md)。在提示里写明第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架：
+
+   ```text
+   /pstack:poteto-mode 把这个设计写成计划。第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架。之后一个 PR 做一个功能，每个都有自己的验证步骤。
+   ```
+
+   它交回计划文件的路径就会停下。你读过、同意之后，再叫它开始。测试框架放在第一个 PR，是因为 `/tdd` 找不到现成的测试路径时，不会为了走流程从零建一条（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)）。
 4. 骨架能启动之后，再运行 `/create-verification-skill`。项目不能构建或启动时，它会先修好或报告问题，再生成验证 skill（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L21)）。
 5. 之后每个功能都按[第 3 篇](/posts/pstack-build-verify-merge/)的流程做。提示里“哪些既有的行为不能变”，填前面几个 PR 已经验证过的行为。
-
-第 3 步的提示可以这样写：
-
-```text
-/pstack:poteto-mode 把这个设计写成计划。第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架。之后一个 PR 做一个功能，每个都有自己的验证步骤。
-```
 
 骨架合并之后，项目就已经有代码了，四篇都可以按原来的方式使用。
 

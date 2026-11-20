@@ -101,16 +101,21 @@ _先找出你現在卡在哪一步，再點進對應的那一篇；不必把四�
 四篇的例子都是已經有程式的專案，pstack 也沒有專為新專案寫的 playbook。repo 還是空的時候，我建議照 [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) 這條原則安排順序。它要求先做能幫到之後每個階段的東西，例如 CI、測試和共用型別。
 
 1. 照[第 1 篇](/posts/pstack-install-routing/)安裝。`/setup-pstack` 問要不要產生驗證用的 skill 時，先拒絕，因為專案還不能啟動。
-2. 跳過[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 沒有程式和歷史可讀。直接用同一篇的試作和 `/architect` 決定核心的資料形狀。
-3. 用寫計畫把工作拆成 PR。第一個 PR 只放 CI、測試框架、共用型別和一個能啟動的骨架。`/tdd` 找不到現成的測試路徑時，不會為了走流程從零建一條（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)），所以測試框架要先放進來。
+2. 跳過[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 沒有程式和歷史可讀。直接用 `/architect` 和試作決定核心的資料形狀。試作是 `/pstack:poteto-mode` 底下的 Prototype playbook，沒有獨立的指令，所以兩者寫進同一個提示：
+
+   ```text
+   /pstack:poteto-mode 我要從零做一個<要做的東西>。先用 /architect 定出核心的型別和模組邊界，開放的問題用試作回答。繼續之前先讓我看過。
+   ```
+
+3. 用 `/pstack:poteto-mode` 寫計畫，把工作拆成 PR。pstack 沒有規劃用的 skill，你要它把設計寫成計畫，它就會走 [Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md)。在提示裡寫明第一個 PR 只放 CI、測試框架、共用型別和一個能啟動的骨架：
+
+   ```text
+   /pstack:poteto-mode 把這個設計寫成計畫。第一個 PR 只放 CI、測試框架、共用型別和一個能啟動的骨架。之後一個 PR 做一個功能，每個都有自己的驗證步驟。
+   ```
+
+   它交回計畫檔的路徑就會停下。你讀過、同意之後，再叫它開始。測試框架放在第一個 PR，是因為 `/tdd` 找不到現成的測試路徑時，不會為了走流程從零建一條（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)）。
 4. 骨架能啟動之後，再執行 `/create-verification-skill`。專案不能建置或啟動時，它會先修好或回報問題，再產生驗證 skill（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L21)）。
 5. 之後每個功能都照[第 3 篇](/posts/pstack-build-verify-merge/)的流程做。提示裡「哪些既有的行為不能變」，填前面幾個 PR 已經驗證過的行為。
-
-第 3 步的提示可以這樣寫：
-
-```text
-/pstack:poteto-mode 把這個設計寫成計畫。第一個 PR 只放 CI、測試框架、共用型別和一個能啟動的骨架。之後一個 PR 做一個功能，每個都有自己的驗證步驟。
-```
 
 骨架合併之後，專案就已經有程式了，四篇都可以照原本的方式使用。
 

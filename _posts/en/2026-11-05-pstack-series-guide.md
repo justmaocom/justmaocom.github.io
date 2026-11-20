@@ -101,16 +101,21 @@ _Figure out which step you're stuck on, then open the matching part. You don't h
 All four parts use projects that already have code, and pstack has no playbook written for new projects. When your repo is still empty, I suggest ordering the work by the [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) principle. It says to build first whatever helps every later phase, such as CI, tests, and shared types.
 
 1. Install as in [Part 1](/posts/pstack-install-routing/). When `/setup-pstack` offers to generate a verification skill, decline for now, because the project can't start yet.
-2. Skip `/how` and `/why` from [Part 2](/posts/pstack-understand-design/), because an empty repo has no code or history to read. Go straight to that part's prototypes and `/architect` to settle the core data shapes.
-3. Use a plan to split the work into PRs. The first PR holds only CI, a test framework, shared types, and a skeleton that starts. When `/tdd` finds no existing test path, it won't build one from scratch just to follow the workflow ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)), so the test framework has to come first.
+2. Skip `/how` and `/why` from [Part 2](/posts/pstack-understand-design/), because an empty repo has no code or history to read. Go straight to `/architect` and prototypes to settle the core data shapes. Prototyping runs through the Prototype playbook under `/pstack:poteto-mode` and has no command of its own, so put both in one prompt:
+
+   ```text
+   /pstack:poteto-mode I'm building <what you're building> from scratch. /architect the core types and module boundaries first, and answer open questions with prototypes. let me review before proceeding.
+   ```
+
+3. Write the plan with `/pstack:poteto-mode` to split the work into PRs. pstack has no planning skill. When you ask it to turn the design into a plan, it runs the [Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md). In the prompt, say that the first PR holds only CI, a test framework, shared types, and a skeleton that starts:
+
+   ```text
+   /pstack:poteto-mode Turn this design into a plan. The first PR holds only CI, a test framework, shared types, and a skeleton that starts. After that, one PR per feature, each with its own verification steps.
+   ```
+
+   It hands back the plan file's path and stops. Read the plan, and tell it to start once you agree. The test framework goes in the first PR because when `/tdd` finds no existing test path, it won't build one from scratch just to follow the workflow ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)).
 4. Once the skeleton starts, run `/create-verification-skill`. If the project can't build or start, the skill fixes that or reports the problem before it generates anything ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L21)).
 5. From then on, build each feature with the flow in [Part 3](/posts/pstack-build-verify-merge/). Where the prompt asks which existing behavior must not change, list the behavior that earlier PRs already verified.
-
-Here's a prompt for step 3:
-
-```text
-/pstack:poteto-mode Turn this design into a plan. The first PR holds only CI, a test framework, shared types, and a skeleton that starts. After that, one PR per feature, each with its own verification steps.
-```
 
 Once the skeleton is merged, the project has code, and all four parts apply as written.
 
