@@ -66,7 +66,7 @@ Using it for the first time, where do you begin? This part covers two ways to in
 
 ### Part 2: Understand the Code, Then Design, Before You Change It
 
-When you're facing unfamiliar code, how do you get the AI to understand it before it starts editing? This part covers `/how`, `/why`, `/architect`, `/interrogate`, and `/arena`, including when to use each, how to prompt it, what you get back, and where to go next. Most small changes don't need them; when you do need them, the order is understand first, compare designs, and only then change the code.
+When you're facing unfamiliar code, how do you get the AI to understand it before it starts editing? This part covers `/how`, `/why`, `/architect`, `/interrogate`, and `/arena`, including when to use each, how to prompt it, what you get back, and where to go next. It also covers three situational skills, `/teach`, `/recall`, and `/swarm`, and two playbooks, for prototypes and for plans. Most small changes don't need them; when you do need them, the order is understand first, compare designs, and only then change the code.
 
 → [Part 2: Understand the Code, Then Design, Before You Change It](/posts/pstack-understand-design/)
 
