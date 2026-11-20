@@ -115,12 +115,15 @@ lock 文件锁住的是装进项目的 SKILL.md 和 `guides/`，锁不住 agent 
 
 SKILL.md 里的 `search` 命令带了 `--skill-version 2026_11_10-47b4c80e`，CLI 拿它和自己附带的版本日期比较。根据源代码，CLI 附带的版本更新，而且装进来的 SKILL.md 版本日期距今超过 5 天时，输出会多一段提醒更新的信息；超过 60 天，信息会要求 agent 坚持让用户更新。官方 Get started 文档说，用 CLI 安装可以“enable automatic updates”；就 modern-web-guidance 1.0.1 的源代码来看，CLI 本身做的是比较版本后提醒。
 
-要更新或卸载时，在项目文件夹运行：
+要更新时，在项目文件夹运行：
 
 ```bash
-# 更新
 npx modern-web-guidance@latest update
-# 卸载
+```
+
+要卸载时运行：
+
+```bash
 npx modern-web-guidance@latest uninstall
 ```
 
@@ -128,12 +131,15 @@ npx modern-web-guidance@latest uninstall
 
 ### 其他安装方式
 
-根据官方文档，也可以直接用 `skills` 安装；Claude Code 用户还可以以 plugin 的形式安装：
+根据官方文档，也可以直接用 `skills` 安装：
 
 ```bash
-# 用 skills 安装
 npx skills add GoogleChrome/modern-web-guidance
-# 以 Claude Code plugin 安装
+```
+
+Claude Code 用户还可以以 plugin 的形式安装，依次运行这两行：
+
+```bash
 claude plugin marketplace add GoogleChrome/modern-web-guidance
 claude plugin install modern-web-guidance@googlechrome
 ```

@@ -115,12 +115,15 @@ The lock file pins the SKILL.md and `guides/` installed in your project, not the
 
 The `search` command in SKILL.md passes `--skill-version 2026_11_10-47b4c80e`, and the CLI compares that against the version date it ships with. According to the source, when the CLI's bundled version is newer and the installed SKILL.md's version date is more than 5 days old, the output includes a message asking for an update. After 60 days, the message tells the agent to insist that the user update. The official Get started page says that installing through the CLI will "enable automatic updates". In the modern-web-guidance 1.0.1 source, what the CLI itself does is check the version and show a reminder.
 
-To update or remove the skill, run these in your project folder:
+To update, run this in your project folder:
 
 ```bash
-# Update
 npx modern-web-guidance@latest update
-# Remove
+```
+
+To remove the skill, run:
+
+```bash
 npx modern-web-guidance@latest uninstall
 ```
 
@@ -128,12 +131,15 @@ According to the source, `update` hands off to `skills update`, and `uninstall` 
 
 ### Other ways to install
 
-According to the official docs, you can also install it with `skills` directly, and Claude Code users can install it as a plugin:
+According to the official docs, you can also install it with `skills` directly:
 
 ```bash
-# Install with skills
 npx skills add GoogleChrome/modern-web-guidance
-# Install as a Claude Code plugin
+```
+
+Claude Code users can also install it as a plugin by running these two commands in order:
+
+```bash
 claude plugin marketplace add GoogleChrome/modern-web-guidance
 claude plugin install modern-web-guidance@googlechrome
 ```
