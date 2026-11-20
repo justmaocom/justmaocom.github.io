@@ -79,7 +79,7 @@ AI doesn't remove these two gates. From [11:28 to 12:35](https://www.youtube.com
 
 ## Run an FDE Decision Through One Table
 
-> The decision process I put together here hasn't been validated yet. It can rule out cases that clearly don't fit, but it can't estimate headcount, contract margins, or deployment timelines.
+> The decision process I put together here can rule out cases that clearly don't fit, but it can't estimate headcount, contract margins, or deployment timelines.
 {: .prompt-info }
 
 First, I applied the two gates to the three product types from the talk, with these results:
