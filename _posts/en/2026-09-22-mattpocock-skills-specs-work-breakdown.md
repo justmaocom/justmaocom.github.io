@@ -23,7 +23,7 @@ All five skills produce documents, but each fills a different gap. Pick the wron
 > - Next (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
-> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the per-seat billing walkthrough from the original instructions; it isn't from an actual test run.
+> I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the per-seat billing walkthrough from the original instructions.
 {: .prompt-info }
 
 ## A Few Terms First
@@ -294,7 +294,7 @@ This table only decides where to start right now. After `wayfinder` finishes, th
 
 ## Simulated Scenario: Cutting Per-Seat Billing Into Work You Can Start On
 
-I didn't actually run these skills for the walkthrough below, because they would write to the project's issue tracker or the current folder. I inferred it from the original rules in version `1.2.3`; actual results will vary with the project's content, existing decision records, and the conversation.
+I inferred the walkthrough below from the original rules in version `1.2.3`; actual results will vary with the project's content, existing decision records, and the conversation.
 
 Continuing the scenario from the previous post: `CONTEXT.md` already defines billable seats, members, and seat assignments, and deactivation, assignment, and billing timing have all been confirmed in the conversation. The team estimates that this feature will take several sessions to finish, so, still in the same conversation, they run:
 

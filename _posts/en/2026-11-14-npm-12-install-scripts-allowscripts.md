@@ -12,7 +12,7 @@ image:
 
 After upgrading to npm 12, you might see something confusing: `npm install` finishes successfully and the packages are there, but a feature no longer works. A dependency's install script may have been skipped.
 
-npm 12 no longer runs these scripts by default. In this post I explain what to do next: check which packages need review, understand each script's purpose and source, approve the ones you need, and commit the list to version control. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. In my view, these two protections do different jobs, and both have limits. I put the steps together from the official docs, and I have not included hands-on test results for the npm commands.
+npm 12 no longer runs these scripts by default. In this post I explain what to do next: check which packages need review, understand each script's purpose and source, approve the ones you need, and commit the list to version control. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. In my view, these two protections do different jobs, and both have limits. I put the steps together from the official docs.
 
 A few terms first:
 
@@ -27,7 +27,7 @@ Why review install scripts? Malicious code can run at this stage, before your ap
 
 My [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/) covers the publisher side. In this post I look at the installer side: how to manage scripts, avoid freshly published versions, and why the tensorlake incident calls for a specific response order.
 
-> **Version note:** This post is based on the official npm CLI 12.2.2 docs [npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/), [npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/), and [config](https://docs.npmjs.com/cli/v12/using-npm/config/), as I read them on 2026-11-13, plus GitHub's [npm v12 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/). I have not included hands-on test results for these npm commands. For exact commands and defaults, defer to the docs for your npm version.
+> **Version note:** This post is based on the official npm CLI 12.2.2 docs [npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/), [npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/), and [config](https://docs.npmjs.com/cli/v12/using-npm/config/), as I read them on 2026-11-13, plus GitHub's [npm v12 announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/). For exact commands and defaults, defer to the docs for your npm version.
 {: .prompt-info }
 
 ## What Changed in npm 12

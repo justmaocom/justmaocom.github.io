@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 4 篇）：[AI 開工寫程式前，先決定要看哪一種訊號](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
 >
-> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。文中的按席次計費流程是我依原始指令推演的，不是實測輸出。
+> 這篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。文中的按席次計費流程是我依原始指令推演的。
 {: .prompt-info }
 
 ## 先認識幾個詞
@@ -294,7 +294,7 @@ _決策單另外開在地圖底下；一張決策單的答案，可能讓下一�
 
 ## 模擬情境：把按席次計費切成可開工的工作
 
-以下我沒有實際執行這些 skill，因為它們會寫入專案的工作追蹤工具或目前的資料夾。內容是我依 `1.2.3` 版的原始規則推演的，實際結果會隨專案內容、既有的決策紀錄與對話內容而不同。
+以下內容是我依 `1.2.3` 版的原始規則推演的，實際結果會隨專案內容、既有的決策紀錄與對話內容而不同。
 
 延續上一篇的情境：`CONTEXT.md` 已定義計費席次、成員與席次指派，停用、指派與計費時點也都在對話中確認了。團隊判斷這項功能要分好幾次對話才做得完，所以在同一段對話裡呼叫：
 

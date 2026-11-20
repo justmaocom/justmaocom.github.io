@@ -16,7 +16,7 @@ The Herdr desktop app (the program is called herdr-app) is built for exactly thi
 
 I wrote this as a follow-along beginner's guide: install the app, start an agent from the tab bar, organize work with spaces and tabs, and find the agent waiting for you in the agents sidebar. Then I cover what happens after you close the window, plus telemetry, automatic updates, and mod safety. If you can't remember the shortcuts, that's fine: the command palette finds every action by name and also lists its key.
 
-I based this post on the official docs and included no screenshots of the app; the three images are concept diagrams I made.
+I based this post on the official docs; the three images are concept diagrams I made.
 
 > **Version note:** I wrote this post from the official docs for herdr-app v0.1.15 (released on 2026-11-11, Taipei time; on 2026-11-12 I confirmed it was still the current version on releases.herdr.dev and Homebrew). Herdr App has not reached 1.0 yet and changes quickly, so treat the [official README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md) as authoritative for how things work and which keys to press.
 {: .prompt-info }

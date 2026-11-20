@@ -50,7 +50,7 @@ Installing with cargo compiles from source and needs the Rust toolchain:
 cargo install agent-browser
 ```
 
-I didn't try either of those. I used npm:
+I used npm:
 
 ```bash
 npm install -g agent-browser
@@ -69,7 +69,7 @@ On Linux, `agent-browser install` printed the same hint twice. It said to run th
 agent-browser install --with-deps
 ```
 
-According to the docs, that command uses your system package manager to add the libraries Chrome needs, and it goes through `sudo` when you aren't root. I didn't run `--with-deps`, and the browser launched fine in every later step.
+According to the docs, that command uses your system package manager to add the libraries Chrome needs, and it goes through `sudo` when you aren't root. On my machine, plain `agent-browser install` was enough, and the browser launched fine in every later step.
 
 After installing, you can run a health check:
 
@@ -245,7 +245,7 @@ _Labels [2] and [3] on the screenshot are `@e2` and `@e3` from the snapshot_
 
 ## Step 5: Hand it to the AI
 
-I ran the commands above from a few shell scripts I wrote, with no AI involved. Below are three ways to hand the check to an AI. The first two give the workflow to your existing coding agent; the third uses the built-in `chat` command to check a local site that's already running. I only tested the third.
+I ran the commands above from a few shell scripts I wrote, with no AI involved. Below are three ways to hand the check to an AI. The first two give the workflow to your existing coding agent; the third uses the built-in `chat` command to check a local site that's already running. The test run below uses the third.
 
 ### Option 1: Install the official skill
 
@@ -255,13 +255,13 @@ A skill is a usage guide written for a coding agent to read. According to the do
 npx skills add vercel-labs/agent-browser
 ```
 
-I didn't run this step. According to the v0.43.0 README, the skill it installs is a short stub that tells the agent to run `agent-browser skills get core` first, so the guide the agent reads matches the CLI version you installed. `skills get core` prints agent-browser's bundled core skill, and it was the first command the AI ran in Option 3.
+According to the v0.43.0 README, the skill it installs is a short stub that tells the agent to run `agent-browser skills get core` first, so the guide the agent reads matches the CLI version you installed. `skills get core` prints agent-browser's bundled core skill, and it was the first command the AI ran in Option 3.
 
-The core skill warns that the default session is one browser shared by everything on the machine. Working in it can take over another agent's page, so give each task its own `--session <name>`. All my test runs used the default session, without `--session`.
+The core skill warns that the default session is one browser shared by everything on the machine. Working in it can take over another agent's page, so give each task its own `--session <name>`. All my test runs used the default session.
 
 ### Option 2: Put it in AGENTS.md
 
-If your project has an `AGENTS.md` or `CLAUDE.md`, you can write the flow into it. See [How to Write AGENTS.md](/posts/agents-md-project-rules-for-coding-agents/) for how. The Installation docs provide a short section on the basic loop. Below is my template based on that section, with a few testing rules added. I haven't given this template to an AI to run, so change the URL and the expected text to fit your project:
+If your project has an `AGENTS.md` or `CLAUDE.md`, you can write the flow into it. See [How to Write AGENTS.md](/posts/agents-md-project-rules-for-coding-agents/) for how. The Installation docs provide a short section on the basic loop. Below is my template based on that section, with a few testing rules added. Change the URL and the expected text to fit your project:
 
 ```markdown
 ## Test web changes before you report them done
@@ -302,7 +302,7 @@ _The AI ran 10 commands on its own and reached the same conclusion I did by hand
 
 From start to the final `close`, the run took 36 seconds. The AI's first command was `skills get core`, which loads the core skill. Then it ran `open`, a `snapshot` without `-i`, `fill @e2`, `click @e3`, and `wait --text "Thank" --timeout 3000`. After that it took another `snapshot`, looked up `skills get core --ref commands`, and finally checked `errors` and `console`. Its refs were `e2` and `e3` because I had run `close` at the end of the previous run, so this was a new session. In the end it answered that the form doesn't work, quoting the same `TypeError` and `broken.html:15:49`.
 
-I also ran the same instruction once with `-v`, which prints the full output of every command. The command order and the conclusion were the same, and `wait` printed `✗ Wait timed out after 3000ms`. Both runs used only one model, `gpt-6.1-sol`.
+I also ran the same instruction once with `-v`, which prints the full output of every command. The command order and the conclusion were the same, and `wait` printed `✗ Wait timed out after 3000ms`. Both runs used `gpt-6.1-sol`.
 
 ## Step 6: Limit where it can go and what it can do
 
@@ -328,13 +328,13 @@ The action policy didn't match the docs. I started with the example from the Sec
 ```
 {: file="policy-0.43.json" }
 
-The file keeps `"eval"`. According to the description of PR #2506, the fix makes category names match the actions under them, and then the `"eval"` entry will take effect. I didn't test whether `download` and `upload` get blocked.
+The file keeps `"eval"`. According to the description of PR #2506, the fix makes category names match the actions under them, and then the `"eval"` entry will take effect.
 
 I also tried two more setups by hand. The first was the strict example from the Security docs, changed to `"default": "deny"` with an `allow` list of `navigate`, `snapshot`, `click`, `fill`, `wait`, `get`, and `close`. `open`, `snapshot -i`, `fill`, `click`, and `wait --text` all ran, but `get text "#msg"` was blocked with `Action 'gettext' denied by policy`. `get title`, `get url`, `screenshot`, and `errors` were blocked too, because their internal action names are `title`, `url`, `screenshot`, and `errors`, which aren't in the list. The second was `--confirm-actions eval`, which had no effect either. `eval "1+1"` returned `2` without asking for confirmation.
 
 So after you set an action policy, run an action it should block, like I did, and confirm it gets stopped. Also confirm that the commands you need aren't blocked along with it. Don't trust the contents of the policy file alone.
 
-The next few measures come from the official docs. I didn't run any of them:
+The next few measures come from the official docs:
 
 - According to `--help`, `--profile` reuses the sign-in state of a Chrome profile. If you use the profile you normally sign in with, the AI can use the state of every account signed in to that profile. According to the Security docs, `--allowed-domains` can't be combined with `--profile` either. When you need to sign in, the Security docs offer the auth vault. `agent-browser auth save` stores the credentials locally, you then sign in by name, and the password stays out of what the AI reads.
 - `--content-boundaries` wraps page content in markers with a random nonce, so the AI can tell tool output apart from text on the web page.

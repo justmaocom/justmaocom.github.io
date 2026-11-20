@@ -21,7 +21,7 @@ In this post I use a real article review on this site to show how GitHub Actions
 
 Other terms are explained where they first appear. The problem I want to solve is concrete: **for every review, be able to say what was checked, which version was checked, and what still needs a human decision.**
 
-> **Scope**: I checked this site's source and public PR records on 2026-11-07. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example: I did not install or enable it on the site, and its configuration should not be read as verified or ready to use.
+> **Scope**: I checked this site's source and public PR records on 2026-11-07. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example.
 {: .prompt-info }
 
 ## When This Process Helps
@@ -115,7 +115,7 @@ I would not rush into installing another bot (an automated account that performs
 @codex review
 ```
 
-This is an instruction readers can use. I did not post it as a new comment on the example PR. A one-off focus can follow on the same line. The official docs use this example:
+This is an instruction readers can use. A one-off focus can follow on the same line. The official docs use this example:
 
 ```text
 @codex review for issues in the database migration
@@ -170,7 +170,7 @@ I would keep the sequence simple:
 
 ## Advanced: When a Custom Codex Action Is Worth It
 
-> I did not install or enable the configuration in this section on this site. It is an extension example, not this site's current process.
+> This section is an extension example, not this site's current process.
 {: .prompt-info }
 
 Consider [`openai/codex-action`](https://github.com/openai/codex-action/tree/bdf19a4a223ec2549a3e2274a0cf61556bc07675) when you need a fixed report format, different prompts for articles and code, or output connected to an existing review tool. It installs Codex CLI (Codex's command-line tool) on a runner (the machine that executes Actions jobs) and runs a task through an API. You provide the API key (the credential for calling the service) and manage usage yourself. This is a different integration from the Codex reviews already visible on this site's PRs.
@@ -194,7 +194,7 @@ In short, `openai-api-key` reads the key from GitHub secrets (encrypted, stored 
 
 The [README fixed to this version](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md) says permission profiles require Codex CLI `0.138.0` or later and were still in beta when I checked. `:read-only` constrains filesystem and network access for commands; `drop-sudo` controls process privileges. They serve different purposes. Do not set `permission-profile` and the legacy `sandbox` input together; the action rejects that before it starts. `safety-strategy: read-only` switches to the legacy read-only sandbox, so it cannot be combined with a permission profile either. It is not another spelling of `:read-only`.
 
-The long string at the end of the `uses` line is a SHA that pins the action's version. It fixes only the action itself; it does not also pin the Codex CLI it installs or the model it uses. Before adoption, choose and record a tested `codex-version`, model, and report format, and check that the runner supports the required isolation. I do not invent a version combination that merely looks guaranteed to work.
+The long string at the end of the `uses` line is a SHA that pins the action's version. It fixes only the action itself; it does not also pin the Codex CLI it installs or the model it uses. Before adoption, choose and record a tested `codex-version`, model, and report format, and check that the runner supports the required isolation.
 
 Follow the [official security guidance](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md):
 

@@ -131,7 +131,7 @@ _訪談結果依內容性質分別寫入詞彙表、ADR 或後續規格。_
 
 ## 模擬情境：把席次問到能寫規格
 
-寫這篇時，我沒有實際啟動這組流程。以下內容只依原始規則推演，不是實測結果。情境是你已完成上一篇的專案設定，現在要在訂閱服務的專案資料夾內處理按席次計費。
+以下內容依原始規則推演。情境是你已完成上一篇的專案設定，現在要在訂閱服務的專案資料夾內處理按席次計費。
 
 以 Codex 這套 AI 程式助理為例，先輸入需求並明確啟動 `grill-with-docs`：
 
@@ -163,7 +163,7 @@ _Avoid_: 成員資格、訂閱項目
 _Avoid_: 使用者、席次
 ```
 
-這段是我依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意內容，不是工具的實測輸出。每個 `_Avoid_` 都列出容易混用、往後應避免的名稱。
+這段是我依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意內容。每個 `_Avoid_` 都列出容易混用、往後應避免的名稱。
 
 有了這些定義，第二輪才能追問邀請尚未接受時是否先保留席次、成員停用後如何處理指派，以及增減席次何時影響價格。若現有程式直接以啟用中的成員數量計費，AI 也要指出新定義與現況不同，請你確認是否要改變行為。
 

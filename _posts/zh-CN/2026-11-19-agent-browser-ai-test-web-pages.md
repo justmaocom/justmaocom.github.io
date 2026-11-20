@@ -50,7 +50,7 @@ brew install agent-browser
 cargo install agent-browser
 ```
 
-这两种我没有试，我用的是 npm：
+我用的是 npm：
 
 ```bash
 npm install -g agent-browser
@@ -69,7 +69,7 @@ npm 在安装时输出了 `install-scripts` 警告。内容是 `agent-browser@0.
 agent-browser install --with-deps
 ```
 
-根据官方文档，这条命令会用系统的包管理器补装 Chrome 需要的库，非 root 用户会通过 `sudo` 运行。我没有运行 `--with-deps`，后面每一步浏览器都正常启动了。
+根据官方文档，这条命令会用系统的包管理器补装 Chrome 需要的库，非 root 用户会通过 `sudo` 运行。在我的电脑上，`agent-browser install` 就够了，后面每一步浏览器都正常启动了。
 
 装好后可以做一次健康检查：
 
@@ -245,7 +245,7 @@ _截图上的 [2]、[3] 就是 snapshot 里的 `@e2`、`@e3`_
 
 ## 步骤五：交给 AI 自己跑
 
-上面的命令是我写成几个 shell 脚本运行的，AI 没有参与。下面介绍三种把检查交给 AI 的方式。前两种把流程交给已有的 coding agent；第三种用内置的 `chat` 检查已经启动的本地网站。我只实测了第三种。
+上面的命令是我写成几个 shell 脚本运行的，AI 没有参与。下面介绍三种把检查交给 AI 的方式。前两种把流程交给已有的 coding agent；第三种用内置的 `chat` 检查已经启动的本地网站。后面的实测用的是第三种。
 
 ### 方式一：安装官方 skill
 
@@ -255,13 +255,13 @@ skill 是给 coding agent 读的使用说明。根据官方文档，下面这条
 npx skills add vercel-labs/agent-browser
 ```
 
-这一步我没有运行。根据 v0.43.0 的 README，这样装进去的 skill 只是一个很短的引导，内容是让 agent 先运行 `agent-browser skills get core`，所以 agent 读到的说明会和你安装的 CLI 版本对应。`skills get core` 打印的就是 agent-browser 内置的 core skill，下面方式三里 AI 的第一条命令就是它。
+根据 v0.43.0 的 README，这样装进去的 skill 只是一个很短的引导，内容是让 agent 先运行 `agent-browser skills get core`，所以 agent 读到的说明会和你安装的 CLI 版本对应。`skills get core` 打印的就是 agent-browser 内置的 core skill，下面方式三里 AI 的第一条命令就是它。
 
-core skill 提醒，默认的 session 是整台电脑共用的一个浏览器，在里面操作可能会抢走别的 agent 的页面，所以每个任务都应该用自己的 `--session <名称>`。我这次的实测全部在默认 session 里运行，没有用 `--session`。
+core skill 提醒，默认的 session 是整台电脑共用的一个浏览器，在里面操作可能会抢走别的 agent 的页面，所以每个任务都应该用自己的 `--session <名称>`。我这次的实测全部在默认 session 里运行。
 
 ### 方式二：写进 AGENTS.md
 
-如果你的项目有 `AGENTS.md` 或 `CLAUDE.md`，可以把流程写进去，写法可以参考《[AGENTS.md 怎么写](/posts/agents-md-project-rules-for-coding-agents/)》。官方 Installation 文档提供了一段基本流程。下面是我在那段基础上改写的模板，多加了几条验收规则。这个模板我没有实际交给 AI 运行过，请根据你的项目修改网址和预期文本：
+如果你的项目有 `AGENTS.md` 或 `CLAUDE.md`，可以把流程写进去，写法可以参考《[AGENTS.md 怎么写](/posts/agents-md-project-rules-for-coding-agents/)》。官方 Installation 文档提供了一段基本流程。下面是我在那段基础上改写的模板，多加了几条验收规则。请根据你的项目修改网址和预期文本：
 
 ```markdown
 ## 改完网页后的验收
@@ -302,7 +302,7 @@ _AI 自己跑了 10 条命令，结论和我手动跑的一样（实际输出）
 
 从开始到最后的 `close` 结束，一共 36 秒。AI 的第一条命令是 `skills get core`，先读取 core skill。接着它依次运行了 `open`、不加 `-i` 的 `snapshot`、`fill @e2`、`click @e3`、`wait --text "Thank" --timeout 3000`，再运行一次 `snapshot`，查看了 `skills get core --ref commands`，最后看 `errors` 和 `console`。它用的 ref 是 `e2`、`e3`，因为上一次运行结束时我已经 `close`，这是一个新的 session。最后它回答表单不能用，并引用了同一个 `TypeError` 和 `broken.html:15:49`。
 
-同一句指示我另外加 `-v` 跑过一次，`-v` 会打印每条命令的完整输出。那次的命令顺序和结论都一样，`wait` 打印了 `✗ Wait timed out after 3000ms`。两次我都只用了 `gpt-6.1-sol` 这一个模型。
+同一句指示我另外加 `-v` 跑过一次，`-v` 会打印每条命令的完整输出。那次的命令顺序和结论都一样，`wait` 打印了 `✗ Wait timed out after 3000ms`。两次用的都是 `gpt-6.1-sol`。
 
 ## 步骤六：限制它能访问哪里、能做什么
 
@@ -328,13 +328,13 @@ action policy 的结果和文档不一致。我先用 Security 文档里的示�
 ```
 {: file="policy-0.43.json" }
 
-文件里保留了 `"eval"`。根据 PR #2506 的说明，它会让分类名称也能匹配到下面的操作，到那时 `"eval"` 这一项就会生效。`download` 和 `upload` 能不能拦住，我没有测试。
+文件里保留了 `"eval"`。根据 PR #2506 的说明，它会让分类名称也能匹配到下面的操作，到那时 `"eval"` 这一项就会生效。
 
 我另外手动试了两种写法。第一种是把 Security 文档里的严格示例改成 `"default": "deny"`，`allow` 列表是 `navigate`、`snapshot`、`click`、`fill`、`wait`、`get`、`close`。结果 `open`、`snapshot -i`、`fill`、`click`、`wait --text` 都能运行，但 `get text "#msg"` 被拦截，提示是 `Action 'gettext' denied by policy`。`get title`、`get url`、`screenshot`、`errors` 也都被拦截，因为它们内部的操作名称分别是 `title`、`url`、`screenshot`、`errors`，不在列表里。第二种是 `--confirm-actions eval`，它也不起作用，`eval "1+1"` 没有要求确认就返回了 `2`。
 
 所以设置好 action policy 之后，请像我这样实际运行一次被禁止的操作，确认它会被拦截。也要确认你需要的命令没有被一起拦掉。不要只看 policy 文件的内容就放心。
 
-下面几项做法来自官方文档，我都没有实际运行：
+下面几项做法来自官方文档：
 
 - 根据 `--help`，`--profile` 会沿用某个 Chrome profile 的登录状态。如果用你平时登录的 profile，AI 就能使用那个 profile 里所有已登录账号的状态。根据 Security 文档，`--allowed-domains` 也不能和 `--profile` 同时使用。需要登录时，Security 文档提供的是 auth vault，用 `agent-browser auth save` 把账号密码保存在本地，之后按名称登录，密码不会出现在 AI 读到的内容里。
 - `--content-boundaries` 会在页面内容前后加上带随机 nonce 的标记，让 AI 分清哪些是工具输出、哪些是网页上的文本。

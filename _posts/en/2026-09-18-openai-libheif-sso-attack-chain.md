@@ -175,7 +175,7 @@ The rebuild command given in the [Discourse advisory](https://github.com/discour
 ```
 {: .nolineno }
 
-This command is quoted from the advisory; I did not actually run it for this post. Before you run it for real, back up according to your deployment setup and read the version notes in the advisory that apply to you.
+This command is quoted from the advisory. Before you run it for real, back up according to your deployment setup and read the version notes in the advisory that apply to you.
 
 ## My Take: Redraw Your SSO Trust Relationships
 

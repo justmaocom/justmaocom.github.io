@@ -18,7 +18,7 @@ At that point, having the code ready is still a long way from being ready to lau
 
 The original article is by Louis Claxton, and its page lists a publication date of August 21, 2026. It argues that as AI accelerates code production, bottlenecks move to requirements, verification, and delivery. The development process should involve AI throughout, connect stages through traceable work products, and keep people responsible for decisions.
 
-This post is my interpretation of that idea, followed by a worked example. The website, people, times, and numbers below are all hypothetical. The prompts and documents are illustrative too; they do not describe an implementation I have built or tested.
+This post is my interpretation of that idea, followed by a worked example. The website, people, times, and numbers below are all hypothetical. The prompts and documents are illustrative too.
 
 ## How I Think About the SDLC: From an Idea to Something People Can Use
 
@@ -44,7 +44,7 @@ A restaurant is a useful analogy. Cooking faster doesn't help much if the order 
 The same applies to waitlist notifications. AI might build the email feature quickly, but if I then spend days deciding how to allocate places, or never find time to review the changes, users won't experience faster delivery.
 
 ![Two sequences of work: clarify requirements, build, and verify and deliver. In the second sequence, only the build stage is shorter.](bottleneck.en.webp){: width="1600" height="800" }
-_I use this diagram to show how waiting adds up. The block lengths are illustrative, not measured durations or performance gains._
+_I use this diagram to show how waiting adds up. The block lengths are illustrative._
 
 What I want to observe is the time from proposing a feature to making it usable. Where do discussions keep repeating? Does the release create more support work? If more code is being produced but the review queue keeps growing, that tells me where to focus next.
 

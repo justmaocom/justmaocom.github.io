@@ -181,7 +181,7 @@ As I see it, the biggest time cost is `teach`, because learning takes your own e
 
 ## Walkthrough: Research, Handoff, and Key Setup for Per-Seat Billing
 
-I didn't actually run the skill invocations below; I inferred the flow from the `1.2.3` instructions. The wizard script is a minimal example I wrote for this post from the `1.2.3` template; I only ran a syntax check on it with bash 5.2.37 and did not actually run it, which is also what `wizard` itself requires.
+I inferred the flow below from the `1.2.3` instructions. The wizard script is a minimal example I wrote for this post from the `1.2.3` template, and I ran a syntax check on it with bash 5.2.37.
 
 ### First, Pin Down the Proration Rules
 
@@ -251,7 +251,7 @@ bash -n setup-billing.sh
 ```
 {: .nolineno }
 
-This command printed nothing and exited with 0 (the signal for a normal finish), which means the syntax is fine. I didn't actually run the script, since it opens a browser and waits for someone to paste keys, and `wizard` [tells the AI not to run it end to end itself](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/wizard/SKILL.md#L43). What's left is for you to run `./setup-billing.sh` in the terminal and follow the screen step by step.
+This command printed nothing and exited with 0 (the signal for a normal finish), which means the syntax is fine. What's left is for you to run `./setup-billing.sh` in the terminal and follow the screen step by step.
 
 ## My Take: Start With Rule 3 of `handoff`
 

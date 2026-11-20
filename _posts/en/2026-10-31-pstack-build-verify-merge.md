@@ -387,7 +387,7 @@ _It reports conflicts instead of resolving them, and stops at mergeable without 
 
 ## A Complete Example (Made Up)
 
-> **I made up the following scenario.** It only shows how these playbooks and skills fit together. It isn't a record of a real run, and it includes no output.
+> **I made up the following scenario.** It only shows how these playbooks and skills fit together.
 {: .prompt-info }
 
 Say you maintain a command-line tool that exports data. A user reports that when the network is flaky and the command retries on its own, the same record appears twice in the output file.

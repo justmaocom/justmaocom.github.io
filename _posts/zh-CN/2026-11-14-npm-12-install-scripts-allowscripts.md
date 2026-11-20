@@ -12,7 +12,7 @@ image:
 
 升级到 npm 12 之后，你可能会遇到一个令人困惑的情况：`npm install` 顺利结束，包也装进来了，某个功能却不能用。原因可能是依赖包的安装脚本被跳过了。
 
-npm 12 默认不再执行这些脚本。这篇我会说明接下来要做的事：看哪些包需要审查，确认脚本的用途与来源，再批准必要的项目，把名单放进版本控制。你也可以加上 7 天冷静期，减少第一时间装到恶意新版本的机会。我认为这两道防线各有用途，也各有限制。步骤都是我根据官方文档整理的，文中没有附上 npm 命令的实测结果。
+npm 12 默认不再执行这些脚本。这篇我会说明接下来要做的事：看哪些包需要审查，确认脚本的用途与来源，再批准必要的项目，把名单放进版本控制。你也可以加上 7 天冷静期，减少第一时间装到恶意新版本的机会。我认为这两道防线各有用途，也各有限制。步骤都是我根据官方文档整理的。
 
 先认识几个词：
 
@@ -27,7 +27,7 @@ npm 12 默认不再执行这些脚本。这篇我会说明接下来要做的事�
 
 我在另一篇[npm Trusted Publishing 设置教程：发布包不再放长期 token](/posts/npm-trusted-publishing-github-actions/)谈的是发布者这一端；这篇则从安装包的人出发，说明怎么管理脚本、避开刚发布的版本，以及这次 tensorlake 事件为什么需要特别注意处理顺序。
 
-> **版本说明**：我写这篇时，参考的是 2026-11-13 当天的 npm CLI 12.2.2 官方文档〈[npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)〉、〈[npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)〉、〈[config](https://docs.npmjs.com/cli/v12/using-npm/config/)〉，以及 GitHub 的 [npm v12 变更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)，文中没有附上 npm 命令的实测结果。命令与默认值以对应版本的官方文档为准。
+> **版本说明**：我写这篇时，参考的是 2026-11-13 当天的 npm CLI 12.2.2 官方文档〈[npm-install-scripts](https://docs.npmjs.com/cli/v12/commands/npm-install-scripts/)〉、〈[npm-approve-scripts](https://docs.npmjs.com/cli/v12/commands/npm-approve-scripts/)〉、〈[config](https://docs.npmjs.com/cli/v12/using-npm/config/)〉，以及 GitHub 的 [npm v12 变更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)。命令与默认值以对应版本的官方文档为准。
 {: .prompt-info }
 
 ## npm 12 改了什么

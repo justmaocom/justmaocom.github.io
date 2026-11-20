@@ -16,9 +16,9 @@ Claude Code（在終端機裡使用的 AI 程式助理）可以安裝 plugin。�
 
 > Plugin 可以在你的電腦上執行程式，並存取你的檔案與 shell。安裝、更新或使用 plugin 之前，請確認你信任它。Anthropic 無法控制 plugin 內含哪些 MCP server、檔案或其他軟體，也無法驗證它們會如預期運作，或日後不會改變。詳情請見各 plugin 的首頁。
 
-讀到「確認你信任它」，我的第一個疑問是：到底要怎麼確認？我把官方的幾份文件讀過一輪，整理成我在裝 plugin 前後會照著做的檢查方法：從官方目錄怎麼找、裝之前打開哪幾個檔案、選哪個安裝範圍，以及裝了之後怎麼停用和移除。這篇不推薦任何 plugin。我也沒有實際安裝 plugin 來測試，文中「我會怎麼做」的部分，都是依官方文件排出來的步驟。
+讀到「確認你信任它」，我的第一個疑問是：到底要怎麼確認？我把官方的幾份文件讀過一輪，整理成我在裝 plugin 前後會照著做的檢查方法：從官方目錄怎麼找、裝之前打開哪幾個檔案、選哪個安裝範圍，以及裝了之後怎麼停用和移除。這篇不推薦任何 plugin。文中「我會怎麼做」的部分，都是依官方文件排出來的步驟。
 
-> **版本說明**：我寫這篇時，參考的是 2026-11-14（台北時間）當天的官方資料：[安裝與管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 總覽](https://code.claude.com/docs/en/plugins)、[plugin 參考手冊](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全說明](https://code.claude.com/docs/en/plugins/security)、[組織管理](https://code.claude.com/docs/en/plugins/org)、[市集參考手冊](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 與市集清單。2026-11-17 我再對照上述頁面修正部分說法，並依當天的 [mod 總覽](https://code.claude.com/docs/en/plugins/mods/overview) 與 [mod 管理說明](https://code.claude.com/docs/en/plugins/mods/admin) 補上 mod 的部分。文中的終端機指令，我對照過 Claude Code 2.1.325 的 `--help`（`plugin validate` 對照 2.1.326），沒有實際安裝任何 plugin。指令與介面會隨版本改變，請以你安裝的版本為準。
+> **版本說明**：我寫這篇時，參考的是 2026-11-14（台北時間）當天的官方資料：[安裝與管理 plugin](https://code.claude.com/docs/en/discover-plugins)、[plugin 總覽](https://code.claude.com/docs/en/plugins)、[plugin 參考手冊](https://code.claude.com/docs/en/plugins-reference)、[plugin 安全說明](https://code.claude.com/docs/en/plugins/security)、[組織管理](https://code.claude.com/docs/en/plugins/org)、[市集參考手冊](https://code.claude.com/docs/en/plugins/marketplace-reference)，以及 [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official) 的 README 與市集清單。2026-11-17 我再對照上述頁面修正部分說法，並依當天的 [mod 總覽](https://code.claude.com/docs/en/plugins/mods/overview) 與 [mod 管理說明](https://code.claude.com/docs/en/plugins/mods/admin) 補上 mod 的部分。文中的終端機指令，我對照過 Claude Code 2.1.325 的 `--help`（`plugin validate` 對照 2.1.326）。指令與介面會隨版本改變，請以你安裝的版本為準。
 {: .prompt-info }
 
 第三方擴充為什麼會帶來風險，我在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過，這裡不再重講。這篇只處理 plugin 的具體檢查步驟。

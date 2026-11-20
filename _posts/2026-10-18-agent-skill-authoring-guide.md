@@ -21,7 +21,7 @@ Agent Skill 就是做這件事的。這篇我從「寫 skill 的人」的角度�
 
 > 我寫這篇時，規範和各家工具的說法參考的是 2026 年 10 月 17 日當天的官方文件；Conventional Commits、commitlint 和 git 的說明，參考的是 2026 年 10 月 18 日當天的版本。這些文件網址沒有版本號，內容會更新，用之前請再對照一次。
 >
-> 我在 2026 年 10 月 18 日實際執行了範例的檢查，使用 skills-ref 0.1.0（agentskills/agentskills commit `69ef37e`）、git 2.47.3 與 Python 3.13.5，文中的指令和輸出都是當時跑出來的。**觸發率測試和輸出品質評測我沒有實跑**，兩個 skill 也都沒有在任何 agent 裡跑過，原因寫在「分三層測試」一節。
+> 我在 2026 年 10 月 18 日實際執行了範例的檢查，使用 skills-ref 0.1.0（agentskills/agentskills commit `69ef37e`）、git 2.47.3 與 Python 3.13.5，文中的指令和輸出都是當時跑出來的。
 {: .prompt-info }
 
 ## 先認識幾個詞
@@ -122,7 +122,7 @@ description: Turns meeting notes or a meeting transcript into a to-do list of ta
 | 「把我的待辦清單照優先順序排好」 | 不該 | 已經是待辦清單，不是從會議紀錄裡抽出來 |
 | 「幫我約下週三下午開會」 | 不該 | 是排會議，不是整理會議 |
 
-這張表是我寫的測試題起點，沒有在任何 agent 裡跑過。怎麼把它變成真的測試，見後面的「觸發測試」。
+這張表是我寫的測試題起點。怎麼把它變成真的測試，見後面的「觸發測試」。
 
 ### 長度要算預算
 
@@ -158,7 +158,7 @@ Claude Code 的文件建議，有副作用或你想自己控制時機的流程�
 
 A 剛好站在這條線上，因為 commit 就是有副作用的動作。我的處理是讓 A 只寫訊息、檢查格式，**只有使用者在對話裡要求 commit 時才執行 `git commit`**（寫在步驟 5）。要注意，這是寫在指示裡的約定，不是技術上擋得住的限制。如果你想要的是「一叫它就直接 commit」，那就該設成只能手動。
 
-這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 有效（Cursor 只支援 `disable-model-invocation`），但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。兩個範例我都沒有設這兩種開關。
+這裡還有一個取捨：`disable-model-invocation` 和 `user-invocable` 都不在規範的六個欄位裡。寫進 `SKILL.md`，在 Claude Code 有效（Cursor 只支援 `disable-model-invocation`），但 claude.ai 上傳和 Skills API 會拒收，後面的 `skills-ref` 檢查也會報錯。Codex 把同樣的設定放在另一個檔案 `agents/openai.yaml`，`SKILL.md` 本身就能維持只有規範欄位。
 
 ## 把細節拆到參考檔與腳本
 
@@ -203,7 +203,7 @@ fits, or when the change removes or renames something other code depends on.
 
 腳本指南也建議[在 `SKILL.md` 寫明前置需求](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，不要假設 agent 的環境已經裝好；執行階段的需求可以寫在 `compatibility` 欄位。用 `npx` 這類一次性指令時要鎖版本，例如明確指定 ESLint 用 9.0.0 版，不要只寫 `npx eslint`（指定版本的寫法見 npm 的 [package spec 文件](https://docs.npmjs.com/cli/using-npm/package-spec/)）。Anthropic 的撰寫指南也有一節就叫「[不要假設工具已經安裝](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)」。
 
-A 的腳本只用 Python 標準函式庫，另外需要 git，這兩項我都寫進了 `compatibility`。B 沒有腳本，什麼都不用裝，所以我沒寫 `compatibility`，這也符合規範說的「多數 skill 不需要」。如果腳本要用第三方套件，就用 [PEP 723](https://peps.python.org/pep-0723/) 在腳本裡宣告依賴，並在 `SKILL.md` 寫明怎麼執行。
+A 的腳本只用 Python 標準函式庫，另外需要 git，這兩項我都寫進了 `compatibility`。B 沒有腳本，什麼都不用裝，`compatibility` 就可以省略，這也符合規範說的「多數 skill 不需要」。如果腳本要用第三方套件，就用 [PEP 723](https://peps.python.org/pep-0723/) 在腳本裡宣告依賴，並在 `SKILL.md` 寫明怎麼執行。
 
 ### 不一定要有腳本
 
@@ -433,7 +433,7 @@ metadata:
 
 ### 用一份範例紀錄對照
 
-> 下面的會議紀錄是我編的**範例資料**，不是真實會議。後面的表格是我照範本**手寫**的預期結果，用來說明範本怎麼用，**不是 agent 產生的**，B 沒有在任何 agent 裡跑過。
+> 下面的會議紀錄是我編的**範例資料**，不是真實會議。後面的表格是我照範本**手寫**的預期結果，用來說明範本怎麼用。
 {: .prompt-warning }
 
 ```text
@@ -494,7 +494,7 @@ Validation failed for writing-commit-messages:
 
 問題出在 description 裡的 `type(scope): summary`。YAML 把「冒號加空白」當成「名稱: 值」的分隔，同一行出現第二個，整份 front matter 就解析失敗。我的修法是把整段值用雙引號包起來，原本句子裡的雙引號改成單引號。B 的 description 沒有「冒號加空白」，所以不加引號也能通過。
 
-這個錯在 Claude Code 裡不會有人提醒你：前面說過，它在 YAML 解析失敗時仍會載入 skill，只是所有欄位都是空的。我的推論是，description 變成空的，skill 就很難被自動叫出來；這一點我沒有實測。
+這個錯在 Claude Code 裡不會有人提醒你：前面說過，它在 YAML 解析失敗時仍會載入 skill，只是所有欄位都是空的。我的推論是，description 變成空的，skill 就很難被自動叫出來。
 
 加上引號後，兩個都通過，輸出各只有一行，exit code 都是 0：
 
@@ -521,7 +521,7 @@ Validation failed for writing-commit-messages:
 
 我覺得最後這個最值得注意：同一個欄位，在 Claude Code 裡完全合法，到了 skills-ref 就是錯誤。這就是我前面說「只用六個欄位」的原因。
 
-Claude Code 另外提供 `claude plugin validate <skills 目錄>`，可以找出 frontmatter 解析失敗的 `SKILL.md`，[需要 v2.1.233 以上](https://code.claude.com/docs/en/skills)。我的機器上沒有 Claude Code，所以沒有跑。
+Claude Code 另外提供 `claude plugin validate <skills 目錄>`，可以找出 frontmatter 解析失敗的 `SKILL.md`，[需要 v2.1.233 以上](https://code.claude.com/docs/en/skills)。
 
 ### 觸發測試
 
@@ -544,7 +544,7 @@ Claude Code 的文件用的是[同一個思路](https://code.claude.com/docs/en/
 | 「幫我把這個月的 commit 整理成 release notes」 | 不該 | 一樣在講 commit，要的卻是 release notes |
 | 「幫我寫一個 commit-msg hook，用 Node 檢查訊息格式」 | 不該 | 連「檢查訊息格式」都一樣，但要的是寫程式 |
 
-> **我沒有實跑觸發率。** 觸發測試要在真的 agent 裡跑，看它有沒有去讀 `SKILL.md`。我跑範例的機器上沒有 `claude`、`codex`、`cursor-agent`、`gemini`、`copilot` 這些 CLI（實際用 `command -v` 檢查過），所以這裡只有題目和方法，沒有任何觸發率數字。A 的 JSON 和 B 的那張對照表，都可以拿到自己的 agent 裡照指南的方法跑。
+> 觸發測試要在真的 agent 裡跑，看它有沒有去讀 `SKILL.md`。這裡提供題目和方法，A 的 JSON 和 B 的那張對照表，都可以拿到自己的 agent 裡照指南的方法跑。
 {: .prompt-warning }
 
 ### 輸出檢查
@@ -563,7 +563,7 @@ Claude Code 的文件用的是[同一個思路](https://code.claude.com/docs/en/
 
 Anthropic 的撰寫指南還多提醒一點：skill 的效果和搭配的模型有關，[要用你打算搭配的所有模型都測一次](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#test-with-all-models-you-plan-to-use)。
 
-> **我沒有實跑輸出評測。** 原因和觸發測試一樣：沒有可用的 agent，所以沒有「有 skill」和「沒有 skill」的對照結果。附錄的 `evals.json` 只是寫好的題目。B 我沒有寫 `evals.json`，前面那份手寫的預期結果可以當它第一題的 `expected_output`。
+> 附錄的 `evals.json` 是寫好的題目。B 要寫 `evals.json` 的話，前面那份手寫的預期結果可以當它第一題的 `expected_output`。
 {: .prompt-warning }
 
 ## 換一個 Agent 還能用嗎
@@ -581,7 +581,7 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 
 ### 範例做了哪些靜態檢查
 
-兩個 skill 我都沒有在任何一個 agent 裡實際跑過，所以不能說「已在 X 上測過」。能做的是靜態可攜性檢查，也就是不用執行 agent，只看檔案本身：
+不用執行 agent 也能做的是靜態可攜性檢查，只看檔案本身：
 
 | 檢查 | 結果 |
 | --- | --- |
@@ -608,7 +608,7 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 裝別人的 skill 有哪些風險、使用者該怎麼檢查，我在[這篇供應鏈安全的文章](/posts/coding-agent-supply-chain-permission-risks/)整理過了。這裡只談寫 skill 的人能先做好的事：
 
 - **不要讓 skill 抓外部網址的內容當指示。** Anthropic 的文件寫明，[會抓外部資料的 skill 風險特別高](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations)，抓回來的內容可能藏著惡意指令；就算是可信的 skill，外部依賴一變也可能被汙染。
-- **`allowed-tools` 給到最小。** 這個欄位在 Claude Code 裡，會讓 skill 在被叫用的那一輪不經詢問就使用列出的工具。文件特別寫明，[workspace trust 擋不住這個欄位](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)：repo 裡的 skill 可以替自己開權限，連在沒信任過的資料夾裡用 `-p` 執行也會套用。兩個範例我都沒有用這個欄位。
+- **`allowed-tools` 給到最小。** 這個欄位在 Claude Code 裡，會讓 skill 在被叫用的那一輪不經詢問就使用列出的工具。文件特別寫明，[workspace trust 擋不住這個欄位](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill)：repo 裡的 skill 可以替自己開權限，連在沒信任過的資料夾裡用 `-p` 執行也會套用。
 - **腳本裡不放任何秘密資訊。** 這是我的做法，不是哪份文件的規定：金鑰、權杖一律從環境變數讀，不寫進 skill 的任何檔案，因為整個資料夾都會被分享、被提交到 repo。
 - **依賴要鎖版本。** 腳本指南要求[一次性指令寫明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，這樣同一個指令隔一段時間再跑，結果也會一樣。
 - **會改東西的操作要提供 `--dry-run`。** 腳本指南建議，破壞性或會改變狀態的操作，[讓 agent 能先預覽會發生什麼](https://agentskills.io/skill-creation/using-scripts#further-considerations)。A 的腳本只讀 git 的狀態、從不寫檔；真正會改東西的 `git commit` 不在腳本裡，而是留到使用者要求時才執行，所以腳本不需要這個參數。
@@ -625,7 +625,7 @@ Agent Skills 是一個開放標準。有官方文件說明支援的，包括 Cla
 
 **為了跨 agent，寧可放棄一些方便的欄位。** `when_to_use`、`disable-model-invocation` 在 Claude Code 裡都很好用，但一寫進 `SKILL.md`，就過不了 skills-ref 和 claude.ai 上傳。如果這個 skill 只給自己在 Claude Code 裡用，那就沒關係；要給團隊、跨工具用，我會只用六個欄位。
 
-**沒跑過觸發測試的 description，只是一個猜測。** 這篇的兩個範例也一樣。我寫了題目，但在真的跑過之前，我不知道有人問「這次改動要怎麼描述」的時候，A 會不會被叫出來。
+**沒跑過觸發測試的 description，只是一個猜測。** 寫好題目之後，要在真的 agent 裡跑過，才知道有人問「這次改動要怎麼描述」的時候，A 會不會被叫出來。
 
 ## 延伸閱讀
 

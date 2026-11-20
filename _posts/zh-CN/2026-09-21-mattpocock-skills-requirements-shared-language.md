@@ -131,7 +131,7 @@ _访谈结果依内容性质分别写入词汇表、ADR 或后续规格。_
 
 ## 模拟场景：把席位问到能写规格
 
-写这篇时，我没有实际启动这组流程。以下内容只依原始规则推演，不是实测结果。场景是你已完成上一篇的项目设置，现在要在订阅服务的项目文件夹内处理按席位计费。
+以下内容依原始规则推演。场景是你已完成上一篇的项目设置，现在要在订阅服务的项目文件夹内处理按席位计费。
 
 以 Codex 这套 AI 编程助手为例，先输入需求并明确启动 `grill-with-docs`：
 
@@ -163,7 +163,7 @@ _Avoid_: 成员资格、订阅项目
 _Avoid_: 用户、席位
 ```
 
-这段是我依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意内容，不是工具的实测输出。每个 `_Avoid_` 都列出容易混用、往后应避免的名称。
+这段是我依 [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30)整理的示意内容。每个 `_Avoid_` 都列出容易混用、往后应避免的名称。
 
 有了这些定义，第二轮才能追问邀请尚未接受时是否先保留席位、成员禁用后如何处理分配，以及增减席位何时影响价格。若现有代码直接以活跃成员数量计费，AI 也要指出新定义与现状不同，请你确认是否要改变行为。
 

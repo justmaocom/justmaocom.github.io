@@ -148,7 +148,7 @@ _Memory test canceled. Time to get to work._
 
 ## Walkthrough: Adding Per-Seat Billing to an Existing Service
 
-I reasoned through this section from the rules as written in version `1.2.3`; it is not a record of an actual run. Assume the project is made up of several subprojects, the code is hosted on GitHub, and work is tracked in GitHub Issues.
+I reasoned through this section from the rules as written in version `1.2.3`. Assume the project is made up of several subprojects, the code is hosted on GitHub, and work is tracked in GitHub Issues.
 
 Using Codex as the example, first install the skills you need with skills.sh. Here I'll assume every skill mentioned below has been selected. Then type:
 

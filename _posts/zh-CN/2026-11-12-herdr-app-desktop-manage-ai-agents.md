@@ -16,7 +16,7 @@ Herdr 桌面 App（程序名 herdr-app）就是处理这件事的工具。按官
 
 这篇我写成照着做的入门：装好 App、从标签栏开一个 agent、用 space 和标签页整理工作、从 agents 侧边栏找出在等你的那个，再说明关掉窗口之后会怎样，以及遥测、自动更新和 mod 的安全注意事项。快捷键记不住也没关系，命令面板（command palette）可以按名字找到每个操作，还会列出它的快捷键。
 
-这篇我依官方文档整理，没有附 App 的界面截图；文中三张图都是我画的概念图。
+这篇我依官方文档整理，文中三张图都是我画的概念图。
 
 > **版本说明**：我写这篇时，参考的是 herdr-app v0.1.15（2026-11-11 台北时间发布；我在 2026-11-12 确认过 releases.herdr.dev 和 Homebrew 上都还是这一版）的官方文档。Herdr App 还没到 1.0，更新很快，操作方式与快捷键请以[官方 README](https://github.com/herdrdev/herdr-app/blob/v0.1.15/README.md)为准。
 {: .prompt-info }

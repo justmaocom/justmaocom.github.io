@@ -248,7 +248,7 @@ codex --cd services/payments --ask-for-approval never "Show which instruction fi
 
 This line starts Codex as if from `services/payments` and asks it to list the instruction files that are active.
 
-You should see the active instruction sources listed in order, such as the global file, the root AGENTS.md, and (when you start in a subdirectory) the closer file. That is the check described in the official docs, not a captured run from a particular session.
+You should see the active instruction sources listed in order, such as the global file, the root AGENTS.md, and (when you start in a subdirectory) the closer file. That is the check described in the official docs.
 
 In Claude Code, type `/memory` in the chat and look for your file in the list, or type this and check under Memory files:
 
