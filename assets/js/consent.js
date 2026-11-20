@@ -132,6 +132,11 @@
   // 追蹤碼可能在上一頁關閉時又寫回 cookie，所以每次載入都清一次
   if (choice === 'denied') clearCookies();
 
+  // 在其他分頁改成拒絕時，這一頁已在執行的追蹤碼一樣要停掉
+  window.addEventListener('storage', (e) => {
+    if (e.key === KEY && e.newValue === 'denied' && !loaders.length) location.reload();
+  });
+
   function init() {
     addSettings();
     if (choice !== 'granted' && choice !== 'denied') showBanner();
