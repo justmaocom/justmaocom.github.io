@@ -62,7 +62,13 @@ _概念图：盘点、对照、修复、复查围成一轮；中心原则是最�
 
 - **权限与自动放行**：在 Claude Code 里输入 `/permissions` 查看当前规则，各权限模式的含义对照 [permission modes](https://code.claude.com/docs/en/permission-modes) 文档。Codex 看 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)，确认两件事：沙箱模式（它在技术上能做什么）和批准策略（什么时候必须先问你）。Cursor 看 [Agent Security](https://cursor.com/docs/agent/security)，确认 Run Modes（终端命令怎么放行）和 MCP allowlist（预先放行的 MCP 工具清单）。
 - **沙箱**：Claude Code 用 `/sandbox` 或设置里的 `sandbox.enabled`，确认沙箱有没有开；开了之后能读哪里、能连哪里，看 [sandboxing](https://code.claude.com/docs/en/sandboxing) 文档。
-- **MCP**：从项目里的 `.mcp.json`（登记 MCP server 的配置文件）开始列。但 Claude Code 的 [security](https://code.claude.com/docs/en/security) 文档提醒，只看这个文件，看不到全部能加载的 server。要查看 Claude Code 当前配置了哪些 server，可以在终端执行 `claude mcp list`（会同时显示连接状态），或在 session 里输入 `/mcp`，见 [MCP 文档](https://code.claude.com/docs/en/mcp)。
+- **MCP**：从项目里的 `.mcp.json`（登记 MCP server 的配置文件）开始列。但 Claude Code 的 [security](https://code.claude.com/docs/en/security) 文档提醒，只看这个文件，看不到全部能加载的 server。要查看 Claude Code 当前配置了哪些 server，可以在终端执行下面这行（会同时显示连接状态），或在 session 里输入 `/mcp`：
+
+  ```bash
+  claude mcp list
+  ```
+
+  见 [MCP 文档](https://code.claude.com/docs/en/mcp)。
 - **凭证**：项目里的 `.env`（常用来放密码和 token 的文件）、用户主目录下的 `~/.ssh`（SSH 密钥，登录服务器和 Git 用）与 `~/.aws/credentials`（AWS 云凭证），以及放在环境变量（系统交给程序使用的配置值）里的密钥。
 - **自动化**：repo 里 `.github/workflows/` 文件夹下的 workflow 文件，以及你设置的定时任务或后台任务。
 
@@ -190,7 +196,12 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 文档提醒：如果把同一段设置放在 `~/.claude/settings.json`，`.` 会变成指向 `~/.claude`，项目文件反而会被挡住。
 
 - `bypassPermissions` 是 Claude Code 的一种权限模式，名称的意思就是跳过权限检查。官方说只应在容器或虚拟机（在你电脑里模拟出的另一台电脑）这类隔离环境使用；用不到的话，可以把 `permissions.disableBypassPermissionsMode` 设成 `"disable"` 关掉它。
-- Codex：到 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) 确认沙箱模式（它在技术上能做什么）、批准策略（什么时候必须先问你），以及网络访问是开还是关。想让它只读，可以执行 `codex --sandbox read-only --ask-for-approval on-request`。
+- Codex：到 [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) 确认沙箱模式（它在技术上能做什么）、批准策略（什么时候必须先问你），以及网络访问是开还是关。想让它只读，可以执行：
+
+  ```bash
+  codex --sandbox read-only --ask-for-approval on-request
+  ```
+
 - lockfile 我不会让 agent 自己重建；需要更新时，我会自己看过 diff 再改。
 - 让命令自动执行的清单（allowlist）放进版本控制，改了什么都看得到。这是 OWASP 对策 6 的做法。
 
@@ -264,7 +275,19 @@ _概念图：十项按本站整理分成五组。底部已注明分组不是 OWA
 
 - 我会先写下三个步骤，不要等出事才查：怎么中断当前的 session、怎么撤销它在用的 token、怎么关掉定时任务或后台任务。
 - 中断：以 Claude Code 为例，官方 [interactive mode](https://code.claude.com/docs/en/interactive-mode) 文档写明，按 `Esc` 会停下当前的回复或工具调用，按 `Ctrl+C` 会中断正在执行的操作。其他工具请查各自的官方文档。
-- 撤销：GitHub 的 personal access token（个人访问令牌）在 Settings → Developer settings → Personal access tokens 里删除，见 [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)。npm 的 token 可以在 npm 网站上删除，或先用 `npm token list` 找出 ID，再执行 `npm token delete <ID>`，见 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/)。
+- 撤销：GitHub 的 personal access token（个人访问令牌）在 Settings → Developer settings → Personal access tokens 里删除，见 [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)。npm 的 token 可以在 npm 网站上删除，或先找出 ID：
+
+  ```bash
+  npm token list
+  ```
+
+  再把 `<ID>` 换成要删的 ID，删除它：
+
+  ```bash
+  npm token delete <ID>
+  ```
+
+  见 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/)。
 - 长时间没人看着的任务，要限定范围和时间。
 - OWASP 对策 4 要求“kill-switches and credential revocation”（停机开关与撤销凭证）；对策 6 写“Keys must never be directly available to agents”，钥匙不该直接交给 agent；对策 1 要求完整、不可篡改的审计日志，出事后才查得到它做了什么。
 - 想回头看它刚才做了什么：在 Claude Code 里按 `Ctrl+O` 可以打开 transcript viewer（对话记录查看器），里面列出每一步用了哪些工具、执行了什么（同一份 interactive mode 文档）。这方便你自己回看，但不等于 OWASP 说的不可篡改审计日志。

@@ -132,7 +132,13 @@ Herdr App 只负责布局，真正运行终端的是 herdr-core。大多数人�
 
 - macOS 第一次使用时，系统可能会问 herdr-core（或 Herdr Core）能不能访问“文稿”这类文件夹、局域网或麦克风。依 CHANGELOG 0.1.12 和 0.1.13，那就是 Herdr 的一部分，点“允许”即可。
 - agent 退出后，它所在的终端不会跟着关掉，会留下来等你输入下一个命令。如果 agent 一启动就失败，依内置指南，Herdr 会弹出错误通知，附上错误代码和最后几行输出，方便你查原因。
-- 依 README，新标签页会从当前选中的终端（光标所在的那个）正在用的文件夹开始。所以要让 agent 在某个 repo 里工作，先在当前的终端用 `cd` 切到那个 repo 的文件夹（例如 `cd ~/projects/web-app`），再开新标签页。
+- 依 README，新标签页会从当前选中的终端（光标所在的那个）正在用的文件夹开始。所以要让 agent 在某个 repo 里工作，先在当前的终端切到那个 repo 的文件夹，例如：
+
+  ```bash
+  cd ~/projects/web-app
+  ```
+
+  再开新标签页。
 - 没有命名的 space 会跟着它第一个终端的文件夹走；想要一个固定不变的标签，就给 space 或标签页命名（默认快捷键：标签页 `f2`、space `shift-f2`）。
 - 如果你在 macOS 上用的是比 0.1.15 旧的版本，刚登录或重启后，+ 菜单可能把每个 agent 都标成“not installed”；0.1.15 已修复。
 
@@ -291,7 +297,13 @@ _概念图：在 Settings → Privacy，或在 settings.json 加上 `"telemetry"
 
 1. 在 **Settings → Privacy** 关掉。同一页也能查看报告的内容。
 2. 在 `~/.config/herdr-app` 里**现有的** `settings.json` 加上 `"telemetry": false` 这个字段。官方示例写成 `{"telemetry": false}`；文件里已经有其他设置的话，把这个字段加进最外层的大括号里，用逗号和其他字段隔开，不要把整个文件换掉。
-3. **只关这一次**：从终端启动 App 时，设置环境变量 `DO_NOT_TRACK=1` 或 `HERDR_TELEMETRY=0`，例如 `DO_NOT_TRACK=1 herdr-app`。在 CI（自动构建、测试代码的服务器环境）里也会自动停止收集。
+3. **只关这一次**：从终端启动 App 时，设置环境变量 `DO_NOT_TRACK=1` 或 `HERDR_TELEMETRY=0`，例如：
+
+   ```bash
+   DO_NOT_TRACK=1 herdr-app
+   ```
+
+   在 CI（自动构建、测试代码的服务器环境）里也会自动停止收集。
 
 要知道的两件事：
 

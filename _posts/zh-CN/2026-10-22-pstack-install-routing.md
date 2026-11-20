@@ -100,7 +100,13 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-如果你之前已经用 GitHub 来源加过 `cursor/plugins`，两个来源的目录名称都是 `cursor-plugins`。可以先用 `claude plugin marketplace remove cursor-plugins` 移除旧的，再运行上面的命令。注意，依 [Claude Code 文档](https://code.claude.com/docs/en/plugins/install#manage-marketplaces)，移除 marketplace 会一并卸载从它装的插件，所以移除后要重新安装。
+如果你之前已经用 GitHub 来源加过 `cursor/plugins`，两个来源的目录名称都是 `cursor-plugins`。可以先移除旧的：
+
+```bash
+claude plugin marketplace remove cursor-plugins
+```
+
+再运行上面的四行命令。注意，依 [Claude Code 文档](https://code.claude.com/docs/en/plugins/install#manage-marketplaces)，移除 marketplace 会一并卸载从它装的插件，所以移除后要重新安装。
 
 这和我在[供应链与权限风险的文章](/posts/coding-agent-supply-chain-permission-risks/)里建议的“先 clone，再切到审过的 commit”是同一个做法。之后想升级，就在这个文件夹里切到新的 commit，再更新插件。
 

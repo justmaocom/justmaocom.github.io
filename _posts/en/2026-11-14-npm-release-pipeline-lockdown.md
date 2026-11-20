@@ -238,7 +238,13 @@ At minimum, I'd check:
 - The workflow run and source commit correspond to reviewed changes.
 - **The actual downloaded tarball**, especially compiled output, install scripts, and added files. A reviewed source PR does not establish that the generated files match; a SHASUM identifies contents but does not review them.
 
-If anything is unclear, I'd leave it unapproved and use `npm stage reject 'YOUR_STAGE_ID'` when appropriate. Do not execute a suspicious package on a computer holding production credentials to test it.
+If anything is unclear, I'd leave it unapproved and, when appropriate, reject it with:
+
+```bash
+npm stage reject 'YOUR_STAGE_ID'
+```
+
+Do not execute a suspicious package on a computer holding production credentials to test it.
 
 When staging a new package for the first time, npm creates a public `0.0.0-stage` placeholder. The actual staged contents stay private until approval. Batch approval is still rolling out; even if a batch needs only one 2FA challenge, review each package in it.
 

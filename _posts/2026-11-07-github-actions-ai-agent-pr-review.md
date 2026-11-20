@@ -115,7 +115,13 @@ _三件事分開做：固定規則、需要推理的疑點，以及能不能合�
 @codex review
 ```
 
-這行是給讀者參考的操作指令，我沒有替案例 PR 送出新留言。一次性的重點可以接在後面，例如官方文件的 `@codex review for issues in the database migration`。下一節的審查要求也可以這樣交；要每次都沿用，做法見下一節。
+這行是給讀者參考的操作指令，我沒有替案例 PR 送出新留言。一次性的重點可以接在後面，例如官方文件的這行：
+
+```text
+@codex review for issues in the database migration
+```
+
+下一節的審查要求也可以這樣交；要每次都沿用，做法見下一節。
 
 PR #29 那則摘要的觸發欄是 PR opened。同一則公開留言列出的觸發方式是：開啟 PR、把草稿標成可審查，或留言 `@codex review`。它沒有把補交 commit 列進去。設定頁還可以另外選擇 Review trigger，所以我不會從這一次紀錄推論以後每次補交都會重審。
 

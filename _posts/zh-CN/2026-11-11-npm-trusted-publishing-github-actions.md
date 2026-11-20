@@ -67,7 +67,12 @@ _概念图：GitHub Actions 先出示身份证明，npm 核对设置后才换发
 
 开始之前，确认这四件事：
 
-- **版本够新：** npm CLI 11.5.1 及以上、Node.js 22.14.0 及以上，这是[官方文档](https://docs.npmjs.com/trusted-publishers)的版本要求。官方示例用 Node 24，目前内置的 npm（11.19.x）已经满足。**Node 22 内置的 npm 是 10.x，不到 11.5.1**；一定要用 Node 22 的话，请在发布前先升级 npm，例如在 workflow 里加一步 `npm install -g npm@latest`。
+- **版本够新：** npm CLI 11.5.1 及以上、Node.js 22.14.0 及以上，这是[官方文档](https://docs.npmjs.com/trusted-publishers)的版本要求。官方示例用 Node 24，目前内置的 npm（11.19.x）已经满足。**Node 22 内置的 npm 是 10.x，不到 11.5.1**；一定要用 Node 22 的话，请在发布前先升级 npm，例如在 workflow 里加一步：
+
+  ```bash
+  npm install -g npm@latest
+  ```
+
 - **`repository.url` 完全一致：** `package.json`（包的配置文件，记录名称、版本等信息）里的 `repository.url`，必须和你的 GitHub repo **完全一致**，大小写也要相同。从 fork（复制别人的 repo 而来）的项目若没改这个字段，发布会失败。
 - **账号与 2FA：** 你的 npm 账号要能管理这个包，并已开启 2FA（两步验证：除了密码，还要再输入一组验证码）。步骤 4 会把包改成“发布必须 2FA”，进阶的 stage publish 批准也要用 2FA。
 - **包已经在 npm 上：** 设置入口在已有包的 Settings 页。官方文档没有另外写“全新包”该怎么设置。
@@ -168,7 +173,13 @@ jobs:
 
 这里的 `NPM_READ_TOKEN` 必须是 **read-only** 的 granular token，只用来安装，不能发布。创建方式：在 npmjs.com 点击头像 → **Access Tokens** → **Generate New Token**，Permissions 选择 **Read-only**（目前不能用 CLI 创建 granular token）。创建后存进 repo 的 secrets，名称和示例一样叫 `NPM_READ_TOKEN`。
 
-**scoped 包第一次公开发布时：** scoped 包是名称以 `@` 开头、类似 `@组织/包` 的包。npm 的《[Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages)》写明，scoped 包默认以私有可见性发布，要公开就用 `npm publish --access public`；[provenance 文档](https://docs.npmjs.com/generating-provenance-statements)也提醒，第一次发布时要明确设为公开。
+**scoped 包第一次公开发布时：** scoped 包是名称以 `@` 开头、类似 `@组织/包` 的包。npm 的《[Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages)》写明，scoped 包默认以私有可见性发布，要公开就用：
+
+```bash
+npm publish --access public
+```
+
+[provenance 文档](https://docs.npmjs.com/generating-provenance-statements)也提醒，第一次发布时要明确设为公开。
 
 **你会得到：** 一份不必存放发布用 token 的 workflow。
 
@@ -192,7 +203,19 @@ jobs:
 
 1. 先设置好 Trusted Publishing，并确认发布成功。
 2. 到包的 **Settings → Publishing access**，选择 **Require two-factor authentication and disallow tokens**，再点击 **Update Package Settings**。之后 granular token 一律不能发布这个包；trusted publisher 用的是 OIDC，不受影响。
-3. 撤销不再需要的 token：在 npmjs.com 点击头像 → **Access Tokens**，点击该 token 的 **×**，或勾选后点击 **Delete Selected Tokens**；也可以在终端里用 `npm token list` 找出 ID，再执行 `npm token delete <id>`。文档写明，撤销最多可能要一小时才生效。说明见 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens)。
+3. 撤销不再需要的 token：在 npmjs.com 点击头像 → **Access Tokens**，点击该 token 的 **×**，或勾选后点击 **Delete Selected Tokens**；也可以在终端里先找出 token 的 ID：
+
+   ```bash
+   npm token list
+   ```
+
+   再把 `<id>` 换成要删的 ID，删除它：
+
+   ```bash
+   npm token delete <id>
+   ```
+
+   文档写明，撤销最多可能要一小时才生效。说明见 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens)。
 
 撤销后，GitHub secrets 里原来用于发布的 `NPM_TOKEN` 也就用不上了，可以一并删除。
 
@@ -259,7 +282,13 @@ Trusted Publishing 去掉了长期 token，但 workflow 本身若被攻破，仍
 
 - **environment 加人工批准：** 在 GitHub 为发布 job 指定 environment，并设置需要人工批准；npmjs.com 的 **Environment name** 要填同一个名称。
 - **tag protection rules：** 限制谁能推送发布用的 tag。
-- **只允许 stage publish：** Allowed actions 只保留 `npm stage publish`，workflow 的最后一行也改成 `npm stage publish`。每个版本会先进入暂存区，维护者用 2FA 批准后才公开；批准可以在 npmjs.com 账号设置的 **Staged Packages** 标签页点击 **Approve**，或使用 `npm stage approve <stage-id>`。文档把“trusted publisher 只允许 stage publish”视为更强的组合；如果配置了多个 publisher，也要逐个检查是否仍允许直接发布。这需要 npm CLI 11.15.0 及以上，细节见 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
+- **只允许 stage publish：** Allowed actions 只保留 `npm stage publish`，workflow 的最后一行也改成 `npm stage publish`。每个版本会先进入暂存区，维护者用 2FA 批准后才公开；批准可以在 npmjs.com 账号设置的 **Staged Packages** 标签页点击 **Approve**，或执行：
+
+  ```bash
+  npm stage approve <stage-id>
+  ```
+
+  文档把“trusted publisher 只允许 stage publish”视为更强的组合；如果配置了多个 publisher，也要逐个检查是否仍允许直接发布。这需要 npm CLI 11.15.0 及以上，细节见 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期检查：** 定期审计包的 trusted publisher 设置，删除不再使用的发布 token。
 
 这几道关卡怎么一步步设置，以及为什么带着 provenance 的版本仍可能是恶意的，我在续篇[开了 Trusted Publishing 还不够：npm 发布流程也要上锁](/posts/npm-release-pipeline-lockdown/)里说明。

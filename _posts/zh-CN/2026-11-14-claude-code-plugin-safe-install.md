@@ -256,7 +256,12 @@ claude --plugin-dir ./plugins/example-plugin plugin details example-plugin
 ```
 {: .nolineno }
 
-它会打印出一份 `Component inventory`（组件清单），列出 skill 和命令、agent、hook（含触发事件）、MCP server 和 LSP server。我会拿它对照刚才看过的文件，有漏看的就回去补上。monitor、`bin/` 里的文件和 mod 不在这份清单里，要自己打开来看。这份清单列的是这个文件夹里的组件；市场条目另外加上的组件，以及 `dependencies` 里的其他 plugin，要各自回去看。装好之后，也可以用 `claude plugin details <plugin 名称>` 检查实际安装的那一份。
+它会打印出一份 `Component inventory`（组件清单），列出 skill 和命令、agent、hook（含触发事件）、MCP server 和 LSP server。我会拿它对照刚才看过的文件，有漏看的就回去补上。monitor、`bin/` 里的文件和 mod 不在这份清单里，要自己打开来看。这份清单列的是这个文件夹里的组件；市场条目另外加上的组件，以及 `dependencies` 里的其他 plugin，要各自回去看。装好之后，也可以用这行检查实际安装的那一份：
+
+```bash
+claude plugin details <plugin 名称>
+```
+{: .nolineno }
 
 ### 可复制的检查清单
 
@@ -335,22 +340,48 @@ claude plugin install <plugin 名称>@claude-plugins-official --scope local
 
 要关闭某个市场的自动更新，在 `/plugin` 切到 **Marketplaces** 标签页，选择市场，再选 **Disable auto-update**。
 
-关掉的代价是不会自动拿到修复，所以我不会全部关掉。我的做法是只对第三方或不熟悉的市场关闭自动更新，改成定期手动更新。更新前，我会先用 `https://github.com/<账号>/<repo>/compare/<旧 sha>...<新 sha>` 比对这次改了什么，特别是 `plugin.json`、`hooks/hooks.json`、`.mcp.json` 和新增的依赖。手动更新的命令是 `claude plugin update <plugin 名称>@<市场名称>`，更新后要重启 Claude Code，或在对话里执行 `/reload-plugins` 才会生效。
+关掉的代价是不会自动拿到修复，所以我不会全部关掉。我的做法是只对第三方或不熟悉的市场关闭自动更新，改成定期手动更新。更新前，我会先用 `https://github.com/<账号>/<repo>/compare/<旧 sha>...<新 sha>` 比对这次改了什么，特别是 `plugin.json`、`hooks/hooks.json`、`.mcp.json` 和新增的依赖。手动更新的命令是：
+
+```bash
+claude plugin update <plugin 名称>@<市场名称>
+```
+{: .nolineno }
+
+更新后要重启 Claude Code，或在对话里执行 `/reload-plugins` 才会生效。
 
 ## 装了之后：禁用、卸载、清理干净
 
 我会先确认自己到底装了什么。`claude plugin list` 会列出每个 plugin 的版本、安装范围和状态。
 
-**禁用**：暂时不用，或者怀疑它有问题时，我会先走这一步。在 `/plugin` 的 Installed 标签页选中 plugin 后按空格键，或输入 `/plugin disable` 打开面板操作。在终端里则是：
+**禁用**：暂时不用，或者怀疑它有问题时，我会先走这一步。在 `/plugin` 的 Installed 标签页选中 plugin 后按空格键，或输入下面这行打开面板操作：
+
+```text
+/plugin disable
+```
+{: .nolineno }
+
+在终端里则是：
 
 ```bash
 claude plugin disable <plugin 名称>@<市场名称>
 ```
 {: .nolineno }
 
-禁用后文件还在，之后可以用 `claude plugin enable` 重新启用。如果还有其他启用中的 plugin 依赖它，禁用会失败，并列出要先禁用哪些。遇到不明状况、想先全部停下来，可以用 `claude plugin disable --all` 禁用所有 plugin。
+禁用后文件还在，之后可以用 `claude plugin enable` 重新启用。如果还有其他启用中的 plugin 依赖它，禁用会失败，并列出要先禁用哪些。遇到不明状况、想先全部停下来，可以用这行禁用所有 plugin：
 
-**卸载**：输入 `/plugin uninstall`，或在终端里执行：
+```bash
+claude plugin disable --all
+```
+{: .nolineno }
+
+**卸载**：在输入框里输入：
+
+```text
+/plugin uninstall
+```
+{: .nolineno }
+
+或在终端里执行：
 
 ```bash
 claude plugin uninstall <plugin 名称>@<市场名称> --scope <当初的范围>
@@ -361,10 +392,23 @@ claude plugin uninstall <plugin 名称>@<市场名称> --scope <当初的范围>
 
 - 从最后一个安装范围卸载时，plugin 的数据文件夹 `~/.claude/plugins/data/<id>/` 会一起删除，plugin 保存的选项和密钥也会删掉。加上 `--keep-data` 才会保留文件夹。
 - 程序文件本身会在 `~/.claude/plugins/cache/` 多留 14 天，才由后台清理删除。确定不再信任它，我会自己删掉 `~/.claude/plugins/cache/<市场名称>/<plugin 名称>/`。
-- 当初跟着安装的依赖不会一起卸载。加上 `--prune` 会一并卸载没有其他 plugin 需要的依赖，之后也可以用 `claude plugin prune` 清理。
+- 当初跟着安装的依赖不会一起卸载。加上 `--prune` 会一并卸载没有其他 plugin 需要的依赖，之后也可以用这行清理：
+
+  ```bash
+  claude plugin prune
+  ```
+  {: .nolineno }
+
 - Project 范围的 plugin 在界面上卸载时，会问你要选 **Disable for me**（只对自己禁用，写进你的 `.claude/settings.local.json`）还是 **Uninstall for everyone**（从共享的 `.claude/settings.json` 里去掉，影响所有协作者）。
 
-**移除市场**：输入 `/plugin marketplace remove <市场名称>`。从这个市场安装的所有 plugin 会一起被卸载。
+**移除市场**：在输入框里输入：
+
+```text
+/plugin marketplace remove <市场名称>
+```
+{: .nolineno }
+
+从这个市场安装的所有 plugin 会一起被卸载。
 
 如果是因为怀疑 plugin 有问题才卸载它，我会把曾经交给它的 token 也换掉。后续处理可以参考[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)的“出事之后”清单。
 
@@ -393,7 +437,14 @@ _概念图：由轻到重的三种处理方式。怀疑出事时先禁用，确�
 ```
 {: file=".claude/settings.json" }
 
-这个文件会提交进 repo，所以我把改它当成改代码，一样要经过 PR 审查。也可以把它加进 CODEOWNERS（指定哪些文件由谁审核的配置文件），让熟悉这份检查清单的人负责批准。官方文档另外说明了两点：在 repo 里写了 `enabledPlugins` 不会自动安装，协作者要自己执行 `claude plugin install <名称>@<市场> --scope project`；`extraKnownMarketplaces` 也只在协作者已经信任的文件夹里生效。
+这个文件会提交进 repo，所以我把改它当成改代码，一样要经过 PR 审查。也可以把它加进 CODEOWNERS（指定哪些文件由谁审核的配置文件），让熟悉这份检查清单的人负责批准。官方文档另外说明了两点。在 repo 里写了 `enabledPlugins` 不会自动安装，协作者要自己执行：
+
+```bash
+claude plugin install <名称>@<市场> --scope project
+```
+{: .nolineno }
+
+`extraKnownMarketplaces` 也只在协作者已经信任的文件夹里生效。
 
 **3. 在组织层面限制市场来源。** 公司如果统一管理 Claude Code 的配置（managed settings），管理员可以用 `strictKnownMarketplaces` 只允许特定来源，或用 `blockedMarketplaces` 屏蔽特定来源。官方的允许列表示例如下：
 

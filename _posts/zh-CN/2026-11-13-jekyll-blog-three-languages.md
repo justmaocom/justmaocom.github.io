@@ -221,7 +221,11 @@ checks = [
 ```
 {: file="tools/check-i18n.rb" }
 
-这个检查放在 GitHub Actions 的发布流程里，顺序是：构建网站，跑 `check-i18n.rb`，跑 SEO 检查，用 html-proofer（检查网页链接和图片有没有失效的工具）检查站内链接，全部通过才发布。提交 pull request 时也会跑同样的检查，只是不发布。在本地，执行 `bash tools/test.sh` 就能跑完整套。
+这个检查放在 GitHub Actions 的发布流程里，顺序是：构建网站，跑 `check-i18n.rb`，跑 SEO 检查，用 html-proofer（检查网页链接和图片有没有失效的工具）检查站内链接，全部通过才发布。提交 pull request 时也会跑同样的检查，只是不发布。在本地执行下面这行，就能跑完整套：
+
+```bash
+bash tools/test.sh
+```
 
 ## 代价
 

@@ -10,7 +10,13 @@ image:
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
 ---
 
-> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it with `git mv CONTEXT.md GLOSSARY.md`. When I checked, all five skills covered here were still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). I plan a full update of this series.
+> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it:
+>
+> ```bash
+> git mv CONTEXT.md GLOSSARY.md
+> ```
+>
+> When I checked, all five skills covered here were still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). I plan a full update of this series.
 {: .prompt-warning }
 
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.

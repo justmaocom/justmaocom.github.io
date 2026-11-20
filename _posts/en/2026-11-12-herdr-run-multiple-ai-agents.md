@@ -57,7 +57,19 @@ _Concept diagram: The five steps in one loop are Start herdr, Add a worktree, Ru
 ![Install herdr with brew or mise; if you use the official curl | sh one-liner, download and read the script first](install.en.webp){: w="1600" h="900" }
 _Concept diagram: The left side is this site's suggestion, installing and upgrading with brew or mise. The right side is the one-liner from the official Install/TUI page; if you use it, download the script, read it, then run it._
 
-If you already use [Homebrew](https://formulae.brew.sh/formula/herdr), I recommend `brew install herdr`. If you already use [mise](https://mise.jdx.dev/), I recommend `mise use -g herdr`. Both are listed on the official [Install](https://herdr.dev/tui/docs/0.9.5/install/) page.
+If you already use [Homebrew](https://formulae.brew.sh/formula/herdr), I recommend installing with brew:
+
+```bash
+brew install herdr
+```
+
+If you already use [mise](https://mise.jdx.dev/), I recommend installing with mise:
+
+```bash
+mise use -g herdr
+```
+
+Both are listed on the official [Install](https://herdr.dev/tui/docs/0.9.5/install/) page.
 
 The official Install/TUI page also offers a one-line install command, `curl -fsSL https://herdr.dev/install.sh | sh`. I recommend not pasting that straight into a shell, for two reasons. First, what runs is whatever the server returns at that moment, which you have not read, and a later run may not be the same. Second, it installs into `~/.local/bin` and then updates itself with `herdr update`, so it never appears in your package manager's list, which makes it harder to see what you installed or to remove it later. With brew or mise, you can look up the version, and upgrades and uninstalls use the same tool. That is not a claim that the install script is broken; it comes from my habit of reading first, then running. I explained why in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
@@ -67,17 +79,69 @@ If you do need the official script, I would download it to a file first:
 curl -fsSL https://herdr.dev/install.sh -o herdr-install.sh
 ```
 
-Open it in a text editor and read it (or run `less herdr-install.sh` in the terminal and press `q` when you are done). Once you are satisfied, run `sh herdr-install.sh`. If you cannot tell what the script does, I suggest using brew or mise instead.
+Open it in a text editor and read it, or read it with less in the terminal and press `q` when you are done:
 
-If mise reports `herdr not found in mise tool registry`, the official docs say to update mise and try again (run `brew upgrade mise` if you installed mise with brew, or `mise self-update` otherwise).
+```bash
+less herdr-install.sh
+```
 
-After the install, run `herdr --version`. According to the official docs, it should print a version number, such as 0.9.5. If you use a Chinese, Japanese, or Korean input method and the prefix shortcuts do not respond, make sure you are on 0.9.5 or later; the official notes for this release include a fix for that.
+Once you are satisfied, run:
 
-For upgrades, use `brew upgrade herdr` if you installed with brew, and `mise upgrade herdr` if you installed with mise. The official wording is: "Use `herdr update` only for installs managed by Herdr's own installer. Update Homebrew, mise, and Nix installs through those package managers instead." After a package-manager upgrade, run `herdr` again to reconnect with the new client; the background server and agents that were already running are not affected. To move the server itself to the new version, run `herdr server stop` (this stops every running agent; see Step 6), then run `herdr` to start it again, as the Update section of the Install page describes.
+```bash
+sh herdr-install.sh
+```
+
+If you cannot tell what the script does, I suggest using brew or mise instead.
+
+If mise reports `herdr not found in mise tool registry`, the official docs say to update mise and try again. If you installed mise with brew, run:
+
+```bash
+brew upgrade mise
+```
+
+Otherwise, run:
+
+```bash
+mise self-update
+```
+
+After the install, run:
+
+```bash
+herdr --version
+```
+
+According to the official docs, it should print a version number, such as 0.9.5. If you use a Chinese, Japanese, or Korean input method and the prefix shortcuts do not respond, make sure you are on 0.9.5 or later; the official notes for this release include a fix for that.
+
+For upgrades, run this if you installed with brew:
+
+```bash
+brew upgrade herdr
+```
+
+If you installed with mise, run:
+
+```bash
+mise upgrade herdr
+```
+
+The official wording is: "Use `herdr update` only for installs managed by Herdr's own installer. Update Homebrew, mise, and Nix installs through those package managers instead." After a package-manager upgrade, run `herdr` again to reconnect with the new client; the background server and agents that were already running are not affected. To move the server itself to the new version, stop the server (this stops every running agent; see Step 6), then start it again, as the Update section of the Install page describes. Run these in order:
+
+```bash
+herdr server stop
+herdr
+```
 
 ## Step 2: Start herdr in Your Project Folder
 
-In the terminal, `cd` into your project folder (for example, `cd ~/projects/demo-app`), then run `herdr`. According to the [Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/), it launches or attaches to your default background session, and if that session has no workspaces yet, it opens one automatically; that is the demo-app entry in the sidebar below. Each worktree you add later gets one more workspace (Step 3).
+In the terminal, move into your project folder, then run `herdr`. For example:
+
+```bash
+cd ~/projects/demo-app
+herdr
+```
+
+According to the [Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/), it launches or attaches to your default background session, and if that session has no workspaces yet, it opens one automatically; that is the demo-app entry in the sidebar below. Each worktree you add later gets one more workspace (Step 3).
 
 ![Real herdr screen: the sidebar lists the demo-app workspace; two panes run git commands and a build](screen-main.en.webp){: w="1600" h="900" }
 _Real screen: herdr opened in the demo-app folder, with a second pane split off by prefix+v. Both panes run a plain shell, not an agent, so the agents list is empty._
@@ -105,7 +169,11 @@ The default location is `~/.herdr/worktrees/<repo>/<branch>`. You can change it 
 git worktree add -b login-page ../demo-app-login-page
 ```
 
-Then press `prefix+shift+n` in herdr to open a new workspace, and run `cd ../demo-app-login-page` in it to move into the folder you just created.
+Then press `prefix+shift+n` in herdr to open a new workspace, and move into the folder you just created:
+
+```bash
+cd ../demo-app-login-page
+```
 
 Closing a workspace (`prefix+shift+d`) does not delete the folder or the branch. According to the official docs, closing the project's row also closes the worktree workspaces grouped under it. To remove a worktree folder, select that worktree's workspace in the sidebar (the row grouped under the project) and use `Delete worktree checkout...` (which runs `git worktree remove`), or run `git worktree remove` yourself; delete the branch separately.
 
@@ -115,7 +183,25 @@ If you need another terminal in the same workspace, for example to run tests, sp
 
 Switch to the workspace you want, and type `claude` or `codex` in a pane, just as you would in a regular terminal. According to the Quick start, herdr detects which agent it is automatically, and a new row appears in the agents section of the sidebar. Official support also includes Cursor Agent CLI, GitHub Copilot CLI, OpenCode, and others; see the full list on [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) rather than repeating it here.
 
-Integrations are optional. You can read states without them; install one if you want the same conversation to resume after herdr's background server restarts. The commands are `herdr integration install claude` and `herdr integration install codex`; see [Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/). An integration changes the agent's settings: for Claude Code, it adds a hook script and the matching hook entries in `settings.json`; for Codex, it adds a hook script, updates `hooks.json`, and turns on `[features] hooks = true` in `config.toml`. You can remove one with `herdr integration uninstall claude` (or `codex`), but Codex's `config.toml` is not reverted. For what a hook is, see my post [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
+Integrations are optional. You can read states without them; install one if you want the same conversation to resume after herdr's background server restarts. For Claude Code, run:
+
+```bash
+herdr integration install claude
+```
+
+For Codex, run:
+
+```bash
+herdr integration install codex
+```
+
+See [Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/). An integration changes the agent's settings: for Claude Code, it adds a hook script and the matching hook entries in `settings.json`; for Codex, it adds a hook script, updates `hooks.json`, and turns on `[features] hooks = true` in `config.toml`. To remove one, run the line below (for Codex, replace `claude` with `codex`), but Codex's `config.toml` is not reverted:
+
+```bash
+herdr integration uninstall claude
+```
+
+For what a hook is, see my post [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 ## Step 5: Read the States and Find the Stuck One
 
@@ -147,7 +233,19 @@ herdr does not show notifications by default (`delivery` under `[ui.toast]` in t
 delivery = "herdr"
 ```
 
-Save the file, then run `herdr server reload-config` (or press `prefix+shift+r`) to apply it. With `herdr`, the toast appears inside herdr; with `system`, herdr uses your operating system's notifications instead. On macOS, `system` tries terminal-notifier first, so the official docs suggest `brew install terminal-notifier`. For the other options, see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/) or the [Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/).
+Save the file, then run the line below, or press `prefix+shift+r`, to apply it:
+
+```bash
+herdr server reload-config
+```
+
+With `herdr`, the toast appears inside herdr; with `system`, herdr uses your operating system's notifications instead. On macOS, `system` tries terminal-notifier first, so the official docs suggest installing it:
+
+```bash
+brew install terminal-notifier
+```
+
+For the other options, see [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/) or the [Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/).
 
 The official [Agents](https://herdr.dev/tui/docs/0.9.5/agents/) page says blocked detection is deliberately strict: an unusual new prompt that herdr has not seen before may first show as idle instead of blocked. It also says "idle status is not authorization to approve an action," which means seeing idle does not make it safe to approve. After you jump to the pane, read it carefully before you click Allow. That is the same point I made about human-agent trust and approval fatigue in [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
 
@@ -157,7 +255,13 @@ To leave, press `prefix+q` (`ctrl+b`, then `q`), or just close the terminal wind
 
 What survives and what does not is in the official [Session state](https://herdr.dev/tui/docs/0.9.5/session-state/) table. In plain terms: if you only detach, everything keeps running. If the herdr server restarts, or the machine reboots or shuts down, every program that was running, agents included, ends (the README says "the original processes do not survive"). When you run `herdr` again, the workspace, tab, and pane layout comes back; an agent's conversation comes back only if you installed an integration (Step 4).
 
-To shut everything down, run `herdr server stop`. Officially, that ends the session and stops its panes. Note that this stops every agent still running in those panes.
+To shut everything down, run:
+
+```bash
+herdr server stop
+```
+
+Officially, that ends the session and stops its panes. Note that this stops every agent still running in those panes.
 
 ## One Loop at a Glance, Plus a Keyboard Cheatsheet
 

@@ -115,7 +115,13 @@ I would not rush into installing another bot (an automated account that performs
 @codex review
 ```
 
-This is an instruction readers can use. I did not post it as a new comment on the example PR. A one-off focus can follow on the same line. The official docs use `@codex review for issues in the database migration`. The review instructions in the next step can be handed over the same way; the next step also covers keeping them for every review.
+This is an instruction readers can use. I did not post it as a new comment on the example PR. A one-off focus can follow on the same line. The official docs use this example:
+
+```text
+@codex review for issues in the database migration
+```
+
+The review instructions in the next step can be handed over the same way; the next step also covers keeping them for every review.
 
 The trigger column on the PR #29 summary says PR opened. The same public comment lists three ways a review starts: opening a PR, marking a draft as ready, or commenting `@codex review`. Pushing another commit is not on that list. Settings also let you choose a Review trigger, so I do not take this one record to mean every later commit is reviewed again.
 

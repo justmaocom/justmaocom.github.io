@@ -67,7 +67,12 @@ _A concept illustration: GitHub Actions presents an identity, npm checks your se
 
 Before you begin, check these four things:
 
-- **Recent enough versions:** npm CLI 11.5.1 or later and Node.js 22.14.0 or later are the [official requirements](https://docs.npmjs.com/trusted-publishers). The official example uses Node 24, whose bundled npm (currently 11.19.x) already qualifies. **The npm bundled with Node 22 is 10.x, which is below 11.5.1.** If you need to stay on Node 22, upgrade npm before you publish, for example by adding a workflow step that runs `npm install -g npm@latest`.
+- **Recent enough versions:** npm CLI 11.5.1 or later and Node.js 22.14.0 or later are the [official requirements](https://docs.npmjs.com/trusted-publishers). The official example uses Node 24, whose bundled npm (currently 11.19.x) already qualifies. **The npm bundled with Node 22 is 10.x, which is below 11.5.1.** If you need to stay on Node 22, upgrade npm before you publish, for example by adding a workflow step that runs:
+
+  ```bash
+  npm install -g npm@latest
+  ```
+
 - **An exact `repository.url`:** the `repository.url` field in `package.json` (your package's settings file, which records its name, version, and so on) must **exactly match** your GitHub repository, including letter case. A fork (a copy of someone else's repo) that still points at the original URL will fail to publish.
 - **Account access and 2FA:** your npm account must be able to manage the package, and 2FA (two-factor authentication: a code you enter in addition to your password) must be enabled. Step 4 switches the package to require 2FA for publishing, and approving a staged publish also requires 2FA.
 - **A package that already exists on npm:** setup lives on an existing package's Settings page. The official docs do not describe a separate flow for a brand-new package.
@@ -168,7 +173,13 @@ The publish step does **not** need `NODE_AUTH_TOKEN`, and it does **not** need `
 
 `NPM_READ_TOKEN` must be a **read-only** granular token: it is for installing only, never for publishing. To create one, on npmjs.com open your avatar menu → **Access Tokens** → **Generate New Token**, and set Permissions to **Read-only**. (Granular tokens cannot be created from the CLI today.) Then save it in the repo's secrets under the same name as the example, `NPM_READ_TOKEN`.
 
-**Publishing a scoped package publicly for the first time:** a scoped package has a name that starts with `@`, like `@org/package`. npm's guide [Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages) says scoped packages are published with private visibility by default, and you make one public with `npm publish --access public`. The [provenance docs](https://docs.npmjs.com/generating-provenance-statements) also remind you to set access to public explicitly on a first publish.
+**Publishing a scoped package publicly for the first time:** a scoped package has a name that starts with `@`, like `@org/package`. npm's guide [Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages) says scoped packages are published with private visibility by default, and you make one public with:
+
+```bash
+npm publish --access public
+```
+
+The [provenance docs](https://docs.npmjs.com/generating-provenance-statements) also remind you to set access to public explicitly on a first publish.
 
 **What you get:** a publish workflow that does not store a publishing token.
 
@@ -192,7 +203,19 @@ Setting up trusted publishing does not disable old tokens. npm accepts trusted p
 
 1. Set up trusted publishing and confirm that a publish works.
 2. On the package, go to **Settings → Publishing access**, select **Require two-factor authentication and disallow tokens**, then click **Update Package Settings**. After that, granular tokens cannot publish this package at all; trusted publishers use OIDC, so they keep working.
-3. Revoke tokens you no longer need: on npmjs.com, open your avatar menu → **Access Tokens**, then click the **×** next to a token, or select tokens and click **Delete Selected Tokens**. You can also run `npm token list` to find the ID, then `npm token delete <id>`. The docs say revocation can take up to an hour to take effect. See [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens).
+3. Revoke tokens you no longer need: on npmjs.com, open your avatar menu → **Access Tokens**, then click the **×** next to a token, or select tokens and click **Delete Selected Tokens**. You can also find the token's ID in the terminal:
+
+   ```bash
+   npm token list
+   ```
+
+   Then replace `<id>` with that ID and delete the token:
+
+   ```bash
+   npm token delete <id>
+   ```
+
+   The docs say revocation can take up to an hour to take effect. See [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens).
 
 Once revoked, the old publishing `NPM_TOKEN` in your GitHub secrets is no longer useful, so you can delete it too.
 
@@ -259,7 +282,13 @@ Trusted publishing removes the long-lived token, but a compromised workflow can 
 
 - **Environment approval:** give the publish job a GitHub environment that requires a human approval, and enter the same name in **Environment name** on npmjs.com.
 - **Tag protection rules:** limit who can push the tags that trigger a release.
-- **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the **Staged Packages** tab in your npmjs.com account settings or with `npm stage approve <stage-id>`. The docs treat a stage-only trusted publisher as a stronger combination; check every configured publisher for any remaining direct-publish permissions. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
+- **Stage publish only:** in Allowed actions, permit only `npm stage publish`, and change the workflow's last line to `npm stage publish`. Each version then waits in a staging area until a maintainer approves it with 2FA, either with **Approve** on the **Staged Packages** tab in your npmjs.com account settings or by running:
+
+  ```bash
+  npm stage approve <stage-id>
+  ```
+
+  The docs treat a stage-only trusted publisher as a stronger combination; check every configured publisher for any remaining direct-publish permissions. This requires npm CLI 11.15.0 or later; see [Staged publishing](https://docs.npmjs.com/staged-publishing).
 - **Regular reviews:** audit the package's trusted publishers periodically, and delete publish tokens you no longer use.
 
 I cover a step-by-step setup of these gates, and why a release with provenance can still be malicious, in the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/).

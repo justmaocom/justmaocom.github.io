@@ -132,7 +132,13 @@ A few things to know:
 
 - The first time you use it on macOS, the system may ask whether herdr-core (or Herdr Core) can access folders such as Documents, your local network, or the microphone. According to CHANGELOG 0.1.12 and 0.1.13, that is part of Herdr, so click Allow.
 - When an agent exits, its terminal doesn't close with it. The terminal stays open for your next command. If an agent fails as soon as it starts, according to the built-in guide, Herdr shows an error notification with the error code and the last few lines of output, so you can find out why.
-- According to the README, a new tab starts in the folder of the selected terminal (the one your cursor is in). So to have an agent work in a particular repo, first use `cd` in the current terminal to move to that repo's folder (for example, `cd ~/projects/web-app`), then open a new tab.
+- According to the README, a new tab starts in the folder of the selected terminal (the one your cursor is in). So to have an agent work in a particular repo, first move to that repo's folder in the current terminal, for example:
+
+  ```bash
+  cd ~/projects/web-app
+  ```
+
+  Then open a new tab.
 - An unnamed space follows its first terminal's folder; if you want a label that stays, name the space or tab (default keys: `f2` for a tab, `shift-f2` for a space).
 - If you're on a version older than 0.1.15 on macOS, the + menu may mark every agent as "not installed" right after login or a restart; 0.1.15 fixes this.
 
@@ -291,7 +297,13 @@ Three ways to turn it off:
 
 1. Turn it off in **Settings → Privacy**. The same page also lets you inspect the report.
 2. Add the field `"telemetry": false` to your **existing** `settings.json` in `~/.config/herdr-app`. The official example is `{"telemetry": false}`; if the file already has other settings, add the field inside the outermost braces, separated from the other fields by a comma, rather than replacing the whole file.
-3. **For one run only:** when you start the app from a terminal, set the environment variable `DO_NOT_TRACK=1` or `HERDR_TELEMETRY=0`, for example `DO_NOT_TRACK=1 herdr-app`. Collection also stops automatically in CI (servers that build and test code for you).
+3. **For one run only:** when you start the app from a terminal, set the environment variable `DO_NOT_TRACK=1` or `HERDR_TELEMETRY=0`, for example:
+
+   ```bash
+   DO_NOT_TRACK=1 herdr-app
+   ```
+
+   Collection also stops automatically in CI (servers that build and test code for you).
 
 Two things to know:
 

@@ -144,10 +144,35 @@ Before making changes, I would confirm key login works in another window, keep m
 
 I would proceed in order, **continuing only when each step succeeds**:
 
-1. Refresh package indexes with `apk update`, then preview changes with `apk upgrade -a --simulate`. The preview does not upgrade packages.
-2. After reviewing the impact, update with `apk upgrade -U -a`.
-3. Check sshd's configuration with `sshd -t`. Resolve errors before attempting a restart.
-4. Restart with `rc-service sshd restart` and confirm the command succeeds.
+1. Refresh package indexes, then preview changes. Run these in order:
+
+   ```sh
+   apk update
+   apk upgrade -a --simulate
+   ```
+
+   The preview does not upgrade packages.
+
+2. After reviewing the impact, update:
+
+   ```sh
+   apk upgrade -U -a
+   ```
+
+3. Check sshd's configuration:
+
+   ```sh
+   sshd -t
+   ```
+
+   Resolve errors before attempting a restart.
+
+4. Restart the service and confirm the command succeeds:
+
+   ```sh
+   rc-service sshd restart
+   ```
+
 5. Recheck the package version and relevant settings, then test a new SSH connection.
 6. Close the original session only after the new one works.
 
@@ -164,7 +189,13 @@ Alpine's temporary measure is `PasswordAuthentication no`, which closes the pass
 
 I would watch for two issues: `Match` blocks may separately set `PasswordAuthentication yes`, and Alpine's default configuration only starts reading `/etc/ssh/sshd_config.d/` in 3.19. Older releases do not automatically read that extra configuration directory. Custom configurations may differ too.
 
-I would back up the configuration, then follow [the advisory's "If you cannot update" section](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/), making sure the change covers the main file, included files, and relevant `Match` rules. After checking for errors with `sshd -t`, I would restart sshd. Finally, I would use `sshd -T` and `-C` as above to confirm `passwordauthentication no` for the relevant contexts and test another connection.
+I would back up the configuration, then follow [the advisory's "If you cannot update" section](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/), making sure the change covers the main file, included files, and relevant `Match` rules. Then I would check for errors:
+
+```sh
+sshd -t
+```
+
+After that, I would restart sshd. Finally, I would use `sshd -T` and `-C` as above to confirm `passwordauthentication no` for the relevant contexts and test another connection.
 
 For a lasting policy of allowing only keys, I would check other authentication methods too. For example, [keyboard-interactive authentication](https://man.openbsd.org/sshd_config#KbdInteractiveAuthentication) can use PAM to ask for a password or one-time code. Setting `PasswordAuthentication no` alone does not disable every interactive password prompt. Any existing multifactor authentication requirements need to be considered before making further changes.
 

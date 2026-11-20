@@ -35,7 +35,13 @@ _概念圖，不是實際介面。上方是所有工作目錄共用的歷史紀�
 
 還有一件實作上的事要知道：linked worktree 頂層的 `.git` [不是一個完整的資料夾，而是一個小檔案](https://git-scm.com/docs/git-worktree#_details)，指向主 repo 裡替這個 worktree 保留的管理資料（手冊稱為 administrative files）。也就是說，linked worktree 的資料夾本身不是完整的 repo。不要把它當成獨立的 repo 複製到別處，也不要刪掉這個 `.git` 檔。
 
-> **進階：** 若你希望某個 worktree 有自己的設定，例如不同的 `user.email`，可先執行 `git config extensions.worktreeConfig true`，再用 `git config --worktree` 寫入。[手冊提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：舊版 Git 會拒絕讀取開了這個擴充的 repo。我認為一般情況用共用的設定就夠了。
+> **進階：** 若你希望某個 worktree 有自己的設定，例如不同的 `user.email`，可先執行：
+>
+> ```bash
+> git config extensions.worktreeConfig true
+> ```
+>
+> 再用 `git config --worktree` 寫入。[手冊提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：舊版 Git 會拒絕讀取開了這個擴充的 repo。我認為一般情況用共用的設定就夠了。
 {: .prompt-tip }
 
 ## 什麼時候該用、什麼時候不用
@@ -133,7 +139,13 @@ git worktree list
 git worktree list -v
 ```
 
-若要寫腳本解析這份清單（平常使用不需要），可用 `git worktree list --porcelain`。手冊說這個格式跨版本穩定，並建議搭配 `-z`，這樣即使路徑裡有換行字元也能正確拆開。
+若要寫腳本解析這份清單（平常使用不需要），可用：
+
+```bash
+git worktree list --porcelain
+```
+
+手冊說這個格式跨版本穩定，並建議搭配 `-z`，這樣即使路徑裡有換行字元也能正確拆開。
 
 **你會得到：** 一張目前所有工作目錄的清單，包含各自停在哪裡。
 
@@ -141,7 +153,13 @@ git worktree list -v
 
 在 worktree 裡做完、要留的修改都 commit 之後，下一步是把這條分支的成果放回 `main`。有兩種做法，選一種就好。
 
-**做法一：在本機自己合併。** 回到主資料夾 `myapp`（例如從 `myapp-login` 執行 `cd ../myapp`），依序執行：
+**做法一：在本機自己合併。** 回到主資料夾 `myapp`，例如從 `myapp-login` 回去：
+
+```bash
+cd ../myapp
+```
+
+接著依序執行：
 
 ```bash
 git switch main
@@ -216,7 +234,13 @@ _概念圖，不是實際介面。做完的工作目錄可以收掉，只留下�
 
 假設有一個網站 repo，資料夾叫 `myapp`。我想讓一個 AI 做登入頁，另一個修 README 裡的錯字，兩邊不要碰到對方的檔案。
 
-1. 先在 `myapp` 裡更新主分支：`git switch main`，再 `git pull`。
+1. 先在 `myapp` 裡更新主分支，依序執行：
+
+   ```bash
+   git switch main
+   git pull
+   ```
+
 2. 從 `main` 各開一條新分支、各開一個資料夾：
 
    ```bash
@@ -226,8 +250,21 @@ _概念圖，不是實際介面。做完的工作目錄可以收掉，只留下�
 
    **這一步你會得到：** 兩個新資料夾，分別停在 `feature-login` 和 `fix-typo`。
 
-3. 打開兩個終端機，分別進入 `../myapp-login` 和 `../myapp-typo`，各開一個 coding agent，各自 commit。兩邊的檔案互不影響。執行 `git worktree list`，應該會看到三個資料夾：排在第一行的原來的 `myapp`，加上這兩個新的。
-4. 審查：推上去之前，可以先在主資料夾 `myapp` 看這條分支改了什麼：`git diff main...feature-login`。要給別人審，就把每個分支各自推上去開 PR（pull request，請求把分支合併進主幹）：
+3. 打開兩個終端機，分別進入 `../myapp-login` 和 `../myapp-typo`，各開一個 coding agent，各自 commit。兩邊的檔案互不影響。執行：
+
+   ```bash
+   git worktree list
+   ```
+
+   應該會看到三個資料夾：排在第一行的原來的 `myapp`，加上這兩個新的。
+
+4. 審查：推上去之前，可以先在主資料夾 `myapp` 看這條分支改了什麼：
+
+   ```bash
+   git diff main...feature-login
+   ```
+
+   要給別人審，就把每個分支各自推上去開 PR（pull request，請求把分支合併進主幹）：
 
    ```bash
    git push -u origin feature-login
@@ -235,7 +272,21 @@ _概念圖，不是實際介面。做完的工作目錄可以收掉，只留下�
 
    另一條分支同樣處理。之後可以讓審查自動跑起來，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)；若想對「誰來看結構、審修改」有一套固定做法，見 [mattpocock/skills 系列（5）：程式寫完之後，誰來看結構、審修改、解衝突](/posts/mattpocock-skills-design-review-integration/)。
 
-5. 合併：開了 PR 的，等 PR 在網站上合併，再回 `myapp` 執行 `git pull` 更新 `main`。不開 PR 的，在主資料夾 `myapp`（第 1 步已經停在 `main`）執行 `git merge feature-login` 和 `git merge fix-typo`。細節見步驟 3。
+5. 合併：開了 PR 的，等 PR 在網站上合併，再回 `myapp` 更新 `main`：
+
+   ```bash
+   git pull
+   ```
+
+   不開 PR 的，在主資料夾 `myapp`（第 1 步已經停在 `main`）依序執行：
+
+   ```bash
+   git merge feature-login
+   git merge fix-typo
+   ```
+
+   細節見步驟 3。
+
 6. 收尾：先確認兩個資料夾裡的 AI 都停下來、要留的修改都 commit 了，因為 `remove` 只收乾淨的資料夾。接著回到 `myapp`，先移除工作目錄，再刪分支：
 
    ```bash
@@ -245,7 +296,13 @@ _概念圖，不是實際介面。做完的工作目錄可以收掉，只留下�
    git branch -d fix-typo
    ```
 
-   如果 `git branch -d` 拒絕刪除，見步驟 4 的說明。最後再執行 `git worktree list`，應該只剩主資料夾。
+   如果 `git branch -d` 拒絕刪除，見步驟 4 的說明。最後再執行：
+
+   ```bash
+   git worktree list
+   ```
+
+   應該只剩主資料夾。
 
 小提醒：如果專案的規則寫在 AGENTS.md，而且這份檔有被 git 追蹤，每個 worktree 都會有同一份，見[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。若還想在某個工作目錄裡做固定時機的自動檢查，見[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
@@ -265,7 +322,13 @@ git worktree lock --reason "放在外接硬碟" ../myapp-usb
 git worktree add --lock --reason "放在外接硬碟" -b feature-usb ../myapp-usb
 ```
 
-執行 `git worktree list -v` 可以看到鎖定原因。用完後再解開：
+執行下面這行可以看到鎖定原因：
+
+```bash
+git worktree list -v
+```
+
+用完後再解開：
 
 ```bash
 git worktree unlock ../myapp-usb
@@ -283,13 +346,23 @@ git worktree move ../myapp-typo ../tasks/myapp-typo
 
 [手冊註明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-move)：主 worktree，或含有 submodule 的 linked worktree，不能用這個指令搬。
 
-如果已經用檔案總管或 `mv` 自己搬走了，git 記錄的位置就對不上了。這時到搬過去的那個 worktree 裡執行 `git worktree repair` 重新接上。若一次搬了多個，可以在任何一個 worktree 裡執行，把每個新路徑都列在後面：
+如果已經用檔案總管或 `mv` 自己搬走了，git 記錄的位置就對不上了。這時到搬過去的那個 worktree 裡執行下面這行，重新接上：
+
+```bash
+git worktree repair
+```
+
+若一次搬了多個，可以在任何一個 worktree 裡執行，把每個新路徑都列在後面：
 
 ```bash
 git worktree repair ../tasks/myapp-typo ../tasks/myapp-login
 ```
 
-若搬走的是主資料夾，就在主資料夾裡執行 `git worktree repair`，讓各個 linked worktree 重新指回來。
+若搬走的是主資料夾，就在主資料夾裡執行下面這行，讓各個 linked worktree 重新指回來：
+
+```bash
+git worktree repair
+```
 
 ## 什麼情況用什麼
 

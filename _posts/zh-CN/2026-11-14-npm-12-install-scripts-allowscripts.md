@@ -54,8 +54,17 @@ npm -v
 ```
 
 - **12.x**：默认就会拦截未批准的安装脚本，直接进行步骤 2。
-- **11.16.0 以上的 11.x**：根据 GitHub [6 月的预告](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/)，这些版本会先给出警告，方便你准备迁移，但警告不等于 npm 12 的默认拦截。用 `npm approve-scripts --allow-scripts-pending` 查看清单，再逐一批准或拒绝。
-- **更旧的版本**：先确认 Node.js 符合目标 npm 版本的需求，再升级。若要照本文操作，可指定 npm 12：`npm install -g npm@12`。
+- **11.16.0 以上的 11.x**：根据 GitHub [6 月的预告](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/)，这些版本会先给出警告，方便你准备迁移，但警告不等于 npm 12 的默认拦截。用下面这行查看清单，再逐一批准或拒绝：
+
+  ```bash
+  npm approve-scripts --allow-scripts-pending
+  ```
+
+- **更旧的版本**：先确认 Node.js 符合目标 npm 版本的需求，再升级。若要照本文操作，可指定 npm 12：
+
+  ```bash
+  npm install -g npm@12
+  ```
 
 我建议团队成员与 CI（自动测试、构建流程）使用一致的 npm 版本。同一份 `allowScripts` 交给旧版 npm，不保证会照着拦截；另外也要检查有没有配置覆盖了默认行为。
 
@@ -67,7 +76,13 @@ npm -v
 npm install-scripts ls
 ```
 
-这个命令只列出“有安装脚本、但尚未被 `allowScripts` 规则涵盖”的包，不会修改文件。已经明确拒绝的包不会出现在这份清单里。新项目可先在 npm 12 的默认配置下执行 `npm install`，再看安装结束时的提示与这份清单。
+这个命令只列出“有安装脚本、但尚未被 `allowScripts` 规则涵盖”的包，不会修改文件。已经明确拒绝的包不会出现在这份清单里。新项目可先在 npm 12 的默认配置下执行：
+
+```bash
+npm install
+```
+
+再看安装结束时的提示与这份清单。
 
 接着我会检查每个版本的脚本。例如清单中有 `canvas@3.2.0`，可以查：
 
@@ -131,7 +146,19 @@ git add package.json
 git commit -m "chore(deps): 批准需要的安装脚本"
 ```
 
-**包升级之后**，新版本不再符合旧的批准规则，会重新列为待审。看过新版脚本再批准，npm 会更新对应的版本规则。`npm install-scripts prune --dry-run` 可以预览已失效的条目，再用 `npm install-scripts prune` 清理。它也会移除对应不到已安装包的拒绝规则；如果团队想预先拦下某些包，清理前要先确认。
+**包升级之后**，新版本不再符合旧的批准规则，会重新列为待审。看过新版脚本再批准，npm 会更新对应的版本规则。已失效的条目可以先预览：
+
+```bash
+npm install-scripts prune --dry-run
+```
+
+再清理：
+
+```bash
+npm install-scripts prune
+```
+
+它也会移除对应不到已安装包的拒绝规则；如果团队想预先拦下某些包，清理前要先确认。
 
 **希望 CI 遇到待审条目就失败？** 在项目的 `.npmrc` 加上：
 
@@ -196,7 +223,12 @@ npm config set allow-scripts=canvas,sharp --location=user
 
 - `--allow-scripts` 指定的是**允许跑安装脚本的包**，不等于指定要安装哪个工具。
 - 根据[文档](https://docs.npmjs.com/cli/v12/using-npm/config/#allow-scripts)，在项目的 `npm install`、`npm ci`、`npm update` 或 `npm rebuild` 命令行直接传入这个参数会报错；项目请维护 `allowScripts`。
-- 这里的名单按包名比对，不像 `allowScripts` 默认会固定版本。存进个人配置后会持续有效，不需要时可用 `npm config delete allow-scripts --location=user` 移除。
+- 这里的名单按包名比对，不像 `allowScripts` 默认会固定版本。存进个人配置后会持续有效，不需要时可用下面这行移除：
+
+  ```bash
+  npm config delete allow-scripts --location=user
+  ```
+
 - 它只管安装脚本。`npm exec`、`npx` 之后执行的工具本身，仍会以你的权限运行，不能因为脚本被挡就放心执行陌生工具。
 
 ## 装到恶意包之后：tensorlake 事件的特殊处理顺序
@@ -221,8 +253,22 @@ npm config set allow-scripts=canvas,sharp --location=user
 
 1. **先断网**，隔离受影响的机器。
 2. **在撤销 GitHub token 前，停止并移除 `gh-token-monitor`**：
-   - Linux：执行 `systemctl --user disable --now gh-token-monitor.service`，再删除 `~/.config/gh-token-monitor/` 和 `~/.local/bin/gh-token-monitor.sh`。
-   - macOS：执行 `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.user.gh-token-monitor.plist`，再删除这个 plist 文件。
+   - 在 Linux 上执行：
+
+     ```bash
+     systemctl --user disable --now gh-token-monitor.service
+     ```
+
+     再删除 `~/.config/gh-token-monitor/` 和 `~/.local/bin/gh-token-monitor.sh`。
+
+   - 在 macOS 上执行：
+
+     ```bash
+     launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.user.gh-token-monitor.plist
+     ```
+
+     再删除这个 plist 文件。
+
    - Windows：删除名为 `gh-token-monitor` 的计划任务，以及 `%LOCALAPPDATA%\gh-token-monitor\` 文件夹。
 3. **从另一台干净的电脑轮换所有可接触的凭据**，不要在受影响的机器上输入新凭据。
 4. **检查包与 repo 是否被用来传播**，留意不明发布、作者显示为 `claude` 的 commit，以及 `dependabot/github_actions/format/setup-formatter` 分支。这些是公告列出的线索，仍要对照内容与记录判断。

@@ -53,7 +53,12 @@ claude plugins install mattpocock-skills
 ```
 {: .nolineno }
 
-You can also type `/plugin install mattpocock-skills` directly inside Claude Code.
+You can also type this directly inside Claude Code:
+
+```text
+/plugin install mattpocock-skills
+```
+{: .nolineno }
 
 If you want to modify the skills, or you use Codex or another tool, use the skills.sh installer:
 

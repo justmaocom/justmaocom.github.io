@@ -16,7 +16,13 @@ When a coding agent changes a web page and only reads the code, it can't see whe
 
 In this post I start from installation and walk through the whole flow on a small local newsletter form. I also made a broken copy of the form with a typo, to see whether agent-browser's output points to the error. Then I hand the same check to an AI, and finally I test how to limit which domains it can visit and which actions it can take. The source of both demo pages is in the post, so you can repeat every step.
 
-> The official material I checked is the agent-browser v0.43.0 tag: the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) plus four docs pages, [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version. On 2026-11-19 (Taipei time) I ran this test on a Debian 13 (x86_64) machine with agent-browser 0.43.0 and the Chrome for Testing 158.0.8127.36 build it downloaded. That day, 0.43.0 was the release GitHub marked as Latest, published on 2026-11-13 Taipei time. GitHub lists 10 releases from v0.39.1 (2026-10-14 Taipei time) through 0.43.0, so run `agent-browser --version` before you follow along. The terminal screenshots are the recorded output, laid out as images without changes. A few show only some of the commands.
+> The official material I checked is the agent-browser v0.43.0 tag: the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) plus four docs pages, [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version. On 2026-11-19 (Taipei time) I ran this test on a Debian 13 (x86_64) machine with agent-browser 0.43.0 and the Chrome for Testing 158.0.8127.36 build it downloaded. That day, 0.43.0 was the release GitHub marked as Latest, published on 2026-11-13 Taipei time. GitHub lists 10 releases from v0.39.1 (2026-10-14 Taipei time) through 0.43.0, so check your version before you follow along:
+>
+> ```bash
+> agent-browser --version
+> ```
+>
+> The terminal screenshots are the recorded output, laid out as images without changes. A few show only some of the commands.
 {: .prompt-info }
 
 ## A few terms first
@@ -24,11 +30,27 @@ In this post I start from installation and walk through the whole flow on a smal
 - A headless browser is a browser without a window. It loads pages and runs JavaScript as usual but doesn't show anything on screen. According to `--help`, agent-browser runs headless by default, and `--headed` shows the window.
 - A snapshot is the text list agent-browser makes of a page, with elements such as headings, input fields, and buttons. According to agent-browser's bundled core skill (its usage guide), a snapshot is faster than a screenshot and uses far fewer tokens.
 - A ref is the ID a snapshot gives each element, such as `@e2`. You use the ref to say which button to click or which field to fill.
-- A session is a browser that stays open in the background. Every command in a session goes to the same browser, so the page you opened in one step is still there in the next. According to the README, it closes itself after an hour without commands. To close it yourself, run `agent-browser close`.
+- A session is a browser that stays open in the background. Every command in a session goes to the same browser, so the page you opened in one step is still there in the next. According to the README, it closes itself after an hour without commands. To close it yourself, run:
+
+  ```bash
+  agent-browser close
+  ```
 
 ## Step 1: Install
 
-The official docs recommend a global npm install, followed by `agent-browser install` to download the Chrome it uses. That Chrome is [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), the build Google provides for automated testing. According to the docs, you can also use `brew install agent-browser` on macOS. `cargo install agent-browser` compiles from source and needs the Rust toolchain. I didn't try either of those. I used npm:
+The official docs recommend a global npm install, followed by `agent-browser install` to download the Chrome it uses. That Chrome is [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), the build Google provides for automated testing. According to the docs, you can also install it with brew on macOS:
+
+```bash
+brew install agent-browser
+```
+
+Installing with cargo compiles from source and needs the Rust toolchain:
+
+```bash
+cargo install agent-browser
+```
+
+I didn't try either of those. I used npm:
 
 ```bash
 npm install -g agent-browser
@@ -41,7 +63,13 @@ _My install on Debian Linux (real output)_
 
 npm printed an `install-scripts` warning during the install. It said the postinstall script of `agent-browser@0.43.0` wasn't covered by allowScripts yet, and suggested `--allow-scripts=agent-browser` to allow it. I covered how npm blocks install scripts in [npm 12 Blocks Install Scripts by Default](/posts/npm-12-install-scripts-allowscripts/). According to the Installation docs, when a package manager such as npm 12 blocks install scripts by default, agent-browser links itself on the first run, with no extra setup. I ignored the warning and ran `agent-browser --version`. It printed `agent-browser 0.43.0` without any extra step.
 
-On Linux, `agent-browser install` printed the same hint twice. It said to run `agent-browser install --with-deps` if the browser fails to launch or you see "shared library" errors. According to the docs, that command uses your system package manager to add the libraries Chrome needs, and it goes through `sudo` when you aren't root. I didn't run `--with-deps`, and the browser launched fine in every later step.
+On Linux, `agent-browser install` printed the same hint twice. It said to run this if the browser fails to launch or you see "shared library" errors:
+
+```bash
+agent-browser install --with-deps
+```
+
+According to the docs, that command uses your system package manager to add the libraries Chrome needs, and it goes through `sudo` when you aren't root. I didn't run `--with-deps`, and the browser launched fine in every later step.
 
 After installing, you can run a health check:
 
@@ -113,7 +141,13 @@ From the folder that contains `site`, run the line below to serve it on port 876
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
 ```
 
-If you just finished Step 2, run `agent-browser close` first to close the browser. In my main run of this step, the browser was closed, so `open` printed `launched browser` and the refs started at `e1`. If you don't close it first, the refs keep counting up. The warning at the end of this section explains why. Next, open the page and take a snapshot:
+If you just finished Step 2, close the browser first:
+
+```bash
+agent-browser close
+```
+
+In my main run of this step, the browser was closed, so `open` printed `launched browser` and the refs started at `e1`. If you don't close it first, the refs keep counting up. The warning at the end of this section explains why. Next, open the page and take a snapshot:
 
 ```bash
 agent-browser open http://localhost:8765/
@@ -251,7 +285,13 @@ Take a new snapshot whenever the page or its content changes.
 
 agent-browser also has a `chat` command. According to `chat --help`, it sends your plain-language instruction to an AI model, which turns it into agent-browser commands and runs them in the session you select. It can't create or switch sessions. `chat` needs `AI_GATEWAY_API_KEY`. According to `--help`, `AI_GATEWAY_URL` is the Vercel AI Gateway base URL, with a default of `https://ai-gateway.vercel.sh`. The default model is `anthropic/claude-sonnet-4.6`, and `--model` picks a different one.
 
-I have access to an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and the URL stayed in environment variables and never went into any file. With the local HTTP server still running, first run `agent-browser close` to close the previous browser, then ask the `gpt-6.1-sol` model to check the broken page:
+I have access to an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and the URL stayed in environment variables and never went into any file. With the local HTTP server still running, first close the previous browser:
+
+```bash
+agent-browser close
+```
+
+Then ask the `gpt-6.1-sol` model to check the broken page:
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."

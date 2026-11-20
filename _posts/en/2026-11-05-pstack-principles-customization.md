@@ -472,7 +472,13 @@ if you're truly stuck: stop and write down where you're stuck, what you tried, a
 
 Following the earlier steps, I create the `feat/export-csv` branch and a separate worktree, copy the prompt file over, and set up the dependencies. Then I kick it off with the `claude -p` command, along with the allowlist, denylist, and spending cap.
 
-**Morning: audit.** I use `claude --resume <session ID>` to reopen the overnight conversation interactively. Sessions started with `claude -p` don't appear in the `--resume` picker, so pass the ID directly: it's the `.jsonl` file name for that run under `~/.claude/projects/<worktree path>/`, or pass the file's full path to `--resume`. Then I enter:
+**Morning: audit.** I reopen the overnight conversation interactively with this line:
+
+```bash
+claude --resume <session ID>
+```
+
+Sessions started with `claude -p` don't appear in the `--resume` picker, so pass the ID directly: it's the `.jsonl` file name for that run under `~/.claude/projects/<worktree path>/`, or pass the file's full path to `--resume`. Then I enter:
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night

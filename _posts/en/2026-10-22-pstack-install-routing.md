@@ -100,7 +100,13 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-If you already added `cursor/plugins` from GitHub, both sources use the catalog name `cursor-plugins`. You can remove the old one with `claude plugin marketplace remove cursor-plugins` and then run the commands above. Note that according to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#manage-marketplaces), removing a marketplace also uninstalls every plugin you installed from it, so you'll need to install again afterward.
+If you already added `cursor/plugins` from GitHub, both sources use the catalog name `cursor-plugins`. You can remove the old one first:
+
+```bash
+claude plugin marketplace remove cursor-plugins
+```
+
+Then run the four commands above. Note that according to the [Claude Code docs](https://code.claude.com/docs/en/plugins/install#manage-marketplaces), removing a marketplace also uninstalls every plugin you installed from it, so you'll need to install again afterward.
 
 This is the same "clone, then check out a reviewed commit" approach I recommend in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/). To upgrade later, check out a newer commit in that folder and then update the plugin.
 

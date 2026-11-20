@@ -57,7 +57,19 @@ _概念圖：一輪的五個步驟是開 herdr、開工作目錄、跑 agent、�
 ![安裝 herdr 建議用 brew 或 mise；官方的 curl | sh 一行安裝要先下載、看過腳本再執行](install.webp){: w="1600" h="900" }
 _概念圖：左邊是本站建議的做法，用 brew 或 mise 安裝與升級；右邊是官方 Install／TUI 頁的一行安裝，若要用，先下載腳本、看過再執行。_
 
-我建議已經在用 [Homebrew](https://formulae.brew.sh/formula/herdr) 的人用 `brew install herdr`，已經在用 [mise](https://mise.jdx.dev/) 的人用 `mise use -g herdr`。這兩種都列在官方[Install](https://herdr.dev/tui/docs/0.9.5/install/)頁。
+我建議已經在用 [Homebrew](https://formulae.brew.sh/formula/herdr) 的人用 brew 安裝：
+
+```bash
+brew install herdr
+```
+
+已經在用 [mise](https://mise.jdx.dev/) 的人用 mise 安裝：
+
+```bash
+mise use -g herdr
+```
+
+這兩種都列在官方[Install](https://herdr.dev/tui/docs/0.9.5/install/)頁。
 
 官方 Install／TUI 頁另外提供一行安裝指令 `curl -fsSL https://herdr.dev/install.sh | sh`。我建議不要直接貼上執行，原因有兩個。第一，這樣跑的是伺服器當下回傳、你沒看過的內容，下次執行也可能不一樣。第二，它會裝到 `~/.local/bin`，之後靠 `herdr update` 自己更新，不會出現在套件管理器的清單裡，日後比較難查到裝了什麼、也比較難移除；用 brew 或 mise 裝，版本查得到，升級和移除也都用同一套指令。這不是說安裝腳本有問題，而是出於我「先看過再執行」的習慣，原因我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)談過。
 
@@ -67,17 +79,69 @@ _概念圖：左邊是本站建議的做法，用 brew 或 mise 安裝與升級�
 curl -fsSL https://herdr.dev/install.sh -o herdr-install.sh
 ```
 
-用文字編輯器打開看過（也可以在終端機執行 `less herdr-install.sh`，看完按 `q` 離開），確認沒問題再執行 `sh herdr-install.sh`。看不懂腳本在做什麼的話，我建議改用 brew 或 mise。
+用文字編輯器打開看過，也可以在終端機用 less 看，看完按 `q` 離開：
 
-用 mise 時若出現 `herdr not found in mise tool registry`，依官方說法，先更新 mise 再試一次（用 brew 裝的 mise 執行 `brew upgrade mise`，其他方式裝的可執行 `mise self-update`）。
+```bash
+less herdr-install.sh
+```
 
-裝好後執行 `herdr --version`，依官方文件，應該會顯示版本號（例如 0.9.5）。若你使用中文、日文或韓文輸入法，且 prefix 快捷鍵沒反應，請確認是 0.9.5 或更新的版本；官方在這一版修過這個問題。
+確認沒問題再執行：
 
-更新時，用 brew 裝的請用 `brew upgrade herdr`，用 mise 裝的請用 `mise upgrade herdr`。官方原文是：「Use `herdr update` only for installs managed by Herdr's own installer. Update Homebrew, mise, and Nix installs through those package managers instead.」套件管理器更新之後，再輸入一次 `herdr` 就會用新版畫面接上，原本在跑的背景 server 和 agent 不受影響。若要連 server 端也換成新版，先執行 `herdr server stop`（會停掉所有正在跑的 agent，見步驟 6），再輸入 `herdr` 重新啟動，見 Install 頁的 Update 節。
+```bash
+sh herdr-install.sh
+```
+
+看不懂腳本在做什麼的話，我建議改用 brew 或 mise。
+
+用 mise 時若出現 `herdr not found in mise tool registry`，依官方說法，先更新 mise 再試一次。用 brew 裝的 mise 執行：
+
+```bash
+brew upgrade mise
+```
+
+其他方式裝的 mise 執行：
+
+```bash
+mise self-update
+```
+
+裝好後執行：
+
+```bash
+herdr --version
+```
+
+依官方文件，應該會顯示版本號（例如 0.9.5）。若你使用中文、日文或韓文輸入法，且 prefix 快捷鍵沒反應，請確認是 0.9.5 或更新的版本；官方在這一版修過這個問題。
+
+更新時，用 brew 裝的執行：
+
+```bash
+brew upgrade herdr
+```
+
+用 mise 裝的執行：
+
+```bash
+mise upgrade herdr
+```
+
+官方原文是：「Use `herdr update` only for installs managed by Herdr's own installer. Update Homebrew, mise, and Nix installs through those package managers instead.」套件管理器更新之後，再輸入一次 `herdr` 就會用新版畫面接上，原本在跑的背景 server 和 agent 不受影響。若要連 server 端也換成新版，先停掉 server（會停掉所有正在跑的 agent，見步驟 6），再重新啟動，見 Install 頁的 Update 節。依序執行：
+
+```bash
+herdr server stop
+herdr
+```
 
 ## 步驟 2：在專案資料夾開 herdr
 
-在終端機用 `cd` 進入專案資料夾（例如 `cd ~/projects/demo-app`），再輸入 `herdr`。依[Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/)，它會啟動或接上預設的背景 session；這個 session 還沒有 workspace 時，會自動開一個，也就是下圖側欄的 demo-app。之後每開一個 worktree，會再多一個 workspace（步驟 3）。
+在終端機進入專案資料夾，再輸入 `herdr`，例如：
+
+```bash
+cd ~/projects/demo-app
+herdr
+```
+
+依[Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/)，它會啟動或接上預設的背景 session；這個 session 還沒有 workspace 時，會自動開一個，也就是下圖側欄的 demo-app。之後每開一個 worktree，會再多一個 workspace（步驟 3）。
 
 ![herdr 實際畫面：側欄是 demo-app workspace，兩個 pane 分別跑 git 和 build](screen-main.webp){: w="1600" h="900" }
 _實際畫面：在 demo-app 資料夾開 herdr，再用 prefix+v 分出第二個 pane。這兩個 pane 跑的是一般 shell，不是 agent，所以 agents 區是空的。_
@@ -105,7 +169,11 @@ _實際畫面：按 prefix+shift+g 開 worktree。分支欄一開始會填好隨
 git worktree add -b login-page ../demo-app-login-page
 ```
 
-再在 herdr 按 `prefix+shift+n` 開新的 workspace，然後在裡面執行 `cd ../demo-app-login-page`，進入剛才開好的資料夾。
+再在 herdr 按 `prefix+shift+n` 開新的 workspace，然後在裡面進入剛才開好的資料夾：
+
+```bash
+cd ../demo-app-login-page
+```
 
 關掉 workspace（`prefix+shift+d`）不會刪掉資料夾，也不會刪掉分支；依官方說明，關掉專案那一列時，排在它底下的 worktree workspace 也會一起關掉。要刪掉 worktree 的資料夾，在側欄選那個 worktree 的 workspace（排在專案底下的那一列），用 `Delete worktree checkout...`（底層是 `git worktree remove`），或自己執行 `git worktree remove`；分支要另外刪。
 
@@ -115,7 +183,25 @@ git worktree add -b login-page ../demo-app-login-page
 
 切到要工作的 workspace，在 pane 裡輸入 `claude` 或 `codex`，就跟在一般終端機啟動一樣。依 Quick start，herdr 會自動認出這是哪個 agent，側欄的 agents 區會多出一列。官方還支援 Cursor Agent CLI、GitHub Copilot CLI、OpenCode 等，完整清單見[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)，這裡不一一列出。
 
-整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。安裝指令是 `herdr integration install claude` 或 `herdr integration install codex`，見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。可用 `herdr integration uninstall claude`（或 `codex`）移除，但 Codex 的 `config.toml` 不會被改回去。hook 是什麼，可以參考我寫的[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
+整合（integration）是選用的。不裝也能看狀態；裝了之後，herdr 的背景 server 重開時，才能接回同一段對話。Claude Code 的安裝指令是：
+
+```bash
+herdr integration install claude
+```
+
+Codex 的安裝指令是：
+
+```bash
+herdr integration install codex
+```
+
+見[Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/)。它會改 agent 的設定：Claude Code 會多一支 hook 腳本，並在 `settings.json` 加上對應的 hook 設定；Codex 會多一支 hook 腳本、改 `hooks.json`，並在 `config.toml` 開啟 `[features] hooks = true`。要移除時執行下面這行（Codex 把 `claude` 換成 `codex`），但 Codex 的 `config.toml` 不會被改回去：
+
+```bash
+herdr integration uninstall claude
+```
+
+hook 是什麼，可以參考我寫的[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)。
 
 ## 步驟 5：看狀態，找出卡住的那個
 
@@ -147,7 +233,19 @@ herdr 預設不會跳出通知（設定檔裡 `[ui.toast]` 的 `delivery` 預設
 delivery = "herdr"
 ```
 
-存檔後執行 `herdr server reload-config`（或按 `prefix+shift+r`），設定就會生效。設成 `herdr`，提示會出現在 herdr 畫面裡；設成 `system`，則改用作業系統的通知。macOS 用 `system` 時會優先透過 terminal-notifier 發通知，官方建議先 `brew install terminal-notifier`，其他選項見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)或[Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/)。
+存檔後執行下面這行，或按 `prefix+shift+r`，設定就會生效：
+
+```bash
+herdr server reload-config
+```
+
+設成 `herdr`，提示會出現在 herdr 畫面裡；設成 `system`，則改用作業系統的通知。macOS 用 `system` 時會優先透過 terminal-notifier 發通知，官方建議先安裝它：
+
+```bash
+brew install terminal-notifier
+```
+
+其他選項見[Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/)或[Config reference](https://herdr.dev/tui/docs/0.9.5/config-reference/)。
 
 依官方[Agents](https://herdr.dev/tui/docs/0.9.5/agents/)頁的原文，blocked 的判斷刻意從嚴：herdr 沒見過的新提示畫面，一開始可能顯示成 idle，而不是 blocked；而且「idle status is not authorization to approve an action」，也就是看到 idle，不代表可以直接核准。跳過去之後，要看清楚再按允許。這一點和我在[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)裡談的過度信任、審批疲勞是同一件事。
 
@@ -157,7 +255,13 @@ delivery = "herdr"
 
 什麼會留下、什麼不會，官方[Session state](https://herdr.dev/tui/docs/0.9.5/session-state/)有表。白話來說：只是離開，全部繼續跑。但 herdr 的背景 server 重開、電腦重開或關機時，原本在跑的程式（包括 agent）都會結束（README 原文：「the original processes do not survive」）。重新輸入 `herdr` 後，workspace、tab、pane 的版面會恢復；agent 的對話則只有裝了整合（步驟 4）才能接回來。
 
-全部收工用 `herdr server stop`。官方說明是結束這個 session，並停止裡面的 pane。請注意：這會停掉所有 pane 裡正在跑的 agent。
+全部收工時執行：
+
+```bash
+herdr server stop
+```
+
+官方說明是結束這個 session，並停止裡面的 pane。請注意：這會停掉所有 pane 裡正在跑的 agent。
 
 ## 整理一下：一輪的用法，加上快捷鍵速查
 

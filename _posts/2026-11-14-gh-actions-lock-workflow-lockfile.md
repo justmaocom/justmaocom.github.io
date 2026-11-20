@@ -75,9 +75,29 @@ _概念圖：同一行 `uses: octo-org/deploy-action@v3`。左邊沒有 lockfile
 
 ## 步驟 0：先準備這些
 
-- **裝好 GitHub CLI 並登入：** 照 [GitHub CLI 官網](https://cli.github.com/)安裝，再用 `gh auth login` 登入。擴充功能需要已登入的 `gh`。
+- **裝好 GitHub CLI 並登入：** 照 [GitHub CLI 官網](https://cli.github.com/)安裝，再執行下面這行登入：
+
+  ```bash
+  gh auth login
+  ```
+  {: .nolineno }
+
+  擴充功能需要已登入的 `gh`。
 - **對 repo 有寫入權限：** 官方文件寫，有寫入權限就能建立 lockfile，不需要管理員權限。
-- **先保存目前變更，另開工作分支：** 工具會修改 workflow 和 lockfile，先用 `git status --short` 確認現況。安裝工具後若想先看報告，可用只檢查、不寫檔的 `gh actions-lock --no-fix`。
+- **先保存目前變更，另開工作分支：** 工具會修改 workflow 和 lockfile，先確認現況：
+
+  ```bash
+  git status --short
+  ```
+  {: .nolineno }
+
+  安裝工具後若想先看報告，可執行下面這行，它只檢查、不寫檔：
+
+  ```bash
+  gh actions-lock --no-fix
+  ```
+  {: .nolineno }
+
 - **先開 Dependabot：** 官方建議在產生 lockfile 之前，先讓 Dependabot 管理 GitHub Actions 的版本。最基本的設定如下；若已有 `.github/dependabot.yml`，把這個更新項目合併進既有設定，不要整份覆蓋：
 
 ```yaml
@@ -106,7 +126,14 @@ gh extension upgrade gh-actions-lock
 ```
 {: .nolineno }
 
-裝好後，我會先看一次 `gh actions-lock --help`。README 寫，所有選項以這份說明為準。
+裝好後，我會先看一次說明：
+
+```bash
+gh actions-lock --help
+```
+{: .nolineno }
+
+README 寫，所有選項以這份說明為準。
 
 ## 步驟 2：產生 lockfile
 
@@ -130,7 +157,22 @@ gh actions-lock .github/workflows/ci.yml
 
 ## 步驟 3：看懂 diff 再提交
 
-執行完後，我會先用 `git status --short` 確認修改與新增的檔案，再用 `git diff -- .github/workflows/` 看已追蹤檔案的變更。**新建、尚未追蹤的 `actions.lock` 不會直接出現在一般 `git diff` 裡**，要開檔檢查，或加入暫存區後用 `git diff --cached` 查看。主要看兩處：
+執行完後，我會先確認修改與新增的檔案，再看已追蹤檔案的變更，依序執行：
+
+```bash
+git status --short
+git diff -- .github/workflows/
+```
+{: .nolineno }
+
+**新建、尚未追蹤的 `actions.lock` 不會直接出現在一般 `git diff` 裡**，要開檔檢查，或加入暫存區後用下面這行查看：
+
+```bash
+git diff --cached
+```
+{: .nolineno }
+
+主要看兩處：
 
 **第一處：workflow 檔裡的 `uses:` 寫得更精確。** 例如 `octo-org/deploy-action@v3` 可能被改寫成 `octo-org/deploy-action@v3.1.0`。找得到指向同一個 commit 的完整版本標籤時，工具才會這樣改寫；commit 不變，只是名稱更精確，不會因此升到別的版本。想保留 `@v3` 的寫法，執行時加上 `--no-narrow`。
 
@@ -165,7 +207,14 @@ _概念圖：上方是 workflow 檔的改寫，`@v3` 變成 `@v3.1.0`，指向�
 
 上鎖不是做一次就結束。我認為下面幾件事，決定它能不能長期有效。
 
-**改了 `uses:` 就重新執行。** 新增 workflow，或在既有 workflow 增刪 action 時，再跑一次 `gh actions-lock`。不要手動改 lockfile。
+**改了 `uses:` 就重新執行。** 新增 workflow，或在既有 workflow 增刪 action 時，再跑一次：
+
+```bash
+gh actions-lock
+```
+{: .nolineno }
+
+不要手動改 lockfile。
 
 **Dependabot 會一起更新。** 已上鎖的 workflow，Dependabot 開版本更新的 PR 時，會在同一個 PR 裡重產對應的 lockfile 紀錄，不需要額外設定。但它只處理已上鎖的 workflow：還沒上鎖的，它照舊只改 workflow 檔，也不會替你把新的 workflow 納入 lockfile。
 
@@ -209,13 +258,23 @@ jobs:
 - `--pin v0.4.1`：指定擴充功能的 release tag，讓每次安裝的版本與本文對照的一致。這個下載來的二進位工具不歸 workflow lockfile 管，lockfile 不會鎖住它的內容。
 - `gh actions-lock --verify`：沒有阻擋性錯誤時回傳 0，**仍可能有警告**；有阻擋性問題時回傳 1；工具本身出錯，例如選項錯誤、lockfile 讀不了或 token 被拒絕，則回傳 2。檢查通過不等於所有依賴都已審查或沒有風險。
 
-README 提醒，把這份檔案複製進 repo 之後，要再跑一次 `gh actions-lock`，讓這個負責檢查的 workflow 自己也上鎖。
+README 提醒，把這份檔案複製進 repo 之後，要再跑一次下面這行，讓這個負責檢查的 workflow 自己也上鎖：
+
+```bash
+gh actions-lock
+```
+{: .nolineno }
 
 另外還有 `--verify-local`：不連網，只檢查每一行 `uses:` 在 lockfile 裡有沒有紀錄，適合提交前快速檢查。它不驗證來源，不能取代 `--verify`。工具也不會替你修正權限不足、網路錯誤或 API 限流；遇到這些情況，先排除問題再重跑，不要把「無法驗證」當成「通過」。
 
 **GHE.com 的 token 要另外看。** 依 v0.4.1 README，GHE.com tenant 的 `GITHUB_TOKEN` 不能拿去查 github.com 上的公開 action；本機可以另外登入 github.com，CI 則依文件另外提供 `GH_ACTIONS_LOCK_GITHUB_COM_TOKEN`。這個 token 只用來查詢公開 repo，不需要寫入權限，也不要為了避開限流而多給權限。
 
-**標籤或分支移動了，看種類處理。** 下表說明的是擴充功能在檢查與維護時的行為；workflow 實際執行時，runner 還會另外驗證鎖定紀錄。依 v0.4.1 疑難排解文件，`main`、`v4` 這類參照的 `ref-moved` 警告只出現在 JSON 輸出，也不會讓結束碼變成失敗。要看這類訊息，可執行 `gh actions-lock --verify --json`。
+**標籤或分支移動了，看種類處理。** 下表說明的是擴充功能在檢查與維護時的行為；workflow 實際執行時，runner 還會另外驗證鎖定紀錄。依 v0.4.1 疑難排解文件，`main`、`v4` 這類參照的 `ref-moved` 警告只出現在 JSON 輸出，也不會讓結束碼變成失敗。要看這類訊息，可執行：
+
+```bash
+gh actions-lock --verify --json
+```
+{: .nolineno }
 
 | 你寫的參照 | 發生什麼 | 怎麼做 |
 | --- | --- | --- |
@@ -246,7 +305,14 @@ gh actions-lock
 
 如果這個本機 action 還用了別的 action，`gh actions-lock` 會回報 `local-action` 錯誤，而且什麼都不寫。有兩種處理方式：
 
-- **改成 `$/`（建議）：** 執行 `gh actions-lock --migrate-local-actions`，它會把 workflow 和 repo 內 `action.yml` 裡的 `uses: ./…` 改寫成 `uses: $/…`。`$/` 的意思是「在這個 workflow 所在的 commit，執行 repo 自己的 action」，因此它本身跟著 workflow 的 commit 固定，不需要在 lockfile 另外記一筆；它引用的遠端 action 則可以記進 lockfile。要注意，如果原本的 workflow 會先 checkout 別的 ref 再執行 `./` action，改成 `$/` 後跑的會是 workflow 所在 commit 的版本，實際執行內容可能不同，不能只當成換個路徑寫法。改寫後每一行都要看過。
+- **改成 `$/`（建議）：** 執行下面這行：
+
+  ```bash
+  gh actions-lock --migrate-local-actions
+  ```
+  {: .nolineno }
+
+  它會把 workflow 和 repo 內 `action.yml` 裡的 `uses: ./…` 改寫成 `uses: $/…`。`$/` 的意思是「在這個 workflow 所在的 commit，執行 repo 自己的 action」，因此它本身跟著 workflow 的 commit 固定，不需要在 lockfile 另外記一筆；它引用的遠端 action 則可以記進 lockfile。要注意，如果原本的 workflow 會先 checkout 別的 ref 再執行 `./` action，改成 `$/` 後跑的會是 workflow 所在 commit 的版本，實際執行內容可能不同，不能只當成換個路徑寫法。改寫後每一行都要看過。
 - **保留 `./`：** 改加 `--ignore-local-actions`，錯誤會降為警告。本機 action 若只含 `run:`，或它用到的 action 已記在**同一個 workflow** 的鎖定清單裡，仍可能正常執行。代價是：缺少同一個 workflow 的對應紀錄時，job 要到那一步才失敗，錯誤訊息類似 `lockfile missing pin for octo-org/setup-tool@v2.0.0`，而且前面的步驟已經跑過了。
 
 ## 進階：要求每個 workflow 都要上鎖
@@ -255,7 +321,13 @@ gh actions-lock
 
 - 企業、組織或 repo 的管理員可以在 Actions 政策裡開啟它，作為 workflow 的執行保護。
 - 它有兩種狀態：**Evaluate** 只記錄、不擋（僅限 GitHub Enterprise Cloud）；**Active** 會擋下範圍內所有還沒上鎖的 workflow，包括只有 `run:`、沒有 `uses:` 的 workflow，即使同一個 repo 的其他 workflow 已經上鎖。
-- 改成 Active 之前，先在每個目標 repo 跑過 `gh actions-lock --verify`，或在 Evaluate 狀態下查看 Policy insights。
+- 改成 Active 之前，先在每個目標 repo 跑過下面這行，或在 Evaluate 狀態下查看 Policy insights：
+
+  ```bash
+  gh actions-lock --verify
+  ```
+  {: .nolineno }
+
 - 開了政策之後，`--verify` 的檢查仍然要留著：政策是在執行時擋下沒有有效 lockfile 的 workflow；`--verify` 則是在 PR 階段就提醒作者 lockfile 過期了。
 - 組織若已開「action 必須釘到完整 SHA」的政策，它和 Require lockfile 是各自獨立的檢查，兩個都要通過。已上鎖的 workflow，就算檔案裡沒寫 SHA，也能同時通過兩者。
 

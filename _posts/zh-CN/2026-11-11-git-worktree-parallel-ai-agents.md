@@ -35,7 +35,13 @@ _概念图，不是实际界面。上方是所有工作目录共用的历史记�
 
 还有一件实现上的事情要知道：linked worktree 顶层的 `.git` [不是一个完整的文件夹，而是一个小文件](https://git-scm.com/docs/git-worktree#_details)，指向主 repo 里为这个 worktree 保留的管理数据（手册称为 administrative files）。也就是说，linked worktree 的文件夹本身不是完整的 repo。不要把它当成独立的 repo 复制到别处，也不要删掉这个 `.git` 文件。
 
-> **进阶：** 若你希望某个 worktree 有自己的配置，例如不同的 `user.email`，可先执行 `git config extensions.worktreeConfig true`，再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。我认为一般情况用共用的配置就够了。
+> **进阶：** 若你希望某个 worktree 有自己的配置，例如不同的 `user.email`，可先执行：
+>
+> ```bash
+> git config extensions.worktreeConfig true
+> ```
+>
+> 再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。我认为一般情况用共用的配置就够了。
 {: .prompt-tip }
 
 ## 什么时候该用、什么时候不用
@@ -133,7 +139,13 @@ git worktree list
 git worktree list -v
 ```
 
-若要写脚本解析这份列表（平常使用不需要），可用 `git worktree list --porcelain`。手册说这个格式跨版本稳定，并建议搭配 `-z`，这样即使路径里有换行符也能正确拆分。
+若要写脚本解析这份列表（平常使用不需要），可用：
+
+```bash
+git worktree list --porcelain
+```
+
+手册说这个格式跨版本稳定，并建议搭配 `-z`，这样即使路径里有换行符也能正确拆分。
 
 **你会得到：** 一份当前所有工作目录的列表，包含各自停在哪里。
 
@@ -141,7 +153,13 @@ git worktree list -v
 
 在 worktree 里做完、要保留的修改都 commit 之后，下一步是把这条分支的成果放回 `main`。有两种做法，选一种就行。
 
-**做法一：在本地自己合并。** 回到主文件夹 `myapp`（例如在 `myapp-login` 里执行 `cd ../myapp`），依次执行：
+**做法一：在本地自己合并。** 回到主文件夹 `myapp`，例如从 `myapp-login` 回去：
+
+```bash
+cd ../myapp
+```
+
+接着依次执行：
 
 ```bash
 git switch main
@@ -216,7 +234,13 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
 
 假设有一个网站 repo，文件夹叫 `myapp`。我想让一个 AI 做登录页，另一个修 README 里的错字，两边不要碰到对方的文件。
 
-1. 先在 `myapp` 里更新主分支：`git switch main`，再 `git pull`。
+1. 先在 `myapp` 里更新主分支，依次执行：
+
+   ```bash
+   git switch main
+   git pull
+   ```
+
 2. 从 `main` 各开一条新分支、各开一个文件夹：
 
    ```bash
@@ -226,8 +250,21 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
 
    **这一步你会得到：** 两个新文件夹，分别停在 `feature-login` 和 `fix-typo`。
 
-3. 打开两个终端，分别进入 `../myapp-login` 和 `../myapp-typo`，各开一个 coding agent，各自 commit。两边的文件互不影响。执行 `git worktree list`，应该会看到三个文件夹：排在第一行的原来的 `myapp`，加上这两个新的。
-4. 审查：推上去之前，可以先在主文件夹 `myapp` 查看这条分支改了什么：`git diff main...feature-login`。要给别人审，就把每个分支各自推上去开 PR（pull request，请求把分支合并进主分支）：
+3. 打开两个终端，分别进入 `../myapp-login` 和 `../myapp-typo`，各开一个 coding agent，各自 commit。两边的文件互不影响。执行：
+
+   ```bash
+   git worktree list
+   ```
+
+   应该会看到三个文件夹：排在第一行的原来的 `myapp`，加上这两个新的。
+
+4. 审查：推上去之前，可以先在主文件夹 `myapp` 查看这条分支改了什么：
+
+   ```bash
+   git diff main...feature-login
+   ```
+
+   要给别人审，就把每个分支各自推上去开 PR（pull request，请求把分支合并进主分支）：
 
    ```bash
    git push -u origin feature-login
@@ -235,7 +272,21 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
 
    另一条分支同样处理。之后可以让审查自动跑起来，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)；若想对“谁来看结构、审修改”有一套固定做法，请看 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
 
-5. 合并：开了 PR 的，等 PR 在网站上合并，再回到 `myapp` 执行 `git pull` 更新 `main`。不开 PR 的，在主文件夹 `myapp`（第 1 步已经停在 `main`）执行 `git merge feature-login` 和 `git merge fix-typo`。细节见步骤 3。
+5. 合并：开了 PR 的，等 PR 在网站上合并，再回到 `myapp` 更新 `main`：
+
+   ```bash
+   git pull
+   ```
+
+   不开 PR 的，在主文件夹 `myapp`（第 1 步已经停在 `main`）依次执行：
+
+   ```bash
+   git merge feature-login
+   git merge fix-typo
+   ```
+
+   细节见步骤 3。
+
 6. 收尾：先确认两个文件夹里的 AI 都停下来、要保留的修改都 commit 了，因为 `remove` 只收干净的文件夹。接着回到 `myapp`，先移除工作目录，再删除分支：
 
    ```bash
@@ -245,7 +296,13 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
    git branch -d fix-typo
    ```
 
-   如果 `git branch -d` 拒绝删除，请看步骤 4 的说明。最后再执行 `git worktree list`，应该只剩主文件夹。
+   如果 `git branch -d` 拒绝删除，请看步骤 4 的说明。最后再执行：
+
+   ```bash
+   git worktree list
+   ```
+
+   应该只剩主文件夹。
 
 小提醒：如果项目的规则写在 AGENTS.md，而且这份文件有被 git 跟踪，每个 worktree 都会有同一份，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。若还想在某个工作目录里做固定时机的自动检查，请看[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
 
@@ -265,7 +322,13 @@ git worktree lock --reason "放在外接硬盘" ../myapp-usb
 git worktree add --lock --reason "放在外接硬盘" -b feature-usb ../myapp-usb
 ```
 
-执行 `git worktree list -v` 可以看到锁定原因。用完后再解开：
+执行下面这行可以看到锁定原因：
+
+```bash
+git worktree list -v
+```
+
+用完后再解开：
 
 ```bash
 git worktree unlock ../myapp-usb
@@ -283,13 +346,23 @@ git worktree move ../myapp-typo ../tasks/myapp-typo
 
 [手册注明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-move)：主 worktree，或含有 submodule 的 linked worktree，不能用这条命令搬。
 
-如果已经用文件资源管理器或 `mv` 自己搬走了，git 记录的位置就对不上了。这时到搬过去的那个 worktree 里执行 `git worktree repair` 重新连上。若一次搬了多个，可以在任何一个 worktree 里执行，把每个新路径都列在后面：
+如果已经用文件资源管理器或 `mv` 自己搬走了，git 记录的位置就对不上了。这时到搬过去的那个 worktree 里执行下面这行，重新连上：
+
+```bash
+git worktree repair
+```
+
+若一次搬了多个，可以在任何一个 worktree 里执行，把每个新路径都列在后面：
 
 ```bash
 git worktree repair ../tasks/myapp-typo ../tasks/myapp-login
 ```
 
-若搬走的是主文件夹，就在主文件夹里执行 `git worktree repair`，让各个 linked worktree 重新指回来。
+若搬走的是主文件夹，就在主文件夹里执行下面这行，让各个 linked worktree 重新指回来：
+
+```bash
+git worktree repair
+```
 
 ## 什么情况用什么
 

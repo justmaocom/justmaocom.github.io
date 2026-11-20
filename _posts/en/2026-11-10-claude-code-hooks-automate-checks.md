@@ -49,7 +49,11 @@ A matcher is the filter that decides whether this hook should run. For PreToolUs
 
 After you save the settings, type `/hooks` at the Claude Code prompt to open a read-only browser of the hooks you have, labeled by source: user settings, project settings, local settings, a plugin, or the current session. You can inspect them there, but you can't edit them in that screen.
 
-The command examples below need [`jq`](https://jqlang.org/) to pick fields out of the JSON sent to hooks. The formatter also needs Node.js and `npx`, so this command adapted from the official guide's Prettier example can run: the path is stored in a variable and quoted, so spaces or apostrophes are not split. Hook scripts must be executable on macOS and Linux; after you add them, run `chmod +x .claude/hooks/*.sh`.
+The command examples below need [`jq`](https://jqlang.org/) to pick fields out of the JSON sent to hooks. The formatter also needs Node.js and `npx`, so this command adapted from the official guide's Prettier example can run: the path is stored in a variable and quoted, so spaces or apostrophes are not split. Hook scripts must be executable on macOS and Linux; after you add them, run:
+
+```bash
+chmod +x .claude/hooks/*.sh
+```
 
 ## Auto-Format After Edits: PostToolUse
 
