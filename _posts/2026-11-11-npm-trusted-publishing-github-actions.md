@@ -67,7 +67,12 @@ _概念圖：GitHub Actions 先出示身分證明，npm 核對設定後才換發
 
 開始之前，確認這四件事：
 
-- **版本夠新：** npm CLI 11.5.1 以上、Node.js 22.14.0 以上，這是[官方文件](https://docs.npmjs.com/trusted-publishers)的版本要求。官方範例用 Node 24，目前內附的 npm（11.19.x）已經符合。**Node 22 內附的 npm 是 10.x，不到 11.5.1**；一定要用 Node 22 的話，請在發布前先升級 npm，例如在 workflow 加一步 `npm install -g npm@latest`。
+- **版本夠新：** npm CLI 11.5.1 以上、Node.js 22.14.0 以上，這是[官方文件](https://docs.npmjs.com/trusted-publishers)的版本要求。官方範例用 Node 24，目前內附的 npm（11.19.x）已經符合。**Node 22 內附的 npm 是 10.x，不到 11.5.1**；一定要用 Node 22 的話，請在發布前先升級 npm，例如在 workflow 加一步：
+
+  ```bash
+  npm install -g npm@latest
+  ```
+
 - **`repository.url` 完全一致：** `package.json`（套件的設定檔，記錄名稱、版本等資訊）裡的 `repository.url`，必須和你的 GitHub repo **完全一致**，大小寫也要相同。從 fork（複製別人的 repo 而來）的專案若沒改這個欄位，發布會失敗。
 - **帳號與 2FA：** 你的 npm 帳號要能管理這個套件，並已開啟 2FA（兩步驟驗證：除了密碼，還要再輸入一組驗證碼）。步驟 4 會把套件改成「發布必須 2FA」，進階的 stage publish 核准也要用 2FA。
 - **套件已經在 npm 上：** 設定入口在既有套件的 Settings 頁。官方文件沒有另外寫「全新套件」該怎麼設定。
@@ -168,7 +173,13 @@ jobs:
 
 這裡的 `NPM_READ_TOKEN` 必須是 **read-only** 的 granular token，只用來安裝，不能發布。建立方式：在 npmjs.com 點頭像 → **Access Tokens** → **Generate New Token**，Permissions 選 **Read-only**（目前不能用 CLI 建立 granular token）。建好後存進 repo 的 secrets，名稱和範例一樣叫 `NPM_READ_TOKEN`。
 
-**scoped 套件第一次公開發布時：** scoped 套件是名稱以 `@` 開頭、像 `@組織/套件` 的套件。npm 的〈[Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages)〉寫，scoped 套件預設以私有可見度發布，要公開就用 `npm publish --access public`；[provenance 文件](https://docs.npmjs.com/generating-provenance-statements)也提醒，第一次發布時要明確設成公開。
+**scoped 套件第一次公開發布時：** scoped 套件是名稱以 `@` 開頭、像 `@組織/套件` 的套件。npm 的〈[Creating and publishing scoped public packages](https://docs.npmjs.com/creating-and-publishing-scoped-public-packages)〉寫，scoped 套件預設以私有可見度發布，要公開就用：
+
+```bash
+npm publish --access public
+```
+
+[provenance 文件](https://docs.npmjs.com/generating-provenance-statements)也提醒，第一次發布時要明確設成公開。
 
 **你會得到：** 一份不必存放發布用 token 的 workflow。
 
@@ -192,7 +203,19 @@ jobs:
 
 1. 先設好 Trusted Publishing，並確認發布成功。
 2. 到套件的 **Settings → Publishing access**，選 **Require two-factor authentication and disallow tokens**，再按 **Update Package Settings**。之後 granular token 一律不能發布這個套件；trusted publisher 用的是 OIDC，不受影響。
-3. 撤銷不再需要的 token：在 npmjs.com 點頭像 → **Access Tokens**，點該 token 的 **×**，或勾選後按 **Delete Selected Tokens**；也可以在終端機用 `npm token list` 找出 ID，再執行 `npm token delete <id>`。文件寫，撤銷最多可能要一小時才生效。說明見 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens)。
+3. 撤銷不再需要的 token：在 npmjs.com 點頭像 → **Access Tokens**，點該 token 的 **×**，或勾選後按 **Delete Selected Tokens**；也可以在終端機先找出 token 的 ID：
+
+   ```bash
+   npm token list
+   ```
+
+   再把 `<id>` 換成要刪的 ID，刪除它：
+
+   ```bash
+   npm token delete <id>
+   ```
+
+   文件寫，撤銷最多可能要一小時才生效。說明見 [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens)。
 
 撤銷後，GitHub secrets 裡原本發布用的 `NPM_TOKEN` 也就用不到了，可以一併刪除。
 
@@ -259,7 +282,13 @@ Trusted Publishing 拿掉了長期 token，但 workflow 本身若被攻破，仍
 
 - **environment 加人工核准：** 在 GitHub 為發布 job 指定 environment，並設定需要人工核准；npmjs.com 的 **Environment name** 要填同一個名稱。
 - **tag protection rules：** 限制誰能推送發布用的 tag。
-- **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 帳號設定的 **Staged Packages** 分頁按 **Approve**，或用 `npm stage approve <stage-id>`。文件把「trusted publisher 只允許 stage publish」視為更強的組合；若有多筆 publisher，也要逐筆檢查是否仍允許直接發布。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
+- **只允許 stage publish：** Allowed actions 只留 `npm stage publish`，workflow 的最後一行也改成 `npm stage publish`。每個版本會先進暫存區，維護者用 2FA 核准後才公開；核准可以在 npmjs.com 帳號設定的 **Staged Packages** 分頁按 **Approve**，或執行：
+
+  ```bash
+  npm stage approve <stage-id>
+  ```
+
+  文件把「trusted publisher 只允許 stage publish」視為更強的組合；若有多筆 publisher，也要逐筆檢查是否仍允許直接發布。這需要 npm CLI 11.15.0 以上，細節見 [Staged publishing](https://docs.npmjs.com/staged-publishing)。
 - **定期檢查：** 定期稽核套件的 trusted publisher 設定，刪掉沒在用的發布 token。
 
 這幾道關卡怎麼一步步設定，以及為什麼帶著 provenance 的版本仍可能是惡意的，我在續篇[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)裡說明。

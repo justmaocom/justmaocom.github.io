@@ -54,8 +54,17 @@ npm -v
 ```
 
 - **12.x**: the policy is on by default. Go straight to Step 2.
-- **11.x starting at 11.16.0**: GitHub's [June announcement](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/) says these versions show warnings to help you prepare for migration, but those warnings are not the same as npm 12's default blocking. Use `npm approve-scripts --allow-scripts-pending` to inspect the list, then approve or deny packages individually.
-- **Older versions**: check that your Node.js version meets the target npm version's requirements before upgrading. To follow this post, you can explicitly select npm 12 with `npm install -g npm@12`.
+- **11.x starting at 11.16.0**: GitHub's [June announcement](https://github.blog/changelog/2026-06-09-upcoming-breaking-changes-for-npm-v12/) says these versions show warnings to help you prepare for migration, but those warnings are not the same as npm 12's default blocking. Use the line below to inspect the list, then approve or deny packages individually:
+
+  ```bash
+  npm approve-scripts --allow-scripts-pending
+  ```
+
+- **Older versions**: check that your Node.js version meets the target npm version's requirements before upgrading. To follow this post, you can explicitly select npm 12:
+
+  ```bash
+  npm install -g npm@12
+  ```
 
 I recommend that team members and CI use the same npm version. The same `allowScripts` list is not guaranteed to block anything under an older npm version. Also check whether any settings override the defaults.
 
@@ -67,7 +76,13 @@ In a project where dependencies have already been installed, run:
 npm install-scripts ls
 ```
 
-This read-only command lists packages with install scripts that are not yet covered by an `allowScripts` rule. Explicitly denied packages do not appear. For a new project, first run `npm install` with npm 12's defaults, then inspect its final output and this list.
+This read-only command lists packages with install scripts that are not yet covered by an `allowScripts` rule. Explicitly denied packages do not appear. For a new project, first run this with npm 12's defaults:
+
+```bash
+npm install
+```
+
+Then inspect its final output and this list.
 
 Next, I'd inspect the scripts for each version. If the list includes `canvas@3.2.0`, for example:
 
@@ -131,7 +146,19 @@ git add package.json
 git commit -m "chore(deps): approve required install scripts"
 ```
 
-**After an upgrade**, the new version no longer matches the old approval and appears for review again. Review its scripts before reapproving; npm updates the corresponding version rule. Preview obsolete entries with `npm install-scripts prune --dry-run`, then remove them with `npm install-scripts prune`. It also removes denial entries that no longer match installed packages, so if your team keeps denials to block certain packages preemptively, check before pruning.
+**After an upgrade**, the new version no longer matches the old approval and appears for review again. Review its scripts before reapproving; npm updates the corresponding version rule. Preview obsolete entries:
+
+```bash
+npm install-scripts prune --dry-run
+```
+
+Then remove them:
+
+```bash
+npm install-scripts prune
+```
+
+It also removes denial entries that no longer match installed packages, so if your team keeps denials to block certain packages preemptively, check before pruning.
 
 **Want CI to fail on unreviewed scripts?** Add this to the project's `.npmrc`:
 
@@ -196,7 +223,12 @@ npm config set allow-scripts=canvas,sharp --location=user
 
 - `--allow-scripts` names **packages allowed to run install scripts**. It does not specify which tool to install.
 - The [docs](https://docs.npmjs.com/cli/v12/using-npm/config/#allow-scripts) say passing this option on the command line to a project-scoped `npm install`, `npm ci`, `npm update`, or `npm rebuild` is an error. Maintain `allowScripts` for projects.
-- This list matches package names, unlike `allowScripts`, which pins versions by default. A personal setting persists; remove it when no longer needed with `npm config delete allow-scripts --location=user`.
+- This list matches package names, unlike `allowScripts`, which pins versions by default. A personal setting persists; remove it when no longer needed:
+
+  ```bash
+  npm config delete allow-scripts --location=user
+  ```
+
 - This controls only install scripts. The tool subsequently run by `npm exec` or `npx` still uses your permissions. Blocking install scripts does not make an unfamiliar tool safe to execute.
 
 ## After Installing Malware: The Special Response Order in the tensorlake Incident
@@ -221,8 +253,22 @@ The advisory says to treat a machine and its accessible credentials as compromis
 
 1. **Disconnect from the network** to isolate the affected machine.
 2. **Stop and remove `gh-token-monitor` before revoking GitHub tokens**:
-   - Linux: run `systemctl --user disable --now gh-token-monitor.service`, then delete `~/.config/gh-token-monitor/` and `~/.local/bin/gh-token-monitor.sh`.
-   - macOS: run `launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.user.gh-token-monitor.plist`, then delete the plist.
+   - On Linux, run:
+
+     ```bash
+     systemctl --user disable --now gh-token-monitor.service
+     ```
+
+     Then delete `~/.config/gh-token-monitor/` and `~/.local/bin/gh-token-monitor.sh`.
+
+   - On macOS, run:
+
+     ```bash
+     launchctl bootout gui/$(id -u) ~/Library/LaunchAgents/com.user.gh-token-monitor.plist
+     ```
+
+     Then delete the plist.
+
    - Windows: delete the `gh-token-monitor` scheduled task and `%LOCALAPPDATA%\gh-token-monitor\` folder.
 3. **Rotate all accessible credentials from a different, clean machine**. Do not enter new credentials on the affected machine.
 4. **Check packages and repositories for propagation**, including unexpected releases, commits authored by `claude`, and the `dependabot/github_actions/format/setup-formatter` branch. These are indicators from the advisory; assess them alongside the actual changes and records.

@@ -256,7 +256,12 @@ claude --plugin-dir ./plugins/example-plugin plugin details example-plugin
 ```
 {: .nolineno }
 
-It prints a `Component inventory`, a list of the plugin's components: skills and commands, agents, hooks (with their trigger events), MCP servers, and LSP servers. I'd compare it with the files from the steps above and go back for anything missing. Monitors, files in `bin/`, and mods aren't in this list, so open them yourself. The list covers the components in this folder. Components the marketplace entry adds, and the other plugins in `dependencies`, need their own look. After you install, you can also run `claude plugin details <plugin-name>` to check the copy that's actually installed.
+It prints a `Component inventory`, a list of the plugin's components: skills and commands, agents, hooks (with their trigger events), MCP servers, and LSP servers. I'd compare it with the files from the steps above and go back for anything missing. Monitors, files in `bin/`, and mods aren't in this list, so open them yourself. The list covers the components in this folder. Components the marketplace entry adds, and the other plugins in `dependencies`, need their own look. After you install, you can also run this to check the copy that's actually installed:
+
+```bash
+claude plugin details <plugin-name>
+```
+{: .nolineno }
 
 ### A checklist you can copy
 
@@ -335,22 +340,48 @@ According to the official docs, Anthropic's official marketplaces (such as `clau
 
 To turn off auto-update for a marketplace, go to the **Marketplaces** tab in `/plugin`, select the marketplace, and choose **Disable auto-update**.
 
-The cost of turning it off is that you won't get fixes automatically, so I wouldn't turn it off everywhere. What I'd do instead is turn off auto-update only for third-party or unfamiliar marketplaces and update by hand on a regular schedule. Before each update, I'd compare what changed with `https://github.com/<owner>/<repo>/compare/<old-sha>...<new-sha>`, especially `plugin.json`, `hooks/hooks.json`, `.mcp.json`, and any new dependencies. The command to update by hand is `claude plugin update <plugin-name>@<marketplace>`. To apply the update, restart Claude Code or run `/reload-plugins` in a conversation.
+The cost of turning it off is that you won't get fixes automatically, so I wouldn't turn it off everywhere. What I'd do instead is turn off auto-update only for third-party or unfamiliar marketplaces and update by hand on a regular schedule. Before each update, I'd compare what changed with `https://github.com/<owner>/<repo>/compare/<old-sha>...<new-sha>`, especially `plugin.json`, `hooks/hooks.json`, `.mcp.json`, and any new dependencies. The command to update by hand is:
+
+```bash
+claude plugin update <plugin-name>@<marketplace>
+```
+{: .nolineno }
+
+To apply the update, restart Claude Code or run `/reload-plugins` in a conversation.
 
 ## After you install: disable, remove, and clean up
 
 First, I'd check what's actually installed. `claude plugin list` shows each plugin's version, install scope, and status.
 
-**Disable** is the first step I'd take when I don't need a plugin for now, or when I suspect a problem with it. In the Installed tab of `/plugin`, select the plugin and press the space bar, or type `/plugin disable` to open the panel. In the terminal, run:
+**Disable** is the first step I'd take when I don't need a plugin for now, or when I suspect a problem with it. In the Installed tab of `/plugin`, select the plugin and press the space bar, or type this to open the panel:
+
+```text
+/plugin disable
+```
+{: .nolineno }
+
+In the terminal, run:
 
 ```bash
 claude plugin disable <plugin-name>@<marketplace>
 ```
 {: .nolineno }
 
-After you disable a plugin, its files stay, and you can turn it back on later with `claude plugin enable`. If another enabled plugin depends on it, disabling fails and names the plugins to disable first. If something odd is going on and you want to stop everything first, `claude plugin disable --all` disables every plugin.
+After you disable a plugin, its files stay, and you can turn it back on later with `claude plugin enable`. If another enabled plugin depends on it, disabling fails and names the plugins to disable first. If something odd is going on and you want to stop everything first, this disables every plugin:
 
-To **remove** a plugin, type `/plugin uninstall`, or run this in the terminal:
+```bash
+claude plugin disable --all
+```
+{: .nolineno }
+
+To **remove** a plugin, type this in the input box:
+
+```text
+/plugin uninstall
+```
+{: .nolineno }
+
+Or run this in the terminal:
 
 ```bash
 claude plugin uninstall <plugin-name>@<marketplace> --scope <original-scope>
@@ -361,10 +392,23 @@ claude plugin uninstall <plugin-name>@<marketplace> --scope <original-scope>
 
 - When you remove it from its last install scope, the plugin's data folder, `~/.claude/plugins/data/<id>/`, is deleted along with it, and so are the options and secrets the plugin saved. Add `--keep-data` to keep the folder.
 - The plugin's code stays in `~/.claude/plugins/cache/` for another 14 days before a background cleanup deletes it. If I'm sure I no longer trust it, I'd delete `~/.claude/plugins/cache/<marketplace>/<plugin-name>/` myself.
-- Dependencies that were installed along with it stay. Add `--prune` to also remove dependencies no other plugin needs, or clean them up later with `claude plugin prune`.
+- Dependencies that were installed along with it stay. Add `--prune` to also remove dependencies no other plugin needs, or clean them up later with this:
+
+  ```bash
+  claude plugin prune
+  ```
+  {: .nolineno }
+
 - When you remove a Project-scope plugin in the interface, it asks you to choose **Disable for me** (turns it off only for you, written to your `.claude/settings.local.json`) or **Uninstall for everyone** (removes it from the shared `.claude/settings.json`, which affects every collaborator).
 
-To **remove a marketplace**, type `/plugin marketplace remove <marketplace>`. This also removes every plugin you installed from that marketplace.
+To **remove a marketplace**, type this in the input box:
+
+```text
+/plugin marketplace remove <marketplace>
+```
+{: .nolineno }
+
+This also removes every plugin you installed from that marketplace.
 
 If I'm removing a plugin because I suspect a problem, I'd also replace any tokens it was given. For what to do next, see the "After an Incident (or a Suspected One)" checklist in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
@@ -393,7 +437,14 @@ Being careful on my own isn't enough. Anyone on the team might install a plugin,
 ```
 {: file=".claude/settings.json" }
 
-This file is committed to the repo, so I treat changing it like changing code, and it has to go through PR review. You can also add it to CODEOWNERS (a file that says who reviews which files), so that someone who knows this checklist approves the changes. The official docs note two more things. Writing `enabledPlugins` in the repo doesn't install anything automatically, so collaborators have to run `claude plugin install <name>@<marketplace> --scope project` themselves. And `extraKnownMarketplaces` only takes effect in folders the collaborator already trusts.
+This file is committed to the repo, so I treat changing it like changing code, and it has to go through PR review. You can also add it to CODEOWNERS (a file that says who reviews which files), so that someone who knows this checklist approves the changes. The official docs note two more things. Writing `enabledPlugins` in the repo doesn't install anything automatically, so collaborators have to run this themselves:
+
+```bash
+claude plugin install <name>@<marketplace> --scope project
+```
+{: .nolineno }
+
+And `extraKnownMarketplaces` only takes effect in folders the collaborator already trusts.
 
 **3. Limit marketplace sources at the organization level.** If your company manages Claude Code settings centrally (managed settings), admins can use `strictKnownMarketplaces` to allow only certain sources, or `blockedMarketplaces` to block certain sources. Here is the official allowlist example:
 

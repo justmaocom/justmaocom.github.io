@@ -221,7 +221,11 @@ checks = [
 ```
 {: file="tools/check-i18n.rb" }
 
-This check runs in the GitHub Actions publishing workflow, in this order: build the site, run `check-i18n.rb`, run the SEO check, check the site's links with html-proofer (a tool that checks pages for broken links and images), and publish only if everything passes. Pull requests run the same checks but do not publish. Locally, `bash tools/test.sh` runs the whole set.
+This check runs in the GitHub Actions publishing workflow, in this order: build the site, run `check-i18n.rb`, run the SEO check, check the site's links with html-proofer (a tool that checks pages for broken links and images), and publish only if everything passes. Pull requests run the same checks but do not publish. To run the whole set locally, run:
+
+```bash
+bash tools/test.sh
+```
 
 ## The Costs
 

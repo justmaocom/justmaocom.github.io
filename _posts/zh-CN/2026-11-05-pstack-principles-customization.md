@@ -472,7 +472,13 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 
 我按前面的步骤，先创建 `feat/export-csv` 分支和独立的 worktree，复制提示文件、准备好依赖，再用 `claude -p` 命令启动，搭配允许清单、禁止清单和费用上限。
 
-**早上：检查。** 我用 `claude --resume <对话 ID>` 以交互模式接上昨晚的对话。`claude -p` 的对话不会出现在 `claude --resume` 的列表里，所以要直接给 ID：它就是 `~/.claude/projects/<worktree 路径>/` 下面那次对话的 `.jsonl` 文件名，也可以直接把那个 `.jsonl` 的完整路径传给 `--resume`。接上之后输入：
+**早上：检查。** 我用下面这行，以交互模式接上昨晚的对话：
+
+```bash
+claude --resume <对话 ID>
+```
+
+`claude -p` 的对话不会出现在 `claude --resume` 的列表里，所以要直接给 ID：它就是 `~/.claude/projects/<worktree 路径>/` 下面那次对话的 `.jsonl` 文件名，也可以直接把那个 `.jsonl` 的完整路径传给 `--resume`。接上之后输入：
 
 ```text
 /pstack:show-me-your-work catch me up on what you did last night

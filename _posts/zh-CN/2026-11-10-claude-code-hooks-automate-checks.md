@@ -49,7 +49,11 @@ Matcher 是用来过滤“这次要不要跑”的条件。对 PreToolUse 和 Po
 
 设置好之后，在 Claude Code 的提示符输入 `/hooks`，会打开一个只读的浏览画面，列出目前的 hooks，以及它们来自用户设置、项目设置、本机设置、插件或目前这次对话。这只是查看，不能在这里改设置。
 
-下面的指令范例需要 [`jq`](https://jqlang.org/)（用来从 hooks 传入的 JSON 取出字段）。排版那一项另外需要 Node.js 和 `npx`，才能运行依官方指南 Prettier 示例改写的指令：路径先存进变量再加引号，空格或单引号才不会被拆开。Hook 脚本在 macOS 和 Linux 上必须是可执行文件，设置后请运行 `chmod +x .claude/hooks/*.sh`。
+下面的指令范例需要 [`jq`](https://jqlang.org/)（用来从 hooks 传入的 JSON 取出字段）。排版那一项另外需要 Node.js 和 `npx`，才能运行依官方指南 Prettier 示例改写的指令：路径先存进变量再加引号，空格或单引号才不会被拆开。Hook 脚本在 macOS 和 Linux 上必须是可执行文件，设置后请运行：
+
+```bash
+chmod +x .claude/hooks/*.sh
+```
 
 ## 改完文件自动排版：PostToolUse
 

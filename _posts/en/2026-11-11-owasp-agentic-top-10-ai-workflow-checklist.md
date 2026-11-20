@@ -62,7 +62,13 @@ Tool defaults change often, so in this list I cover only where to look and what 
 
 - **Permissions and auto-approval:** In Claude Code, type `/permissions` to see the current rules, and read the [permission modes](https://code.claude.com/docs/en/permission-modes) docs for what each mode means. For Codex, read [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) and confirm two things: the sandbox mode (what Codex can technically do) and the approval policy (when it must stop and ask you). For Cursor, read [Agent Security](https://cursor.com/docs/agent/security) and confirm the Run Modes (how terminal commands get approved) and the MCP allowlist (the MCP tools you pre-approved).
 - **Sandbox:** In Claude Code, use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on; for what it can read and reach once it is on, see the [sandboxing](https://code.claude.com/docs/en/sandboxing) docs.
-- **MCP:** Start from the project's `.mcp.json` (the file that registers MCP servers). Claude Code's [security](https://code.claude.com/docs/en/security) docs warn that this file alone does not show every server that can be loaded. To see which servers Claude Code currently has configured, run `claude mcp list` in your terminal (it also shows each server's connection status), or type `/mcp` in a session; see the [MCP docs](https://code.claude.com/docs/en/mcp).
+- **MCP:** Start from the project's `.mcp.json` (the file that registers MCP servers). Claude Code's [security](https://code.claude.com/docs/en/security) docs warn that this file alone does not show every server that can be loaded. To see which servers Claude Code currently has configured, run the line below in your terminal (it also shows each server's connection status), or type `/mcp` in a session:
+
+  ```bash
+  claude mcp list
+  ```
+
+  See the [MCP docs](https://code.claude.com/docs/en/mcp).
 - **Credentials:** The project's `.env` (a file commonly used for passwords and tokens), `~/.ssh` in your home directory (SSH keys, used to sign in to servers and Git), `~/.aws/credentials` (AWS cloud credentials), and any secrets kept in environment variables (settings the system hands to programs).
 - **Automation:** The workflow files in your repo's `.github/workflows/` folder, plus any scheduled or background jobs you set up.
 
@@ -190,7 +196,12 @@ A few reading notes:
 The docs warn that if you put the same block in `~/.claude/settings.json`, `.` resolves to `~/.claude` instead, and your project files stay blocked.
 
 - `bypassPermissions` is a Claude Code permission mode, and as the name says, it bypasses permission checks. The official docs say to use it only in isolated environments such as containers or virtual machines (a separate computer simulated inside yours). If you do not need it, set `permissions.disableBypassPermissionsMode` to `"disable"` to turn it off.
-- Codex: in [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), confirm the sandbox mode (what Codex can technically do), the approval policy (when it must ask you first), and whether network access is on or off. For a read-only session, run `codex --sandbox read-only --ask-for-approval on-request`.
+- Codex: in [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), confirm the sandbox mode (what Codex can technically do), the approval policy (when it must ask you first), and whether network access is on or off. For a read-only session, run:
+
+  ```bash
+  codex --sandbox read-only --ask-for-approval on-request
+  ```
+
 - I wouldn't let the agent regenerate lockfiles on its own; when an update is needed, I'd review the diff myself.
 - Keep the allowlist of commands that run automatically under version control, so every change to it is visible. That is OWASP mitigation 6.
 
@@ -264,7 +275,19 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
 
 - I'd write down three steps before anything goes wrong: how to interrupt the current session, how to revoke the tokens it uses, and how to turn off scheduled or background jobs.
 - Interrupt: in Claude Code, the official [interactive mode](https://code.claude.com/docs/en/interactive-mode) docs say `Esc` stops the current response or tool call, and `Ctrl+C` interrupts a running operation. For other tools, check their own official docs.
-- Revoke: delete a GitHub personal access token under Settings → Developer settings → Personal access tokens; see [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Delete an npm token on the npm website, or find its ID with `npm token list` and run `npm token delete <ID>`; see [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/).
+- Revoke: delete a GitHub personal access token under Settings → Developer settings → Personal access tokens; see [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Delete an npm token on the npm website, or find its ID first:
+
+  ```bash
+  npm token list
+  ```
+
+  Then replace `<ID>` with that ID and delete it:
+
+  ```bash
+  npm token delete <ID>
+  ```
+
+  See [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/).
 - Bound unattended, long-running work by scope and by time.
 - OWASP mitigation 4 calls for "kill-switches and credential revocation"; mitigation 6 says "Keys must never be directly available to agents"; and mitigation 1 calls for comprehensive, tamper-proof audit logs, so you can see afterward what it did.
 - To look back at what it just did: in Claude Code, press `Ctrl+O` to open the transcript viewer, which shows each tool it used and what ran (same interactive mode docs). That is handy for your own review, but it is not the tamper-proof audit log OWASP describes.

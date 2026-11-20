@@ -16,7 +16,13 @@ coding agent 改完網頁後，如果只讀程式碼，就看不到按鈕按下�
 
 這篇我從安裝開始，用一個本機的訂閱表單走完整個流程。我另外做了一個有錯字的壞掉版本，看 agent-browser 的輸出能不能指出錯誤。接著我把同樣的檢查交給 AI 執行，最後測試怎麼限制它能去的網域和能做的動作。兩個示範頁的原始碼都在文中，你可以照著重做。
 
-> 我對照的官方資料是 agent-browser v0.43.0 tag 裡的 [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0)，以及 [Installation](https://agent-browser.dev/installation)、[Quick Start](https://agent-browser.dev/quick-start)、[Snapshots](https://agent-browser.dev/snapshots)、[Security](https://agent-browser.dev/security) 四份文件。官網上的文件可能已經在說明更新的版本。2026-11-19（台北時間）我在一台 Debian 13（x86_64）電腦上做了這次實測，用的是 agent-browser 0.43.0 和它自己下載的 Chrome for Testing 158.0.8127.36。0.43.0 是當天 GitHub 上標示為 Latest 的版本，在台北時間 2026-11-13 發布。從 v0.39.1（台北時間 2026-10-14）到 0.43.0，GitHub 上一共出了 10 個版本，所以照著做之前，請先用 `agent-browser --version` 看你的版本。文中的終端機截圖是把當時錄下的輸出原樣排成圖片，有幾張只截取其中幾個指令。
+> 我對照的官方資料是 agent-browser v0.43.0 tag 裡的 [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0)，以及 [Installation](https://agent-browser.dev/installation)、[Quick Start](https://agent-browser.dev/quick-start)、[Snapshots](https://agent-browser.dev/snapshots)、[Security](https://agent-browser.dev/security) 四份文件。官網上的文件可能已經在說明更新的版本。2026-11-19（台北時間）我在一台 Debian 13（x86_64）電腦上做了這次實測，用的是 agent-browser 0.43.0 和它自己下載的 Chrome for Testing 158.0.8127.36。0.43.0 是當天 GitHub 上標示為 Latest 的版本，在台北時間 2026-11-13 發布。從 v0.39.1（台北時間 2026-10-14）到 0.43.0，GitHub 上一共出了 10 個版本，所以照著做之前，請先看你的版本：
+>
+> ```bash
+> agent-browser --version
+> ```
+>
+> 文中的終端機截圖是把當時錄下的輸出原樣排成圖片，有幾張只截取其中幾個指令。
 {: .prompt-info }
 
 ## 先認識幾個名詞
@@ -24,11 +30,27 @@ coding agent 改完網頁後，如果只讀程式碼，就看不到按鈕按下�
 - headless 瀏覽器是沒有視窗的瀏覽器。它照常載入網頁、執行 JavaScript，只是不顯示在螢幕上。依 `--help`，agent-browser 預設用這種模式，加上 `--headed` 才會顯示視窗。
 - snapshot 是 agent-browser 把頁面整理成的文字清單，列出標題、輸入欄、按鈕等元素。依 agent-browser 內建的 core skill（使用指南），snapshot 比截圖快，用的 token 也少很多。
 - ref 是 snapshot 幫每個元素編的代號，例如 `@e2`。要點哪個按鈕、填哪個欄位，就用 ref 指定。
-- session 是一個在背景持續開著的瀏覽器。同一個 session 的指令都送到同一個瀏覽器，所以上一步打開的頁面，下一步還在。依 README，它閒置一小時後會自動關閉。要自己關掉，就執行 `agent-browser close`。
+- session 是一個在背景持續開著的瀏覽器。同一個 session 的指令都送到同一個瀏覽器，所以上一步打開的頁面，下一步還在。依 README，它閒置一小時後會自動關閉。要自己關掉，就執行：
+
+  ```bash
+  agent-browser close
+  ```
 
 ## 步驟一：安裝
 
-官方建議用 npm 全域安裝，再用 `agent-browser install` 下載它要用的 Chrome。這個 Chrome 是 [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)，也就是 Google 給自動化測試用的版本。依官方文件，macOS 也可以用 `brew install agent-browser`。`cargo install agent-browser` 則會從原始碼編譯，需要 Rust 工具鏈。這兩種我沒有試，我用的是 npm：
+官方建議用 npm 全域安裝，再用 `agent-browser install` 下載它要用的 Chrome。這個 Chrome 是 [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/)，也就是 Google 給自動化測試用的版本。依官方文件，macOS 也可以用 brew 安裝：
+
+```bash
+brew install agent-browser
+```
+
+用 cargo 安裝則會從原始碼編譯，需要 Rust 工具鏈：
+
+```bash
+cargo install agent-browser
+```
+
+這兩種我沒有試，我用的是 npm：
 
 ```bash
 npm install -g agent-browser
@@ -41,7 +63,13 @@ _我在 Debian Linux 上的安裝過程（實際輸出）_
 
 npm 在安裝時印出了 `install-scripts` 警告。內容是 `agent-browser@0.43.0` 的 postinstall 腳本還不在 allowScripts 清單裡，並提示可以加 `--allow-scripts=agent-browser` 允許它執行。npm 擋安裝腳本的機制，我在〈[npm 12 預設擋掉安裝腳本](/posts/npm-12-install-scripts-allowscripts/)〉介紹過。依官方 Installation 文件，用 npm 12 這類預設擋安裝腳本的套件管理工具時，agent-browser 會在第一次執行時自己完成連結，不需要額外設定。我沒有理會這個警告，接著執行 `agent-browser --version`，它直接印出 `agent-browser 0.43.0`。
 
-在 Linux 上，`agent-browser install` 印了兩次提示，說瀏覽器啟動失敗或出現 shared library 錯誤時，要改跑 `agent-browser install --with-deps`。依官方文件，這個指令會用系統的套件管理工具補裝 Chrome 需要的函式庫，不是 root 時會透過 `sudo` 執行。我沒有跑 `--with-deps`，後面每一步的瀏覽器都正常啟動。
+在 Linux 上，`agent-browser install` 印了兩次提示，說瀏覽器啟動失敗或出現 shared library 錯誤時，要改跑：
+
+```bash
+agent-browser install --with-deps
+```
+
+依官方文件，這個指令會用系統的套件管理工具補裝 Chrome 需要的函式庫，不是 root 時會透過 `sudo` 執行。我沒有跑 `--with-deps`，後面每一步的瀏覽器都正常啟動。
 
 裝完可以跑一次健康檢查：
 
@@ -113,7 +141,13 @@ document.getElementById('f').addEventListener('submit', e => {
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
 ```
 
-如果你剛做完步驟二，先執行 `agent-browser close` 關掉瀏覽器。我正式跑這一步時，瀏覽器是關著的，所以 `open` 印出 `launched browser`，ref 從 `e1` 開始。沒有先關的話，ref 會接著往下編，原因寫在本節最後的警告。接著打開頁面、取得 snapshot：
+如果你剛做完步驟二，先關掉瀏覽器：
+
+```bash
+agent-browser close
+```
+
+我正式跑這一步時，瀏覽器是關著的，所以 `open` 印出 `launched browser`，ref 從 `e1` 開始。沒有先關的話，ref 會接著往下編，原因寫在本節最後的警告。接著打開頁面、取得 snapshot：
 
 ```bash
 agent-browser open http://localhost:8765/
@@ -251,7 +285,13 @@ core skill 提醒，預設的 session 是整台電腦共用的一個瀏覽器，
 
 agent-browser 也有一個 `chat` 指令。依 `chat --help`，它把你用自然語言寫的指示交給 AI 模型，由模型轉成 agent-browser 指令，在你選的 session 裡執行。它不能自己建立或切換 session。執行 `chat` 需要 `AI_GATEWAY_API_KEY`。依 `--help`，`AI_GATEWAY_URL` 是 Vercel AI Gateway 的 base URL，預設是 `https://ai-gateway.vercel.sh`。預設模型是 `anthropic/claude-sonnet-4.6`，可以用 `--model` 換。
 
-我手邊有一個 OpenAI 相容的 LiteLLM 服務，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。金鑰和網址都只放在環境變數裡，沒有寫進任何檔案。確認本機 HTTP 伺服器仍在執行後，先用 `agent-browser close` 關掉上一輪的瀏覽器，再用 `gpt-6.1-sol` 模型請它檢查壞掉的那一頁：
+我手邊有一個 OpenAI 相容的 LiteLLM 服務，就把 `AI_GATEWAY_URL` 和 `AI_GATEWAY_API_KEY` 指向它。金鑰和網址都只放在環境變數裡，沒有寫進任何檔案。確認本機 HTTP 伺服器仍在執行後，先關掉上一輪的瀏覽器：
+
+```bash
+agent-browser close
+```
+
+再用 `gpt-6.1-sol` 模型請它檢查壞掉的那一頁：
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."

@@ -144,10 +144,35 @@ awk -F: '$2=="*"{print "密碼欄為 *:", $1} $2 ~ /^\$[56]\$/{print "有 SHA �
 
 我會依序操作，**每一步成功才繼續**：
 
-1. 先以 `apk update` 更新套件索引，再用 `apk upgrade -a --simulate` 預覽變動；預覽不會實際升級套件。
-2. 確認影響範圍後更新：`apk upgrade -U -a`。
-3. 檢查 sshd 設定：`sshd -t`。若有錯誤，先修正，不繼續重啟。
-4. 重新啟動服務：`rc-service sshd restart`，並確認指令成功。
+1. 先更新套件索引，再預覽變動，依序執行：
+
+   ```sh
+   apk update
+   apk upgrade -a --simulate
+   ```
+
+   預覽不會實際升級套件。
+
+2. 確認影響範圍後更新：
+
+   ```sh
+   apk upgrade -U -a
+   ```
+
+3. 檢查 sshd 設定：
+
+   ```sh
+   sshd -t
+   ```
+
+   若有錯誤，先修正，不繼續重啟。
+
+4. 重新啟動服務，並確認指令成功：
+
+   ```sh
+   rc-service sshd restart
+   ```
+
 5. 再查一次套件版號與相關設定，然後開一條新的 SSH 連線測試登入。
 6. 新連線正常後，才關閉原本保留的連線。
 
@@ -164,7 +189,13 @@ Alpine 提供的暫時處理方式是設定 `PasswordAuthentication no`，關閉
 
 這裡我會特別留意兩件事：一是 `Match` 區塊可能另設 `PasswordAuthentication yes`；二是 Alpine 預設從 3.19 起才讀取 `/etc/ssh/sshd_config.d/` 這個額外設定資料夾，更舊版本不會自動讀取。自訂設定也可能和預設不同。
 
-因此，我會先備份設定，再對照[官方公告的「If you cannot update」段落](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/)，確認修改涵蓋主設定檔、其他載入檔案與相關的 `Match` 規則。完成後，先以 `sshd -t` 確認沒有錯誤，再重新啟動 sshd。最後用前面的 `sshd -T` 與 `-C` 檢查相關情境是否都為 `passwordauthentication no`，並另開連線測試。
+因此，我會先備份設定，再對照[官方公告的「If you cannot update」段落](https://alpinelinux.org/posts/2026-11-05-openssh-password-authentication-bypass/)，確認修改涵蓋主設定檔、其他載入檔案與相關的 `Match` 規則。完成後，先確認設定沒有錯誤：
+
+```sh
+sshd -t
+```
+
+再重新啟動 sshd。最後用前面的 `sshd -T` 與 `-C` 檢查相關情境是否都為 `passwordauthentication no`，並另開連線測試。
 
 如果目標是長期「只准金鑰登入」，我還會檢查其他驗證方式。例如 [keyboard-interactive 驗證](https://man.openbsd.org/sshd_config#KbdInteractiveAuthentication)可能經由 PAM 要求輸入密碼或一次性驗證碼；只設 `PasswordAuthentication no`，不能概括成所有互動式密碼提示都已停用。若原本有多因素驗證，也要一併確認需求再調整。
 

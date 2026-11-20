@@ -16,7 +16,12 @@ But the sandbox is **off by default**. Even when it's on, the official docs stat
 
 In this post I walk you through these steps: turn on `/sandbox`, confirm it actually blocks, keep keys and tokens out, and turn off "retry outside the sandbox." Then I list what the sandbox does not cover and how to fill those gaps. Each step includes the results I actually got on my own Mac, and at the end there is a `settings.json` you can copy as is.
 
-> **Version and test run**: this post follows [Sandboxing](https://code.claude.com/docs/en/sandboxing), [Permissions](https://code.claude.com/docs/en/permissions), [Settings reference](https://code.claude.com/docs/en/settings-reference), and the [changelog](https://code.claude.com/docs/en/changelog), which I read on 2026-11-13 (Taipei time). I ran through it the same day with Claude Code 2.1.323 on macOS, the latest version that day (released November 12). Several November releases fixed sandbox and permission-rule bugs one after another. For example, 2.1.321 fixed read-only commands running outside the sandbox without a prompt, and deny rules not applying when `cp` or `mv` wrote into a folder. 2.1.323 fixed the sandbox possibly turning off mid-conversation, and `excludedCommands` letting commands it didn't list run outside the sandbox. Before you follow along, run `claude update` in your terminal, then check the version with `claude --version`.
+> **Version and test run**: this post follows [Sandboxing](https://code.claude.com/docs/en/sandboxing), [Permissions](https://code.claude.com/docs/en/permissions), [Settings reference](https://code.claude.com/docs/en/settings-reference), and the [changelog](https://code.claude.com/docs/en/changelog), which I read on 2026-11-13 (Taipei time). I ran through it the same day with Claude Code 2.1.323 on macOS, the latest version that day (released November 12). Several November releases fixed sandbox and permission-rule bugs one after another. For example, 2.1.321 fixed read-only commands running outside the sandbox without a prompt, and deny rules not applying when `cp` or `mv` wrote into a folder. 2.1.323 fixed the sandbox possibly turning off mid-conversation, and `excludedCommands` letting commands it didn't list run outside the sandbox. Before you follow along, run these in order in your terminal to update and then check the version:
+>
+> ```bash
+> claude update
+> claude --version
+> ```
 {: .prompt-info }
 
 This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). In that post I only asked you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. I covered why you should limit an agent's permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), so I won't repeat it here.
@@ -211,9 +216,21 @@ I recommend putting this in your user settings, `~/.claude/settings.json`, so it
 
 **How to check:** these checks print only a file size or whether a variable is set, so the contents of your keys or tokens never end up in the conversation.
 
-1. Type `wc -c ~/.ssh/known_hosts` yourself after `!` (swap in a file that actually exists on your computer). This runs outside the sandbox, so it prints the file size.
+1. Type this yourself after `!` (swap in a file that actually exists on your computer):
+
+   ```bash
+   wc -c ~/.ssh/known_hosts
+   ```
+
+   This runs outside the sandbox, so it prints the file size.
 2. Ask Claude to run the same command. Once the setting takes effect, it should no longer be able to read the file.
-3. Do the same for environment variables. First run `test -n "$GITHUB_TOKEN" && echo set || echo unset` yourself with `!` and confirm it prints `set`, which means your shell had this variable to begin with. Then ask Claude to run it. Once the setting takes effect, it should print `unset`.
+3. Do the same for environment variables. First run this yourself with `!`:
+
+   ```bash
+   test -n "$GITHUB_TOKEN" && echo set || echo unset
+   ```
+
+   Confirm it prints `set`, which means your shell had this variable to begin with. Then ask Claude to run it. Once the setting takes effect, it should print `unset`.
 4. If Claude asks to retry outside the sandbox, say no.
 
 If you'd rather not test with real keys, do what I did: create a file containing a fake string and a fake environment variable, list them in `credentials`, and delete them when you're done.
@@ -234,7 +251,13 @@ The file couldn't be opened, and the token was gone from the environment.
 
 **What it also blocks:** once `~/.ssh` is blocked, `git push` and `git pull` over SSH fail in the sandbox. In fact, on macOS, SSH remotes can't connect from inside the sandbox even if you don't block `~/.ssh`. You have three options:
 
-- Simplest: type `git push` yourself after `!` when you push, so it runs outside the sandbox.
+- Simplest: when you push, type this yourself after `!`:
+
+  ```bash
+  git push
+  ```
+
+  It runs outside the sandbox.
 - Switch the remote to HTTPS. That needs an HTTPS credential such as a personal access token, and the settings above already removed `GITHUB_TOKEN` from the sandbox, so weigh the tradeoff.
 - Use the official `excludedCommands` to move commands such as `git push` out of the sandbox. Excluded commands run with your full permissions and can connect to any host, so think it through before you use it.
 
@@ -416,7 +439,7 @@ This configuration does the following:
 - Commands in the sandbox can't read SSH keys or AWS credentials, and can't get `GITHUB_TOKEN` or `NPM_TOKEN`.
 - Claude's file tools can't read those same files, and can't write outside the working directory.
 
-All of this holds only as long as the repo doesn't loosen it. As Step 5 explained, a repo's settings can turn the sandbox off or loosen it. To guard against that, save the `sandbox` section as `~/.claude/sandbox-strict.json` (the file itself is still one JSON object, with `{ "sandbox": { ... } }` as the outermost level) and start with `claude --settings ~/.claude/sandbox-strict.json`.
+All of this holds only as long as the repo doesn't loosen it. As Step 5 explained, a repo's settings can turn the sandbox off or loosen it. To guard against that, save the `sandbox` section as `~/.claude/sandbox-strict.json` (the file itself is still one JSON object, with `{ "sandbox": { ... } }` as the outermost level) and start Claude Code with the `--settings` command from Step 5.
 
 After saving, restart Claude Code, run `/sandbox`, and confirm on the Config tab that the settings took effect (if you started with `--settings`, check `Setting sources` in `/status` instead). Then check again with the methods from Steps 2 and 3.
 

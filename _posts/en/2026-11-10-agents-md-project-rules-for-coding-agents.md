@@ -135,7 +135,13 @@ For example, if you start Codex in `services/payments`, it looks at the root, th
 ![From the project root down to the current folder, Codex takes one rules file per folder and joins them in order, with the closest folder last; deeper folders are not read](folder-layers.webp){: w="1280" h="720" }
 _A concept illustration, not the real UI. On the left, folders go from the root at the top down to the current folder, outlined in teal, where you started Codex. Codex follows the teal arrows down and joins each folder's rules into the single set on the right, with the closest folder's rules last. The gray, deeper folder is not read._
 
-Discovery stops at the current directory: files deeper than that are not loaded at start. To use a subdirectory's rules, start Codex from that directory, or pass `codex --cd subdirectory` (`--cd` tells Codex to treat that folder as the current directory). If Codex cannot find a project root, it only checks the current directory.
+Discovery stops at the current directory: files deeper than that are not loaded at start. To use a subdirectory's rules, start Codex from that directory, or start it with `--cd`:
+
+```bash
+codex --cd subdirectory
+```
+
+`--cd` tells Codex to treat that folder as the current directory. If Codex cannot find a project root, it only checks the current directory.
 
 When one directory has both an override and a regular file, Codex still takes only one, and the override wins:
 
@@ -244,7 +250,13 @@ This line starts Codex as if from `services/payments` and asks it to list the in
 
 You should see the active instruction sources listed in order, such as the global file, the root AGENTS.md, and (when you start in a subdirectory) the closer file. That is the check described in the official docs, not a captured run from a particular session.
 
-In Claude Code, type `/memory` in the chat and look for your file in the list, or type `/context all` and check under Memory files (before v2.1.280, this list does not show an AGENTS.md that was read directly). In an interactive session that loaded AGENTS.md directly, you should also see the `AGENTS.md loaded` line mentioned earlier.
+In Claude Code, type `/memory` in the chat and look for your file in the list, or type this and check under Memory files:
+
+```text
+/context all
+```
+
+Before v2.1.280, this list does not show an AGENTS.md that was read directly. In an interactive session that loaded AGENTS.md directly, you should also see the `AGENTS.md loaded` line mentioned earlier.
 
 If a file was not loaded, I would check three things first: that the filename and location are right, that you restarted Codex, and whether a CLAUDE.md file already exists in Claude Code's current directory or above (if it does, use an import or change the setting).
 

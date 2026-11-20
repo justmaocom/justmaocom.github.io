@@ -75,9 +75,29 @@ _Diagram: the same `uses: octo-org/deploy-action@v3` line. On the left there is 
 
 ## Step 0: Get these ready
 
-- **Install and sign in to GitHub CLI:** Install it from the [GitHub CLI site](https://cli.github.com/), then sign in with `gh auth login`. The extension needs an authenticated `gh`.
+- **Install and sign in to GitHub CLI:** Install it from the [GitHub CLI site](https://cli.github.com/), then sign in:
+
+  ```bash
+  gh auth login
+  ```
+  {: .nolineno }
+
+  The extension needs an authenticated `gh`.
 - **Have write access to the repo:** The docs say write access is enough to create the lockfile. You do not need admin rights.
-- **Save existing changes and use a working branch:** The tool modifies workflows and the lockfile. Check `git status --short` first. If you want a report first, run the read-only `gh actions-lock --no-fix` after installing the tool.
+- **Save existing changes and use a working branch:** The tool modifies workflows and the lockfile. Check the current state first:
+
+  ```bash
+  git status --short
+  ```
+  {: .nolineno }
+
+  If you want a report first, run this read-only command after installing the tool:
+
+  ```bash
+  gh actions-lock --no-fix
+  ```
+  {: .nolineno }
+
 - **Turn on Dependabot first:** GitHub recommends letting Dependabot manage your GitHub Actions versions before you create the lockfile. The basic configuration is below. If `.github/dependabot.yml` already exists, merge this update entry into it rather than replacing the entire file:
 
 ```yaml
@@ -106,7 +126,14 @@ gh extension upgrade gh-actions-lock
 ```
 {: .nolineno }
 
-After installing, I would read `gh actions-lock --help` once. The README says it is the authoritative list of options.
+After installing, I would read the help once:
+
+```bash
+gh actions-lock --help
+```
+{: .nolineno }
+
+The README says it is the authoritative list of options.
 
 ## Step 2: Generate the lockfile
 
@@ -130,7 +157,22 @@ GitHub actually recommends adding workflows one at a time. Note that only a run 
 
 ## Step 3: Read the diff before you commit
 
-I would start with `git status --short` to find modified and new files, then use `git diff -- .github/workflows/` for tracked changes. **A new, untracked `actions.lock` does not appear in a normal `git diff`.** Open it directly, or stage it and inspect `git diff --cached`. There are two main changes to review.
+I would start by finding modified and new files, then look at tracked changes. Run these in order:
+
+```bash
+git status --short
+git diff -- .github/workflows/
+```
+{: .nolineno }
+
+**A new, untracked `actions.lock` does not appear in a normal `git diff`.** Open it directly, or stage it and inspect it with:
+
+```bash
+git diff --cached
+```
+{: .nolineno }
+
+There are two main changes to review.
 
 **First: `uses:` lines in your workflows become more specific.** For example, `octo-org/deploy-action@v3` may become `octo-org/deploy-action@v3.1.0`. When a corresponding full version tag is available, this makes the name more specific without changing the resolved commit. It is not an automatic upgrade to a different release. To keep `@v3` as written, pass `--no-narrow`.
 
@@ -165,7 +207,14 @@ Once it all looks right, commit `actions.lock` together with the rewritten workf
 
 Locking is not a one-time job. In my view, these habits decide whether it keeps working.
 
-**Rerun it when `uses:` changes.** When you add a workflow, or add or remove actions in an existing one, run `gh actions-lock` again. Do not edit the lockfile by hand.
+**Rerun it when `uses:` changes.** When you add a workflow, or add or remove actions in an existing one, run this again:
+
+```bash
+gh actions-lock
+```
+{: .nolineno }
+
+Do not edit the lockfile by hand.
 
 **Dependabot updates it for you.** For locked workflows, when Dependabot opens a version update PR, it regenerates the matching lockfile entry in the same PR, with no extra setup. It only does this for locked workflows, though. For workflows that are not locked, it updates the workflow file as usual, and it will not add new workflows to the lockfile for you.
 
@@ -209,13 +258,23 @@ The key parts:
 - `--pin v0.4.1`: selects an extension release tag so every install matches the version this post follows. This downloaded binary is outside the workflow lockfile, which does not pin its contents.
 - `gh actions-lock --verify`: exits 0 when no blocking errors remain, **even if there are warnings**; 1 for blocking findings; and 2 for a tool failure, such as a bad option, an unreadable lockfile, or a rejected token. Success does not establish that every dependency has been reviewed or is safe.
 
-The README notes that after you copy this file into your repo, you should run `gh actions-lock` once more so the checking workflow is locked too.
+The README notes that after you copy this file into your repo, you should run this once more so the checking workflow is locked too:
+
+```bash
+gh actions-lock
+```
+{: .nolineno }
 
 There is also `--verify-local`. It works offline and only checks that every `uses:` line has a lockfile entry, which makes it handy before a commit. It does not verify where the code came from, so it cannot replace `--verify`. The tool also cannot fix missing permissions, network failures, or API rate limits for you. Fix the underlying problem and rerun; do not treat an inconclusive check as a pass.
 
 **GHE.com needs separate token handling.** The v0.4.1 README says a GHE.com tenant's `GITHUB_TOKEN` cannot query public actions on github.com. Locally, sign in to github.com separately; in CI, follow the docs to provide `GH_ACTIONS_LOCK_GITHUB_COM_TOKEN`. That token only needs to look up public repositories, so give it no write access, and do not grant extra permissions to get around rate limits.
 
-**When a tag or branch moves, it depends on the kind of reference.** The table below describes what the extension does when checking and maintaining the lockfile; when a workflow actually runs, the runner verifies the locked records separately. According to the v0.4.1 troubleshooting guide, `ref-moved` warnings for references such as `main` and `v4` appear only in JSON output and do not make the exit code fail. Use `gh actions-lock --verify --json` to inspect them.
+**When a tag or branch moves, it depends on the kind of reference.** The table below describes what the extension does when checking and maintaining the lockfile; when a workflow actually runs, the runner verifies the locked records separately. According to the v0.4.1 troubleshooting guide, `ref-moved` warnings for references such as `main` and `v4` appear only in JSON output and do not make the exit code fail. To inspect them, run:
+
+```bash
+gh actions-lock --verify --json
+```
+{: .nolineno }
 
 | What you wrote | What happens | What to do |
 | --- | --- | --- |
@@ -246,7 +305,14 @@ Some workflows use an action from inside the same repo, written like `uses: ./.g
 
 If that local action uses other actions, `gh actions-lock` reports a `local-action` error and writes nothing. You have two options:
 
-- **Switch to `$/` (recommended):** Run `gh actions-lock --migrate-local-actions`. It rewrites `uses: ./…` to `uses: $/…` in your workflows and in the repo's `action.yml` files. `$/` means "run the repo's own action at the workflow's commit," so the action itself follows the workflow commit and needs no separate lockfile entry; its remote action dependencies can be recorded. If your workflow checks out a different ref before running the `./` action, `$/` runs the version at the workflow's commit instead, so what runs can change. Treat it as a behavior change, not just a path substitution. Review every rewritten line.
+- **Switch to `$/` (recommended):** Run this:
+
+  ```bash
+  gh actions-lock --migrate-local-actions
+  ```
+  {: .nolineno }
+
+  It rewrites `uses: ./…` to `uses: $/…` in your workflows and in the repo's `action.yml` files. `$/` means "run the repo's own action at the workflow's commit," so the action itself follows the workflow commit and needs no separate lockfile entry; its remote action dependencies can be recorded. If your workflow checks out a different ref before running the `./` action, `$/` runs the version at the workflow's commit instead, so what runs can change. Treat it as a behavior change, not just a path substitution. Review every rewritten line.
 - **Keep `./`:** Pass `--ignore-local-actions` instead, which downgrades the error to a warning. A local action with only `run:` steps, or whose dependencies are already recorded for **the same workflow**, can still run. The cost: if the required entry for that workflow is missing, the job fails only when it reaches that step, with an error like `lockfile missing pin for octo-org/setup-tool@v2.0.0`, and the earlier steps have already run.
 
 ## Going further: require every workflow to be locked
@@ -255,7 +321,13 @@ The steps above make locked workflows run locked versions, but they do not stop 
 
 - Enterprise, organization, and repo admins can add it as a workflow execution protection in an Actions policy.
 - It has two modes. **Evaluate** only records what would be blocked (GitHub Enterprise Cloud only). **Active** blocks every targeted workflow that is not onboarded, including workflows with only `run:` steps and no `uses:`, even if other workflows in the same repository are onboarded.
-- Before switching to Active, run `gh actions-lock --verify` in each targeted repo, or check Policy insights while in Evaluate mode.
+- Before switching to Active, run the line below in each targeted repo, or check Policy insights while in Evaluate mode:
+
+  ```bash
+  gh actions-lock --verify
+  ```
+  {: .nolineno }
+
 - Keep the `--verify` check after the policy is on. The policy blocks runs without a valid lockfile; `--verify` tells authors their lockfile is stale while they are still working on the PR.
 - If your organization already requires actions to be pinned to a full SHA, that policy and Require lockfile are separate checks, and both must pass. A locked workflow passes both, even with no SHAs in the file.
 

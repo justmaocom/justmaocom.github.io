@@ -16,7 +16,12 @@ Claude Code（在終端機裡使用的 AI 程式助理）會自己下指令：�
 
 這篇我會一步步帶你做完這幾件事：開啟 `/sandbox`、確認它真的有擋、把金鑰和 token 擋在外面、關掉「沙箱外重試」，最後列出沙箱管不到的地方，以及怎麼補。每一步都附上我在自己的 Mac 上實際跑出來的結果，文末還有一份可以直接複製的 `settings.json`。
 
-> **版本與實測**：我寫這篇時，參考的是 2026-11-13（台北時間）當天的 [Sandboxing](https://code.claude.com/docs/en/sandboxing)、[Permissions](https://code.claude.com/docs/en/permissions)、[Settings reference](https://code.claude.com/docs/en/settings-reference) 與 [changelog](https://code.claude.com/docs/en/changelog)，並在同一天用 macOS 上的 Claude Code 2.1.323（當天最新版，11 月 12 日發布）實際跑過一次。11 月的幾個版本連續修了沙箱與權限規則的問題，例如 2.1.321 修正唯讀指令沒經過提示就在沙箱外執行，以及 `cp`／`mv` 寫進資料夾時拒絕規則失效；2.1.323 修正沙箱可能在對話中途關掉、`excludedCommands` 讓沒列到的指令跑出沙箱。照著做之前，請先在終端機執行 `claude update` 更新，再用 `claude --version` 確認版本。
+> **版本與實測**：我寫這篇時，參考的是 2026-11-13（台北時間）當天的 [Sandboxing](https://code.claude.com/docs/en/sandboxing)、[Permissions](https://code.claude.com/docs/en/permissions)、[Settings reference](https://code.claude.com/docs/en/settings-reference) 與 [changelog](https://code.claude.com/docs/en/changelog)，並在同一天用 macOS 上的 Claude Code 2.1.323（當天最新版，11 月 12 日發布）實際跑過一次。11 月的幾個版本連續修了沙箱與權限規則的問題，例如 2.1.321 修正唯讀指令沒經過提示就在沙箱外執行，以及 `cp`／`mv` 寫進資料夾時拒絕規則失效；2.1.323 修正沙箱可能在對話中途關掉、`excludedCommands` 讓沒列到的指令跑出沙箱。照著做之前，請先在終端機依序執行這兩行，更新後再確認版本：
+>
+> ```bash
+> claude update
+> claude --version
+> ```
 {: .prompt-info }
 
 這篇是〈[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉的實作續篇。那篇我只請你「確認 `/sandbox` 有沒有開」，這篇示範開了之後怎麼設定。為什麼要限制 agent 的權限，我在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過，這裡不再重講。
@@ -211,9 +216,21 @@ curl: (6) Could not resolve host: example.com
 
 **怎麼確認：** 下面兩個檢查都只印出「檔案大小」或「有沒有設定」，不會把金鑰或 token 的內容印進對話。
 
-1. 自己在 `!` 後面打 `wc -c ~/.ssh/known_hosts`（換成你電腦上確實存在的檔案）。這是在沙箱外跑，會印出檔案大小。
+1. 自己在 `!` 後面打這行（換成你電腦上確實存在的檔案）：
+
+   ```bash
+   wc -c ~/.ssh/known_hosts
+   ```
+
+   這是在沙箱外跑，會印出檔案大小。
 2. 再請 Claude 跑同一行。設定生效後，它應該讀不到這個檔案。
-3. 環境變數也一樣：先自己用 `!` 跑 `test -n "$GITHUB_TOKEN" && echo set || echo unset`，確認印出 `set`（代表你的 shell 本來就有這個變數），再請 Claude 跑；生效後應該印出 `unset`。
+3. 環境變數也一樣，先自己用 `!` 跑這行：
+
+   ```bash
+   test -n "$GITHUB_TOKEN" && echo set || echo unset
+   ```
+
+   確認印出 `set`（代表你的 shell 本來就有這個變數），再請 Claude 跑；生效後應該印出 `unset`。
 4. 如果 Claude 要求改到沙箱外重試，拒絕。
 
 不想拿真正的金鑰測，也可以照我的做法：自己建一個內容是假字串的檔案和一個假的環境變數，把它們寫進 `credentials`，測完再刪掉。
@@ -234,7 +251,13 @@ unset
 
 **會擋到什麼：** 擋掉 `~/.ssh` 之後，沙箱裡走 SSH 的 `git push`、`git pull` 就會失敗。其實在 macOS 上，就算沒擋 `~/.ssh`，沙箱裡的 SSH remote 本來也連不上。解法有三種：
 
-- 最簡單：推送時自己在 `!` 後面打 `git push`，它在沙箱外跑。
+- 最簡單：推送時自己在 `!` 後面打：
+
+  ```bash
+  git push
+  ```
+
+  它在沙箱外跑。
 - 把 remote 換成 HTTPS。但這需要 personal access token 之類的 HTTPS 憑證，而上面的設定已經把 `GITHUB_TOKEN` 從沙箱裡拿掉了，要自己權衡。
 - 用官方的 `excludedCommands` 把 `git push` 等指令移出沙箱。但被移出的指令會用你的完整權限執行、能連任何主機，用之前請想清楚。
 
@@ -416,7 +439,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 - 沙箱裡的指令讀不到 SSH 金鑰和 AWS 憑證，也拿不到 `GITHUB_TOKEN`、`NPM_TOKEN`。
 - Claude 的檔案工具讀不到同樣的檔案，也不能寫到工作目錄以外。
 
-這些都是「repo 沒有另外放寬」時的效果。步驟五說過，repo 的設定可以把沙箱關掉或放寬；要擋住這一點，把 `sandbox` 那一段另存成 `~/.claude/sandbox-strict.json`（檔案本身仍是一個 JSON 物件，最外層是 `{ "sandbox": { ... } }`），用 `claude --settings ~/.claude/sandbox-strict.json` 啟動。
+這些都是「repo 沒有另外放寬」時的效果。步驟五說過，repo 的設定可以把沙箱關掉或放寬；要擋住這一點，把 `sandbox` 那一段另存成 `~/.claude/sandbox-strict.json`（檔案本身仍是一個 JSON 物件，最外層是 `{ "sandbox": { ... } }`），用步驟五的 `--settings` 指令啟動。
 
 存檔後重啟 Claude Code，執行 `/sandbox`，到 Config 分頁確認設定有生效（用 `--settings` 啟動時改看 `/status` 的 `Setting sources`），再照步驟二和步驟三的方法檢查一次。
 

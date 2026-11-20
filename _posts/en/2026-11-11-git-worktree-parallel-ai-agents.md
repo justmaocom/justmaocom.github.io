@@ -35,7 +35,13 @@ _A concept illustration, not the real UI. At the top is what every worktree shar
 
 One implementation detail matters in practice: the `.git` at the top of a linked worktree [is a small file, not a full directory](https://git-scm.com/docs/git-worktree#_details). It points back at the administrative files that the main repository keeps for this worktree. In other words, a linked worktree folder is not a complete repository on its own. Do not copy it elsewhere as if it were a standalone repo, and do not delete the `.git` file.
 
-> **Advanced:** If you want one worktree to have its own settings, such as a different `user.email`, run `git config extensions.worktreeConfig true`, then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, I think shared configuration is enough.
+> **Advanced:** If you want one worktree to have its own settings, such as a different `user.email`, first run:
+>
+> ```bash
+> git config extensions.worktreeConfig true
+> ```
+>
+> Then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, I think shared configuration is enough.
 {: .prompt-tip }
 
 ## When to Use It, and When Not To
@@ -131,7 +137,13 @@ To see why a worktree is locked or prunable, add `-v`. The reason appears on the
 git worktree list -v
 ```
 
-If you need to parse the list in a script (everyday use does not need this), use `git worktree list --porcelain`. The manual says this format stays stable across Git versions, and it recommends combining it with `-z`, so the output can still be split correctly even when a path contains a newline.
+If you need to parse the list in a script (everyday use does not need this), use:
+
+```bash
+git worktree list --porcelain
+```
+
+The manual says this format stays stable across Git versions, and it recommends combining it with `-z`, so the output can still be split correctly even when a path contains a newline.
 
 **What you get:** a list of every working directory, and where each one is checked out.
 
@@ -139,7 +151,13 @@ If you need to parse the list in a script (everyday use does not need this), use
 
 Once the work in a worktree is done and everything you want to keep is committed, the next step is to bring that branch's work back into `main`. There are two ways to do it; pick one.
 
-**Option 1: merge it yourself on your computer.** Go back to the main folder `myapp` (for example, run `cd ../myapp` from `myapp-login`) and run:
+**Option 1: merge it yourself on your computer.** Go back to the main folder `myapp`, for example from `myapp-login`:
+
+```bash
+cd ../myapp
+```
+
+Then run these in order:
 
 ```bash
 git switch main
@@ -214,7 +232,13 @@ _A concept illustration, not the real UI. Finished worktrees can be removed; lef
 
 Suppose I have a website repository in a folder called `myapp`. I want one AI agent to build a login page, and another to fix a typo in the README, without either one touching the other's files.
 
-1. In `myapp`, update the main branch first: `git switch main`, then `git pull`.
+1. In `myapp`, update the main branch first. Run these in order:
+
+   ```bash
+   git switch main
+   git pull
+   ```
+
 2. From `main`, create one new branch and one new folder for each task:
 
    ```bash
@@ -224,8 +248,21 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
 
    **What this step gives you:** two new folders, checked out on `feature-login` and `fix-typo`.
 
-3. Open two terminals, enter `../myapp-login` and `../myapp-typo`, and start one coding agent in each. Commit in each folder as usual. The files do not affect each other. After `git worktree list`, you should see three folders: the original `myapp` on the first line, plus these two new ones.
-4. Review: before pushing, you can check what the branch changed from the main folder `myapp` with `git diff main...feature-login`. To have someone else review it, push each branch and open a PR (a pull request, asking to merge the branch into the main line):
+3. Open two terminals, enter `../myapp-login` and `../myapp-typo`, and start one coding agent in each. Commit in each folder as usual. The files do not affect each other. Run:
+
+   ```bash
+   git worktree list
+   ```
+
+   You should see three folders: the original `myapp` on the first line, plus these two new ones.
+
+4. Review: before pushing, you can check what the branch changed from the main folder `myapp`:
+
+   ```bash
+   git diff main...feature-login
+   ```
+
+   To have someone else review it, push each branch and open a PR (a pull request, asking to merge the branch into the main line):
 
    ```bash
    git push -u origin feature-login
@@ -233,7 +270,21 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
 
    Do the same for the other branch. You can then automate the review; see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). For a fixed approach to structure checks, review, and merge conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
 
-5. Merge: if you opened PRs, wait for them to be merged on the site, then run `git pull` in `myapp` to update `main`. If you skipped the PRs, run `git merge feature-login` and `git merge fix-typo` in the main folder `myapp` (which has been on `main` since step 1). Step 3 has the details.
+5. Merge: if you opened PRs, wait for them to be merged on the site, then update `main` in `myapp`:
+
+   ```bash
+   git pull
+   ```
+
+   If you skipped the PRs, run these in order in the main folder `myapp` (which has been on `main` since step 1):
+
+   ```bash
+   git merge feature-login
+   git merge fix-typo
+   ```
+
+   Step 3 has the details.
+
 6. Clean up: first make sure the agents in both folders have stopped and everything you want to keep is committed, because `remove` only accepts a clean folder. Then go back to `myapp`, remove the worktrees first, and delete the branches after:
 
    ```bash
@@ -243,7 +294,13 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
    git branch -d fix-typo
    ```
 
-   If `git branch -d` refuses, see the explanation in Step 4. After a final `git worktree list`, only the main folder should remain.
+   If `git branch -d` refuses, see the explanation in Step 4. Finally, run:
+
+   ```bash
+   git worktree list
+   ```
+
+   Only the main folder should remain.
 
 A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
@@ -263,7 +320,13 @@ You can also lock it at creation time, so there is no moment when it exists but 
 git worktree add --lock --reason "on an external drive" -b feature-usb ../myapp-usb
 ```
 
-`git worktree list -v` shows the lock reason. When you are done, unlock it:
+To see the lock reason, run:
+
+```bash
+git worktree list -v
+```
+
+When you are done, unlock it:
 
 ```bash
 git worktree unlock ../myapp-usb
@@ -281,13 +344,23 @@ git worktree move ../myapp-typo ../tasks/myapp-typo
 
 The [manual notes](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-move) that you cannot use this command on the main worktree, or on a linked worktree that contains submodules.
 
-If you already moved it yourself in the file manager or with `mv`, the location Git has on record no longer matches. Run `git worktree repair` inside the worktree at its new location to reconnect it. If you moved several, you can run it from any one worktree and list every new path after it:
+If you already moved it yourself in the file manager or with `mv`, the location Git has on record no longer matches. To reconnect it, run this inside the worktree at its new location:
+
+```bash
+git worktree repair
+```
+
+If you moved several, you can run it from any one worktree and list every new path after it:
 
 ```bash
 git worktree repair ../tasks/myapp-typo ../tasks/myapp-login
 ```
 
-If it was the main folder that moved, run `git worktree repair` in the main folder, so the linked worktrees can point back to it.
+If it was the main folder that moved, run this in the main folder, so the linked worktrees can point back to it:
+
+```bash
+git worktree repair
+```
 
 ## Which Command to Use in Each Situation
 
