@@ -7,7 +7,7 @@ tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.webp
-  alt: "手繪筆記風插圖：小機器人拿放大鏡檢查舊網頁表單，箭頭指向打勾的新表單，旁邊寫著 legacy-scan 掃出舊寫法、agent 依指南改完、重掃歸零。"
+  alt: "手繪筆記風：機器人用放大鏡檢查舊表單，箭頭指向打勾的新表單，旁註掃出舊寫法、依指南改完、重掃歸零。"
 ---
 
 Modern Web Guidance 的 SKILL.md 開頭寫，模型訓練資料裡有過時的寫法（training weights contain obsolete patterns）。像是用 JavaScript 量 `scrollHeight` 讓輸入框長高，或自己判斷點擊位置來關掉對話框，現在都有瀏覽器內建的寫法。

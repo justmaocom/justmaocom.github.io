@@ -7,7 +7,7 @@ tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.en.webp
-  alt: "Hand-drawn sketchnote illustration of a small robot inspecting an old web form with a magnifying glass, with arrows to a checked-off new form and the text: legacy-scan finds the old patterns, the agent fixes them from the guides, rescan: 0."
+  alt: "A sketchnote of a robot inspecting an old form, arrows to a checked new form: legacy-scan finds old patterns, apply the guides, rescan: 0."
 ---
 
 The Modern Web Guidance SKILL.md says near the top that "training weights contain obsolete patterns". Measuring `scrollHeight` in JavaScript to grow a textarea and checking click targets by hand to close a dialog are two examples. Browsers now have built-in ways to do both.
