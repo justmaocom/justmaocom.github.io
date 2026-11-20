@@ -32,7 +32,7 @@ According to the How It Works section of the README, `search` uses a local embed
 
 According to the Modernization workflow docs, `legacy-scan` scans the project locally with fixed rules and does not call any model. It only covers guides that static rules can check. My scan output said 38 guides, about 20% of the total. Each finding comes with "Keep when" and "Drop when" conditions, and the agent uses them to decide whether the finding is a false positive. The same page also says there is no `--fix` flag. The scanner only finds problems, and the agent makes the changes.
 
-The docs landing page says the public evaluation shows a 91% pass rate with the guides, versus about 51% for frontier models without them. The README has a table of individual runs. The Nov 8 row for `claude_code (opus-5-5)` goes from 57% to 88%. I took these numbers from the official pages on 2026-11-19 and didn't measure them myself. The example below is the only thing I ran.
+The docs landing page says the public evaluation shows a 91% pass rate with the guides, versus about 51% for frontier models without them. The README has a table of individual runs. The Nov 8 row for `claude_code (opus-5-5)` goes from 57% to 88%. I took these numbers from the official pages on 2026-11-19 and didn't measure them myself. The two examples below are the only things I ran myself.
 
 ## Setup: turn off usage reporting and inspect the package
 
@@ -94,7 +94,7 @@ The lock file pins the SKILL.md and `guides/` installed in your project, not the
 
 ### Updating and removing
 
-Every time SKILL.md calls the CLI, it passes `--skill-version 2026_11_10-47b4c80e`, and the CLI compares that against the version date it ships with. According to the source, when the CLI's bundled version is newer and the installed SKILL.md's version date is more than 5 days old, the output includes a message asking for an update. After 60 days, the message tells the agent to insist that the user update. The official Get started page says that installing through the CLI will "enable automatic updates", but what I found in the 1.0.1 source is a version check followed by a reminder. I didn't see any code that rewrites the project's files on its own.
+Every time SKILL.md calls the CLI, it passes `--skill-version 2026_11_10-47b4c80e`, and the CLI compares that against the version date it ships with. According to the source, when the CLI's bundled version is newer and the installed SKILL.md's version date is more than 5 days old, the output includes a message asking for an update. After 60 days, the message tells the agent to insist that the user update. The official Get started page says that installing through the CLI will "enable automatic updates", but in the modern-web-guidance 1.0.1 source I only found a version check followed by a reminder, with no code that updates anything automatically. I didn't check the `skills` tool, which does the actual installing.
 
 To update, run this in your project folder:
 
