@@ -22,6 +22,7 @@ exclude_from_localization:
   - assets/projects
   - assets/js/mermaid-zoom.js
   - assets/js/i18n.js
+  - assets/js/consent.js
   - assets/robots.txt
   - CNAME
   - google5762b861fb04640c.html
@@ -104,6 +105,7 @@ webmaster_verifications:
 # The end of `jekyll-seo-tag` settings
 
 # Web Analytics Settings
+# 啟用的平台都要在 _includes/analytics/ 有一份排進 window.analyticsLoaders 的同名檔，否則會繞過 cookie 同意橫幅（見 assets/js/consent.js）
 analytics:
   google:
     id: G-LNZMJLP1HD # fill in your Google Analytics ID
@@ -119,6 +121,8 @@ analytics:
     id: # fill in your Cloudflare Web Analytics token
   fathom:
     id: # fill in your Fathom Site ID
+  clarity:
+    id: zghhyulwvz # Microsoft Clarity project ID, rendered by _includes/analytics/clarity.html
 
 # Page views settings
 pageviews:
