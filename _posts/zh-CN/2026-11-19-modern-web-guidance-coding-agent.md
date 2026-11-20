@@ -1,9 +1,9 @@
 ---
 title: "Modern Web Guidance 实测：让 coding agent 跟上网页新写法"
-description: "Modern Web Guidance 1.0.1 实测：安装 agent skill，用 legacy-scan 扫出旧网页写法，交给 Claude Code 和 Codex 按指南修改，再用 Chrome 对比改前改后，附沙箱里遇到的问题。"
+description: "Modern Web Guidance 1.0.1 实测：安装 agent skill，用 legacy-scan 扫出旧网页写法，交给 Claude Code 和 Codex 按指南修改，再用 Chrome 对比改前改后，并说明更新方式与 CLI 版本的限制。"
 date: 2026-11-19 17:00:00 +0800
 categories: [AI, skills]
-tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform, sandbox]
+tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform]
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.zh-CN.webp
@@ -14,9 +14,9 @@ Modern Web Guidance 的 SKILL.md 开头写，模型训练数据里有过时的�
 
 [Modern Web Guidance](https://developer.chrome.com/docs/modern-web-guidance) 是一套给 coding agent 用的 skill 和命令行工具。根据 [GitHub README](https://github.com/GoogleChrome/modern-web-guidance)，它由 Google Chrome、Microsoft Edge、Mozilla Firefox 和 MDN 团队与社区共同维护。agent 写网页前先用它查指南，指南会告诉 agent 现在该用哪个 HTML、CSS 或 JavaScript 功能、浏览器支持到什么程度、不支持时改用什么写法。它另外有一个 `legacy-scan` 命令，可以扫出现有项目里该替换掉的旧写法。
 
-这篇我在开了沙箱的 Claude Code 里实际安装它。我写了一个留言板示例页，先用 `legacy-scan` 扫描，再交给 Claude Code 按指南修改，最后用浏览器对比改前改后。过程中在沙箱里卡住的地方，我也一并写出来。
+这篇我实际安装它。我写了一个留言板示例页，先用 `legacy-scan` 扫描，再交给 Claude Code 按指南修改，最后用浏览器对比改前改后。
 
-> 我对照的官方资料是 [Modern Web Guidance 文档](https://developer.chrome.com/docs/modern-web-guidance)、[1.0 发布文章](https://developer.chrome.com/blog/modern-web-guidance-v1)（2026-11-10 发布）、[Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow)，以及 npm 包 1.0.1 里的 README 与 SKILL.md，读取日期是 2026-11-19。实测在同一天（台北时间）进行，环境是 macOS、Node.js 25.2.1、npm 11.6.2、Claude Code 2.1.328（模型 `claude-opus-5-5`），Claude Code 的沙箱是开着的。modern-web-guidance 用的是 1.0.1，也就是当天 npm 上标为 latest 的版本；安装时一起拉取的 `skills` 是 1.9.0。文中的终端截图是把当时录下的输出排成图片，只去掉了颜色控制码、spinner 动画的中间帧，以及我录制时自己加的退出码标记。改版时我在第二台电脑用同样的命令重跑，`search`、`retrieve`、`skills-lock.json` 和两次 `legacy-scan` 的输出都和第一次相同，图片用的是重跑的输出；`install` 那张因为检测到的 agent 名称不同，保留第一次的输出。
+> 我对照的官方资料是 [Modern Web Guidance 文档](https://developer.chrome.com/docs/modern-web-guidance)、[1.0 发布文章](https://developer.chrome.com/blog/modern-web-guidance-v1)（2026-11-10 发布）、[Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow)，以及 npm 包 1.0.1 里的 README、SKILL.md 与 CLI 源代码，读取日期是 2026-11-19，2026-11-20 改版时又核对了一次。实测在 2026-11-19（台北时间）进行，环境是 macOS、Node.js 25.2.1、npm 11.6.2、Claude Code 2.1.328（模型 `claude-opus-5-5`）。modern-web-guidance 用的是 1.0.1，也就是当天 npm 上标为 latest 的版本；安装时一起拉取的 `skills` 是 1.9.0。文中的终端截图是把当时录下的输出排成图片，只去掉了颜色控制码、spinner 动画的中间帧，以及我录制时自己加的退出码标记。改版时我在第二台电脑用同样的命令重跑，`search`、`retrieve`、`skills-lock.json` 和两次 `legacy-scan` 的输出都和第一次相同，图片用的是重跑的输出；`install` 那张因为检测到的 agent 名称不同，保留第一次的输出。
 {: .prompt-info }
 
 ## 工作原理
@@ -30,20 +30,19 @@ agent 什么时候会用它，要看 SKILL.md 的 description。这段写明所�
 
 根据 README 的 How It Works，`search` 用的是本地的嵌入模型和 BM25 匹配，不调用外部 API，也不需要 API key。
 
-根据 Modernization workflow 文档，`legacy-scan` 在本地用固定规则扫描项目，不调用任何模型。它只覆盖能用静态规则判断的指南，我这次的扫描结果写的是 38 份，约占全部指南的 20%。扫出来的结果还要由 agent 按每条规则附带的保留条件（Keep when）与排除条件（Drop when）判断是不是误报。1.0 发布文章也写明它没有 `--fix` 参数，它只负责找，修改交给 agent。
+根据 Modernization workflow 文档，`legacy-scan` 在本地用固定规则扫描项目，不调用任何模型。它只覆盖能用静态规则判断的指南，我这次的扫描结果写的是 38 份，约占全部指南的 20%。扫出来的结果还要由 agent 按每条规则附带的保留条件（Keep when）与排除条件（Drop when）判断是不是误报。同一份文档也写明它没有 `--fix` 参数，它只负责找，修改交给 agent。
 
 官方文档首页写，公开评测中有指南时的通过率是 91%，没有指南的前沿模型约 51%。README 另有一张逐次结果表，其中 11 月 8 日的 `claude_code (opus-5-5)` 一行是 57% → 88%。这些数字都来自官方页面（2026-11-19 读取），不是我测出来的。我自己只跑了下面这一个示例。
 
-## 准备：在沙箱里跑 npx
+## 准备：关闭使用数据上报、先看包的内容
 
-我的 Claude Code 开着沙箱，命令只能写入项目文件夹和 `$TMPDIR`，沙箱的设置方法可以参考《[Claude Code 沙箱设置教程](/posts/claude-code-sandbox-setup/)》。我第一次在沙箱里跑 `npm view modern-web-guidance`，npm 就返回了 `EPERM`，并提示“Your cache folder contains root-owned files”，让我用 `sudo chown` 修复 `~/.npm`。但问题不在文件所有者，是沙箱不让 npm 写入 `~/.npm` 的缓存。我把缓存改到 `$TMPDIR` 下面，后面的 npx 就都能跑了：
+CLI 需要 Node.js 22 以上（`package.json` 的 `engines`）。开始前，我先在 shell 里设了一个环境变量：
 
 ```bash
-export npm_config_cache="$TMPDIR/npm-cache"
 export DISABLE_TELEMETRY=1
 ```
 
-第二行是关闭使用数据上报。我读了 CLI 的源代码，`search`、`retrieve`、`legacy-scan`、`install` 这些命令运行时，会在后台启动一个独立的子进程，把使用数据发到 `play.googleapis.com`。根据 README 的 Telemetry & Privacy 一节，收集的内容包括安装次数、调用它的 agent 名称、取回的指南 ID，以及 agent 生成的搜索词，不包括用户原本的提示词。设置 `DISABLE_TELEMETRY=1` 就不会发送。所以搜索本身虽然在本地匹配，搜索词默认还是会发出去。
+这是关闭使用数据上报。我读了 CLI 的源代码，`search`、`retrieve`、`legacy-scan`、`install` 这些命令运行时，会在后台启动一个独立的子进程，把使用数据发到 `play.googleapis.com`。根据 README 的 Telemetry & Privacy 一节，收集的内容包括安装次数、调用它的 agent 名称、取回的指南 ID，以及 agent 生成的搜索词，不包括用户原本的提示词。设置 `DISABLE_TELEMETRY=1` 就不会发送。所以搜索本身虽然在本地匹配，搜索词默认还是会发出去。
 
 安装前，我先用 `npm pack modern-web-guidance@1.0.1` 把包下载下来看，做法和《[Claude Code plugin 安全安装](/posts/claude-code-plugin-safe-install/)》一样。1.0.1 的 `package.json` 没有 `scripts`，所以安装时不会跑安装脚本。包里共 281 个文件，解压后 17 MB，其中搜索用的向量数据约 8.8 MB，打包成单个文件的 `legacy-scan.mjs` 约 4.9 MB，指南约 1.9 MB。`install` 子命令只是运行下面这条命令：
 
@@ -80,7 +79,7 @@ npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
 `--agent` 和 `-y` 是 `skills add` 的参数，`install` 会把多出来的参数原样传给它。`--agent claude-code` 只装给 Claude Code，`-y` 跳过确认。
 
 ![终端实际输出：install 检测到 claude agent 后以非交互方式安装，从 GitHub clone 仓库，找到 2 个 skill，选了 modern-web-guidance，最后复制到 ./.claude/skills/modern-web-guidance](term-install.webp){: w="1100" h="1002" }
-_我在 Claude Code 的沙箱里运行，所以输出第一行是检测到 claude agent（实际输出）_
+_我在 Claude Code 里运行，所以输出第一行是检测到 claude agent（实际输出）_
 
 因为我是在 Claude Code 里运行的，`skills` 检测到 agent 环境，直接以非交互方式安装。在普通终端里运行时，它可能会问你要装给哪些 agent、装在项目里还是全局，这种情况我没有试。最后一行提醒使用前先检查 skill：“Review skills before use; they run with full agent permissions.”所以我装完先看了装进来的文件。
 
@@ -91,11 +90,29 @@ _我在 Claude Code 的沙箱里运行，所以输出第一行是检测到 claud
 - `.claude/skills/modern-web-guidance/`：只有 `SKILL.md` 和 `guides/`，没有 CLI 本体。
 - `skills-lock.json`：记录这份 skill 来自 GitHub 的哪个 commit（`64a6d70`）和内容哈希值。
 
-lock 文件锁住的是指南的内容，锁不住 CLI 版本。装进来的 SKILL.md 让 agent 运行的是 `npx -y modern-web-guidance@latest`，所以就算你安装时写了 `@1.0.1`，agent 每次查询时跑的仍是 npm 上当时的最新版。我对比过，这天装进来的 SKILL.md 和指南，与 npm 1.0.1 包里的内容完全相同。
+lock 文件锁住的是装进项目的 SKILL.md 和 `guides/`，锁不住 agent 实际用的 CLI。装进来的 SKILL.md 让 agent 运行的是 `npx -y modern-web-guidance@latest`，所以就算你安装时写了 `@1.0.1`，agent 每次查询时跑的仍是 npm 上当时的最新版。我读了 1.0.1 的源代码，`search` 和 `retrieve` 读的是 CLI 包自带的索引和指南，不是项目里的 `guides/` 文件夹。也就是说，agent 按 SKILL.md 查到的指南内容，同样跟着 npm 上的最新版走。我对比过，这天装进来的 SKILL.md 和指南，与 npm 1.0.1 包里的内容完全相同。
 
-根据官方文档，也可以用 `npx skills add GoogleChrome/modern-web-guidance` 安装。Claude Code 用户还可以先运行 `claude plugin marketplace add GoogleChrome/modern-web-guidance`，再运行 `claude plugin install modern-web-guidance@googlechrome`，以 plugin 的形式安装。这两种我没有试。README 另外提醒，以前从 `claude-plugins-official` 装的版本从 10 月 12 日起停在 `v0.0.194`，要卸载后改从 `googlechrome` marketplace 重新安装。README 也列出了 GitHub Copilot CLI、OpenAI Codex 等其他 agent 的安装方法，我只测了 Claude Code。
+### 更新与卸载
 
-指南会根据 Baseline 判断一个功能能不能直接用。根据官方的 [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) 文档，没有指定时默认目标是 Baseline Widely available；要修改的话，在 `AGENTS.md` 或 `CLAUDE.md` 里写一句类似“This project's Baseline target is Baseline 2024.”的说明。这次我没有设置，用的是默认值。
+SKILL.md 每次调用 CLI 都会带上 `--skill-version 2026_11_10-47b4c80e`，CLI 拿它和自己附带的版本日期比较。根据源代码，CLI 附带的版本更新，而且装进来的 SKILL.md 版本日期距今超过 5 天时，输出会多一段提醒更新的信息；超过 60 天，信息会要求 agent 坚持让用户更新。官方 Get started 文档说，用 CLI 安装可以“enable automatic updates”，但我在 1.0.1 的源代码里看到的是比较版本后提醒，没有看到自动改写项目文件的代码。
+
+要更新时，在项目文件夹运行：
+
+```bash
+npx modern-web-guidance@latest update
+```
+
+它会转给 `npx -y skills update`。要卸载则运行 `uninstall`，它会转给 `skills remove`。这两个命令我只读了源代码，没有实际运行。
+
+### 其他安装方式
+
+根据官方文档，也可以用 `npx skills add GoogleChrome/modern-web-guidance` 安装。Claude Code 用户还可以先运行 `claude plugin marketplace add GoogleChrome/modern-web-guidance`，再运行 `claude plugin install modern-web-guidance@googlechrome`，以 plugin 的形式安装。这两种我没有试。README 另外提醒，以前从 `claude-plugins-official` 装的版本从 10 月 12 日起停在 `v0.0.194`，要卸载后改从 `googlechrome` marketplace 重新安装。[Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) 文档也列出了 GitHub CLI、Gemini CLI、Codex、Copilot CLI 等其他 agent 的安装方法，这些我都没有试。
+
+### Baseline 目标与实验性功能
+
+指南会根据 Baseline 判断一个功能能不能直接用。根据 Get started 文档，没有指定时默认目标是 Baseline Widely available；要修改的话，在 `AGENTS.md` 或 `CLAUDE.md` 里写一句类似“This project's Baseline target is Baseline 2024.”的说明。这次我没有设置，用的是默认值。
+
+另外有两类指南默认不会提供给 agent：只在一个浏览器引擎中实现、之后可能变动的 volatile features，以及还在 origin trial 阶段的功能。要开启的话，在项目根目录分别运行 `npx modern-web-guidance@latest set-allow-volatile-features` 或 `set-allow-origin-trials`。根据 1.0.1 的源代码，这两个命令检测到 agent 环境或非交互终端时会拒绝运行，要你自己在终端里跑。这两项我也没有开启。
 
 ## 步骤三：准备一个带旧写法的留言板
 
@@ -241,68 +258,23 @@ claude -p "/modern-web-guidance Modernize the code in this directory" \
   --allowedTools "Read" "Edit" \
     "Bash(npx -y modern-web-guidance@latest *)" \
     "Bash(pnpx modern-web-guidance@latest *)" \
-  --output-format stream-json --verbose --no-session-persistence > run1.jsonl
+  --output-format stream-json --verbose --no-session-persistence > run.jsonl
 ```
 
 几个参数的用途：
 
 - `--setting-sources project` 只读项目的设置，不加载我自己的用户设置和 plugin。运行记录的 init 事件显示，加载的 skill 除了 Claude Code 内置的那些，只有 modern-web-guidance。
 - `--permission-mode acceptEdits` 让它可以直接改文件。
-- `--allowedTools` 只放行读文件、改文件，以及 SKILL.md 自己建议放行的 `npx -y modern-web-guidance@latest *`。我的电脑装了 pnpm，SKILL.md 说有 pnpm 时优先用 `pnpx`，所以 `pnpx` 也一起放行。为此我还多设了两个 pnpm 的缓存变量，两次运行 agent 都没有用到 `pnpx`，这里就省略了。
+- `--allowedTools` 只放行读文件、改文件，以及 SKILL.md 自己建议放行的 `npx -y modern-web-guidance@latest *`。我的电脑装了 pnpm，SKILL.md 说有 pnpm 时优先用 `pnpx`，所以 `pnpx` 也一起放行。这次 agent 没有用到 `pnpx`。
 
-我是在外层 Claude Code 的沙箱 shell 里先设好 `npm_config_cache` 和 `DISABLE_TELEMETRY`，再启动 `claude -p`，所以 agent 运行的命令会带着这两个环境变量，也受同一个沙箱限制。示例项目没有自己的沙箱设置，`--setting-sources project` 也不会读我的用户设置。从普通终端运行同样的命令，应该不会遇到后面 `/tmp/npm-cache` 的权限错误，这个我没有试。
+我在启动 `claude -p` 的 shell 里先设了 `DISABLE_TELEMETRY=1`，agent 运行的命令也会带着这个环境变量。上面的命令省略了几项只和我本地环境有关的设置。
 
-### 第一次：扫描命令被拦下
+agent 按 Modernization workflow 的流程做了这几件事：
 
-agent 一开始就要跑扫描，但它在命令前面加了 `NPM_CONFIG_CACHE=/tmp/npm-cache`：
-
-```text
-NPM_CONFIG_CACHE=/tmp/npm-cache npx -y modern-web-guidance@latest legacy-scan . --json
-→ This command requires approval
-```
-
-这个前缀来自 SKILL.md，它点名了 Codex、Claude Code 这类有沙箱的环境，说 `~/.npm` 不能写时就设 `NPM_CONFIG_CACHE=/tmp/npm-cache`。但命令前面多了环境变量，就匹配不上 SKILL.md 建议的放行规则 `npx -y modern-web-guidance@latest *`。非交互模式不会弹出询问，所以直接被拦掉。
-
-扫描跑不了，agent 改为读 `.claude/skills/modern-web-guidance/guides/` 里的指南，自己读代码找出问题并修改。整轮 73 秒、18 轮对话，运行记录里的 `total_cost_usd` 是 0.62 美元。它汇报的开头就写，扫描和语法检查都因为没有放行而没跑，所以改完也没有重新扫描确认；它也说自己没有在浏览器里打开过页面。
-
-它还按 `declarative-dialog-popover-control` 指南，把“Clear all”改成 HTML 的 `commandfor` 与 `command="show-modal"`。不支持的浏览器要另外加载 polyfill，它照着指南的 CDN 示例写了这段，也把 `<script>` 改成了 `type="module"`：
-
-```javascript
-if (!('commandForElement' in HTMLButtonElement.prototype)) {
-  import('https://esm.run/invokers-polyfill');
-}
-```
-
-这个网址没有指定版本，不支持 `command` 的浏览器会在运行时加载 `invokers-polyfill` 当时的最新版。指南写的是，有 bundler 或 import map 的项目用 `npm install invokers-polyfill`，其他情况用 CDN。我的示例没有 bundler，所以 agent 照着选了 CDN。它在汇报里把这点列为“One decision for you”，说也可以改成两行的 fallback，不加载外部代码。如果你的项目不允许在运行时从 CDN 加载代码，就要在 `CLAUDE.md` 或 `AGENTS.md` 里写清楚，写法可以参考《[AGENTS.md 怎么写](/posts/agents-md-project-rules-for-coding-agents/)》。
-
-### 第二次：放行规则匹配上了，缓存路径却写不进去
-
-我把页面还原，提示词完全不变，只在 `--allowedTools` 里多加一条规则：
-
-```bash
-"Bash(NPM_CONFIG_CACHE=/tmp/npm-cache npx -y modern-web-guidance@latest *)"
-```
-
-这次命令执行了，但 npm 失败了：
-
-```text
-npm error code EPERM
-npm error syscall mkdir
-npm error path /tmp/npm-cache
-...
-npm error Your cache folder contains root-owned files, due to a bug in
-```
-
-原因是我的沙箱只允许写入 `$TMPDIR`（`/tmp/claude-501`），不包括 `/tmp/npm-cache`。agent 接着改试 `NPM_CONFIG_CACHE=$TMPDIR/npm-cache`，Claude Code 返回“A variable in this command can't be checked before it runs”，因为放行规则没法事先确认变量展开后的命令。它又试了写死路径的版本，同样不符合放行规则。最后它去掉前缀，运行 `npx -y modern-web-guidance@latest legacy-scan site --json`。这次成功了，因为环境里本来就有我设的 `npm_config_cache`。
-
-扫描成功之后，agent 按 Modernization workflow 的流程做了这几件事：
-
-1. 扫到 6 项，逐一对照 Keep when 和 Drop when，结论是 6 项都保留。
+1. 运行 `npx -y modern-web-guidance@latest legacy-scan site --json`，扫到 6 项，逐一对照 Keep when 和 Drop when，结论是 6 项都保留。
 2. 用 `retrieve` 一次取回 `dialog`、`form-fields-automatically-fit-contents`、`ime-safe-enter-submit`、`validate-input-after-interaction` 四份指南，接着又取回 `validate-input-after-interaction` 和 `js`。
 3. 改写三个文件。
 4. 重新运行 `legacy-scan site --json`，`totalFindings` 是 0。
-
-整轮 90 秒、17 轮对话，`total_cost_usd` 是 0.59 美元。这次被拦的 4 条命令里，3 条是缓存路径的尝试，另一条是把 `node --check site/app.js` 和重新扫描串在一起的命令，因为 `node --check` 不在放行清单里。最后它拆开来只跑了重新扫描。
 
 Enter 发送的部分改成了这样：
 
@@ -327,9 +299,17 @@ msg.addEventListener('keydown', (e) => {
 - 对话框加上 `closedby="any"`。Safari 不支持这个属性，所以保留了一段 fallback，只在不支持时才挂上，改用指针坐标判断是否点在对话框外面。
 - `list.innerHTML = ''` 改成 `list.replaceChildren()`。
 
-这次它没有改“Clear all”的写法，也没有加 CDN polyfill。同一句提示词跑两次，写出来的代码不一样，所以 agent 改完还是要看 diff。
+agent 没有动“Clear all”按钮。如果 agent 按 `declarative-dialog-popover-control` 指南，把这类按钮改成 HTML 的 `commandfor` 与 `command`，要留意指南给的 polyfill 写法。不支持 `command` 的浏览器要另外加载 polyfill：有 bundler 或 import map 的项目用 `npm install invokers-polyfill`，其他情况从 CDN 加载，示例是这段：
 
-SKILL.md 要求 agent 用到指南时，在汇报最后加一节 `### Modern Web Guidance`，逐项列出用了哪份指南、引用了指南里的哪句话。两次运行都有这一节，对照 diff 时很好用。
+```javascript
+if (!('commandForElement' in HTMLButtonElement.prototype)) {
+  import('https://esm.run/invokers-polyfill');
+}
+```
+
+这个网址没有指定版本，照抄的话，不支持 `command` 的浏览器会在运行时加载 `invokers-polyfill` 当时的最新版。如果你的项目不允许在运行时从 CDN 加载代码，就要在 `CLAUDE.md` 或 `AGENTS.md` 里写清楚，写法可以参考《[AGENTS.md 怎么写](/posts/agents-md-project-rules-for-coding-agents/)》。
+
+SKILL.md 要求 agent 用到指南时，在汇报最后加一节 `### Modern Web Guidance`，逐项列出用了哪份指南、引用了指南里的哪句话。这次的汇报里有这一节，对照 diff 时很好用。
 
 最后我自己在项目根目录重新扫描了一次：
 
@@ -342,9 +322,21 @@ _改完后重新扫描是 0 项（实际输出）_
 
 输出同时提醒，`legacy-scan` 只覆盖 38 份指南。0 项只说明这 38 份指南的规则没有再找到问题，其他指南覆盖的写法它不会检查。
 
+### 不用斜杠命令的写法
+
+这次我用斜杠命令直接调用 skill。根据 Modernization workflow 文档，不用斜杠命令，让 agent 检查整个项目或文件夹的“legacy patterns”，或者让它“modernize”，也会触发扫描；只点名单个组件时，agent 会改走普通的 `search`、`retrieve` 查指南。SKILL.md 也写明，只有没指定功能或组件的大范围现代化请求才跑 `legacy-scan`。这种触发方式我没有实测。
+
+文档里另一个示例提示词，让 agent 先提出现代化计划，确认后才改文件：
+
+```text
+Modernize this repository using Modern Web Guidance. Scan our frontend files for legacy patterns, verify the findings, and propose a modernization plan before making any code edits.
+```
+
+在已有项目上第一次用时，我会选这种写法，先看过 agent 判断保留哪些项，再让它动手。
+
 ## 步骤六：在浏览器里对比
 
-`legacy-scan` 只看代码，所以我另外用浏览器确认页面行为。Chrome 在我的沙箱里无法启动，headless Chrome 会因为 macOS 的 mach port 权限被拒绝而直接退出。所以这一步我在沙箱外运行，只打开本地文件，用的是用完即删的临时 Chrome profile。我写了一个不需要安装依赖的 Node.js 小脚本，通过 Chrome DevTools Protocol 操作 headless Chrome 157，对改前和改后的页面各做同样的操作再截图。
+`legacy-scan` 只看代码，所以我另外用浏览器确认页面行为。我写了一个不需要安装依赖的 Node.js 小脚本，通过 Chrome DevTools Protocol 操作 headless Chrome 157，只打开本地文件，用的是用完即删的临时 Chrome profile。改前和改后的页面各做同样的操作再截图。
 
 第一组是刚打开页面时的样子：
 
@@ -370,14 +362,6 @@ _左：改前，选词用的 Enter 把“你好”发出去了。右：改后，
 改前的版本把还在选词的“你好”当成留言发了出去。改后的版本看到 `isComposing` 是 `true` 就不发送，留言列表是空的。
 
 这个测试是模拟出来的，我没有用 macOS 的拼音或注音输入法实际打字，也没有在 Safari 和 Firefox 上测。对话框的 `closedby="any"` 与 Safari 的 fallback，我也没有实测。
-
-## 我在沙箱里遇到的问题
-
-1. 沙箱不让 npm 写 `~/.npm`，npm 却报成“root-owned files”，让你用 `sudo chown`。不要照做，把 `npm_config_cache` 指到沙箱能写的地方就行。我的做法是在启动 `claude -p` 之前，在同一个 shell 里先 `export npm_config_cache="$TMPDIR/npm-cache"`。
-2. SKILL.md 让 agent 在命令前加 `NPM_CONFIG_CACHE=/tmp/npm-cache`。在我的沙箱里 `/tmp/npm-cache` 不能写；而加了前缀的命令，也匹配不上 SKILL.md 自己建议的放行规则。我这次能跑完，是因为 agent 最后去掉了前缀，而环境里恰好已经有可写的缓存路径。
-3. Chrome 在我的沙箱里无法启动，所以浏览器对比那一步我是在沙箱外跑的。
-
-这两次我用的都是非交互模式，被拦的命令会直接失败。交互模式下应该会改成弹出询问，这部分我没有试。
 
 ## 换一台电脑、换一个示例再跑一次
 
@@ -405,7 +389,6 @@ _第二台电脑、自己写的示例（实际输出）_
 
 我用和前面一样的提示交给 Codex：`$modern-web-guidance Modernize the code in this directory`（`$` 是 Codex 指定 skill 的写法）。过程如下：
 
-- 它按 SKILL.md 在命令前加了 `NPM_CONFIG_CACHE=/tmp/npm-cache`。Codex 的 `workspace-write` 沙箱默认可以写 `/tmp`，所以扫描、`retrieve`、重新扫描都直接成功，没有遇到前面 Claude Code 沙箱的缓存问题。
 - 它用一次 `retrieve` 取回 5 份指南。内容有 84.4 KB，CLI 没有直接打印，而是存成 `/tmp/mwg-guide-….md`，让 agent 再分段读取。
 - 5 项全部修改，重新扫描是 0。我自己在项目根目录用 1.0.1 重新扫描也是 0。
 - 它另外把搜索框改成 `e.key === 'Enter' && !e.isComposing`。这段不在扫描结果里，它也没有取回 ime-safe-enter-submit 指南。按指南的说法，这样改少了 `e.keyCode === 229`，在 Safari 确认候选词的那次 Enter 可能会提交。我手边没有 Safari 可以验证，这一点是从 diff 和指南看出来的。
@@ -429,7 +412,13 @@ _A：原本的 keyCode === 13。B：Codex 改后。C：对照组，只改成 e.k
 
 ## 搭配浏览器检查
 
-根据 1.0 发布文章，官方建议搭配 Chrome DevTools for agents，让 agent 看到页面在浏览器里的实际运行情况。DevTools for agents 我还没有试。
+根据 1.0 发布文章，官方建议搭配 Chrome DevTools for agents：Modern Web Guidance 让 agent 一开始就按现在的写法写，DevTools for agents 让 agent 看到页面在浏览器里的实际运行情况。文章举了几个搭配的例子：
+
+- 在模拟的低端 CPU 上录制性能追踪，再按指南拆分长任务，直到主线程不会被阻塞超过 50 毫秒。
+- 录下对话框、popover 的动画，检查效果是否符合网站风格，并确认用户开启 `prefers-reduced-motion` 时有按设置减少动画。
+- 把页面视图缓存在内存里时，用内存工具确认内存占用不会一直增加。
+
+DevTools for agents 我还没有试。
 
 这次我用的是自己写的 DevTools Protocol 小脚本。如果想让 agent 自己打开页面检查，可以参考我写的《[agent-browser 入门：让 AI 自己打开浏览器检查成果](/posts/agent-browser-ai-test-web-pages/)》。合并前先确认能用的流程，我在《[pstack 系列（3）：写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)》里写过。
 
@@ -437,20 +426,20 @@ _A：原本的 keyCode === 13。B：Codex 改后。C：对照组，只改成 e.k
 
 这次实测，`legacy-scan` 在本地找出了我放进去的 5 种旧写法，共 6 项。Claude Code 按指南修改后重新扫描是 0。浏览器里也看得到差别：空白输入框不再一打开就是红框，输入法选词时按 Enter 也不会发送。换一台电脑、用自己写的露营地示例交给 Codex，扫描和重新扫描的结果一样可以重现，但 agent 也会改到扫描范围以外的地方，而且不一定按指南改完整。
 
-沙箱里最麻烦的是 npm 缓存。另外，装进来的 skill 总是让 agent 跑 `@latest`，安装时固定的版本只管得到指南内容，管不到 CLI。
+另外，装进来的 skill 总是让 agent 跑 `@latest`，agent 查到的指南也来自那一版 CLI。安装时固定的版本和 `skills-lock.json`，只管得到项目里的那份 SKILL.md 和 `guides/`。
 
 我建议按这个顺序开始：
 
 1. 先不安装，用 `npx modern-web-guidance@<版本> legacy-scan .` 扫描自己的项目，看它找到了什么。代码放在 `demo/`、`examples/` 这类文件夹时，记得加 `--include-docs-and-tests`。
 2. 决定要不要发送使用数据，不发就设 `DISABLE_TELEMETRY=1`。
-3. 安装到项目后，打开 `.claude/skills/modern-web-guidance/SKILL.md` 读一遍，并把 `skills-lock.json` 一起 commit。
-4. 如果开着沙箱，先处理好 npm 缓存路径，再交给 agent。
+3. 安装到项目后，打开 `.claude/skills/modern-web-guidance/SKILL.md` 读一遍，并把 `skills-lock.json` 一起 commit。之后看到更新提醒，用 `npx modern-web-guidance@latest update` 更新。
+4. 第一次交给 agent 时，在提示词里让它先提出现代化计划，看过再让它改文件。
 5. agent 改完后，看 diff，特别是扫描结果以外的修改，并在浏览器里实际操作一次。
 
 ## 延伸阅读
 
 - [Modern Web Guidance 官方文档](https://developer.chrome.com/docs/modern-web-guidance)，有安装方法、示例提示词和 Baseline 目标的设置方法。
+- [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) 列出各 agent 的安装方法、Baseline 目标，以及 volatile features、origin trial 指南的开启方法。
 - [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow) 说明 `legacy-scan` 搭配 agent 修改的四步流程。
 - 《[自己写 Agent Skill：从 SKILL.md 结构到触发测试与维护](/posts/agent-skill-authoring-guide/)》说明 SKILL.md 的 description 如何影响触发。
 - 《[Claude Code plugin 安全安装：装之前先看哪些文件](/posts/claude-code-plugin-safe-install/)》说明安装 skill 或 plugin 前要看哪些文件。
-- 《[Claude Code 沙箱设置教程：挡住 SSH 密钥与 token](/posts/claude-code-sandbox-setup/)》说明这次用的沙箱怎么开。

@@ -3,7 +3,7 @@ title: "Modern Web Guidance Hands-On: Agents Fix Legacy Web Code"
 description: "Hands-on with Modern Web Guidance 1.0.1: install the agent skill, run legacy-scan, have Claude Code or Codex fix legacy HTML, CSS and JS, and verify in Chrome."
 date: 2026-11-19 17:00:00 +0800
 categories: [AI, skills]
-tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform, sandbox]
+tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform]
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.en.webp
@@ -14,9 +14,9 @@ The Modern Web Guidance SKILL.md says near the top that "training weights contai
 
 [Modern Web Guidance](https://developer.chrome.com/docs/modern-web-guidance) is a skill and command-line tool for coding agents. According to the [GitHub README](https://github.com/GoogleChrome/modern-web-guidance), it is maintained by the Google Chrome, Microsoft Edge, Mozilla Firefox, and MDN teams together with the community. Before writing web code, the agent looks up a guide. The guide tells it which HTML, CSS, or JavaScript feature to use, how widely browsers support it, and what to fall back to when they don't. There is also a `legacy-scan` command that finds outdated patterns in an existing project.
 
-In this post I install it in Claude Code with the sandbox turned on. I wrote a small guestbook page, scanned it with `legacy-scan`, had Claude Code fix it using the guides, and then compared the before and after versions in a browser. I also cover where the sandbox got in the way.
+In this post I install it and try it out. I wrote a small guestbook page, scanned it with `legacy-scan`, had Claude Code fix it using the guides, and then compared the before and after versions in a browser.
 
-> The official sources I checked are the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README and SKILL.md inside the npm package version 1.0.1. I read them on 2026-11-19. I ran everything the same day (Taipei time) on macOS with Node.js 25.2.1, npm 11.6.2, and Claude Code 2.1.328 (model `claude-opus-5-5`), with the Claude Code sandbox on. I used modern-web-guidance 1.0.1, which was tagged latest on npm that day. The `skills` package that the installer pulled in was 1.9.0. The terminal screenshots are the recorded output laid out as images. I removed only the color codes, the intermediate spinner frames, and the exit-code markers my recording script added. When I updated this post, I reran the same commands on a second machine. The output of `search`, `retrieve`, `skills-lock.json`, and both `legacy-scan` runs matched the first run, so those images use the rerun output. The `install` image keeps the first run's output because the detected agent name differs.
+> The official sources I checked are the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README, SKILL.md, and CLI source inside the npm package version 1.0.1. I read them on 2026-11-19 and checked them again on 2026-11-20 when I updated this post. I ran the tests on 2026-11-19 (Taipei time) on macOS with Node.js 25.2.1, npm 11.6.2, and Claude Code 2.1.328 (model `claude-opus-5-5`). I used modern-web-guidance 1.0.1, which was tagged latest on npm that day. The `skills` package that the installer pulled in was 1.9.0. The terminal screenshots are the recorded output laid out as images. I removed only the color codes, the intermediate spinner frames, and the exit-code markers my recording script added. When I updated this post, I reran the same commands on a second machine. The output of `search`, `retrieve`, `skills-lock.json`, and both `legacy-scan` runs matched the first run, so those images use the rerun output. The `install` image keeps the first run's output because the detected agent name differs.
 {: .prompt-info }
 
 ## How it works
@@ -30,20 +30,19 @@ Whether the agent reaches for it depends on the description in SKILL.md. It says
 
 According to the How It Works section of the README, `search` uses a local embedding model and BM25. It makes no network calls and needs no API key.
 
-According to the Modernization workflow docs, `legacy-scan` scans the project locally with fixed rules and does not call any model. It only covers guides that static rules can check. My scan output said 38 guides, about 20% of the total. Each finding comes with "Keep when" and "Drop when" conditions, and the agent uses them to decide whether the finding is a false positive. The 1.0 announcement also says there is no `--fix` flag. The scanner only finds problems, and the agent makes the changes.
+According to the Modernization workflow docs, `legacy-scan` scans the project locally with fixed rules and does not call any model. It only covers guides that static rules can check. My scan output said 38 guides, about 20% of the total. Each finding comes with "Keep when" and "Drop when" conditions, and the agent uses them to decide whether the finding is a false positive. The same page also says there is no `--fix` flag. The scanner only finds problems, and the agent makes the changes.
 
 The docs landing page says the public evaluation shows a 91% pass rate with the guides, versus about 51% for frontier models without them. The README has a table of individual runs. The Nov 8 row for `claude_code (opus-5-5)` goes from 57% to 88%. I took these numbers from the official pages on 2026-11-19 and didn't measure them myself. The example below is the only thing I ran.
 
-## Setup: running npx in the sandbox
+## Setup: turn off usage reporting and inspect the package
 
-My Claude Code sandbox only lets commands write to the project folder and `$TMPDIR`. I explained how to set it up in [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/). The first time I ran `npm view modern-web-guidance` in the sandbox, npm returned `EPERM` and said "Your cache folder contains root-owned files", telling me to fix `~/.npm` with `sudo chown`. But ownership wasn't the problem: the sandbox doesn't let npm write its cache to `~/.npm`. I moved the cache under `$TMPDIR`, and npx worked from then on:
+The CLI needs Node.js 22 or later (`engines` in `package.json`). Before starting, I set one environment variable in my shell:
 
 ```bash
-export npm_config_cache="$TMPDIR/npm-cache"
 export DISABLE_TELEMETRY=1
 ```
 
-The second line turns off usage reporting. Reading the CLI source, I found that when `search`, `retrieve`, `legacy-scan`, or `install` runs, it starts a detached background process that sends usage data to `play.googleapis.com`. According to the Telemetry & Privacy section of the README, it collects install counts, the name of the calling agent, the IDs of retrieved guides, and the search queries the agent writes. It does not collect the user's original prompt. Setting `DISABLE_TELEMETRY=1` stops it. So although search matching happens locally, the queries themselves are sent to `play.googleapis.com` by default.
+This turns off usage reporting. Reading the CLI source, I found that when `search`, `retrieve`, `legacy-scan`, or `install` runs, it starts a detached background process that sends usage data to `play.googleapis.com`. According to the Telemetry & Privacy section of the README, it collects install counts, the name of the calling agent, the IDs of retrieved guides, and the search queries the agent writes. It does not collect the user's original prompt. Setting `DISABLE_TELEMETRY=1` stops it. So although search matching happens locally, the queries themselves are sent to `play.googleapis.com` by default.
 
 Before installing, I downloaded the package with `npm pack modern-web-guidance@1.0.1` and looked through it, the same way I described in [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/). The 1.0.1 `package.json` has no `scripts`, so nothing runs at install time. The package has 281 files and is 17 MB unpacked. The search vectors take about 8.8 MB, the single-file bundle `legacy-scan.mjs` about 4.9 MB, and the guides about 1.9 MB. The `install` subcommand just runs:
 
@@ -80,7 +79,7 @@ npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
 `--agent` and `-y` are `skills add` options. `install` passes any extra arguments through unchanged. `--agent claude-code` installs for Claude Code only, and `-y` skips the confirmation.
 
 ![Actual terminal output: install detects the claude agent and installs non-interactively, clones the repository from GitHub, finds 2 skills, selects modern-web-guidance, and copies it to ./.claude/skills/modern-web-guidance](term-install.webp){: w="1100" h="1002" }
-_I ran it inside the Claude Code sandbox, so the first line says the claude agent was detected (actual output)._
+_I ran it inside Claude Code, so the first line says the claude agent was detected (actual output)._
 
 Because I ran it from inside Claude Code, `skills` detected the agent and installed without asking anything. In a regular terminal it may ask which agents to install for and whether to install per project or globally. I didn't try that. The last line tells you to check skills before using them: "Review skills before use; they run with full agent permissions." So after installing, I looked at what it had added.
 
@@ -91,11 +90,29 @@ Two things were added to the project:
 - `.claude/skills/modern-web-guidance/`: only `SKILL.md` and `guides/`. The CLI itself is not there.
 - `skills-lock.json`: records which GitHub commit the skill came from (`64a6d70`) and a content hash.
 
-The lock file only pins the guide content. The installed SKILL.md tells the agent to run `npx -y modern-web-guidance@latest`, so even though I installed with `@1.0.1`, every lookup the agent makes runs whatever is latest on npm at the time. I compared the files: the SKILL.md and guides installed that day were identical to the ones in the npm 1.0.1 package.
+The lock file pins the SKILL.md and `guides/` installed in your project, not the CLI the agent actually runs. The installed SKILL.md tells the agent to run `npx -y modern-web-guidance@latest`, so even though I installed with `@1.0.1`, every lookup the agent makes runs whatever is latest on npm at the time. Reading the 1.0.1 source, I found that `search` and `retrieve` read the index and guides bundled with the CLI package, not the `guides/` folder in your project. So the guide content the agent gets by following SKILL.md also tracks the latest version on npm. I compared the files: the SKILL.md and guides installed that day were identical to the ones in the npm 1.0.1 package.
 
-According to the official docs, you can also install with `npx skills add GoogleChrome/modern-web-guidance`. Claude Code users can install it as a plugin by running `claude plugin marketplace add GoogleChrome/modern-web-guidance` and then `claude plugin install modern-web-guidance@googlechrome`. I didn't try either. The README also notes that copies installed from `claude-plugins-official` have been stuck at `v0.0.194` since October 12. They need to be removed and reinstalled from the `googlechrome` marketplace. The README also has install instructions for other agents such as GitHub Copilot CLI and OpenAI Codex. I only tested Claude Code.
+### Updating and removing
 
-The guides use Baseline to decide whether a feature is safe to use. According to the official [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) page, the default target is Baseline Widely available. To change it, add a line such as "This project's Baseline target is Baseline 2024." to `AGENTS.md` or `CLAUDE.md`. I didn't set one and used the default.
+Every time SKILL.md calls the CLI, it passes `--skill-version 2026_11_10-47b4c80e`, and the CLI compares that against the version date it ships with. According to the source, when the CLI's bundled version is newer and the installed SKILL.md's version date is more than 5 days old, the output includes a message asking for an update. After 60 days, the message tells the agent to insist that the user update. The official Get started page says that installing through the CLI will "enable automatic updates", but what I found in the 1.0.1 source is a version check followed by a reminder. I didn't see any code that rewrites the project's files on its own.
+
+To update, run this in your project folder:
+
+```bash
+npx modern-web-guidance@latest update
+```
+
+It hands off to `npx -y skills update`. To remove the skill, run `uninstall`, which hands off to `skills remove`. I only read the source for these two commands and didn't run them.
+
+### Other ways to install
+
+According to the official docs, you can also install with `npx skills add GoogleChrome/modern-web-guidance`. Claude Code users can install it as a plugin by running `claude plugin marketplace add GoogleChrome/modern-web-guidance` and then `claude plugin install modern-web-guidance@googlechrome`. I didn't try either. The README also notes that copies installed from `claude-plugins-official` have been stuck at `v0.0.194` since October 12. They need to be removed and reinstalled from the `googlechrome` marketplace. The [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) page also lists install commands for other agents such as GitHub CLI, Gemini CLI, Codex, and Copilot CLI. I didn't try any of those.
+
+### Baseline target and experimental features
+
+The guides use Baseline to decide whether a feature is safe to use. According to the Get started page, the default target is Baseline Widely available. To change it, add a line such as "This project's Baseline target is Baseline 2024." to `AGENTS.md` or `CLAUDE.md`. I didn't set one and used the default.
+
+Two kinds of guides are off by default: volatile features, which have shipped in only one browser engine and may still change, and features that are still in origin trials. To turn them on, run `npx modern-web-guidance@latest set-allow-volatile-features` or `set-allow-origin-trials` in the project root. According to the 1.0.1 source, both commands refuse to run when they detect an agent environment or a non-interactive terminal, so you have to run them yourself in a terminal. I didn't turn on either one.
 
 ## Step 3: a guestbook page with legacy code
 
@@ -241,68 +258,23 @@ claude -p "/modern-web-guidance Modernize the code in this directory" \
   --allowedTools "Read" "Edit" \
     "Bash(npx -y modern-web-guidance@latest *)" \
     "Bash(pnpx modern-web-guidance@latest *)" \
-  --output-format stream-json --verbose --no-session-persistence > run1.jsonl
+  --output-format stream-json --verbose --no-session-persistence > run.jsonl
 ```
 
 What the options do:
 
 - `--setting-sources project` reads only the project settings, so my own user settings and plugins aren't loaded. The init event in the log shows that apart from Claude Code's built-in skills, the only skill loaded was modern-web-guidance.
 - `--permission-mode acceptEdits` lets it edit files directly.
-- `--allowedTools` allows only reading and editing files, plus `npx -y modern-web-guidance@latest *`, the rule SKILL.md itself recommends. I have pnpm installed, and SKILL.md says to prefer `pnpx` when pnpm is available, so I allowed `pnpx` too. I also set two pnpm cache variables for that. The agent never used `pnpx` in either run, so I left them out here.
+- `--allowedTools` allows only reading and editing files, plus `npx -y modern-web-guidance@latest *`, the rule SKILL.md itself recommends. I have pnpm installed, and SKILL.md says to prefer `pnpx` when pnpm is available, so I allowed `pnpx` too. The agent didn't use `pnpx` in this run.
 
-I set `npm_config_cache` and `DISABLE_TELEMETRY` in a shell inside my outer Claude Code session's sandbox and started `claude -p` from there, so the commands the agent ran inherited both variables and ran under the same sandbox. The demo project has no sandbox settings of its own, and `--setting-sources project` skips my user settings. From a plain terminal you probably wouldn't hit the `/tmp/npm-cache` permission error described below, but I didn't test that.
+I set `DISABLE_TELEMETRY=1` in the shell before starting `claude -p`, so the commands the agent ran inherited it. The command above leaves out a few settings that only matter for my local environment.
 
-### Run 1: the scan command was blocked
+The agent followed the Modernization workflow:
 
-The agent tried to run the scan right away, but it put `NPM_CONFIG_CACHE=/tmp/npm-cache` in front of the command:
-
-```text
-NPM_CONFIG_CACHE=/tmp/npm-cache npx -y modern-web-guidance@latest legacy-scan . --json
-→ This command requires approval
-```
-
-The prefix comes from SKILL.md. It names sandboxed environments such as Codex and Claude Code, and says to set `NPM_CONFIG_CACHE=/tmp/npm-cache` when `~/.npm` is read-only. But with the variable in front, the command no longer matches the allow rule SKILL.md recommends, `npx -y modern-web-guidance@latest *`. Non-interactive mode doesn't prompt, so the command was rejected.
-
-Without the scan, the agent read the guides in `.claude/skills/modern-web-guidance/guides/`, found the problems by reading the code itself, and made its changes. The run took 73 seconds and 18 turns, and `total_cost_usd` in the log was $0.62. Its report says at the top that the scan and the syntax check didn't run because they weren't approved, so it never rescanned to confirm the fixes. It also says it never opened the page in a browser.
-
-In this run the agent also followed the `declarative-dialog-popover-control` guide and switched "Clear all" to HTML `commandfor` with `command="show-modal"`. Browsers without support need a polyfill, and it used the guide's CDN example for that. It also changed the `<script>` tag to `type="module"`:
-
-```javascript
-if (!('commandForElement' in HTMLButtonElement.prototype)) {
-  import('https://esm.run/invokers-polyfill');
-}
-```
-
-That URL has no version, so browsers without `command` support load whatever version of `invokers-polyfill` is latest at runtime. The guide says to use `npm install invokers-polyfill` in projects with a bundler or import maps, and the CDN otherwise. My example has no bundler, so the agent picked the CDN, as the guide says. In its report it listed this under "One decision for you" and offered a two-line fallback that loads no outside code. If your project doesn't allow loading code from a CDN at runtime, say so in `CLAUDE.md` or `AGENTS.md`. I covered how to write those rules in [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
-
-### Run 2: the allow rule matched, but the cache path wasn't writable
-
-I restored the page and kept the prompt exactly the same. The only change was one more rule in `--allowedTools`:
-
-```bash
-"Bash(NPM_CONFIG_CACHE=/tmp/npm-cache npx -y modern-web-guidance@latest *)"
-```
-
-This time the command ran, but npm failed:
-
-```text
-npm error code EPERM
-npm error syscall mkdir
-npm error path /tmp/npm-cache
-...
-npm error Your cache folder contains root-owned files, due to a bug in
-```
-
-My sandbox allows writes to `$TMPDIR` (`/tmp/claude-501`), which doesn't include `/tmp/npm-cache`. The agent then tried `NPM_CONFIG_CACHE=$TMPDIR/npm-cache`, and Claude Code answered "A variable in this command can't be checked before it runs", because the allow rule can't check what the variable expands to ahead of time. It then tried versions with the path written out in full, and those didn't match the allow rule either. Finally it dropped the prefix and ran `npx -y modern-web-guidance@latest legacy-scan site --json`. That worked, because the `npm_config_cache` I had set was already in the environment.
-
-Once the scan ran, the agent followed the Modernization workflow:
-
-1. The scan found 6 items. It checked each against Keep when and Drop when, and kept all 6.
+1. It ran `npx -y modern-web-guidance@latest legacy-scan site --json`, which found 6 items. It checked each against Keep when and Drop when, and kept all 6.
 2. It used `retrieve` to fetch four guides at once (`dialog`, `form-fields-automatically-fit-contents`, `ime-safe-enter-submit`, `validate-input-after-interaction`), then fetched `validate-input-after-interaction` and `js`.
 3. It rewrote the three files.
 4. It reran `legacy-scan site --json`, and `totalFindings` was 0.
-
-The run took 90 seconds and 17 turns, and `total_cost_usd` was $0.59. Of the 4 commands blocked in this run, 3 were cache path attempts. The other chained `node --check site/app.js` with the rescan, and `node --check` wasn't on the allow list. In the end it ran the rescan by itself.
 
 The Enter handling became:
 
@@ -327,9 +299,17 @@ Other changes:
 - The dialog got `closedby="any"`. Safari doesn't support that attribute, so there is a fallback that is attached only when support is missing. It checks the pointer coordinates to decide whether the click was outside the dialog.
 - `list.innerHTML = ''` became `list.replaceChildren()`.
 
-This time it didn't touch the "Clear all" button and didn't add the CDN polyfill. The same prompt run twice produced different code, so you still need to read the diff after the agent finishes.
+The agent didn't touch the "Clear all" button. If an agent follows the `declarative-dialog-popover-control` guide and switches a button like this to HTML `commandfor` and `command`, watch the polyfill the guide suggests. Browsers without `command` support need a polyfill. The guide says to use `npm install invokers-polyfill` in projects with a bundler or import maps, and to load it from a CDN otherwise, with this example:
 
-SKILL.md asks the agent to end its report with a `### Modern Web Guidance` section that lists each guide it used and quotes the rule it followed. Both runs included it, and I found it useful when going through the diff.
+```javascript
+if (!('commandForElement' in HTMLButtonElement.prototype)) {
+  import('https://esm.run/invokers-polyfill');
+}
+```
+
+That URL has no version. If the agent copies it as is, browsers without `command` support load whatever version of `invokers-polyfill` is latest at runtime. If your project doesn't allow loading code from a CDN at runtime, say so in `CLAUDE.md` or `AGENTS.md`. I covered how to write those rules in [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+
+SKILL.md asks the agent to end its report with a `### Modern Web Guidance` section that lists each guide it used and quotes the rule it followed. The report from this run included it, and I found it useful when going through the diff.
 
 Finally, I reran the scan myself from the project root:
 
@@ -342,9 +322,21 @@ _After the changes, the rescan found 0 items (actual output)._
 
 The output also points out that `legacy-scan` covers only 38 guides. Zero findings means those 38 guides' rules found nothing more. Patterns covered by the other guides aren't checked.
 
+### Triggering it without the slash command
+
+Here I invoked the skill directly with its slash command. According to the Modernization workflow docs, you can also trigger the scan without it by asking the agent to check a whole repository or folder for "legacy patterns" or to "modernize" it. If you name a single component, the agent does a regular guide lookup with `search` and `retrieve` instead. SKILL.md says the same: it runs `legacy-scan` only for broad modernization requests that don't name a specific feature or component. I didn't test this way of triggering it.
+
+Another example prompt in the docs asks the agent to propose a plan before it edits anything:
+
+```text
+Modernize this repository using Modern Web Guidance. Scan our frontend files for legacy patterns, verify the findings, and propose a modernization plan before making any code edits.
+```
+
+The first time I use it on an existing project, this is the prompt I'd pick, so I can see which findings the agent keeps before it changes any code.
+
 ## Step 6: compare in a browser
 
-`legacy-scan` only reads code, so I checked the page behavior in a browser. Chrome won't start inside my sandbox. Headless Chrome exits right away because macOS denies its mach port access. So I ran this step outside the sandbox, opening only local files and using a throwaway Chrome profile. I wrote a small Node.js script with no dependencies that drives headless Chrome 157 over the Chrome DevTools Protocol. It performs the same actions on the before and after pages and takes screenshots.
+`legacy-scan` only reads code, so I checked the page behavior in a browser. I wrote a small Node.js script with no dependencies that drives headless Chrome 157 over the Chrome DevTools Protocol, opening only local files and using a throwaway Chrome profile. It performs the same actions on the before and after pages and takes screenshots.
 
 The first pair shows the page right after it loads:
 
@@ -370,14 +362,6 @@ _Left: before, the Enter meant to confirm the IME candidate posted "你好". Rig
 The old version posted the half-composed "你好" as a message. The new version saw `isComposing` was `true` and didn't submit, so the list stayed empty.
 
 This test is a simulation. I didn't type with a real macOS Zhuyin or Pinyin IME, and I didn't test Safari or Firefox. I also didn't test the dialog's `closedby="any"` or its Safari fallback.
-
-## Problems I hit in the sandbox
-
-1. The sandbox blocks npm from writing `~/.npm`, but npm reports it as "root-owned files" and tells you to run `sudo chown`. Don't: ownership isn't the problem. I pointed `npm_config_cache` at a folder the sandbox allows by running `export npm_config_cache="$TMPDIR/npm-cache"` in the shell before starting `claude -p`.
-2. SKILL.md tells the agent to prefix commands with `NPM_CONFIG_CACHE=/tmp/npm-cache`. In my sandbox `/tmp/npm-cache` isn't writable, and the prefixed command doesn't match the allow rule SKILL.md itself recommends. My run finished only because the agent eventually dropped the prefix and the environment already had a writable cache path.
-3. Chrome won't start inside the sandbox, so I ran the browser comparison outside it.
-
-Both runs used non-interactive mode, where blocked commands just fail. In interactive mode I'd expect a prompt instead, but I didn't test it.
 
 ## A second machine and a different example
 
@@ -405,7 +389,6 @@ Three patterns weren't flagged: the `div` popup, the checkbox class toggle, and 
 
 I gave Codex the same prompt as before: `$modern-web-guidance Modernize the code in this directory` (`$` is how Codex names a skill). Here's what happened:
 
-- Following SKILL.md, it prefixed commands with `NPM_CONFIG_CACHE=/tmp/npm-cache`. The Codex `workspace-write` sandbox allows writes to `/tmp` by default, so the scan, `retrieve`, and rescan all worked on the first try. I didn't hit the cache problem I had in the Claude Code sandbox.
 - It fetched all 5 guides with one `retrieve`. The output was 84.4 KB, so the CLI saved it to `/tmp/mwg-guide-….md` instead of printing it and told the agent to read the file in chunks.
 - It changed all 5 findings, and its rescan found 0. My own rescan with 1.0.1 from the project root also found 0.
 - It also changed the search box to `e.key === 'Enter' && !e.isComposing`. That line wasn't in the scan results, and it never retrieved the ime-safe-enter-submit guide. According to that guide, this version is missing `e.keyCode === 229`, so in Safari the Enter that confirms a candidate may still trigger a search. I don't have Safari to check this; I'm going by the diff and the guide.
@@ -429,7 +412,13 @@ Last, I checked the usage data. With no network access and `DISABLE_TELEMETRY` u
 
 ## Pairing it with browser checks
 
-According to the 1.0 announcement, the project recommends pairing it with Chrome DevTools for agents, which lets the agent see how the page actually behaves in the browser. I haven't tried DevTools for agents yet.
+According to the 1.0 announcement, the project recommends pairing it with Chrome DevTools for agents. Modern Web Guidance helps the agent write current code from the start, and DevTools for agents lets the agent see how the page actually behaves in the browser. The announcement gives a few examples:
+
+- Record a performance trace on a simulated low-end CPU, then break up long tasks following the guides until the main thread is never blocked for more than 50 milliseconds.
+- Record dialog and popover animations to check that they fit the rest of the site, and confirm the component respects `prefers-reduced-motion`.
+- When caching views in memory, use the memory tools to make sure memory use doesn't keep growing.
+
+I haven't tried DevTools for agents yet.
 
 This time I used my own small DevTools Protocol script. If you want the agent to open the page and check it itself, see [agent-browser Tutorial: Let AI Test Its Own Web Pages](/posts/agent-browser-ai-test-web-pages/). I described my process for proving a change works before merging in [pstack, Part 3: After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/).
 
@@ -437,20 +426,20 @@ This time I used my own small DevTools Protocol script. If you want the agent to
 
 In this run, `legacy-scan` found all 5 legacy patterns I planted, 6 findings in total, without leaving my machine. After Claude Code made changes based on the guides, a rescan found 0. In the browser, the empty textarea no longer turns red on load, and pressing Enter to confirm an IME candidate no longer posts the message. On a second machine, with my own campsite example and Codex, the scan and rescan results held up too, but the agent also changed code outside the scan results and didn't always follow the guide all the way.
 
-Most of my sandbox trouble came from the npm cache path (see the list above). And because the installed skill always runs `@latest`, pinning a version at install time only pins the guides.
+Also, the installed skill always runs `@latest`, and the guides the agent reads come from that CLI version too. The version you pin at install time and `skills-lock.json` only cover the SKILL.md and `guides/` copied into your project.
 
 This is the order I'd suggest:
 
 1. Without installing anything, run `npx modern-web-guidance@<version> legacy-scan .` on your own project and see what it finds. If your code lives in a folder like `demo/` or `examples/`, add `--include-docs-and-tests`.
 2. Decide whether you want usage data sent. If not, set `DISABLE_TELEMETRY=1`.
-3. After installing into your project, read `.claude/skills/modern-web-guidance/SKILL.md`, and commit `skills-lock.json` along with it.
-4. If you use the sandbox, sort out the npm cache path before handing work to the agent.
+3. After installing into your project, read `.claude/skills/modern-web-guidance/SKILL.md`, and commit `skills-lock.json` along with it. When you see an update reminder, run `npx modern-web-guidance@latest update`.
+4. The first time you hand it to an agent, ask for a modernization plan in the prompt and review it before letting the agent edit files.
 5. When the agent finishes, read the diff, especially changes outside the scan results, and try the page in a browser yourself.
 
 ## Further reading
 
 - [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance): installation, example prompts, and how to set a Baseline target.
+- [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started): install commands for each agent, the Baseline target, and how to turn on guides for volatile features and origin trials.
 - [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow): the four-step process of running `legacy-scan` and having the agent make the changes.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): how the description in SKILL.md affects when a skill triggers.
 - [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): which files to read before installing a skill or plugin.
-- [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/): how to turn on the sandbox I used here.
