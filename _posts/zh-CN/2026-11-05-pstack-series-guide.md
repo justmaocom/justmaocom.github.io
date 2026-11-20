@@ -90,10 +90,32 @@ _先找出你现在卡在哪一步，再点进对应的那一篇；不必把四�
 | 你的情况 | 建议从哪里开始 |
 | --- | --- |
 | 还没装过，或不知道命令怎么调用 | [第 1 篇](/posts/pstack-install-routing/) |
+| 手上只有一个空仓库 | [从空仓库开始](#starting-from-an-empty-repo) |
 | 已会用 `/poteto-mode`，但经常一动手就改错方向 | [第 2 篇](/posts/pstack-understand-design/) |
 | 功能写完了，卡在“怎样才算证明能用”或开 PR | [第 3 篇](/posts/pstack-build-verify-merge/) |
 | 日常使用已经上手，想用原则指挥、做自己的 mode，或让它无人值守地跑 | [第 4 篇](/posts/pstack-principles-customization/) |
 | 只想先知道这套东西是什么 | 先读完这篇，再按上表跳过去 |
+
+### 从空仓库开始 {#starting-from-an-empty-repo}
+
+如果手上只有一个空仓库，我会先想清楚项目要做什么，再搭一个能跑的骨架。CI、测试和确定会共享的类型也可以一起加进去，以后加功能就用得上。这是我把 pstack 的 [`foundational-thinking` 原则](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L9-L13) 用在新项目上的做法。
+
+1. 按[第 1 篇](/posts/pstack-install-routing/)安装 pstack 并配置模型。如果 `/setup-pstack` 问要不要生成验证用的 skill，等项目能跑了再做。
+2. 空仓库还用不上[第 2 篇](/posts/pstack-understand-design/)里读代码的 `/how` 和查历史的 `/why`。设计还拿不定主意时，请 `/architect` 画个草稿。有些问题跑一下就知道答案，比如两种写法的输出是否一致，这时可以在同一条提示里请 `/pstack:poteto-mode` 用 Prototype playbook 做个原型。
+
+   ```text
+   /pstack:poteto-mode 我想做〈一句话说明项目要做什么〉。先用 /architect 画出主要的类型和模块边界。遇到光看设计看不出差别的地方，用 Prototype playbook 试一下。把设计和原型结果给我看，等我确认再写正式代码。
+   ```
+
+3. 设计定下来后，如果要分几个 PR 来做，可以请 `/pstack:poteto-mode` 用 [Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) 写计划。它会把计划保存成文件，等你看过并明确让它开始，才动手实现。
+
+   ```text
+   /pstack:poteto-mode 用 Multi-phase plan playbook 把这个设计拆成几个 PR。第一个 PR 先搭项目骨架，让 CI 跑一个最简单的测试，并写清楚怎么在本地确认项目能跑。已经确定会共享的类型也可以放进这个 PR。后面的 PR 各做一项改动，写清楚怎么验证。
+   ```
+
+   测试框架先搭好，以后修 bug 就有地方加回归测试。找不到适合补测试的地方时，[`/tdd` 会改用其他能执行的检查](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16-L24)。
+4. 第一个 PR 先在本地确认项目骨架能跑，再检查 CI 有没有跑到测试。等第一个功能能用了，比如 CLI 已经能执行一条命令，就可以用 [`/create-verification-skill`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L11-L21) 把手动验证过的步骤写成 AI 能重复运行的 skill。在 Claude Code 里直接调用时，命令是 `/pstack:create-verification-skill`。
+5. 以后加功能时，按[第 3 篇](/posts/pstack-build-verify-merge/)实现、验证、提 PR。写提示时，列出这次改动需要保留的行为。比如加一个 CLI 子命令时，可能已经有脚本依赖原有命令的输出格式。
 
 ## 版本说明
 

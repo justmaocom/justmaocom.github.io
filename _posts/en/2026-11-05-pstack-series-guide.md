@@ -90,10 +90,32 @@ _Figure out which step you're stuck on, then open the matching part. You don't h
 | Your situation | Start here |
 | --- | --- |
 | Not installed yet, or unsure how to invoke commands | [Part 1](/posts/pstack-install-routing/) |
+| You have an empty repo | [Start from an empty repo](#starting-from-an-empty-repo) |
 | You can use `/poteto-mode`, but your changes often head the wrong way from the start | [Part 2](/posts/pstack-understand-design/) |
 | The feature is written, but you're stuck on proving it works or opening a PR | [Part 3](/posts/pstack-build-verify-merge/) |
 | You're comfortable with everyday use and want to steer with principles, build your own mode, or run unattended | [Part 4](/posts/pstack-principles-customization/) |
 | You just want to know what this set of skills is | Finish this guide first, then jump ahead using the table above |
+
+### Starting From an Empty Repo {#starting-from-an-empty-repo}
+
+With an empty repo, I'd start by deciding what the project should do and getting a bare version running. That's how I'd apply pstack's [`foundational-thinking` principle](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L9-L13). Set up CI and tests early, and add any types you already know the rest of the project will share.
+
+1. Install pstack and pick your models as shown in [Part 1](/posts/pstack-install-routing/). If `/setup-pstack` offers to generate a verification skill, wait until you have something that runs.
+2. You can skip `/how` and `/why` from [Part 2](/posts/pstack-understand-design/) until there's code or history to read. If you're still weighing designs, ask `/architect` for a sketch. For questions you can answer by running something, such as whether two approaches produce the same output, ask `/pstack:poteto-mode` to use the Prototype playbook in the same prompt.
+
+   ```text
+   /pstack:poteto-mode I want to build <describe what the project should do in one sentence>. Use /architect to sketch the main types and module boundaries. If you need to run something to choose between approaches, try it with the Prototype playbook. Show me the design and any prototype results, then wait for my go-ahead before writing production code.
+   ```
+
+3. Once you've settled on a design, ask `/pstack:poteto-mode` to use the [Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md) if the work needs several PRs. It writes the plan to a file and waits for you to tell it to start.
+
+   ```text
+   /pstack:poteto-mode Use the Multi-phase plan playbook to split this design into PRs. In the first PR, set up the project, run a basic test in CI, and document how to check that the project runs locally. Include any types we already know we'll share. Give each later PR one change and its own verification steps.
+   ```
+
+   Setting up tests early gives you somewhere to put a regression test when a bug turns up. Without a practical test path, [`/tdd` falls back to another check it can run](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16-L24).
+4. For the first PR, check that the project runs locally and that CI runs the test. Once the first feature works, such as a CLI command, use [`/create-verification-skill`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L11-L21) to turn your manual check into a skill the AI can run again. In Claude Code, call it directly with `/pstack:create-verification-skill`.
+5. As you add features, follow [Part 3](/posts/pstack-build-verify-merge/) to build, verify, and open a PR. Tell the AI which existing behavior the change needs to preserve. If you're adding a CLI subcommand, for example, scripts may already rely on the output format of an existing command.
 
 ## Version Notes
 
