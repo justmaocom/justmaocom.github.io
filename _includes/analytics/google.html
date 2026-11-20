@@ -1,0 +1,20 @@
+{% comment %}
+  覆寫主題的同名檔案：不直接載入 gtag.js，排進 window.analyticsLoaders，由 assets/js/consent.js 決定何時執行。
+{% endcomment %}
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script>
+  (window.analyticsLoaders = window.analyticsLoaders || []).push(() => {
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = 'https://www.googletagmanager.com/gtag/js?id={{ site.analytics.google.id }}';
+    document.head.append(script);
+
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+    gtag('config', '{{ site.analytics.google.id }}');
+  });
+</script>
