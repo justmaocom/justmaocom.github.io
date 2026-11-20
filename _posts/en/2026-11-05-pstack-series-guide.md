@@ -98,7 +98,7 @@ _Figure out which step you're stuck on, then open the matching part. You don't h
 
 ### Starting From an Empty Repo
 
-All four parts use projects that already have code, and pstack has no playbook written for new projects. When my repo is still empty, I order the work by the [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) principle. It says to build first whatever helps every later phase, such as CI, tests, and shared types.
+All four parts use projects that already have code, and pstack has no playbook written for new projects. When your repo is still empty, I suggest ordering the work by the [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) principle. It says to build first whatever helps every later phase, such as CI, tests, and shared types.
 
 1. Install as in [Part 1](/posts/pstack-install-routing/). When `/setup-pstack` offers to generate a verification skill, decline for now, because the project can't start yet.
 2. Skip `/how` and `/why` from [Part 2](/posts/pstack-understand-design/), because an empty repo has no code or history to read. Go straight to that part's prototypes and `/architect` to settle the core data shapes.

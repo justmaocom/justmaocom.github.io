@@ -98,7 +98,7 @@ _先找出你現在卡在哪一步，再點進對應的那一篇；不必把四�
 
 ### 新專案怎麼走
 
-四篇的例子都是已經有程式的專案，pstack 也沒有專為新專案寫的 playbook。repo 還是空的時候，我會照 [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) 這條原則安排順序。它要求先做能幫到之後每個階段的東西，例如 CI、測試和共用型別。
+四篇的例子都是已經有程式的專案，pstack 也沒有專為新專案寫的 playbook。repo 還是空的時候，我建議照 [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) 這條原則安排順序。它要求先做能幫到之後每個階段的東西，例如 CI、測試和共用型別。
 
 1. 照[第 1 篇](/posts/pstack-install-routing/)安裝。`/setup-pstack` 問要不要產生驗證用的 skill 時，先拒絕，因為專案還不能啟動。
 2. 跳過[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 沒有程式和歷史可讀。直接用同一篇的試作和 `/architect` 決定核心的資料形狀。
