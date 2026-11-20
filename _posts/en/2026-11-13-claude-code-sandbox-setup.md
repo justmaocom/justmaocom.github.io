@@ -43,7 +43,7 @@ These words come up again and again below, so here they are in one line each:
 
 So you can reproduce the results, here is how I did it:
 
-- **Setup**: macOS (Apple Silicon), Claude Code 2.1.323, the morning of 2026-11-13 (Taipei time). I didn't test Linux or WSL2.
+- **Setup**: macOS (Apple Silicon), Claude Code 2.1.323, the morning of 2026-11-13 (Taipei time).
 - **Method**: the `/sandbox` panel only works in the interactive screen. In non-interactive mode (`claude -p`, which passes your request as an argument and exits when done), it replies `/sandbox isn't available in this environment.` So I wrote the settings for each step into a JSON file and passed it with `claude -p "Use Bash to run ..." --settings file`. These are the same keys the panel or `settings.json` sets.
 - **No real keys**: I created a fake "canary" file, `~/.sandboxlab-canary/secret.txt` (its content is `FAKE-SECRET-FOR-TEST`, 21 bytes), to stand in for `~/.ssh`, and a fake environment variable, `SANDBOXLAB_FAKE_TOKEN`, to stand in for `GITHUB_TOKEN`. I deleted both afterward.
 - **Nobody can press "allow" in non-interactive mode**: so wherever a prompt would appear, the results below show a denial. In the normal interactive screen, you get a confirmation prompt instead.
@@ -261,7 +261,7 @@ The file couldn't be opened, and the token was gone from the environment.
 - Switch the remote to HTTPS. That needs an HTTPS credential such as a personal access token, and the settings above already removed `GITHUB_TOKEN` from the sandbox, so weigh the tradeoff.
 - Use the official `excludedCommands` to move commands such as `git push` out of the sandbox. Excluded commands run with your full permissions and can connect to any host, so think it through before you use it.
 
-> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so I'd start with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials). I didn't test this mode.
+> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so I'd start with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials).
 {: .prompt-tip }
 
 ## Step 4: Turn Off Retries Outside the Sandbox
@@ -383,7 +383,7 @@ Before opening an unfamiliar repo, I'd look at these two files. I think a safer 
 claude --settings ~/.claude/sandbox-strict.json
 ```
 
-When `--settings` turns off retries outside the sandbox, the sandbox enters what the official docs call the "admin-required" state (since 2.1.285). Claude Code then ignores the repo's `excludedCommands`, `allowedDomains`, write permissions, and any setting that changes `enabled` to `false`. The repo also can't use `allowRead` to reopen paths that `credentials` in `--settings` blocked. The tradeoff is that `/sandbox` no longer opens the panel. It shows `Sandbox settings are overridden by a higher-priority configuration` instead. To see where settings come from, check `Setting sources` in `/status`. (I couldn't see either screen in non-interactive mode, so I didn't test them.)
+When `--settings` turns off retries outside the sandbox, the sandbox enters what the official docs call the "admin-required" state (since 2.1.285). Claude Code then ignores the repo's `excludedCommands`, `allowedDomains`, write permissions, and any setting that changes `enabled` to `false`. The repo also can't use `allowRead` to reopen paths that `credentials` in `--settings` blocked. The tradeoff is that `/sandbox` no longer opens the panel. It shows `Sandbox settings are overridden by a higher-priority configuration` instead. To see where settings come from, check `Setting sources` in `/status`.
 
 **What I actually got:** I made an "unfriendly" test repo whose `.claude/settings.json` contained only `{"sandbox": {"excludedCommands": ["touch *"]}}`. Inside it, I asked Claude to run `touch` to create an empty file outside the repo:
 

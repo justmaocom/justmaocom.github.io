@@ -12,7 +12,7 @@ image:
 
 Trusted publishing removes the long-lived publishing token from CI, but it does not review your code. My concern is that an attacker who can change the contents used for a release and trigger an authorized workflow may be able to use your pipeline to publish malware with genuine provenance.
 
-In my view, reducing that risk takes more than changing authentication. You also need to control who can merge code and create release tags, which job can obtain publishing permissions, and whether anyone reviews the package before it goes public. In this post I connect those checkpoints, ending with a CI workflow that can only stage a version for a maintainer to approve on npm. I did not change any real GitHub or npm publishing settings for this post; the steps come from the official docs.
+In my view, reducing that risk takes more than changing authentication. You also need to control who can merge code and create release tags, which job can obtain publishing permissions, and whether anyone reviews the package before it goes public. In this post I connect those checkpoints, ending with a CI workflow that can only stage a version for a maintainer to approve on npm. The steps come from the official docs.
 
 This follows my earlier post, [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/). I covered the basic OIDC and `id-token: write` setup there, so I won't repeat it here. Start there if you have not configured trusted publishing yet.
 
@@ -25,7 +25,7 @@ A few terms first:
 - **Staged publishing**: submitting a package to a staging area first; the version becomes public only after a maintainer reviews it and approves with 2FA.
 - **2FA** (two-factor authentication): requiring a second authentication factor for sign-in or a sensitive operation. It is not limited to entering a verification code.
 
-> **Version note:** This post is based on GitHub's [environment docs](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and [ruleset docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets), and npm's [Trusted publishing](https://docs.npmjs.com/trusted-publishers) and [Staged publishing](https://docs.npmjs.com/staged-publishing) docs, as I read them on 2026-11-13. I did not test the steps against live GitHub or npm publishing settings. Check the relevant official docs for plans, interfaces, and version requirements.
+> **Version note:** This post is based on GitHub's [environment docs](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and [ruleset docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets), and npm's [Trusted publishing](https://docs.npmjs.com/trusted-publishers) and [Staged publishing](https://docs.npmjs.com/staged-publishing) docs, as I read them on 2026-11-13. Check the relevant official docs for plans, interfaces, and version requirements.
 {: .prompt-info }
 
 ## A Real Case: Genuine Provenance, Malicious Contents

@@ -43,7 +43,7 @@ Claude Code（在終端機裡使用的 AI 程式助理）會自己下指令：�
 
 為了讓結果可以重現，先交代我的做法：
 
-- **環境**：macOS（Apple Silicon）、Claude Code 2.1.323，2026-11-13 上午（台北時間）。我沒有測 Linux 和 WSL2。
+- **環境**：macOS（Apple Silicon）、Claude Code 2.1.323，2026-11-13 上午（台北時間）。
 - **方式**：`/sandbox` 面板只能在互動畫面裡操作，在非互動模式（`claude -p`，把問題直接當參數交給 Claude、跑完就結束）會回覆 `/sandbox isn't available in this environment.`。所以我把每一步要設定的內容寫成 JSON 檔，用 `claude -p "請用 Bash 執行……" --settings 檔案` 帶入。這和在面板或 `settings.json` 裡設定是同一組鍵值。
 - **不拿真的金鑰測**：我建了一個假的「誘餌檔」`~/.sandboxlab-canary/secret.txt`（內容是 `FAKE-SECRET-FOR-TEST`，21 bytes）代替 `~/.ssh`，再用假的環境變數 `SANDBOXLAB_FAKE_TOKEN` 代替 `GITHUB_TOKEN`。測完都刪掉了。
 - **非互動模式沒有人能按「允許」**：所以凡是「會跳出詢問」的情況，下面的結果都是被拒絕。你在一般的互動畫面裡操作時，會看到確認視窗。
@@ -261,7 +261,7 @@ unset
 - 把 remote 換成 HTTPS。但這需要 personal access token 之類的 HTTPS 憑證，而上面的設定已經把 `GITHUB_TOKEN` 從沙箱裡拿掉了，要自己權衡。
 - 用官方的 `excludedCommands` 把 `git push` 等指令移出沙箱。但被移出的指令會用你的完整權限執行、能連任何主機，用之前請想清楚。
 
-> 想讓工具在沙箱裡照常登入、又不讓它看到真正的 token，官方另有 `"mode": "mask"`：指令只看到一個替代值，代理在送出請求時才換成真的。它要搭配實驗性的 `network.tlsTerminate`，而且 macOS 上對檔案使用 `mask` 的效果等於 `deny`。設定較複雜，我建議入門先用 `deny`，細節見 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。我沒有實測這個模式。
+> 想讓工具在沙箱裡照常登入、又不讓它看到真正的 token，官方另有 `"mode": "mask"`：指令只看到一個替代值，代理在送出請求時才換成真的。它要搭配實驗性的 `network.tlsTerminate`，而且 macOS 上對檔案使用 `mask` 的效果等於 `deny`。設定較複雜，我建議入門先用 `deny`，細節見 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。
 {: .prompt-tip }
 
 ## 步驟四：關掉「沙箱外重試」
@@ -383,7 +383,7 @@ remove that setting.
 claude --settings ~/.claude/sandbox-strict.json
 ```
 
-用 `--settings` 關掉沙箱外重試時，沙箱會進入官方說的「admin-required」狀態（2.1.285 起）。這時 Claude Code 會忽略 repo 設定裡的 `excludedCommands`、`allowedDomains`、寫入權限，以及把 `enabled` 改成 `false` 的設定；`--settings` 裡的 `credentials` 擋掉的路徑，repo 也不能再用 `allowRead` 打開。代價是 `/sandbox` 不再開啟面板，而是顯示 `Sandbox settings are overridden by a higher-priority configuration`；要確認設定來源，改用 `/status` 看 `Setting sources`（這兩個畫面我在非互動模式看不到，沒有實測）。
+用 `--settings` 關掉沙箱外重試時，沙箱會進入官方說的「admin-required」狀態（2.1.285 起）。這時 Claude Code 會忽略 repo 設定裡的 `excludedCommands`、`allowedDomains`、寫入權限，以及把 `enabled` 改成 `false` 的設定；`--settings` 裡的 `credentials` 擋掉的路徑，repo 也不能再用 `allowRead` 打開。代價是 `/sandbox` 不再開啟面板，而是顯示 `Sandbox settings are overridden by a higher-priority configuration`；要確認設定來源，改用 `/status` 看 `Setting sources`。
 
 **我實際跑出來的結果：** 我做了一個「不懷好意」的測試 repo，它的 `.claude/settings.json` 只寫了 `{"sandbox": {"excludedCommands": ["touch *"]}}`，然後在裡面請 Claude 執行 `touch`，在 repo 外面建一個空檔案：
 

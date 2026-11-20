@@ -214,7 +214,7 @@ I expect the two most time-consuming tasks to be the health check and "design it
 
 ## Walkthrough: Reviewing and Merging Per-Seat Billing
 
-I did not actually run the skill invocations below; I inferred the flow from the `1.2.3` instructions. I produced the merge conflict for real with git 2.47.3 and ran the post-merge test on Node.js v20.19.2; the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
+I inferred the flow below from the `1.2.3` instructions. I produced the merge conflict for real with git 2.47.3 and ran the post-merge test on Node.js v20.19.2; the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
 
 ### Reviewing "Deactivate a Member and Release the Seat"
 

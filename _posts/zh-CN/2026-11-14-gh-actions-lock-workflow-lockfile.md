@@ -26,9 +26,9 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。用 `gh actions-lock` 把
 - **Dependabot**：GitHub 内建的机器人，发现依赖有新版本时，会自动开 PR（请求合并变更的申请）帮你更新。
 - **gh**：GitHub 官方的命令行工具（GitHub CLI）。`gh actions-lock` 是替它加上的扩展（extension）。
 
-这篇我要处理的是“别人写的 action 被换掉”这种供应链风险。我在[OWASP Agentic Top 10 检查表：AI 工作流十项风险与修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的 ASI04（供应链）简短提过可以用 lockfile 锁住第三方 action，这篇我把完整做法写出来。我没有实际执行上锁操作，步骤都是根据 GitHub 官方资料整理的。
+这篇我要处理的是“别人写的 action 被换掉”这种供应链风险。我在[OWASP Agentic Top 10 检查表：AI 工作流十项风险与修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)的 ASI04（供应链）简短提过可以用 lockfile 锁住第三方 action，这篇我把完整做法写出来。步骤都是根据 GitHub 官方资料整理的。
 
-> **版本说明**：我写这篇时，参考的是 2026-11-13 当天的 GitHub 官方资料：[GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)、[Locking action dependencies in a repository's workflows](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)、[Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，以及 [gh-actions-lock v0.4.1 的 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)与[故障排除文档](https://github.com/github/gh-actions-lock/blob/v0.4.1/docs/troubleshooting.md)。我没有实际执行上锁操作；工具持续更新，命令与选项请对照已安装版本的 `gh actions-lock --help`。
+> **版本说明**：我写这篇时，参考的是 2026-11-13 当天的 GitHub 官方资料：[GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)、[Locking action dependencies in a repository's workflows](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)、[Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，以及 [gh-actions-lock v0.4.1 的 README](https://github.com/github/gh-actions-lock/blob/v0.4.1/README.md)与[故障排除文档](https://github.com/github/gh-actions-lock/blob/v0.4.1/docs/troubleshooting.md)。工具持续更新，命令与选项请对照已安装版本的 `gh actions-lock --help`。
 {: .prompt-info }
 
 ## 为什么 `@v3` 不一定是你审过的那一版

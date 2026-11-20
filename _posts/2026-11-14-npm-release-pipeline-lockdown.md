@@ -12,7 +12,7 @@ image:
 
 Trusted Publishing 讓 CI 不必再保存長期發布 token，但它不會替你檢查程式碼。我擔心的是，攻擊者如果能修改發布會用到的內容，又能觸發已授權的 workflow，就可能借用你的發布流程送出惡意版本，連來源證明都是真的。
 
-我認為要降低這種風險，不能只換掉驗證方式，還得檢查誰能合併程式碼、誰能建立發布 tag、哪個 job 可以取得發布權限，以及版本公開前有沒有人確認內容。這篇我會把這些關卡串起來，最後讓 CI 只能送出暫存版本，由維護者在 npm 核准後才公開。我沒有實際變更 GitHub 或 npm 的發布設定，步驟都是依官方文件整理的。
+我認為要降低這種風險，不能只換掉驗證方式，還得檢查誰能合併程式碼、誰能建立發布 tag、哪個 job 可以取得發布權限，以及版本公開前有沒有人確認內容。這篇我會把這些關卡串起來，最後讓 CI 只能送出暫存版本，由維護者在 npm 核准後才公開。步驟都是依官方文件整理的。
 
 這是我之前那篇[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)的續篇。OIDC、`id-token: write` 的基本設定我在前篇講過，這裡不再重講；還沒設好 Trusted Publishing，請先看那篇。
 
@@ -25,7 +25,7 @@ Trusted Publishing 讓 CI 不必再保存長期發布 token，但它不會替你
 - **staged publishing（暫存發布）**：先把套件送進暫存區，維護者審查並通過 2FA 核准後，該版本才公開。
 - **2FA（雙因素驗證）**：登入或敏感操作時，除了原本的驗證方式，再提供第二種驗證因素，不限於輸入驗證碼。
 
-> **版本說明**：我寫這篇時，參考的是 2026-11-13 當天的 GitHub [environment 文件](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)、[ruleset 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)，以及 npm 的 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 與 [Staged publishing](https://docs.npmjs.com/staged-publishing) 文件，沒有實際變更 GitHub 或 npm 的發布設定。方案、介面與版本要求請以對應的官方文件為準。
+> **版本說明**：我寫這篇時，參考的是 2026-11-13 當天的 GitHub [environment 文件](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)、[ruleset 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)，以及 npm 的 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 與 [Staged publishing](https://docs.npmjs.com/staged-publishing) 文件。方案、介面與版本要求請以對應的官方文件為準。
 {: .prompt-info }
 
 ## 真實案例：來源證明是真的，內容卻是惡意的

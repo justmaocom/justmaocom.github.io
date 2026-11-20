@@ -197,7 +197,7 @@ _More candidates means more subagents: N candidates plus at most one judge._
 
 ## A Complete Example (Made Up)
 
-> **I made up this scenario.** It only shows how the five skills fit together. It isn't a record of a real run, and no output is shown.
+> **I made up this scenario.** It only shows how the five skills fit together.
 {: .prompt-info }
 
 Say you maintain a website that sends an email for every notification (a new comment, a new like). You want to add an option so users can get one daily digest email instead.

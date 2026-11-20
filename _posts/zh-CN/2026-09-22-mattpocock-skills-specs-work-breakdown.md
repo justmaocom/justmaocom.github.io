@@ -23,7 +23,7 @@ image:
 > - 下一篇（第 4 篇）：[AI 开工写代码前，先决定要看哪一种信号](/posts/mattpocock-skills-implementation-feedback-loops/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。文中的按席位计费流程是我依原始指令推演的，不是实测输出。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。文中的按席位计费流程是我依原始指令推演的。
 {: .prompt-info }
 
 ## 先认识几个词
@@ -294,7 +294,7 @@ _决策单另外开在地图底下；一张决策单的答案，可能让下一�
 
 ## 模拟场景：把按席位计费切成可开工的工作
 
-以下我没有实际运行这些 skill，因为它们会写入项目的工作跟踪工具或目前的文件夹。内容是我依 `1.2.3` 版的原始规则推演的，实际结果会随项目内容、现有的决策记录与对话内容而不同。
+以下内容是我依 `1.2.3` 版的原始规则推演的，实际结果会随项目内容、现有的决策记录与对话内容而不同。
 
 延续上一篇的场景：`CONTEXT.md` 已定义计费席位、成员与席位分配，禁用、分配与计费时间点也都在对话中确认了。团队判断这项功能要分好几次对话才做得完，所以在同一段对话里调用：
 

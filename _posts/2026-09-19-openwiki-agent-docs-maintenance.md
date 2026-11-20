@@ -13,7 +13,7 @@ image:
 > **版本提醒（2026-10-19 查證）**：這篇我分析的是 OpenWiki `0.5.2`（commit `715109a`），npm 上最新已是 `0.7.2`（2026-10-10）。[`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同時處理多個頁面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。預設值仍是 1，要調高才會平行處理；透過 coding agent 整合執行時也仍然逐頁處理。所以下文說 page job「依序處理」、worker「一次只處理目前排到的 page job」，只在調高這個設定時不成立。是否全面更新這篇，我之後會另行評估。
 {: .prompt-warning }
 
-`AGENTS.md` 適合放建置指令與工作規則，不適合塞進完整的架構說明。coding agent 接手陌生 repo 時，仍得從原始碼和測試找出模組關係、資料流與失敗處理。OpenWiki 的做法是把這些資訊整理到 repo 內的 wiki，讓 agent 需要時再讀。我想查的是，程式碼改變後，它如何找出需要重寫的頁面，以及更新結果可以信到什麼程度。寫這篇時，我主要讀原始碼，只在本機確認過 CLI 能啟動，沒有執行完整生成。
+`AGENTS.md` 適合放建置指令與工作規則，不適合塞進完整的架構說明。coding agent 接手陌生 repo 時，仍得從原始碼和測試找出模組關係、資料流與失敗處理。OpenWiki 的做法是把這些資訊整理到 repo 內的 wiki，讓 agent 需要時再讀。我想查的是，程式碼改變後，它如何找出需要重寫的頁面，以及更新結果可以信到什麼程度。寫這篇時，我主要讀原始碼，並在本機確認過 CLI 能啟動。
 
 [LangChain 發表 OpenWiki 時](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation)，主張 agent 指引檔只要指向 repo wiki，coding agent 就能按需求取用文件，不必把大量說明塞進單一指引檔。這種分工讓指引檔維持簡短，卻增加了一份會隨程式碼過期的 wiki。以下我分別從更新流程與來源檢查，看 OpenWiki 如何處理這個問題。
 
@@ -75,7 +75,7 @@ _Claims 全綠後，仍需人工核對文件敘述。_
 
 OpenWiki 會增加模型呼叫、CI 設定與人工審查。導入前，我至少會確認下列成本由誰承擔。
 
-- 每次生成與更新都會呼叫模型。[README 的 quick start](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 要求設定模型服務商、API 金鑰與模型名稱。帳單、執行時間和輸出品質會隨模型與 repo 內容改變。我寫這篇時沒有執行完整生成，因此沒有這些項目的實測數字。
+- 每次生成與更新都會呼叫模型。[README 的 quick start](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 要求設定模型服務商、API 金鑰與模型名稱。帳單、執行時間和輸出品質會隨模型與 repo 內容改變。
 - 官方 [`openwiki-update.yml`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/examples/openwiki-update.yml#L1) 會取回完整 Git history，讓 OpenWiki 能比較前後 commit。它也需要模型金鑰，以及 `contents: write` 和 `pull-requests: write` 權限，用來提交文件變更與建立 PR。這些權限應和其他能寫入 repo 的自動化一樣接受審查。
 - `--init` 會建立 `openwiki/`、修改 agent 指引，還可能新增 GitHub Actions workflow。第一次執行後，審查範圍應包含所有 diff，而非只有生成的 wiki 頁面。
 - Claims 會把文件敘述帶到確切的原始碼位置，但點開連結不等於完成審查。審查者仍要比較敘述、引用範圍與相關測試。
@@ -104,7 +104,7 @@ PATH="$check_prefix/bin:$PATH" openwiki --help
    openwiki [--init|--update] [message]
 ```
 
-這篇我只驗證了 CLI 能啟動，沒有提供模型憑證，也沒有執行完整生成。下列 `--init` 與 `--update` 是專案 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始指令。由於 `--init` 會修改 agent 指引並可能新增 workflow，我建議第一次測試放在可丟棄的 repo 或沒有其他變更的測試分支。
+這篇我驗證了 CLI 能啟動。下列 `--init` 與 `--update` 是專案 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始指令。由於 `--init` 會修改 agent 指引並可能新增 workflow，我建議第一次測試放在可丟棄的 repo 或沒有其他變更的測試分支。
 
 ```bash
 openwiki --init

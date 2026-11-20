@@ -21,7 +21,7 @@ image:
 
 其他術語會在第一次出現時說明。我想解決的問題很具體：**每次送審，都能說清楚檢查了什麼、檢查的是哪一版，以及還有哪些事必須由人決定。**
 
-> **查證範圍**：我在 2026-11-07 查閱了本站原始碼與公開 PR。站台設定以 commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995) 為準，案例是已合併的 [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29)。文末的自訂 Codex Action 只是擴充範例：我沒有替本站安裝或啟用它，文中設定也不代表已驗證、可直接使用。
+> **查證範圍**：我在 2026-11-07 查閱了本站原始碼與公開 PR。站台設定以 commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995) 為準，案例是已合併的 [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29)。文末的自訂 Codex Action 只是擴充範例。
 {: .prompt-info }
 
 ## 什麼時候需要這套流程
@@ -115,7 +115,7 @@ _三件事分開做：固定規則、需要推理的疑點，以及能不能合�
 @codex review
 ```
 
-這行是給讀者參考的操作指令，我沒有替案例 PR 送出新留言。一次性的重點可以接在後面，例如官方文件的這行：
+這行是給讀者參考的操作指令。一次性的重點可以接在後面，例如官方文件的這行：
 
 ```text
 @codex review for issues in the database migration
@@ -170,7 +170,7 @@ AI：列出受審 head、報告連結、未涵蓋範圍
 
 ## 進階：何時才需要自訂 Codex Action
 
-> 我沒有替本站安裝或啟用這一節的設定。以下是擴充範例，不是本站現行的流程。
+> 以下是擴充範例，不是本站現行的流程。
 {: .prompt-info }
 
 如果你需要固定的報告格式、讓文章和程式碼使用不同的審查提示，或把結果接到既有的審核工具，可以考慮 [`openai/codex-action`](https://github.com/openai/codex-action/tree/bdf19a4a223ec2549a3e2274a0cf61556bc07675)。它會在 runner（實際執行 Actions 工作的機器）上安裝 Codex CLI（Codex 的命令列工具），透過 API 執行任務；API key（呼叫服務用的金鑰）與用量都要自行設定與管理。這和本站 PR 裡看到的 Codex GitHub 整合，是不同的接法。
@@ -194,7 +194,7 @@ AI：列出受審 head、報告連結、未涵蓋範圍
 
 這個範例固定在特定版本的 [README](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md) 說明，permission profiles 需要 Codex CLI `0.138.0` 以上，我查閱時仍是 beta（測試階段）。`:read-only` 限制命令能存取的檔案與網路；`drop-sudo` 處理程序的權限，兩者分工不同。不要同時填 `permission-profile` 和舊的 `sandbox` input，action 會在啟動前拒絕。`safety-strategy: read-only` 會改走舊的唯讀 sandbox，因此也不能和 permission profile 一起用；它不是 `:read-only` 的另一種寫法。
 
-`uses` 那一行最後的長編號就是 SHA，用來固定 action 的版本。但它只固定 action 本身，不會自動固定它安裝的 Codex CLI 或使用的模型。正式導入時，還要選定測過的 `codex-version`、模型與報告格式，記錄這些版本，並確認 runner 支援所需的隔離機制。我不替沒跑過的組合填入一組看似保證可用的版本號。
+`uses` 那一行最後的長編號就是 SHA，用來固定 action 的版本。但它只固定 action 本身，不會自動固定它安裝的 Codex CLI 或使用的模型。正式導入時，還要選定測過的 `codex-version`、模型與報告格式，記錄這些版本，並確認 runner 支援所需的隔離機制。
 
 依照[官方安全建議](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md)：
 

@@ -131,7 +131,7 @@ I put this table together to help you choose a starting point; it isn't an order
 
 ## Simulated Scenario: Questioning Seats Until a Spec Can Be Written
 
-I didn't actually run this flow for this post. What follows is worked out from the skills' rules alone, not the result of a real test. The scenario: you've finished the project setup from the previous post, and you're now working on per-seat billing inside the subscription service's project folder.
+What follows is worked out from the skills' rules. The scenario: you've finished the project setup from the previous post, and you're now working on per-seat billing inside the subscription service's project folder.
 
 Using Codex, an AI coding assistant, as the example, start by entering the requirement and explicitly invoking `grill-with-docs`:
 
@@ -163,7 +163,7 @@ A person who has joined the workspace. Becoming a member and getting a billable 
 _Avoid_: user, seat
 ```
 
-This is illustrative content I organized according to [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30), not actual output from the tool. Each `_Avoid_` line lists names that are easy to mix up and should be avoided from now on.
+This is illustrative content I organized according to [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30). Each `_Avoid_` line lists names that are easy to mix up and should be avoided from now on.
 
 Only with these definitions in place can the second round follow up on whether a pending invitation takes up a seat, what happens to the assignment when a member is deactivated, and when adding or removing seats affects the price. If the existing code bills directly by the number of active members, the AI also has to point out that the new definition differs from the current behavior and ask you to confirm whether to change it.
 

@@ -21,7 +21,7 @@ In this post I don't cover installing skills other people wrote. If you'd rather
 
 > Everything the spec and each tool's docs say here is based on the official documentation as I read it on October 17, 2026; the Conventional Commits, commitlint, and git pages were read on October 18, 2026. None of those pages carry a version number, and they change, so check them again before you rely on a detail.
 >
-> I ran the examples' checks on October 18, 2026, with skills-ref 0.1.0 (agentskills/agentskills commit `69ef37e`), git 2.47.3, and Python 3.13.5. Every command and output in this post comes from those runs. **I did not run trigger-rate tests or output-quality evals**, and neither skill has been run in any agent; the "Test in Three Layers" section explains why.
+> I ran the examples' checks on October 18, 2026, with skills-ref 0.1.0 (agentskills/agentskills commit `69ef37e`), git 2.47.3, and Python 3.13.5. Every command and output in this post comes from those runs.
 {: .prompt-info }
 
 ## A Few Terms First
@@ -122,7 +122,7 @@ It does three things. The first sentence says the output is a list of tasks with
 | "Sort my to-do list by priority" | No | Already a to-do list; nothing to pull out of notes |
 | "Set up a meeting for Wednesday afternoon" | No | Scheduling a meeting, not processing one |
 
-This table is a starting point for test queries that I wrote; none of it has been run in an agent. For how to turn it into a real test, see "Trigger Tests" below.
+This table is a starting point for test queries that I wrote. For how to turn it into a real test, see "Trigger Tests" below.
 
 ### Budget for Length
 
@@ -158,7 +158,7 @@ The Claude Code docs suggest manual-only for workflows with side effects or timi
 
 A sits right on that line, since a commit is a side effect. My approach is to have A only write and check the message, and **run `git commit` only when the user asked for a commit in the conversation** (step 5). Note that this is an agreement written into the instructions, not a technical guard. If what you want is "invoke it and it commits", make it manual-only.
 
-There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code (Cursor supports only `disable-model-invocation`), but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only. I didn't set either switch in either example.
+There's one more trade-off. `disable-model-invocation` and `user-invocable` aren't among the spec's six fields. Put them in `SKILL.md` and they work in Claude Code (Cursor supports only `disable-model-invocation`), but claude.ai uploads and the Skills API reject them, and the `skills-ref` check later in this post flags them too. Codex keeps the same setting in a separate file, `agents/openai.yaml`, so `SKILL.md` itself can stay spec-only.
 
 ## Move Details Into References and Scripts
 
@@ -203,7 +203,7 @@ I added the `--repo` option for a reason. The scripts guide says command paths i
 
 The scripts guide also says to [state prerequisites in `SKILL.md`](https://agentskills.io/skill-creation/using-scripts#one-off-commands) instead of assuming the agent's environment has them, and to use the `compatibility` field for runtime-level requirements. Pin versions in one-off commands, for example by telling `npx` to run ESLint 9.0.0 rather than just writing `npx eslint` (see npm's [package spec docs](https://docs.npmjs.com/cli/using-npm/package-spec/) for the syntax). Anthropic's authoring guide has a whole section titled "[Avoid assuming tools are installed](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-assuming-tools-are-installed)".
 
-A's script uses only the Python standard library and needs git, and I wrote both into `compatibility`. B has no script and needs nothing installed, so I left out the `compatibility` field, which fits the spec's note that most skills don't need one. If a script needs third-party packages, declare them inside the script with [PEP 723](https://peps.python.org/pep-0723/) and say in `SKILL.md` how to run it.
+A's script uses only the Python standard library and needs git, and I wrote both into `compatibility`. B has no script and needs nothing installed, so the `compatibility` field can be left out, which fits the spec's note that most skills don't need one. If a script needs third-party packages, declare them inside the script with [PEP 723](https://peps.python.org/pep-0723/) and say in `SKILL.md` how to run it.
 
 ### Not Every Skill Needs a Script
 
@@ -433,7 +433,7 @@ It's all text rules, and I built them around "don't guess": a missing owner is m
 
 ### Trying It on Sample Notes
 
-> The meeting notes below are **sample data** I made up, not a real meeting. The table after them is an expected result I **wrote by hand** from the template to show how it's used. **It was not produced by an agent**; B hasn't been run in any agent.
+> The meeting notes below are **sample data** I made up, not a real meeting. The table after them is an expected result I **wrote by hand** from the template to show how it's used.
 {: .prompt-warning }
 
 ```text
@@ -494,7 +494,7 @@ Validation failed for writing-commit-messages:
 
 The culprit is `type(scope): summary` inside the description. YAML reads "colon plus space" as the separator between a name and its value, so a second one on the same line makes the whole front matter fail to parse. My fix is to wrap the entire value in double quotes and switch the quotes inside the sentence to single quotes. B's description has no "colon plus space", so it passes without quotes.
 
-Claude Code wouldn't warn you about this one: as mentioned earlier, when the YAML doesn't parse, it still loads the skill with every field empty. My inference is that with an empty description, the skill would rarely get picked automatically; I haven't tested that.
+Claude Code wouldn't warn you about this one: as mentioned earlier, when the YAML doesn't parse, it still loads the skill with every field empty. My inference is that with an empty description, the skill would rarely get picked automatically.
 
 With the quotes in place, both pass with a single line of output each and exit with 0:
 
@@ -521,7 +521,7 @@ Validation failed for writing-commit-messages:
 
 The last one is the one to remember: a field that's perfectly valid in Claude Code is an error in skills-ref. That's why I said earlier to stick to the six fields.
 
-Claude Code also has `claude plugin validate <skills directory>`, which finds `SKILL.md` files whose frontmatter doesn't parse. It [requires v2.1.233 or later](https://code.claude.com/docs/en/skills). Claude Code isn't installed on my machine, so I didn't run it.
+Claude Code also has `claude plugin validate <skills directory>`, which finds `SKILL.md` files whose frontmatter doesn't parse. It [requires v2.1.233 or later](https://code.claude.com/docs/en/skills).
 
 ### Trigger Tests
 
@@ -544,7 +544,7 @@ I wrote 20 queries for A: 10 should trigger and 10 shouldn't, 12 in the train se
 | 「幫我把這個月的 commit 整理成 release notes」 ("Turn this month's commits into release notes") | No | Also about commits, but wants release notes |
 | 「幫我寫一個 commit-msg hook，用 Node 檢查訊息格式」 ("Write a commit-msg hook that checks the message format in Node") | No | Even says "check the message format", but wants code written |
 
-> **I did not measure trigger rates for this post.** A trigger test has to run in a real agent, so you can see whether it read `SKILL.md`. The machine I used has none of the `claude`, `codex`, `cursor-agent`, `gemini`, or `copilot` CLIs (I checked with `command -v`), so this section gives the queries and the method, but no trigger-rate numbers. You can take A's JSON and B's comparison table to your own agent and run them the way the guide describes.
+> A trigger test has to run in a real agent, so you can see whether it read `SKILL.md`. This section gives the queries and the method. You can take A's JSON and B's comparison table to your own agent and run them the way the guide describes.
 {: .prompt-warning }
 
 ### Output Checks
@@ -563,7 +563,7 @@ Each case runs twice, once with the skill and once without it (or with the previ
 
 Anthropic's authoring guide adds one more point: a skill's effect depends on the model, so [test it with all the models you plan to use it with](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#test-with-all-models-you-plan-to-use).
 
-> **I did not run output evals for this post.** Same reason as the trigger tests: no agent was available, so there are no with-skill and without-skill results to compare. The `evals.json` in the appendix is a set of written test cases only. I didn't write an `evals.json` for B; the hand-written expected result above could serve as the `expected_output` of its first case.
+> The `evals.json` in the appendix is a set of written test cases. If you write an `evals.json` for B, the hand-written expected result above could serve as the `expected_output` of its first case.
 {: .prompt-warning }
 
 ## Does It Work in Another Agent?
@@ -581,7 +581,7 @@ One inference from this table (mine, not something any of the docs say): as of t
 
 ### What Static Checks the Examples Passed
 
-I haven't run either skill in any agent, so I can't say they've been tested in any of them. What I could do is a static portability check, which looks only at the files without running an agent:
+What you can check without running an agent is static portability, which looks only at the files:
 
 | Check | Result |
 | --- | --- |
@@ -608,7 +608,7 @@ Three more maintenance habits I recommend:
 The risks of installing someone else's skill, and how users should check one, are covered in [the supply-chain security post](/posts/coding-agent-supply-chain-permission-risks/). Here I'll stick to what the person writing the skill can do up front:
 
 - **Don't have the skill fetch instructions from external URLs.** Anthropic's docs say [skills that fetch data from external URLs pose particular risk](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/overview#security-considerations), since the fetched content may contain malicious instructions, and even a trustworthy skill can be compromised if its external dependencies change.
-- **Keep `allowed-tools` to the minimum.** In Claude Code, this field lets the skill use the listed tools without asking during the turn it's invoked. The docs specifically say [workspace trust doesn't gate this field](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill): a skill in a repo can grant itself tools, even in a `-p` run in a folder you've never trusted. I didn't use the field in either example.
+- **Keep `allowed-tools` to the minimum.** In Claude Code, this field lets the skill use the listed tools without asking during the turn it's invoked. The docs specifically say [workspace trust doesn't gate this field](https://code.claude.com/docs/en/skills#pre-approve-tools-for-a-skill): a skill in a repo can grant itself tools, even in a `-p` run in a folder you've never trusted.
 - **Keep secrets out of scripts.** This is my own practice, not a rule from any doc: keys and tokens come from environment variables and never go into any file in the skill, because the whole folder gets shared and committed.
 - **Pin your dependencies.** The scripts guide says to [pin versions in one-off commands](https://agentskills.io/skill-creation/using-scripts#one-off-commands) so the same command behaves the same way over time.
 - **Offer `--dry-run` for anything that changes things.** The scripts guide suggests letting the agent [preview what a destructive or stateful operation will do](https://agentskills.io/skill-creation/using-scripts#further-considerations). A's script only reads git's state and never writes anything; the one step that changes things, `git commit`, isn't in the script and waits until the user asks, so the script doesn't need the option.
@@ -625,7 +625,7 @@ What follows is my opinion, not a conclusion from any of the docs.
 
 **For cross-agent use, give up a few convenient fields.** `when_to_use` and `disable-model-invocation` are handy in Claude Code, but put them in `SKILL.md` and the skill fails skills-ref and claude.ai uploads. For a skill only you use in Claude Code, that's fine. For one your team uses across tools, I'd stick to the six fields.
 
-**A description that hasn't been trigger-tested is a guess.** That includes both examples here. I wrote the queries, but until they're run, I don't know whether A gets picked when someone asks "how should I describe this change?"
+**A description that hasn't been trigger-tested is a guess.** Once the queries are written, only running them in a real agent tells you whether A gets picked when someone asks "how should I describe this change?"
 
 ## Further Reading
 

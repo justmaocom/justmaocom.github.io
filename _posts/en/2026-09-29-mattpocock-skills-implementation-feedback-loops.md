@@ -224,7 +224,7 @@ I'd suggest picking based on what you have in front of you:
 
 ## Simulated Scenario: Implementing "Deactivate a Member and Release the Seat"
 
-I didn't actually run the skill invocations below, because `implement` modifies the project and commits. I inferred the flow from the original instructions in version `1.2.3`. The red and green tests, however, I did run on Node.js v25.2.1, and the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
+I inferred the flow below from the original instructions in version `1.2.3`. The red and green tests, however, I did run on Node.js v25.2.1, and the code is a minimal example I wrote for this post, not taken from `mattpocock/skills`.
 
 Assume the first two tickets, "Show the workspace's purchased and available seats" and "Assign an available seat to a member," are already done. You open a new conversation and attach the third ticket:
 

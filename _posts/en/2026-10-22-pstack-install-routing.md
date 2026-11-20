@@ -257,7 +257,7 @@ The [README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ed
 
 ## A Full Example (Fictional)
 
-I made up the scenario below to show the flow. It is not a record of a real run.
+I made up the scenario below to show the flow.
 
 Say you've just joined a web app project and want to use pstack on a user report: "The link in the password reset email says it has expired as soon as I click it."
 

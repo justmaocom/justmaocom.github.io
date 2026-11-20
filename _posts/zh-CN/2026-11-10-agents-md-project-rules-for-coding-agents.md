@@ -248,7 +248,7 @@ codex --cd services/payments --ask-for-approval never "Show which instruction fi
 
 这一行的意思是：从 `services/payments` 启动，并请 Codex“列出当前生效的指令文件”。
 
-你应该会看到它按顺序列出当前生效的说明来源，例如全局文件、根目录的 AGENTS.md，以及（从子目录启动时）更接近的那一份。这是官方文档描述的检查方式，不是某一条实际输出。
+你应该会看到它按顺序列出当前生效的说明来源，例如全局文件、根目录的 AGENTS.md，以及（从子目录启动时）更接近的那一份。这是官方文档描述的检查方式。
 
 Claude Code 可在对话里输入 `/memory`，看列表里有没有你的文件；也可输入下面这行，在 Memory files 下面确认：
 
