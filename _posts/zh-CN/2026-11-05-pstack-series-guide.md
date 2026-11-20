@@ -90,10 +90,29 @@ _先找出你现在卡在哪一步，再点进对应的那一篇；不必把四�
 | 你的情况 | 建议从哪里开始 |
 | --- | --- |
 | 还没装过，或不知道命令怎么调用 | [第 1 篇](/posts/pstack-install-routing/) |
+| 要从零开始一个新项目，repo 还是空的 | 先看下方的“新项目怎么走” |
 | 已会用 `/poteto-mode`，但经常一动手就改错方向 | [第 2 篇](/posts/pstack-understand-design/) |
 | 功能写完了，卡在“怎样才算证明能用”或开 PR | [第 3 篇](/posts/pstack-build-verify-merge/) |
 | 日常使用已经上手，想用原则指挥、做自己的 mode，或让它无人值守地跑 | [第 4 篇](/posts/pstack-principles-customization/) |
 | 只想先知道这套东西是什么 | 先读完这篇，再按上表跳过去 |
+
+### 新项目怎么走
+
+四篇的例子都是已经有代码的项目，pstack 也没有专为新项目写的 playbook。repo 还是空的时候，我会按 [`foundational-thinking`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/principle-foundational-thinking/SKILL.md#L13) 这条原则安排顺序。它要求先做能帮到之后每个阶段的东西，例如 CI、测试和共享类型。
+
+1. 按[第 1 篇](/posts/pstack-install-routing/)安装。`/setup-pstack` 问要不要生成验证用的 skill 时，先拒绝，因为项目还不能启动。
+2. 跳过[第 2 篇](/posts/pstack-understand-design/)的 `/how` 和 `/why`，空的 repo 没有代码和历史可读。直接用同一篇的原型和 `/architect` 决定核心的数据形状。
+3. 用写计划把工作拆成 PR。第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架。`/tdd` 找不到现成的测试路径时，不会为了走流程从零建一条（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L16)），所以测试框架要先放进来。
+4. 骨架能启动之后，再运行 `/create-verification-skill`。项目不能构建或启动时，它会先修好或报告问题，再生成验证 skill（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/create-verification-skill/SKILL.md#L21)）。
+5. 之后每个功能都按[第 3 篇](/posts/pstack-build-verify-merge/)的流程做。提示里“哪些既有的行为不能变”，填前面几个 PR 已经验证过的行为。
+
+第 3 步的提示可以这样写：
+
+```text
+/pstack:poteto-mode 把这个设计写成计划。第一个 PR 只放 CI、测试框架、共享类型和一个能启动的骨架。之后一个 PR 做一个功能，每个都有自己的验证步骤。
+```
+
+骨架合并之后，项目就已经有代码了，四篇都可以按原来的方式使用。
 
 ## 版本说明
 
