@@ -24,7 +24,14 @@ Modern Web Guidance 的 SKILL.md 開頭寫，模型訓練資料裡有過時的�
 Modern Web Guidance 分成兩部分：
 
 - skill 是一份 SKILL.md，加上 `guides/` 資料夾裡的指南。我裝進專案後數了一下，`guides/` 底下有 210 份 Markdown。
-- CLI 是 npm 套件 `modern-web-guidance`。agent 依 SKILL.md 的指示執行 `npx -y modern-web-guidance@latest search "<查詢>"` 找出相關指南的 ID，再用 `retrieve <ID>` 把整份指南讀進上下文。
+- CLI 是 npm 套件 `modern-web-guidance`。agent 依 SKILL.md 的指示先用 `search` 找出相關指南的 ID，再用 `retrieve` 把整份指南讀進上下文。
+
+SKILL.md 裡寫給 agent 的指令是這兩行：
+
+```bash
+npx -y modern-web-guidance@latest search "<query>" --skill-version 2026_11_10-47b4c80e
+npx -y modern-web-guidance@latest retrieve "<id>"
+```
 
 agent 什麼時候會用它，要看 SKILL.md 的 description。這段寫明所有 HTML、CSS 與前端 JavaScript 工作都要先執行它（MANDATORY: Execute FIRST），後面還列了一長串觸發主題，例如對話框、表格、深色模式、表單驗證、Core Web Vitals。description 怎麼影響觸發，我在〈[自己寫 Agent Skill](/posts/agent-skill-authoring-guide/)〉寫過。
 
@@ -32,7 +39,7 @@ agent 什麼時候會用它，要看 SKILL.md 的 description。這段寫明所�
 
 依 Modernization workflow 文件，`legacy-scan` 在本機用固定規則掃描專案，不呼叫任何模型。它只涵蓋能用靜態規則判斷的指南，我這次的掃描結果寫的是 38 份，約占全部指南的 20%。掃出來的結果還要由 agent 依每條規則附的保留條件（Keep when）與排除條件（Drop when）判斷是不是誤判。同一份文件也寫明它沒有 `--fix` 參數，它只負責找，修改交給 agent。
 
-文件首頁寫，公開評測中有指南時的通過率是 91%，沒有指南的前沿模型約 51%。README 另有一張逐次結果表，其中 11 月 8 日的 `claude_code (opus-5-5)` 一列是 57% → 88%。這些數字都來自官方頁面（2026-11-19 讀取），不是我測出來的。我自己跑的只有下面兩個範例。
+文件首頁寫，公開評測中有指南時的通過率是 91%，沒有指南的前沿模型約 51%。README 另有一張逐次結果表，其中 11 月 8 日的 `claude_code (opus-5-5)` 一列是 57% → 88%。這些數字都來自官方頁面（2026-11-19 讀取）。
 
 ## 準備：關掉使用紀錄、先看套件內容
 
@@ -44,7 +51,13 @@ export DISABLE_TELEMETRY=1
 
 這是關掉使用紀錄。我讀了 CLI 的原始碼，`search`、`retrieve`、`legacy-scan`、`install` 這些指令執行時，會在背景開一個獨立的子行程，把使用紀錄送到 `play.googleapis.com`。依 README 的 Telemetry & Privacy 段落，收集的內容包含安裝次數、呼叫它的 agent 名稱、取回的指南 ID，以及 agent 產生的搜尋字詞，不包含使用者原本的提示。設定 `DISABLE_TELEMETRY=1` 就不會送。所以搜尋本身雖然在本機比對，搜尋字詞預設還是會送出去。
 
-安裝前，我先用 `npm pack modern-web-guidance@1.0.1` 把套件下載下來看，作法和〈[Claude Code plugin 安全安裝](/posts/claude-code-plugin-safe-install/)〉一樣。1.0.1 的 `package.json` 沒有 `scripts`，所以安裝時不會跑安裝腳本。套件共 281 個檔案，解開後 17 MB，其中搜尋用的向量資料約 8.8 MB，打包成單一檔案的 `legacy-scan.mjs` 約 4.9 MB，指南約 1.9 MB。`install` 子指令只執行下面這行：
+安裝前，我先把套件下載下來看，作法和〈[Claude Code plugin 安全安裝](/posts/claude-code-plugin-safe-install/)〉一樣：
+
+```bash
+npm pack modern-web-guidance@1.0.1
+```
+
+1.0.1 的 `package.json` 沒有 `scripts`，所以安裝時不會跑安裝腳本。套件共 281 個檔案，解開後 17 MB，其中搜尋用的向量資料約 8.8 MB，打包成單一檔案的 `legacy-scan.mjs` 約 4.9 MB，指南約 1.9 MB。`install` 子指令只執行下面這行：
 
 ```bash
 npx -y skills add GoogleChrome/modern-web-guidance --skill modern-web-guidance
@@ -70,7 +83,13 @@ _search 回傳 JSON，retrieve 印出指南全文，這裡只截前 12 行（實
 
 ## 步驟二：安裝到專案
 
-官方文件的安裝指令是在專案資料夾執行 `npx modern-web-guidance@latest install`。我同樣固定版本，並加了兩個參數：
+官方文件的安裝方式是在專案資料夾執行：
+
+```bash
+npx modern-web-guidance@latest install
+```
+
+我同樣固定版本，並加了兩個參數：
 
 ```bash
 npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
@@ -81,7 +100,7 @@ npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
 ![終端機實際輸出：install 偵測到 claude agent 後以非互動方式安裝，從 GitHub clone 倉庫，找到 2 個 skill，選了 modern-web-guidance，最後複製到 ./.claude/skills/modern-web-guidance](term-install.webp){: w="1100" h="1002" }
 _我在 Claude Code 裡執行，所以輸出第一行是偵測到 claude agent（實際輸出）_
 
-因為我是在 Claude Code 裡執行，`skills` 偵測到 agent 環境，直接以非互動方式安裝。在一般終端機執行時，它可能會問你要裝給哪些 agent、裝在專案還是全域，這種情況我沒有試。最後一行提醒使用前先檢查 skill：「Review skills before use; they run with full agent permissions.」所以我裝完先看了裝進來的檔案。
+因為我是在 Claude Code 裡執行，`skills` 偵測到 agent 環境，直接以非互動方式安裝。在一般終端機執行時，它可能會問你要裝給哪些 agent、裝在專案還是全域。最後一行提醒使用前先檢查 skill：「Review skills before use; they run with full agent permissions.」所以我裝完先看了裝進來的檔案。
 
 專案裡多了兩樣東西：
 
@@ -90,29 +109,57 @@ _我在 Claude Code 裡執行，所以輸出第一行是偵測到 claude agent�
 - `.claude/skills/modern-web-guidance/`：只有 `SKILL.md` 和 `guides/`，沒有 CLI 本體。
 - `skills-lock.json`：記錄這份 skill 來自 GitHub 的哪個 commit（`64a6d70`）和內容雜湊值。
 
-lock 檔鎖住的是裝進專案的 SKILL.md 和 `guides/`，鎖不住 agent 實際用的 CLI。裝進來的 SKILL.md 叫 agent 執行的是 `npx -y modern-web-guidance@latest`，所以就算你安裝時寫了 `@1.0.1`，agent 每次查詢時跑的還是 npm 上當下的最新版。我讀了 1.0.1 的原始碼，`search` 和 `retrieve` 讀的是 CLI 套件自己附的索引和指南，不是專案裡的 `guides/` 資料夾。也就是說，agent 照 SKILL.md 查到的指南內容，同樣跟著 npm 上的最新版走。我比對過，這天裝進來的 SKILL.md 和指南，跟 npm 1.0.1 套件裡的內容完全相同。
+lock 檔鎖住的是裝進專案的 SKILL.md 和 `guides/`，鎖不住 agent 實際用的 CLI。前面提過，SKILL.md 叫 agent 執行的是 `modern-web-guidance@latest`，所以就算你安裝時寫了 `@1.0.1`，agent 每次查詢時跑的還是 npm 上當下的最新版。我讀了 1.0.1 的原始碼，`search` 和 `retrieve` 讀的是 CLI 套件自己附的索引和指南，不是專案裡的 `guides/` 資料夾。也就是說，agent 照 SKILL.md 查到的指南內容，同樣跟著 npm 上的最新版走。我比對過，這天裝進來的 SKILL.md 和指南，跟 npm 1.0.1 套件裡的內容完全相同。
 
 ### 更新與移除
 
-SKILL.md 每次呼叫 CLI 都會帶上 `--skill-version 2026_11_10-47b4c80e`，CLI 拿它和自己附的版本日期比對。依原始碼，CLI 附的版本比較新，而且裝進來的 SKILL.md 版本日期距今超過 5 天時，輸出會多一段提醒更新的訊息；超過 60 天，訊息會要 agent 堅持請使用者更新。官方 Get started 文件說，用 CLI 安裝可以「enable automatic updates」，但我在 modern-web-guidance 1.0.1 的原始碼裡只看到比對版本後提醒，沒有自動更新的程式；實際負責安裝的 `skills` 工具我沒有查。
+SKILL.md 裡的 `search` 指令帶了 `--skill-version 2026_11_10-47b4c80e`，CLI 拿它和自己附的版本日期比對。依原始碼，CLI 附的版本比較新，而且裝進來的 SKILL.md 版本日期距今超過 5 天時，輸出會多一段提醒更新的訊息；超過 60 天，訊息會要 agent 堅持請使用者更新。官方 Get started 文件說，用 CLI 安裝可以「enable automatic updates」；就 modern-web-guidance 1.0.1 的原始碼來看，CLI 本身做的是比對版本後提醒。
 
-要更新時，在專案資料夾執行：
+要更新或移除時，在專案資料夾執行：
 
 ```bash
+# 更新
 npx modern-web-guidance@latest update
+# 移除
+npx modern-web-guidance@latest uninstall
 ```
 
-它會轉給 `npx -y skills update`。要移除則執行 `uninstall`，它會轉給 `skills remove`。這兩個指令我只讀了原始碼，沒有實際執行。
+依原始碼，`update` 會轉給 `skills update`，`uninstall` 會轉給 `skills remove`。
 
 ### 其他安裝方式
 
-依官方文件，也可以用 `npx skills add GoogleChrome/modern-web-guidance` 安裝。Claude Code 使用者還可以先執行 `claude plugin marketplace add GoogleChrome/modern-web-guidance`，再執行 `claude plugin install modern-web-guidance@googlechrome`，以 plugin 安裝。這兩種我沒有試。README 另外提醒，以前從 `claude-plugins-official` 裝的版本自 10 月 12 日起停在 `v0.0.194`，要移除後改從 `googlechrome` marketplace 重新安裝。[Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) 文件也列了 GitHub CLI、Gemini CLI、Codex、Copilot CLI 等其他 agent 的安裝方式，這些我都沒有試。
+依官方文件，也可以直接用 `skills` 安裝；Claude Code 使用者還可以用 plugin 的方式安裝：
+
+```bash
+# 用 skills 安裝
+npx skills add GoogleChrome/modern-web-guidance
+# 以 Claude Code plugin 安裝
+claude plugin marketplace add GoogleChrome/modern-web-guidance
+claude plugin install modern-web-guidance@googlechrome
+```
+
+README 另外提醒，以前從 `claude-plugins-official` 裝的版本自 10 月 12 日起停在 `v0.0.194`，要移除後改從 `googlechrome` marketplace 重新安裝。[Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started) 文件也列了 GitHub CLI、Gemini CLI、Codex、Copilot CLI 等其他 agent 的安裝方式。
 
 ### Baseline 目標與實驗功能
 
-指南會依 Baseline 判斷一個功能能不能直接用。依 Get started 文件，沒有指定時預設目標是 Baseline Widely available；要改的話，在 `AGENTS.md` 或 `CLAUDE.md` 寫一句像「This project's Baseline target is Baseline 2024.」這樣的說明。這次我沒有設，用的是預設值。
+指南會依 Baseline 判斷一個功能能不能直接用。依 Get started 文件，沒有指定時預設目標是 Baseline Widely available；要改的話，在 `AGENTS.md` 或 `CLAUDE.md` 寫一句這樣的說明：
 
-另外有兩類指南預設不會提供給 agent：只在一個瀏覽器引擎實作、之後可能改動的 volatile features，以及還在 origin trial 的功能。要開啟的話，在專案根目錄分別執行 `npx modern-web-guidance@latest set-allow-volatile-features` 或 `set-allow-origin-trials`。依 1.0.1 的原始碼，這兩個指令偵測到 agent 環境或非互動終端機時會拒絕執行，要你自己在終端機裡跑。這兩項我也沒有開。
+```text
+This project's Baseline target is Baseline 2024.
+```
+
+這次用的是預設值。
+
+另外有兩類指南預設不會提供給 agent：只在一個瀏覽器引擎實作、之後可能改動的 volatile features，以及還在 origin trial 的功能。要開啟的話，在專案根目錄執行對應的指令：
+
+```bash
+# volatile features
+npx modern-web-guidance@latest set-allow-volatile-features
+# origin trial
+npx modern-web-guidance@latest set-allow-origin-trials
+```
+
+依 1.0.1 的原始碼，這兩個指令偵測到 agent 環境或非互動終端機時會拒絕執行，要你自己在終端機裡跑。
 
 ## 步驟三：準備一個有舊寫法的留言板
 
@@ -249,7 +296,7 @@ _五種舊寫法全被找到，自動長高的那段算成兩個項目（實際�
 
 ## 步驟五：交給 Claude Code 修改
 
-我讓 Claude Code 以非互動模式（`-p`）執行，這樣整個過程可以錄成 JSON 事後檢查。提示用的是 1.0 發布文章裡的寫法 `/modern-web-guidance Modernize the code in this directory`，也就是直接叫用這個 skill，所以這次沒有測到 agent 會不會自己判斷要用它。
+我讓 Claude Code 以非互動模式（`-p`）執行，這樣整個過程可以錄成 JSON 事後檢查。提示用的是 1.0 發布文章裡的寫法，以斜線指令直接叫用這個 skill：
 
 ```bash
 claude -p "/modern-web-guidance Modernize the code in this directory" \
@@ -265,13 +312,13 @@ claude -p "/modern-web-guidance Modernize the code in this directory" \
 
 - `--setting-sources project` 只讀專案的設定，不載入我自己的使用者設定和 plugin。執行紀錄的 init 事件顯示，載入的 skill 除了 Claude Code 內建的那些，只有 modern-web-guidance。
 - `--permission-mode acceptEdits` 讓它可以直接改檔。
-- `--allowedTools` 只放行讀檔、改檔，以及 SKILL.md 自己建議放行的 `npx -y modern-web-guidance@latest *`。我的電腦有裝 pnpm，SKILL.md 說有 pnpm 時會優先用 `pnpx`，所以 `pnpx` 也一起放行。這次 agent 沒有用到 `pnpx`。
+- `--allowedTools` 只放行讀檔、改檔，以及 SKILL.md 自己建議放行的 modern-web-guidance 指令。我的電腦有裝 pnpm，SKILL.md 說有 pnpm 時會優先用 `pnpx`，所以 `pnpx` 也一起放行。
 
 我在啟動 `claude -p` 的 shell 先設了 `DISABLE_TELEMETRY=1`，agent 執行的指令也會帶著這個環境變數。上面的指令省略了幾項只和我本機環境有關的設定。
 
 agent 照 Modernization workflow 的流程做了這幾件事：
 
-1. 執行 `npx -y modern-web-guidance@latest legacy-scan site --json`，掃到 6 個項目，逐一對照 Keep when 和 Drop when，結論是 6 個都保留。
+1. 執行 `legacy-scan site --json`，掃到 6 個項目，逐一對照 Keep when 和 Drop when，結論是 6 個都保留。
 2. 用 `retrieve` 一次取回 `dialog`、`form-fields-automatically-fit-contents`、`ime-safe-enter-submit`、`validate-input-after-interaction` 四份指南，接著再取回 `validate-input-after-interaction` 和 `js`。
 3. 改寫三個檔案。
 4. 重跑 `legacy-scan site --json`，`totalFindings` 是 0。
@@ -299,7 +346,13 @@ msg.addEventListener('keydown', (e) => {
 - 對話框加上 `closedby="any"`。Safari 不支援這個屬性，所以保留一段 fallback，只在不支援時才掛上，改用游標座標判斷有沒有點在對話框外面。
 - `list.innerHTML = ''` 改成 `list.replaceChildren()`。
 
-agent 沒有動「Clear all」按鈕。如果 agent 照 `declarative-dialog-popover-control` 指南，把這類按鈕改成 HTML 的 `commandfor` 與 `command`，要留意指南給的 polyfill 寫法。不支援 `command` 的瀏覽器要另外載 polyfill：有 bundler 或 import map 的專案用 `npm install invokers-polyfill`，其他情況從 CDN 載入，範例是這段：
+像「Clear all」這種開對話框的按鈕，`declarative-dialog-popover-control` 指南建議改用 HTML 的 `commandfor` 與 `command` 屬性。照這份指南改時，要留意它給的 polyfill 寫法。不支援 `command` 的瀏覽器要另外載 polyfill，有 bundler 或 import map 的專案用 npm 安裝：
+
+```bash
+npm install invokers-polyfill
+```
+
+其他情況從 CDN 載入，範例是這段：
 
 ```javascript
 if (!('commandForElement' in HTMLButtonElement.prototype)) {
@@ -324,7 +377,7 @@ _改完後重掃是 0 個項目（實際輸出）_
 
 ### 不用斜線指令的寫法
 
-這次我用斜線指令直接叫用 skill。依 Modernization workflow 文件，不用斜線指令，請 agent 檢查整個專案或資料夾的「legacy patterns」，或要它「modernize」，也會觸發掃描；只點名單一元件時，agent 會改走一般的 `search`、`retrieve` 查指南。SKILL.md 也寫明，只有沒指定功能或元件的大範圍現代化請求才跑 `legacy-scan`。這種觸發方式我沒有實測。
+這次我用斜線指令直接叫用 skill。依 Modernization workflow 文件，不用斜線指令，請 agent 檢查整個專案或資料夾的「legacy patterns」，或要它「modernize」，也會觸發掃描；只點名單一元件時，agent 會改走一般的 `search`、`retrieve` 查指南。SKILL.md 也寫明，只有沒指定功能或元件的大範圍現代化請求才跑 `legacy-scan`。
 
 文件裡另一個範例提示，要 agent 先提出現代化計畫，確認後才改檔：
 
@@ -361,8 +414,6 @@ _左：改前，選字用的 Enter 把「你好」送出了。右：改後，沒
 
 改前的版本把還在選字的「你好」當成留言送出。改後的版本看到 `isComposing` 是 `true` 就不送出，留言列表是空的。
 
-這個測試是模擬出來的，我沒有用 macOS 的注音或拼音輸入法實際打字，也沒有在 Safari 和 Firefox 上測。對話框的 `closedby="any"` 與 Safari 的 fallback，我也沒有實測。
-
 ## 換一台電腦、換一個範例再跑一次
 
 上面的留言板是我照 `legacy-scan` 的規則清單寫的，掃得到並不意外。所以我在 2026-11-20（台北時間）換到另一台 Linux 電腦（Debian 13、Node.js 24.22.1、npm 11.21.1、Chrome 156），重新下載 1.0.1，自己寫了一個不同主題的頁面再跑一次。這次的 agent 是 Codex CLI 0.171.0，模型是 `gpt-6.1-sol`，透過我自己架的 LiteLLM 呼叫，沙箱模式是 `workspace-write` 並開放網路。
@@ -387,11 +438,17 @@ _第二台電腦、自己寫的範例（實際輸出）_
 
 沒掃到的有三個：`div` 做的確認視窗、勾選方塊的 class 切換，以及 `keyCode === 13` 的搜尋框。dialog 規則看的是掛在 `<dialog>` 上的 click 監聽，所以自己用 `div` 做的視窗不在範圍內。`keyCode === 13` 則不算漏掉。ime-safe-enter-submit 指南寫到，輸入法選字時按 Enter，瀏覽器回報的 `keyCode` 是 229 而不是 13，所以舊的 `keyCode === 13` 寫法本來就不會在選字時觸發。會出問題的，是把它改成 `e.key === 'Enter'` 卻沒有加上檢查。
 
-我用和前面一樣的提示交給 Codex：`$modern-web-guidance Modernize the code in this directory`（`$` 是 Codex 指定 skill 的寫法）。過程如下：
+我用和前面一樣的提示交給 Codex，`$` 是 Codex 指定 skill 的寫法：
+
+```text
+$modern-web-guidance Modernize the code in this directory
+```
+
+過程如下：
 
 - 它用一次 `retrieve` 取回 5 份指南。內容有 84.4 KB，CLI 沒有直接印出，而是存成 `/tmp/mwg-guide-….md`，要 agent 再分段讀檔。
 - 5 個項目全部修改，重掃是 0。我自己在專案根目錄用 1.0.1 重掃也是 0。
-- 它另外把搜尋框改成 `e.key === 'Enter' && !e.isComposing`。這段不在掃描結果裡，它也沒有取回 ime-safe-enter-submit 指南。照指南的說法，這樣改少了 `e.keyCode === 229`，在 Safari 確認候選字的那次 Enter 可能會送出。我手邊沒有 Safari 可以驗證，這點是從 diff 和指南看出來的。
+- 它另外把搜尋框改成 `e.key === 'Enter' && !e.isComposing`。這段不在掃描結果裡，它也沒有取回 ime-safe-enter-submit 指南。照指南的說法，這樣改少了 `e.keyCode === 229`，在 Safari 確認候選字的那次 Enter 可能會送出。
 - 為了自己檢查，它用 npm 把 jsdom 裝到 `/tmp` 跑 DOM 測試，也用 curl 下載 CDN 上的檔案比對雜湊值。開放網路時，agent 會做這類額外下載。
 - 整輪 119 秒。執行紀錄裡的 token 用量是輸入 525,856（其中 434,990 命中快取）、輸出 4,418。
 
@@ -418,8 +475,6 @@ _A：原本的 keyCode === 13。B：Codex 改後。C：對照組，只改成 e.k
 - 錄下對話框、popover 的動畫，檢查效果是否符合網站風格，並確認使用者開啟 `prefers-reduced-motion` 時有照設定減少動畫。
 - 把畫面快取在記憶體裡時，用記憶體工具確認記憶體用量不會一直增加。
 
-DevTools for agents 我還沒有試。
-
 這次我用的是自己寫的 DevTools Protocol 小腳本。如果要讓 agent 自己打開頁面檢查，可以參考我寫的〈[agent-browser 入門：讓 AI 自己打開瀏覽器檢查成果](/posts/agent-browser-ai-test-web-pages/)〉。合併前先確認能用的流程，我在〈[pstack 系列（3）：寫完程式之後，先證明它能用再合併](/posts/pstack-build-verify-merge/)〉寫過。
 
 ## 結論
@@ -430,9 +485,9 @@ DevTools for agents 我還沒有試。
 
 我建議照這個順序開始：
 
-1. 先不安裝，用 `npx modern-web-guidance@<版本> legacy-scan .` 掃自己的專案，看它找到什麼。程式碼放在 `demo/`、`examples/` 這類資料夾時，記得加 `--include-docs-and-tests`。
+1. 先不安裝，用步驟四的 `legacy-scan` 指令掃自己的專案，看它找到什麼。程式碼放在 `demo/`、`examples/` 這類資料夾時，記得加 `--include-docs-and-tests`。
 2. 決定要不要送使用紀錄，不送就設 `DISABLE_TELEMETRY=1`。
-3. 安裝到專案後，打開 `.claude/skills/modern-web-guidance/SKILL.md` 讀一遍，並把 `skills-lock.json` 一起 commit。之後看到更新提醒，用 `npx modern-web-guidance@latest update` 更新。
+3. 安裝到專案後，打開 `.claude/skills/modern-web-guidance/SKILL.md` 讀一遍，並把 `skills-lock.json` 一起 commit。之後看到更新提醒，執行 `update` 更新。
 4. 第一次交給 agent 時，在提示裡要它先提出現代化計畫，看過再讓它改檔。
 5. agent 改完後，看 diff，特別是掃描結果以外的修改，並在瀏覽器裡實際操作一次。
 
