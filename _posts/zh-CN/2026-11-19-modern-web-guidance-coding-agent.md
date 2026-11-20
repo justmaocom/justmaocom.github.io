@@ -1,13 +1,13 @@
 ---
-title: "Modern Web Guidance 实测：让 coding agent 跟上现在的网页写法"
-description: "Modern Web Guidance 是 Chrome、Edge、Firefox 与 MDN 团队维护的 agent skill，收录现代网页写法的指南。我在 Claude Code 沙箱里装了 1.0.1，用 legacy-scan 扫描一个留言板示例，再让 Claude Code 按指南修改，附改前改后截图与沙箱里遇到的问题。"
+title: "Modern Web Guidance 实测：让 coding agent 跟上网页新写法"
+description: "Modern Web Guidance 1.0.1 实测：安装 agent skill，用 legacy-scan 扫出旧网页写法，交给 Claude Code 和 Codex 按指南修改，再用 Chrome 对比改前改后，附沙箱里遇到的问题。"
 date: 2026-11-19 17:00:00 +0800
 categories: [AI, skills]
-tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, web-platform, sandbox]
+tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform, sandbox]
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.zh-CN.webp
-  alt: "用 Modern Web Guidance 扫出留言板的旧写法，交给 Claude Code 按指南修改后重新扫描归零。"
+  alt: "手绘笔记风插图：小机器人拿放大镜检查旧网页表单，箭头指向打勾的新表单，旁边写着 legacy-scan 扫出旧写法、agent 按指南改完、重新扫描归零。"
 ---
 
 Modern Web Guidance 的 SKILL.md 开头写，模型训练数据里有过时的写法（training weights contain obsolete patterns）。比如用 JavaScript 读取 `scrollHeight` 让输入框变高，或者自己判断点击位置来关闭对话框，现在都有浏览器内置的写法。
@@ -16,7 +16,7 @@ Modern Web Guidance 的 SKILL.md 开头写，模型训练数据里有过时的�
 
 这篇我在开了沙箱的 Claude Code 里实际安装它。我写了一个留言板示例页，先用 `legacy-scan` 扫描，再交给 Claude Code 按指南修改，最后用浏览器对比改前改后。过程中在沙箱里卡住的地方，我也一并写出来。
 
-> 我对照的官方资料是 [Modern Web Guidance 文档](https://developer.chrome.com/docs/modern-web-guidance)、[1.0 发布文章](https://developer.chrome.com/blog/modern-web-guidance-v1)（2026-11-10 发布）、[Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow)，以及 npm 包 1.0.1 里的 README 与 SKILL.md，读取日期是 2026-11-19。实测在同一天（台北时间）进行，环境是 macOS、Node.js 25.2.1、npm 11.6.2、Claude Code 2.1.328（模型 `claude-opus-5-5`），Claude Code 的沙箱是开着的。modern-web-guidance 用的是 1.0.1，也就是当天 npm 上标为 latest 的版本；安装时一起拉取的 `skills` 是 1.9.0。文中的终端截图是把当时录下的输出排成图片，只去掉了颜色控制码、spinner 动画的中间帧，以及我录制时自己加的退出码标记。
+> 我对照的官方资料是 [Modern Web Guidance 文档](https://developer.chrome.com/docs/modern-web-guidance)、[1.0 发布文章](https://developer.chrome.com/blog/modern-web-guidance-v1)（2026-11-10 发布）、[Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow)，以及 npm 包 1.0.1 里的 README 与 SKILL.md，读取日期是 2026-11-19。实测在同一天（台北时间）进行，环境是 macOS、Node.js 25.2.1、npm 11.6.2、Claude Code 2.1.328（模型 `claude-opus-5-5`），Claude Code 的沙箱是开着的。modern-web-guidance 用的是 1.0.1，也就是当天 npm 上标为 latest 的版本；安装时一起拉取的 `skills` 是 1.9.0。文中的终端截图是把当时录下的输出排成图片，只去掉了颜色控制码、spinner 动画的中间帧，以及我录制时自己加的退出码标记。改版时我在第二台电脑用同样的命令重跑，`search`、`retrieve`、`skills-lock.json` 和两次 `legacy-scan` 的输出都和第一次相同，图片用的是重跑的输出；`install` 那张因为检测到的 agent 名称不同，保留第一次的输出。
 {: .prompt-info }
 
 ## 工作原理
@@ -45,7 +45,7 @@ export DISABLE_TELEMETRY=1
 
 第二行是关闭使用数据上报。我读了 CLI 的源代码，`search`、`retrieve`、`legacy-scan`、`install` 这些命令运行时，会在后台启动一个独立的子进程，把使用数据发到 `play.googleapis.com`。根据 README 的 Telemetry & Privacy 一节，收集的内容包括安装次数、调用它的 agent 名称、取回的指南 ID，以及 agent 生成的搜索词，不包括用户原本的提示词。设置 `DISABLE_TELEMETRY=1` 就不会发送。所以搜索本身虽然在本地匹配，搜索词默认还是会发出去。
 
-安装前，我先用 `npm pack modern-web-guidance@1.0.1` 把包下载下来看，做法和《[Claude Code plugin 安全安装](/posts/claude-code-plugin-safe-install/)》一样。1.0.1 的 `package.json` 没有 `scripts`，所以安装时不会跑安装脚本。包里共 281 个文件，解压后 17 MB，其中搜索用的向量数据约 8.8 MB，打包成单个文件的 `legacy-scan.mjs` 约 4.9 MB，指南约 2.3 MB。`install` 子命令只是运行下面这条命令：
+安装前，我先用 `npm pack modern-web-guidance@1.0.1` 把包下载下来看，做法和《[Claude Code plugin 安全安装](/posts/claude-code-plugin-safe-install/)》一样。1.0.1 的 `package.json` 没有 `scripts`，所以安装时不会跑安装脚本。包里共 281 个文件，解压后 17 MB，其中搜索用的向量数据约 8.8 MB，打包成单个文件的 `legacy-scan.mjs` 约 4.9 MB，指南约 1.9 MB。`install` 子命令只是运行下面这条命令：
 
 ```bash
 npx -y skills add GoogleChrome/modern-web-guidance --skill modern-web-guidance
@@ -62,7 +62,7 @@ npx -y modern-web-guidance@1.0.1 search "submit on enter key"
 npx -y modern-web-guidance@1.0.1 retrieve ime-safe-enter-submit | head -n 12
 ```
 
-![终端实际输出：search "submit on enter key" 返回 10 条 id 与 description，第一条是 ime-safe-enter-submit；retrieve ime-safe-enter-submit 打印指南开头，说明使用输入法的用户按 Enter 是在确认候选词](term-search.webp){: w="1102" h="1045" }
+![终端实际输出：search "submit on enter key" 返回 10 条 id 与 description，第一条是 ime-safe-enter-submit；retrieve ime-safe-enter-submit 打印指南开头，说明使用输入法的用户按 Enter 是在确认候选词](term-search.webp){: w="1100" h="1199" }
 _search 返回 JSON，retrieve 打印指南全文，这里只截取前 12 行（实际输出）_
 
 `search` 返回 10 条结果，每条有 `id` 和 `description`。第一条 `ime-safe-enter-submit` 就是我要找的。SKILL.md 对 agent 搜索词的写法有规定：描述用户看得到的功能，比如 `"light dismiss dialog"`；不要加 React、Tailwind 这类框架名称，也不要加项目里的组件或文件名；一次只查一个功能。
@@ -79,14 +79,14 @@ npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
 
 `--agent` 和 `-y` 是 `skills add` 的参数，`install` 会把多出来的参数原样传给它。`--agent claude-code` 只装给 Claude Code，`-y` 跳过确认。
 
-![终端实际输出：install 检测到 claude agent 后以非交互方式安装，从 GitHub clone 仓库，找到 2 个 skill，选了 modern-web-guidance，最后复制到 ./.claude/skills/modern-web-guidance](term-install.webp){: w="1102" h="883" }
+![终端实际输出：install 检测到 claude agent 后以非交互方式安装，从 GitHub clone 仓库，找到 2 个 skill，选了 modern-web-guidance，最后复制到 ./.claude/skills/modern-web-guidance](term-install.webp){: w="1100" h="1002" }
 _我在 Claude Code 的沙箱里运行，所以输出第一行是检测到 claude agent（实际输出）_
 
 因为我是在 Claude Code 里运行的，`skills` 检测到 agent 环境，直接以非交互方式安装。在普通终端里运行时，它可能会问你要装给哪些 agent、装在项目里还是全局，这种情况我没有试。最后一行提醒使用前先检查 skill：“Review skills before use; they run with full agent permissions.”所以我装完先看了装进来的文件。
 
 项目里多了两样东西：
 
-![终端实际输出：skills-lock.json 记录 source、commit 64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65 与 computedHash；.claude/skills/modern-web-guidance 下面只有 guides 和 SKILL.md；guides 下面有 210 份 Markdown](term-lock.webp){: w="1102" h="489" }
+![终端实际输出：skills-lock.json 记录 source、commit 64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65 与 computedHash；.claude/skills/modern-web-guidance 下面只有 guides 和 SKILL.md；guides 下面有 210 份 Markdown](term-lock.webp){: w="1100" h="608" }
 
 - `.claude/skills/modern-web-guidance/`：只有 `SKILL.md` 和 `guides/`，没有 CLI 本体。
 - `skills-lock.json`：记录这份 skill 来自 GitHub 的哪个 commit（`64a6d70`）和内容哈希值。
@@ -223,7 +223,7 @@ confirmDialog.addEventListener('close', () => {
 npx -y modern-web-guidance@1.0.1 legacy-scan .
 ```
 
-![终端实际输出：legacy-scan 在 5 份指南下找到 6 项，分别是 dialog 的 app.js:41、form-fields-automatically-fit-contents 的 app.js:13 与 app.js:19、ime-safe-enter-submit 的 app.js:25、js 的 app.js:46、validate-input-after-interaction 的 style.css:7，每项都附 Keep when 与 Drop when](term-scan-before.webp){: w="1102" h="1463" }
+![终端实际输出：legacy-scan 在 5 份指南下找到 6 项，分别是 dialog 的 app.js:41、form-fields-automatically-fit-contents 的 app.js:13 与 app.js:19、ime-safe-enter-submit 的 app.js:25、js 的 app.js:46、validate-input-after-interaction 的 style.css:7，每项都附 Keep when 与 Drop when](term-scan-before.webp){: w="1100" h="1667" }
 _五种旧写法全被找到，自动变高的那段算成了两项（实际输出）_
 
 结果是 5 份指南、6 项。自动变高那段被算了两次：一次是第 19 行读取 `scrollHeight` 的地方，一次是第 13 行在 `post()` 里调用 `autosize()`。每一项都附有规则说明、Keep when 和 Drop when。输出开头也写明，静态分析的结果只是初步判断，要用这些条件再确认一次。
@@ -337,7 +337,7 @@ SKILL.md 要求 agent 用到指南时，在汇报最后加一节 `### Modern Web
 npx -y modern-web-guidance@1.0.1 legacy-scan .
 ```
 
-![终端实际输出：legacy-scan 报告 0 findings from 38 qualified guides，并提醒只覆盖约 20% 的指南](term-scan-after.webp){: w="1102" h="187" }
+![终端实际输出：legacy-scan 报告 0 findings from 38 qualified guides，并提醒只覆盖约 20% 的指南](term-scan-after.webp){: w="1100" h="287" }
 _改完后重新扫描是 0 项（实际输出）_
 
 输出同时提醒，`legacy-scan` 只覆盖 38 份指南。0 项只说明这 38 份指南的规则没有再找到问题，其他指南覆盖的写法它不会检查。
@@ -379,6 +379,54 @@ _左：改前，选词用的 Enter 把“你好”发出去了。右：改后，
 
 这两次我用的都是非交互模式，被拦的命令会直接失败。交互模式下应该会改成弹出询问，这部分我没有试。
 
+## 换一台电脑、换一个示例再跑一次
+
+上面的留言板是我照着 `legacy-scan` 的规则清单写的，能扫出来并不意外。所以我在 2026-11-20（台北时间）换到另一台 Linux 电脑（Debian 13、Node.js 24.22.1、npm 11.21.1、Chrome 156），重新下载 1.0.1，自己写了一个不同主题的页面再跑一次。这次的 agent 是 Codex CLI 0.171.0，模型是 `gpt-6.1-sol`，通过我自己搭的 LiteLLM 调用，沙箱模式是 `workspace-write` 并开放网络。
+
+先说和前面一致的部分：同样的 `search "submit on enter key"` 返回同样的 10 条，`skills-lock.json` 的 commit 和 `computedHash` 相同，装进来的也是 210 份指南。我把上面留言板的三个文件原样保存再扫描，同样是 5 份指南、6 项，行号也相同。
+
+新的示例是一个露营地预订页，三个文件放在 `web/`。我放进去的旧写法有这些：
+
+- 搜索框用 `e.keyCode === 13` 判断 Enter 后搜索。
+- 四个必填字段用 `input:invalid` 显示错误样式。
+- 确认窗口是自己用 `div` 做的，靠 `e.target === overlay` 判断点到外面再关闭，没有用 `<dialog>`。
+- 勾选“租帐篷”时，用 JavaScript 给外层加 class 改底色。
+- FAQ 展开用 `max-height: 9999px`。
+- 从 jsDelivr 加载 dayjs，没有 `integrity`。
+- 两段重复的 `@media (prefers-color-scheme: dark)`。
+- 用 `results.innerHTML = ''` 清空搜索结果。
+
+`legacy-scan` 找到 5 份指南、5 项：
+
+![终端实际输出：legacy-scan 在露营地示例找到 5 份指南共 5 项，分别是 animate-to-intrinsic-sizes 的 style.css:11、dark-mode 的 style.css:18、js 的 app.js:9、secure-external-subresources 的 index.html:8、validate-input-after-interaction 的 style.css:6](term-campsite-scan.webp){: w="1100" h="1593" }
+_第二台电脑、自己写的示例（实际输出）_
+
+没扫到的有三个：`div` 做的确认窗口、勾选框的 class 切换，以及 `keyCode === 13` 的搜索框。dialog 规则看的是挂在 `<dialog>` 上的 click 监听，所以自己用 `div` 做的窗口不在范围内。`keyCode === 13` 则不算漏掉。ime-safe-enter-submit 指南写到，输入法选词时按 Enter，浏览器报告的 `keyCode` 是 229 而不是 13，所以旧的 `keyCode === 13` 写法本来就不会在选词时触发。会出问题的，是把它改成 `e.key === 'Enter'` 却没有加上检查。
+
+我用和前面一样的提示交给 Codex：`$modern-web-guidance Modernize the code in this directory`（`$` 是 Codex 指定 skill 的写法）。过程如下：
+
+- 它按 SKILL.md 在命令前加了 `NPM_CONFIG_CACHE=/tmp/npm-cache`。Codex 的 `workspace-write` 沙箱默认可以写 `/tmp`，所以扫描、`retrieve`、重新扫描都直接成功，没有遇到前面 Claude Code 沙箱的缓存问题。
+- 它用一次 `retrieve` 取回 5 份指南。内容有 84.4 KB，CLI 没有直接打印，而是存成 `/tmp/mwg-guide-….md`，让 agent 再分段读取。
+- 5 项全部修改，重新扫描是 0。我自己在项目根目录用 1.0.1 重新扫描也是 0。
+- 它另外把搜索框改成 `e.key === 'Enter' && !e.isComposing`。这段不在扫描结果里，它也没有取回 ime-safe-enter-submit 指南。按指南的说法，这样改少了 `e.keyCode === 229`，在 Safari 确认候选词的那次 Enter 可能会提交。我手边没有 Safari 可以验证，这一点是从 diff 和指南看出来的。
+- 为了自己检查，它用 npm 把 jsdom 装到 `/tmp` 跑 DOM 测试，也用 curl 下载 CDN 上的文件比对哈希值。开放网络时，agent 会做这类额外下载。
+- 整轮 119 秒。运行记录里的 token 用量是输入 525,856（其中 434,990 命中缓存）、输出 4,418。
+
+浏览器部分，我同样用 DevTools Protocol 操作 headless Chrome 156，模拟输入法正在选“溪邊”时按 Enter。除了改前（A）和 Codex 改后（B），我另外做了一个对照组（C），只把 A 的条件改成 `e.key === 'Enter'`：
+
+![露营地示例三个版本并排，都在输入法选词中按了 Enter。A 是 keyCode === 13，搜索结果 0 条，必填字段一加载就是红框；B 是 Codex 改后的版本，结果 0 条，字段是普通样式；C 是对照组 e.key === 'Enter'，选词中就搜索出溪邊 A1 riverside，字段也是红框](trio-campsite-ime.webp){: w="1954" h="696" }
+_A：原本的 keyCode === 13。B：Codex 改后。C：对照组，只改成 e.key === 'Enter'。_
+
+- 三个版本收到的事件都是 `key: "Enter"`、`keyCode: 229`、`isComposing: true`。
+- A 和 B 都没有搜索，C 在选词时就搜索了。
+- 刚加载时，A 和 C 的四个必填字段都是红框，B 是普通样式。在 B 直接点 Book，字段才变成红框并出现错误信息，`aria-invalid` 也变成 `true`。
+
+还有一点要注意：`legacy-scan` 默认会跳过看起来像文档、示例或测试的文件夹，例如 `docs/`、`examples/`、`demo/`、`test/`。我把同一个示例放在 `demo/` 下面扫描，结果是 0，最后一行写着 `Skipped 3 docs and test files`，加上 `--include-docs-and-tests` 才扫到 5 项。照着做时如果把示例放在 `demo/`，记得加这个参数，或者换一个文件夹名称。
+
+![终端实际输出：示例放在 demo 文件夹时 legacy-scan 报告 0 findings 并写着 Skipped 3 docs and test files，加上 --include-docs-and-tests 后找到 5 项](term-demo-skip.webp){: w="1100" h="460" }
+
+最后我也确认了使用数据。我在不能联网的环境里，不设 `DISABLE_TELEMETRY` 跑一次 `search "booking date picker"`，并把发送用的 `fetch` 换成只记录、不发送。后台子进程准备 POST 到 `play.googleapis.com` 的内容，包含这句搜索词，以及找到的指南 ID 和相似度分数。设了 `DISABLE_TELEMETRY=1` 再跑，就没有这个请求。
+
 ## 搭配浏览器检查
 
 根据 1.0 发布文章，官方建议搭配 Chrome DevTools for agents，让 agent 看到页面在浏览器里的实际运行情况。DevTools for agents 我还没有试。
@@ -387,17 +435,17 @@ _左：改前，选词用的 Enter 把“你好”发出去了。右：改后，
 
 ## 结论
 
-这次实测，`legacy-scan` 在本地找出了我放进去的 5 种旧写法，共 6 项。Claude Code 按指南修改后重新扫描是 0。浏览器里也看得到差别：空白输入框不再一打开就是红框，输入法选词时按 Enter 也不会发送。
+这次实测，`legacy-scan` 在本地找出了我放进去的 5 种旧写法，共 6 项。Claude Code 按指南修改后重新扫描是 0。浏览器里也看得到差别：空白输入框不再一打开就是红框，输入法选词时按 Enter 也不会发送。换一台电脑、用自己写的露营地示例交给 Codex，扫描和重新扫描的结果一样可以重现，但 agent 也会改到扫描范围以外的地方，而且不一定按指南改完整。
 
 沙箱里最麻烦的是 npm 缓存。另外，装进来的 skill 总是让 agent 跑 `@latest`，安装时固定的版本只管得到指南内容，管不到 CLI。
 
 我建议按这个顺序开始：
 
-1. 先不安装，用 `npx modern-web-guidance@<版本> legacy-scan .` 扫描自己的项目，看它找到了什么。
+1. 先不安装，用 `npx modern-web-guidance@<版本> legacy-scan .` 扫描自己的项目，看它找到了什么。代码放在 `demo/`、`examples/` 这类文件夹时，记得加 `--include-docs-and-tests`。
 2. 决定要不要发送使用数据，不发就设 `DISABLE_TELEMETRY=1`。
 3. 安装到项目后，打开 `.claude/skills/modern-web-guidance/SKILL.md` 读一遍，并把 `skills-lock.json` 一起 commit。
 4. 如果开着沙箱，先处理好 npm 缓存路径，再交给 agent。
-5. agent 改完后，看 diff，并在浏览器里实际操作一次。
+5. agent 改完后，看 diff，特别是扫描结果以外的修改，并在浏览器里实际操作一次。
 
 ## 延伸阅读
 

@@ -1,13 +1,13 @@
 ---
-title: "Modern Web Guidance Hands-On: Getting a Coding Agent to Write Current Web Code"
-description: "Modern Web Guidance is an agent skill of web development guides maintained by the Chrome, Edge, Firefox, and MDN teams. I installed 1.0.1 inside the Claude Code sandbox, ran legacy-scan on a small guestbook page, and had Claude Code fix it from the guides. I also show before-and-after screenshots and the sandbox problems I ran into."
+title: "Modern Web Guidance Hands-On: Agents Fix Legacy Web Code"
+description: "Hands-on with Modern Web Guidance 1.0.1: install the agent skill, run legacy-scan, have Claude Code or Codex fix legacy HTML, CSS and JS, and verify in Chrome."
 date: 2026-11-19 17:00:00 +0800
 categories: [AI, skills]
-tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, web-platform, sandbox]
+tags: [modern-web-guidance, agent-skills, coding-agent, claude-code, codex, web-platform, sandbox]
 media_subpath: /assets/img/posts/modern-web-guidance-coding-agent/
 image:
   path: cover.en.webp
-  alt: "Modern Web Guidance finds the legacy patterns in a guestbook page, Claude Code fixes them from the guides, and a rescan finds zero."
+  alt: "Hand-drawn sketchnote illustration of a small robot inspecting an old web form with a magnifying glass, with arrows to a checked-off new form and the text: legacy-scan finds the old patterns, the agent fixes them from the guides, rescan: 0."
 ---
 
 The Modern Web Guidance SKILL.md says near the top that "training weights contain obsolete patterns". Measuring `scrollHeight` in JavaScript to grow a textarea and checking click targets by hand to close a dialog are two examples. Browsers now have built-in ways to do both.
@@ -16,7 +16,7 @@ The Modern Web Guidance SKILL.md says near the top that "training weights contai
 
 In this post I install it in Claude Code with the sandbox turned on. I wrote a small guestbook page, scanned it with `legacy-scan`, had Claude Code fix it using the guides, and then compared the before and after versions in a browser. I also cover where the sandbox got in the way.
 
-> The official sources I checked are the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README and SKILL.md inside the npm package version 1.0.1. I read them on 2026-11-19. I ran everything the same day (Taipei time) on macOS with Node.js 25.2.1, npm 11.6.2, and Claude Code 2.1.328 (model `claude-opus-5-5`), with the Claude Code sandbox on. I used modern-web-guidance 1.0.1, which was tagged latest on npm that day. The `skills` package that the installer pulled in was 1.9.0. The terminal screenshots are the recorded output laid out as images. I removed only the color codes, the intermediate spinner frames, and the exit-code markers my recording script added.
+> The official sources I checked are the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README and SKILL.md inside the npm package version 1.0.1. I read them on 2026-11-19. I ran everything the same day (Taipei time) on macOS with Node.js 25.2.1, npm 11.6.2, and Claude Code 2.1.328 (model `claude-opus-5-5`), with the Claude Code sandbox on. I used modern-web-guidance 1.0.1, which was tagged latest on npm that day. The `skills` package that the installer pulled in was 1.9.0. The terminal screenshots are the recorded output laid out as images. I removed only the color codes, the intermediate spinner frames, and the exit-code markers my recording script added. When I updated this post, I reran the same commands on a second machine. The output of `search`, `retrieve`, `skills-lock.json`, and both `legacy-scan` runs matched the first run, so those images use the rerun output. The `install` image keeps the first run's output because the detected agent name differs.
 {: .prompt-info }
 
 ## How it works
@@ -45,7 +45,7 @@ export DISABLE_TELEMETRY=1
 
 The second line turns off usage reporting. Reading the CLI source, I found that when `search`, `retrieve`, `legacy-scan`, or `install` runs, it starts a detached background process that sends usage data to `play.googleapis.com`. According to the Telemetry & Privacy section of the README, it collects install counts, the name of the calling agent, the IDs of retrieved guides, and the search queries the agent writes. It does not collect the user's original prompt. Setting `DISABLE_TELEMETRY=1` stops it. So although search matching happens locally, the queries themselves are sent to `play.googleapis.com` by default.
 
-Before installing, I downloaded the package with `npm pack modern-web-guidance@1.0.1` and looked through it, the same way I described in [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/). The 1.0.1 `package.json` has no `scripts`, so nothing runs at install time. The package has 281 files and is 17 MB unpacked. The search vectors take about 8.8 MB, the single-file bundle `legacy-scan.mjs` about 4.9 MB, and the guides about 2.3 MB. The `install` subcommand just runs:
+Before installing, I downloaded the package with `npm pack modern-web-guidance@1.0.1` and looked through it, the same way I described in [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/). The 1.0.1 `package.json` has no `scripts`, so nothing runs at install time. The package has 281 files and is 17 MB unpacked. The search vectors take about 8.8 MB, the single-file bundle `legacy-scan.mjs` about 4.9 MB, and the guides about 1.9 MB. The `install` subcommand just runs:
 
 ```bash
 npx -y skills add GoogleChrome/modern-web-guidance --skill modern-web-guidance
@@ -62,7 +62,7 @@ npx -y modern-web-guidance@1.0.1 search "submit on enter key"
 npx -y modern-web-guidance@1.0.1 retrieve ime-safe-enter-submit | head -n 12
 ```
 
-![Actual terminal output: search "submit on enter key" returns 10 entries with id and description, the first being ime-safe-enter-submit; retrieve ime-safe-enter-submit prints the start of the guide, which explains that IME users press Enter to confirm a candidate](term-search.webp){: w="1102" h="1045" }
+![Actual terminal output: search "submit on enter key" returns 10 entries with id and description, the first being ime-safe-enter-submit; retrieve ime-safe-enter-submit prints the start of the guide, which explains that IME users press Enter to confirm a candidate](term-search.webp){: w="1100" h="1199" }
 _search returns JSON and retrieve prints the full guide. Only the first 12 lines are shown (actual output)._
 
 `search` returned 10 results, each with an `id` and a `description`. The first one, `ime-safe-enter-submit`, was the one I wanted. SKILL.md tells the agent to describe the capability the user sees, such as `"light dismiss dialog"`, to leave out framework names like React or Tailwind and the project's own component or file names, and to search for one feature at a time.
@@ -79,14 +79,14 @@ npx -y modern-web-guidance@1.0.1 install --agent claude-code -y
 
 `--agent` and `-y` are `skills add` options. `install` passes any extra arguments through unchanged. `--agent claude-code` installs for Claude Code only, and `-y` skips the confirmation.
 
-![Actual terminal output: install detects the claude agent and installs non-interactively, clones the repository from GitHub, finds 2 skills, selects modern-web-guidance, and copies it to ./.claude/skills/modern-web-guidance](term-install.webp){: w="1102" h="883" }
+![Actual terminal output: install detects the claude agent and installs non-interactively, clones the repository from GitHub, finds 2 skills, selects modern-web-guidance, and copies it to ./.claude/skills/modern-web-guidance](term-install.webp){: w="1100" h="1002" }
 _I ran it inside the Claude Code sandbox, so the first line says the claude agent was detected (actual output)._
 
 Because I ran it from inside Claude Code, `skills` detected the agent and installed without asking anything. In a regular terminal it may ask which agents to install for and whether to install per project or globally. I didn't try that. The last line tells you to check skills before using them: "Review skills before use; they run with full agent permissions." So after installing, I looked at what it had added.
 
 Two things were added to the project:
 
-![Actual terminal output: skills-lock.json records source, commit 64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65, and computedHash; .claude/skills/modern-web-guidance contains only guides and SKILL.md; guides contains 210 Markdown files](term-lock.webp){: w="1102" h="489" }
+![Actual terminal output: skills-lock.json records source, commit 64a6d708f5a43f2cd3fde5d4d7db3905ba1bdf65, and computedHash; .claude/skills/modern-web-guidance contains only guides and SKILL.md; guides contains 210 Markdown files](term-lock.webp){: w="1100" h="608" }
 
 - `.claude/skills/modern-web-guidance/`: only `SKILL.md` and `guides/`. The CLI itself is not there.
 - `skills-lock.json`: records which GitHub commit the skill came from (`64a6d70`) and a content hash.
@@ -223,7 +223,7 @@ I ran it from the project root:
 npx -y modern-web-guidance@1.0.1 legacy-scan .
 ```
 
-![Actual terminal output: legacy-scan finds 6 items across 5 guides: dialog at app.js:41, form-fields-automatically-fit-contents at app.js:13 and app.js:19, ime-safe-enter-submit at app.js:25, js at app.js:46, and validate-input-after-interaction at style.css:7, each with Keep when and Drop when](term-scan-before.webp){: w="1102" h="1463" }
+![Actual terminal output: legacy-scan finds 6 items across 5 guides: dialog at app.js:41, form-fields-automatically-fit-contents at app.js:13 and app.js:19, ime-safe-enter-submit at app.js:25, js at app.js:46, and validate-input-after-interaction at style.css:7, each with Keep when and Drop when](term-scan-before.webp){: w="1100" h="1667" }
 _It found all five legacy patterns, and the auto-grow code counted as two items (actual output)._
 
 The result was 6 findings across 5 guides. The auto-grow code was counted twice: once at line 19, where it measures `scrollHeight`, and once at line 13, where `post()` calls `autosize()`. Every finding includes a rule description plus Keep when and Drop when. The top of the output also says the static analysis results are provisional and should be checked against those conditions.
@@ -337,7 +337,7 @@ Finally, I reran the scan myself from the project root:
 npx -y modern-web-guidance@1.0.1 legacy-scan .
 ```
 
-![Actual terminal output: legacy-scan reports 0 findings from 38 qualified guides and notes that it covers only about 20% of the guides](term-scan-after.webp){: w="1102" h="187" }
+![Actual terminal output: legacy-scan reports 0 findings from 38 qualified guides and notes that it covers only about 20% of the guides](term-scan-after.webp){: w="1100" h="287" }
 _After the changes, the rescan found 0 items (actual output)._
 
 The output also points out that `legacy-scan` covers only 38 guides. Zero findings means those 38 guides' rules found nothing more. Patterns covered by the other guides aren't checked.
@@ -373,11 +373,59 @@ This test is a simulation. I didn't type with a real macOS Zhuyin or Pinyin IME,
 
 ## Problems I hit in the sandbox
 
-1. The sandbox blocks npm from writing `~/.npm`, but npm reports it as "root-owned files" and tells you to run `sudo chown`, but ownership isn't the problem. I pointed `npm_config_cache` at a folder the sandbox allows by running `export npm_config_cache="$TMPDIR/npm-cache"` in the shell before starting `claude -p`.
+1. The sandbox blocks npm from writing `~/.npm`, but npm reports it as "root-owned files" and tells you to run `sudo chown`. Don't: ownership isn't the problem. I pointed `npm_config_cache` at a folder the sandbox allows by running `export npm_config_cache="$TMPDIR/npm-cache"` in the shell before starting `claude -p`.
 2. SKILL.md tells the agent to prefix commands with `NPM_CONFIG_CACHE=/tmp/npm-cache`. In my sandbox `/tmp/npm-cache` isn't writable, and the prefixed command doesn't match the allow rule SKILL.md itself recommends. My run finished only because the agent eventually dropped the prefix and the environment already had a writable cache path.
 3. Chrome won't start inside the sandbox, so I ran the browser comparison outside it.
 
 Both runs used non-interactive mode, where blocked commands just fail. In interactive mode I'd expect a prompt instead, but I didn't test it.
+
+## A second machine and a different example
+
+I wrote the guestbook above from the `legacy-scan` rule list, so it's no surprise the scan caught everything. On 2026-11-20 (Taipei time) I moved to a second machine running Linux (Debian 13, Node.js 24.22.1, npm 11.21.1, Chrome 156), downloaded 1.0.1 again, and ran it on a page I wrote from scratch on a different topic. This time the agent was Codex CLI 0.171.0 with the `gpt-6.1-sol` model, called through my self-hosted LiteLLM, in the `workspace-write` sandbox with network access on.
+
+First, what matched the earlier run: the same `search "submit on enter key"` returned the same 10 entries, `skills-lock.json` had the same commit and `computedHash`, and the install brought in 210 guides. When I saved the three guestbook files from this post as-is and scanned them, I got the same 5 guides and 6 findings on the same lines.
+
+The new example is a campsite booking page, three files in `web/`. These are the legacy patterns I put in:
+
+- The search box runs a search when `e.keyCode === 13`.
+- Four required fields use `input:invalid` for the error style.
+- The confirmation popup is a home-made `div` that closes when `e.target === overlay`, not a `<dialog>`.
+- Ticking "Rent a tent" uses JavaScript to add a class to the parent row to change its background.
+- The FAQ expands with `max-height: 9999px`.
+- dayjs loads from jsDelivr without `integrity`.
+- Two duplicate `@media (prefers-color-scheme: dark)` blocks.
+- `results.innerHTML = ''` clears the search results.
+
+`legacy-scan` found 5 findings across 5 guides:
+
+![Actual terminal output: legacy-scan finds 5 findings across 5 guides in the campsite example: animate-to-intrinsic-sizes at style.css:11, dark-mode at style.css:18, js at app.js:9, secure-external-subresources at index.html:8, and validate-input-after-interaction at style.css:6](term-campsite-scan.webp){: w="1100" h="1593" }
+_Second machine, my own example (actual output)_
+
+Three patterns weren't flagged: the `div` popup, the checkbox class toggle, and the `keyCode === 13` search box. The dialog rule looks for click listeners on a `<dialog>`, so a home-made `div` popup is out of scope. The `keyCode === 13` handler isn't a miss. The ime-safe-enter-submit guide says that when Enter confirms an IME candidate, browsers report `keyCode` 229, not 13, so an old `keyCode === 13` handler never fires during composition. The bug appears when you switch it to `e.key === 'Enter'` without adding a check.
+
+I gave Codex the same prompt as before: `$modern-web-guidance Modernize the code in this directory` (`$` is how Codex names a skill). Here's what happened:
+
+- Following SKILL.md, it prefixed commands with `NPM_CONFIG_CACHE=/tmp/npm-cache`. The Codex `workspace-write` sandbox allows writes to `/tmp` by default, so the scan, `retrieve`, and rescan all worked on the first try. I didn't hit the cache problem I had in the Claude Code sandbox.
+- It fetched all 5 guides with one `retrieve`. The output was 84.4 KB, so the CLI saved it to `/tmp/mwg-guide-….md` instead of printing it and told the agent to read the file in chunks.
+- It changed all 5 findings, and its rescan found 0. My own rescan with 1.0.1 from the project root also found 0.
+- It also changed the search box to `e.key === 'Enter' && !e.isComposing`. That line wasn't in the scan results, and it never retrieved the ime-safe-enter-submit guide. According to that guide, this version is missing `e.keyCode === 229`, so in Safari the Enter that confirms a candidate may still trigger a search. I don't have Safari to check this; I'm going by the diff and the guide.
+- To check its own work, it installed jsdom with npm into `/tmp` for a DOM test, and used curl to download the CDN file and compare hashes. With network access on, expect extra downloads like these.
+- The whole run took 119 seconds. The run log shows 525,856 input tokens (434,990 of them cached) and 4,418 output tokens.
+
+For the browser check I again drove headless Chrome 156 over the DevTools Protocol and simulated pressing Enter while an IME was composing "溪邊". Besides the original (A) and the Codex version (B), I made a control (C) that only changes A's condition to `e.key === 'Enter'`:
+
+![Three versions of the campsite page side by side, each after pressing Enter during IME composition. A uses keyCode === 13: 0 results, and the required fields are red on load. B is the Codex version: 0 results, and the fields look normal. C is the control with e.key === 'Enter': it already searched and shows 溪邊 A1 riverside, and the fields are red](trio-campsite-ime.webp){: w="1954" h="696" }
+_A: the original keyCode === 13. B: after Codex. C: control, changed only to e.key === 'Enter'._
+
+- All three versions received `key: "Enter"`, `keyCode: 229`, and `isComposing: true`.
+- A and B didn't search. C searched in the middle of composition.
+- On load, A and C show all four required fields in red, and B shows them normally. When I clicked Book on B with the form empty, the fields turned red, the error messages appeared, and `aria-invalid` became `true`.
+
+One more thing to watch for: by default `legacy-scan` skips folders that look like docs, examples, or tests, such as `docs/`, `examples/`, `demo/`, and `test/`. When I put the same example under `demo/`, the scan reported 0 and ended with `Skipped 3 docs and test files`. With `--include-docs-and-tests` it found the 5 findings. If you follow along with your example in `demo/`, add that flag or use a different folder name.
+
+![Actual terminal output: with the example in a demo folder, legacy-scan reports 0 findings and says Skipped 3 docs and test files; with --include-docs-and-tests it finds 5](term-demo-skip.webp){: w="1100" h="460" }
+
+Last, I checked the usage data. With no network access and `DISABLE_TELEMETRY` unset, I ran `search "booking date picker"` and swapped the `fetch` that sends the data for one that only logs it. The background process was about to POST the search query to `play.googleapis.com`, along with the IDs and similarity scores of the guides it found. With `DISABLE_TELEMETRY=1`, there was no request.
 
 ## Pairing it with browser checks
 
@@ -387,17 +435,17 @@ This time I used my own small DevTools Protocol script. If you want the agent to
 
 ## Conclusion
 
-In this run, `legacy-scan` found all 5 legacy patterns I planted, 6 findings in total, without leaving my machine. After Claude Code made changes based on the guides, a rescan found 0. In the browser, the empty textarea no longer turns red on load, and pressing Enter to confirm an IME candidate no longer posts the message.
+In this run, `legacy-scan` found all 5 legacy patterns I planted, 6 findings in total, without leaving my machine. After Claude Code made changes based on the guides, a rescan found 0. In the browser, the empty textarea no longer turns red on load, and pressing Enter to confirm an IME candidate no longer posts the message. On a second machine, with my own campsite example and Codex, the scan and rescan results held up too, but the agent also changed code outside the scan results and didn't always follow the guide all the way.
 
 Most of my sandbox trouble came from the npm cache path (see the list above). And because the installed skill always runs `@latest`, pinning a version at install time only pins the guides.
 
 This is the order I'd suggest:
 
-1. Without installing anything, run `npx modern-web-guidance@<version> legacy-scan .` on your own project and see what it finds.
+1. Without installing anything, run `npx modern-web-guidance@<version> legacy-scan .` on your own project and see what it finds. If your code lives in a folder like `demo/` or `examples/`, add `--include-docs-and-tests`.
 2. Decide whether you want usage data sent. If not, set `DISABLE_TELEMETRY=1`.
 3. After installing into your project, read `.claude/skills/modern-web-guidance/SKILL.md`, and commit `skills-lock.json` along with it.
 4. If you use the sandbox, sort out the npm cache path before handing work to the agent.
-5. When the agent finishes, read the diff and try the page in a browser yourself.
+5. When the agent finishes, read the diff, especially changes outside the scan results, and try the page in a browser yourself.
 
 ## Further reading
 
