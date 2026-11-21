@@ -243,4 +243,4 @@ The lesson I take from this site's example is that connecting existing evidence 
 - [pstack, Part 3: After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/): put verification and review into the agent's workflow.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): why file access, command execution, and credentials need separate consideration.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): format files and run tests automatically inside a Claude Code session, before the PR is opened.
-- [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/posts/ai-native-sdlc-playbook/): where PR review sits among the six stages from requirements to release, and what comes before and after it.
+- [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/): where PR review sits among the six stages from requirements to release, and what comes before and after it.

@@ -12,7 +12,7 @@ image:
 
 If I let two coding agents (AI assistants that can read files, edit them, and run commands) work on different tasks in the same folder, it is like two people sharing one desk and one computer. When one agent switches to another branch (a separate line of work), the files in the folder are replaced with that branch's version, and the files the other agent is halfway through change as well. I think a better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory, each checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
 
-In this post I only cover isolating those working directories, merging the work back, and cleaning up afterward. I do not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, I covered that in [AI Writes Code Faster. Why Is Shipping Still Slow? How I Think About an AI-Native SDLC](/posts/ai-native-sdlc-playbook/).
+In this post I only cover isolating those working directories, merging the work back, and cleaning up afterward. I do not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, I covered that in [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/).
 
 > **Version note:** This post is based on the git-scm.com [git-worktree manual](https://git-scm.com/docs/git-worktree) (the Git 2.56.0 edition), as I read it on 2026-11-11. Multiple checkout with git worktree is still marked experimental, and later behavior may change; treat the manual as the source of truth.
 {: .prompt-info }
