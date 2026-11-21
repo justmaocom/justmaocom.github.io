@@ -8,9 +8,10 @@ media_subpath: /assets/img/posts/pstack-understand-design/
 image:
   path: cover.en.webp
   alt: "Before changing code, understand it with /how and /why, design with /architect and /arena, then review with /interrogate."
+mermaid: true
 ---
 
-Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills: first have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems. For each skill I cover when to use it, how to write the command (with an example you can copy and adapt), what it does step by step, what you get back, and where to go next. Then I cover three skills and two playbooks for specific situations: `/teach`, `/recall`, `/swarm`, prototypes, and plans. At the end, I string the five main skills together in a made-up example, followed by a "which one when" table.
+Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills: first have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems.
 
 > pstack Series | Part 2
 >
@@ -19,27 +20,27 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 > - Next (Part 3): [After the code is written, prove it works before merging](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
-> **Version note:** I based this post on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. All five posts in the series were rechecked against this version together on 2026-11-17; when I checked, `main` in `cursor/plugins` had no pstack changes after `2f87c85`. Later versions may behave differently.
-{: .prompt-warning }
+> This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. I rechecked all five posts in the series against this version on 2026-11-17, and at that time `main` had no pstack changes after `2f87c85`; later versions may behave differently.
+{: .prompt-info }
 
 ## Before You Start
 
 pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. I covered installing pstack and picking models in [Part 1](/posts/pstack-install-routing/); this post assumes it is already installed.
 
-**Commands take a prefix.** pstack's docs use Cursor's form, such as `/how`. In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, so you type `/pstack:how`. My examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+pstack's docs use Cursor's form, such as `/how`. Claude Code plugin commands carry the plugin name in front, so you type `/pstack:how`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
-**None of these skills start on their own.** Each one is set so the AI can't invoke it by itself, so you have to type the command. The other option is to hand the task to `/pstack:poteto-mode` and let it sequence the work. For example, if your prompt says "don't change any code yet," it runs a read-only investigation, which first traces the code involved and adds `/why` for questions about motivation.
+Each of these skills is set so the AI can't invoke it on its own; you have to type the command. The other option is to hand the task to `/pstack:poteto-mode` and let it sequence the work. For example, if your prompt says "don't change any code yet," it runs a read-only investigation, which first traces the code involved and adds `/why` for questions about motivation.
 
-I use the word "subagent" a lot below. When a skill runs, it sends out other AI instances to work on parts of the job in parallel; each one is a subagent. The more subagents a skill sends out, the more of your usage quota it usually takes.
+When a skill runs, it sends out other AI instances to work on parts of the job; each one is a subagent.
 
 ![The five-skill flow: understand with /how and /why, design with /architect, then review with /interrogate; /arena also works on its own](five-skills-flow.en.webp){: w="800" h="450" }
 _Understand first, then design, then review the change. `/arena` works on its own, and `/architect` switches to it for a large or contested design._
 
 ## /how: Learn How the Code Works Now
 
-**When to use it:** before you change code you don't know well, or when you want to ask "where should this live, which module owns it, is this the right layer." It answers how things work now, not why they were written that way. That is `/why`'s job.
+Before you change code you don't know well, use `/how`. Also use it to ask "where should this live, which module owns it, is this the right layer." It answers how things work now; why they were written that way is `/why`'s job.
 
-**How to write the command:** ask the question you actually have. Add an entry point and the part you care about most:
+Ask the question you actually have. You can add an entry point and the part you care about most:
 
 ```text
 /pstack:how how does <feature or module> work? start from <an entry point, such as an API or a command> and explain how data flows and what each file is responsible for. i most want to know <the part you care about>.
@@ -51,21 +52,23 @@ For example:
 /pstack:how where is the session created after a user logs in, and how does it expire? what happens on the frontend once it expires?
 ```
 
-**What it does:**
+The flow is short:
 
 1. If the scope is unclear, it states its interpretation and starts exploring; you can redirect it if it's off.
-2. Whatever the size of the question, it sends a single read-only subagent that reads the code and writes the explanation in one pass. The subagent's brief: write an architectural explanation that a senior engineer new to this area could read and come away with a solid mental model, enough to start working in it confidently.
+2. Whatever the size of the question, it sends a single read-only subagent that reads the code and writes the explanation in one pass. The explanation is for a senior engineer new to this area, who should come away with a solid mental model, enough to start working in it confidently.
 3. It hands you that explanation, with light edits or context from the conversation at most. It doesn't substantially rewrite it.
 
-**What you get:** an architectural explanation written for a senior engineer. The skill file doesn't fix its sections; the pstack guide says it covers the runtime flow, the key types (the kinds and shapes of data, such as which fields an order has), and the non-obvious parts. If you want fixed sections, such as "which files to look at before starting," say so in your prompt. When you go through a read-only investigation with `/pstack:poteto-mode`, the result is organized into Overview, Key Concepts, How It Works, Where Things Live, and Gotchas; if the question is a choice between options, you get a recommendation with a tradeoffs table instead.
+The skill file doesn't fix the sections. The pstack guide says it covers the runtime flow, the key types, and the non-obvious parts that trip people up. If you want fixed sections, such as "which files to look at before starting," say so in your prompt.
 
-**What's next:** if you then want to know why it looks this way, run `/why`. The pstack guide's suggested order is how first, then why: mechanics before history. If you already understand it and are ready to make a change, go to `/architect`.
+When you go through a read-only investigation with `/pstack:poteto-mode`, the result is organized into Overview, Key Concepts, How It Works, Where Things Live, and Gotchas. If the question is a choice between options, you get a recommendation with a tradeoffs table instead.
+
+The pstack guide's suggested order is how first, then why: mechanics before history.
 
 ## /why: Find Out Why the Code Looks This Way
 
-**When to use it:** when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. I think it is especially useful **before you change** something, so you know which parts exist for a reason and shouldn't be touched lightly.
+Use `/why` when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. It is especially useful before you change something, so you know which parts exist for a reason and shouldn't be touched lightly.
 
-**How to write the command:** name the target and ask your question. If you're asking because you plan to change it, include the change you have in mind and ask whether the original reason still holds:
+Name the target and ask your question. If you're asking because you plan to change it, include the change you have in mind and ask whether the original reason still holds:
 
 ```text
 /pstack:why why does <a piece of code or a decision> work this way? does the reason still hold? i plan to <the change you want to make>.
@@ -79,26 +82,24 @@ For example:
 
 If you suspect the history explains the mess, you can ask for both at once: "do why first, then how."
 
-**What it does:** the skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. As I read it, it asks for three things:
+The skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. As I read it, it asks for three things:
 
-1. **Answers from the record, not by guessing from the code.** It reads the commits (a commit is one recorded change in git) and PR (pull request) discussions that introduced the code, then those for each later change to it.
-2. **Looks at other sources only when that trail is thin.** The skill file doesn't list them. If you have MCP servers connected (an MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion), it may use them.
+1. **Answers from the record, not by guessing from the code.** It reads the commits and PR discussions that introduced the code, then those for each later change to it.
+2. **Looks at other sources only when that trail is thin.** If you have MCP servers connected (an MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion), it may use them.
 3. **Keeps track of who said what.** It cites what the authors wrote, marks its own inferences as inferences, and says what the record doesn't answer.
 
-**What you get:** a cited answer that separates what the authors wrote, what it infers, and what the record doesn't cover. "Nobody wrote down why" is an answer too.
+The answer cites its sources. "Nobody wrote down why" is an answer too.
 
-If you're asking because you plan to change the code, I suggest ending your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it.
+If you plan to change the code, end your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it. Take the list to `/architect` as constraints for the design.
 
-**What's next:** take what it found must not be touched lightly (or the list you asked for) to `/architect` as constraints for the design.
-
-> `/why` reads commits and PR discussions; when that trail is thin, it may also use the MCP servers you've connected to read issues, docs, and chat history. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+> `/why` may use the MCP servers you've connected to read issues, docs, and chat history. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
 ## /architect: Sketch the Design Before Writing Code
 
-**When to use it:** for work that isn't a small fix, where jumping straight into code could lock in the wrong structure. The pstack guide's rule of thumb: if the change crosses function boundaries or moves which code owns what, it earns `/architect`.
+Use `/architect` for work that isn't a small fix, where jumping straight into code could lock in the wrong structure. The pstack guide's rule of thumb: if the change crosses function boundaries or moves which code owns what, it earns `/architect`.
 
-**How to write the command:** say what you want built and what you care about most. **If you want to see the design before it starts implementing, you must say "stop and show me the design first" in your prompt;** otherwise it moves on to writing code once the design is done:
+Say what you want built and what you care about most. By default it moves on to writing code once the design is done, so **if you want to see the design first, you must say "stop and show me the design first" in your prompt**:
 
 ```text
 /pstack:architect design <the feature>. stop and show me the design before implementing, and tell me which two designs you compared and why you picked this one. i care most about <how callers use it / performance / room to grow>. constraints: <what /why found must not change>.
@@ -110,23 +111,32 @@ For example:
 /pstack:architect design the import pipeline, then stop and show me before implementing. i care most about how callers use it.
 ```
 
-**What it does:** the skill file is just two short paragraphs. I've summed up the key points below:
+The skill file is just two short paragraphs. Here is the flow:
 
-1. **Trace first:** before writing code, it traces every system the change touches.
-2. **Sketch two designs:** it draws two different shapes, each with only types, function signatures (a function's name, parameters, and return value), and how modules divide the work.
-3. **Pick one:** it chooses the one that best fits three tests: each piece of state has one owner, each task has one way to do it, and callers need to know the least.
-4. **Hand big designs to `/arena`:** for a large or contested design, it runs `/arena` instead of sketching alone, so several subagents each draw one to compare.
-5. **Redesign when workarounds pile up:** if the same workaround keeps coming back during implementation, it redesigns instead of patching around it.
+```mermaid
+flowchart TD
+  A[Trace affected systems] --> B{Large or contested?}
+  B -->|No| C[Sketch two, pick one]
+  B -->|Yes| D["Run /arena instead"]
+  C --> E{Prompt says stop?}
+  D --> E
+  E -->|Yes| F[Stop and show you]
+  E -->|No| G[Implement the design]
+  F -->|You agree| G
+  G -->|Same workaround recurs| H["Redesign, don't patch"]
+```
 
-**What you get:** a design made of types, function signatures, and module boundaries; unless you asked it to stop, the code built from that design follows. The skill file doesn't say what format the design comes in. If you want to see how the two designs compare, why it picked this one, and which questions are yours to decide, ask for them in your prompt, as in the template above.
+Both designs contain only types, function signatures, and how modules divide the work. It picks the one that best fits three tests: each piece of state has one owner, each task has one way to do it, and callers need to know the least. When it switches to `/arena`, several subagents each draw one to compare.
 
-**What's next:** when it stops to show you the design, ask about anything unclear, and let it go on to implement once you agree. If the design matters and a mistake would be expensive, you can run `/interrogate` on the design before implementation, so the models it sends out build a prototype or probe the current code to find where the design breaks; otherwise, run `/interrogate` on the change once it's built.
+The skill file doesn't say what format the design comes in. If you want to see how the two designs compare, why it picked this one, and which questions are yours to decide, ask for them in your prompt, as in the template above.
+
+If the design matters and a mistake would be expensive, you can run `/interrogate` on the design before implementation, so the models it sends out build a prototype or probe the current code to find where the design breaks. Otherwise, run `/interrogate` on the change once it's built.
 
 ## /interrogate: Have Several Models Look for Problems
 
-**When to use it:** after the code is changed and before you merge, to find problems neither you nor the AI noticed. It works best on **actual code changes**: every finding has to be proven by a run, so a plan with no code behind it gives it little to break.
+After the code is changed and before you merge, use `/interrogate` to find problems neither you nor the AI noticed. Every finding has to be proven by a run, so it works best on actual code changes. A plan with no code behind it gives it little to break, so settle open questions with prototypes first.
 
-**How to write the command:** say what to review. That can be a few files, a diff (the lines that changed between two versions), or a whole branch (a line of development in git). Adding "don't change anything yet" and "no nitpicks" makes the result more useful:
+Say what to review: a few files, a diff, or a whole branch. Adding "don't change anything yet" and "no nitpicks" makes the result more useful:
 
 ```text
 /pstack:interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
@@ -138,36 +148,39 @@ To review just a few files:
 /pstack:interrogate review <files or folder>. the goal of this change is <what you want to achieve>.
 ```
 
-**What it does:**
+How it works:
 
 1. **Sets the scope.** If you named files or a diff, it uses those. Otherwise it takes every change on the current branch from where it split off (the merge base) through your working directory, uncommitted changes included.
-2. **Restates in its own words what the change is meant to do.** It draws on your message, the commit messages, and the PR description. If the intent is unclear, it asks you.
-3. **Sends out adversaries.** It sends one adversary per model you've set in the `interrogate reviewers` line. Each gets its own worktree (a separate working copy of the same project), with your uncommitted changes copied in. Each gets the same scope, intent, and brief: break this change, and prove every finding with a run against the real code, such as a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, it builds a prototype or probes the current code. Anything it didn't run stays out of the report, including style, naming, structure, and risks that only matter after some future change. Finding nothing is a valid result.
+2. **Writes down the intent of the change.** It restates it in its own words from your message, the commit messages, and the PR description. If the intent is unclear, it asks you first.
+3. **Sends out adversaries.** It sends one adversary per model you've set in the `interrogate reviewers` line. Each gets its own worktree (a separate working copy of the same project), with your uncommitted changes copied in.
 4. **Reruns to verify.** It reruns the command attached to each finding. A finding stays only if the output shows the failure and that failure breaks the intent of the change; the rest are dropped. Findings that share a root cause are merged into one.
-5. **Keeps them all, rather than picking one.** It borrows `/arena`'s way of sending out workers, but skips the judge, the base pick, and the grafting: adversaries find different failures, so the verdict keeps every verified finding.
 
-**What you get:** a verdict in three parts.
+Each adversary gets the same scope, intent, and brief: break this change, and prove every finding with a run against the real code, such as a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, it builds a prototype or probes the current code.
+
+Anything it didn't run stays out of the report, including style, naming, structure, and risks that only matter after some future change. Finding nothing is a valid result.
+
+The verdict has three parts:
 
 - **Intent:** its restatement of what the change is meant to do.
 - **Findings:** each verified finding, with the command, its output, how it breaks the intent, and which adversaries found it. If none survive, it says there are no verified findings.
 - **Dropped:** for each adversary, how many findings were dropped and why.
 
-**It doesn't change your code automatically.** Whether to fix anything, and what, is up to you.
-
-**What's next:** handle the Findings first; each one comes with its command, so you can rerun it yourself to confirm. Read the Dropped list too, and override the verdict if you disagree.
+It doesn't change your code automatically; whether to fix anything, and what, is up to you. Handle the Findings first; each one comes with its command, so you can rerun it yourself to confirm. Read the Dropped list too, and override either one if you disagree.
 
 ![The /interrogate flow: several adversaries each try to break the same change, the findings are rerun to verify, and the verdict has three parts: Intent, Findings, and Dropped](interrogate-buckets.en.webp){: w="800" h="450" }
-_Several models each try to break the same change, and only findings that still fail on a rerun are kept. Nothing is changed automatically._
+_Several models each try to break the same change, and only findings that still fail on a rerun are kept._
 
 ## /arena: Let Several AIs Each Try, Then Keep the Best
 
-**When to use it:** for anything where a single attempt would likely lock in the wrong approach. The pstack guide's examples are standalone decisions like naming, data formats, and algorithms. You can also use it for a second opinion: your current design becomes one candidate, and you see whether the others found something better. For a large or contested design, `/architect` also switches to it to draw its sketches.
+Hand `/arena` anything where a single attempt would likely lock in the wrong approach. The pstack guide's examples are standalone decisions like naming, data formats, and algorithms. You can also use it for a second opinion: your current design becomes one candidate, and you see whether the others found something better.
 
-**How to write the command:** state the task, why it matters, and how many attempts you want. Ask for more when the decision matters and fewer when it doesn't:
+State the task, why it matters, and how many candidates you want. The more the decision matters, the more you can ask for:
 
 ```text
 /pstack:arena <the task>. this matters because <it's hard to change later / it affects many places>. <N> candidates, own worktree per attempt.
 ```
+
+Each candidate gets its own place to work, a git worktree where possible. Parallel AIs sharing one working directory overwrite each other, and nobody can tell who changed what, so you can ask for it in your prompt as above.
 
 For example:
 
@@ -179,31 +192,33 @@ For example:
 /pstack:arena give me a second opinion on our current approach.
 ```
 
-**What it does:** it opens a to-do list with six phases.
+It opens a to-do list with six phases:
 
-1. **Frame:** every candidate gets exactly the same prompt, so the prompt is the contract. It states what each candidate should produce, then writes 3 to 6 concrete criteria that can be scored. The judge scores against these criteria, and it uses them itself to pick the base in step 4; the candidates see only the task. Each candidate gets its own place to work (a git worktree where possible, meaning a separate working copy of the same project) so they don't overwrite each other.
-2. **Fan out:** it sends N subagents at the same time. Each does the task and adds a short note on the alternatives it considered and why it rejected them. If one produces nothing, it carries on with the remaining N-1 and notes the dropout.
-3. **Cross-judge:** once every candidate is done, it sends one read-only judge. The judge must run on a model from a different vendor than the main conversation (Fable counts as Claude), scores each candidate against each criterion, and recommends one as the base. If no model from another vendor can run, it skips the judge and says so in its note. In Claude Code, subagents can only use Claude models (Opus, Sonnet, Haiku, Fable), so a model from another vendor in the judge list (Gemini by default) [runs on the main conversation's model instead](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L36). If the list has only Claude models, the judge is skipped. Either way, the result says which.
-4. **Pick:** it reads every candidate end to end itself and scores each one criterion by criterion; when there was a judge, it compares the result with the judge's. If they agree, the pick is confirmed. If not, one of them is biased or the criteria were unclear, so it reads both rationales before deciding. It picks the version a future maintainer can extend most easily without breaking its rules.
-5. **Graft:** it goes over the losing candidates once more, usually taking one or two things worth porting from each, and folds them into the base by hand instead of pasting. If the candidates converge on the same approach, it ships that shared approach with no grafting. If they differ wildly, the task in phase 1 wasn't clear enough, so it reframes and runs again instead of averaging the differences.
-6. **Verify:** it checks the merged result like any other output. If it finds a problem, it works out whether phase 1 was wrong (start over) or a candidate had caught it and the graft was missed (back to phase 5).
+1. **Frame:** every candidate gets exactly the same prompt, so the prompt is the contract. It states what each candidate should produce, then writes 3 to 6 concrete criteria that can be scored, for the judge and for picking the base in step 4; the candidates see only the task.
+2. **Fan out:** it sends N subagents at the same time. Each does the task and notes the alternatives it considered and why it rejected them. If one produces nothing, it carries on with the remaining N-1 and notes the dropout.
+3. **Cross-judge:** once every candidate is done, it sends one read-only judge that scores each candidate against each criterion and recommends one as the base. The judge must run on a model from a different vendor than the main conversation (Fable counts as Claude); if none can run, it skips the judge and says so in its note.
+4. **Pick:** it reads every candidate end to end itself and scores each one criterion by criterion, then compares with the judge when there was one. If they agree, the pick is confirmed; if not, one side is biased or the criteria were unclear, so it reads both rationales. It picks the version a future maintainer can extend most easily without breaking its rules.
+5. **Graft:** it usually takes one or two strengths from each losing candidate and folds them into the base by hand instead of pasting. If the candidates converge, it ships the shared approach as is. If they differ wildly, step 1 wasn't clear enough, so it reframes and runs again instead of averaging.
+6. **Verify:** it checks the merged result like any other output. If it finds a problem, it works out whether step 1 was wrong (start over) or a candidate had caught it and the graft was missed (back to step 5).
 
-**What you get:** one merged result, with a short note naming the base and why, the judge's verdict (or that the judge was skipped), each graft and the candidate it came from, what was rejected and why, any convergence or dropouts, and the verification result.
+In Claude Code, subagents can only use Claude models (Opus, Sonnet, Haiku, Fable). A model from another vendor in the judge list (Gemini by default) [runs on the main conversation's model instead](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L36); if the list has only Claude models, the judge is skipped. Either way, the result says which.
 
-**What's next:** if the result is code, you can run `/interrogate` before merging. If what you actually need is **coverage**, such as checking every package once, rather than comparing approaches, that's the job of another skill, `/swarm`, covered in the next section. Don't use `/arena` for it.
+You get one merged result and a note: the base and why, the judge's verdict (or that the judge was skipped), each graft and the candidate it came from, what was rejected and why, any convergence or dropouts, and the verification result.
+
+If the result is code, you can run `/interrogate` before merging. If what you need is coverage, such as checking every package once, rather than comparing approaches, use `/swarm` instead.
 
 ![/arena's six phases: frame (set the rules), fan out, cross-judge (scoring), pick the base, graft (mix in strengths), verify (final check)](arena-phases.en.webp){: w="800" h="450" }
 _More candidates means more subagents: N candidates plus at most one judge._
 
 ## When the Situation Calls for It: Three More Skills and Two Playbooks
 
-The five skills above are the main path. The ones below are for specific situations. `/teach` and `/recall` help you understand the code and your own past work. `/swarm` runs parallel checks across several workers. Prototypes and plans are playbooks under `/poteto-mode`, so you run them through it; they have no command of their own.
+The five skills above are the main path; the ones below are for specific situations. Prototypes and plans are playbooks under `/poteto-mode`, so you run them through it; they have no command of their own.
 
 ### /teach: When a Summary Isn't Enough
 
-**When to use it:** when `/how`'s explanation isn't enough and you want to actually understand a change or a piece of code. For example, you're reviewing a PR, taking over an unfamiliar module, or checking that a fix addresses the cause and not the symptom. It also works on the AI's own choices ([guide, chapter 3](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L37-L51)).
+When `/how`'s explanation isn't enough and you want to actually understand a change or a piece of code, use `/teach`. For example, you're reviewing a PR, taking over an unfamiliar module, or checking that a fix addresses the cause and not the symptom. It also works on the AI's own choices ([guide, chapter 3](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L37-L51)).
 
-**How to write the command:** say what you want to understand. The guide suggests adding "convince me", which turns the explanation into an argument you can test instead of a tour:
+Say what you want to understand. The guide suggests adding "convince me", which turns the explanation into an argument you can test instead of a tour:
 
 ```text
 /pstack:teach me how this PR changes retries. convince me it fixes the cause and not the symptom.
@@ -215,25 +230,25 @@ To ask about the AI's own approach:
 /pstack:teach me why you implemented it this way and not with a queue. what did you trade off, and why?
 ```
 
-The guide points out that this helps the AI too. To explain its work, it has to read the code and back each claim with evidence, instead of stating it confidently and moving on.
+The guide points out that this helps the AI too: it has to read the code and back each claim with evidence, instead of stating it confidently and moving on.
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L11-L17)):
+How it works ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L11-L17)):
 
-1. **Decides the few things you should walk away with.** It reads from the conversation why you're asking (about to change it, reviewing it, debugging it, or new to it) and what you already know, then picks a few points. It skips what you plainly know already. It doesn't quiz you.
+1. **Decides the few things you should walk away with.** It reads from the conversation why you're asking (about to change it, reviewing it, debugging it, or new to it) and what you already know, then picks a few points. It skips what you plainly know and doesn't quiz you.
 2. **Lets `/how` and `/why` do the digging.** It reads the code itself to get oriented, then runs `/how` and `/why` in parallel and combines the results. For a whole subsystem it runs both; for a small change, one may be enough.
 3. **Gives the smallest complete answer first.** It says what the thing is in a sentence or two, ties it to the case in front of you, and only then goes into the mechanism, the reasons, and the edge cases. It goes deeper when you ask, never with a wall of text.
 4. **Builds diagrams up one at a time.** When there are three or more moving parts, it doesn't draw one diagram with everything at once. It draws a series, where each diagram redraws the last and adds one part.
 5. **Keeps `/why`'s hedges intact.** It rewords freely for teaching, but where `/why` marked an inference or said the record has no answer, that stays as written, because those hedges are findings, not style.
 
-**What you get:** a plain explanation, not a report on what it did. It leads with the main point, then covers what the thing is, how it works, and why, and ends with the threads worth chasing with `/how` or `/why` ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L21)). Its goal is your understanding; it changes no code ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L9)).
+You get a plain explanation, not a report on what it did. It leads with the main point, then covers what the thing is, how it works, and why, and ends with the threads worth chasing with `/how` or `/why` ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L21)). Its goal is your understanding; it changes no code ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/teach/SKILL.md#L9)).
 
-**What's next:** once you understand it and are ready to make changes, move on to `/architect`. If a thread it listed still matters to you, run `/how` or `/why` on it directly.
+Once you understand it and are ready to make changes, move on to `/architect`.
 
 ### /recall: Get Your Context Back Before Resuming a Topic
 
-**When to use it:** when you're starting or resuming work on a topic you've touched before and want to rebuild where you left off. Your old chats hold context a fresh agent lacks, so the guide suggests loading it first and then handing over the new input ([guide, chapter 3](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L53-L65)). If you want to resume **one specific** chat, that's the Session pickup playbook, not `/recall`; I cover it in [Part 4](/posts/pstack-principles-customization/).
+When you're starting or resuming work on a topic you've touched before, use `/recall` to rebuild where you left off. Your old chats hold context a fresh agent lacks, so the guide suggests loading it first and then handing over the new input ([guide, chapter 3](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/03-understand.md#L53-L65)). Resuming **one specific** chat is the Session pickup playbook's job, which I cover in [Part 4](/posts/pstack-principles-customization/).
 
-**How to write the command:** name the topic and the time range. If there's new input for it to handle, add it after:
+Name the topic and the time range. If there's new input for it to handle, add it after:
 
 ```text
 /pstack:recall catch me up on the export work from last week
@@ -243,33 +258,58 @@ The guide points out that this helps the AI too. To explain its work, it has to 
 /pstack:recall my work on the virtualized list from yesterday, then read this bug report.
 ```
 
-**What it does** ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L17-L22)):
+Here is the flow ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L17-L22)):
 
-1. **Classifies the request.** Resuming one specific chat goes to Session pickup instead. If you already gave it the full state (paths, branch, the change), it uses that and skips the digging.
-2. **Locks the scope.** That covers the time window ("recent" defaults to the last 7 days), the topic, and the project (the current one by default; it doesn't read another project's history unless you ask). It states the scope back to you first.
-3. **Splits your chat history across subagents.** It sends several subagents on a fast, cheap model in parallel, each taking a slice, and each reads only the chats and passages that match the topic. They all report in the same format: the topic, your goal, decisions, open threads, where you got stuck or corrected the agent, and artifacts (PRs, tickets, branches). With only one or two chats, it skips the subagents and searches directly. In Claude Code, it reads this project's history (`.jsonl` files) under `~/.claude/projects/`, and only this project's folder ([Claude Code mapping](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L57)).
-4. **Sweeps the shared record.** When the topic names a feature, file, subsystem, or bug, this step always runs. For each source (source control, the issue tracker, chat channels, docs, and error tracking), it sends one subagent to ask "what's the current state, what's been tried and didn't hold, and what are users still reporting". It skips any MCP server that isn't connected and says so.
-5. **Checks live state.** It uses `git` and `gh` to confirm the current state of the PRs, branches, and tickets it found.
+```mermaid
+flowchart TD
+  A{Resume one chat?} -->|Yes| B[Use Session pickup]
+  A -->|No| C{Full state given?}
+  C -->|Yes| D[Use it, skip digging]
+  C -->|No| E[Lock the scope]
+  E --> F[Split chat history]
+  E --> G{Names feature or bug?}
+  G -->|Yes| H[Sweep shared record]
+  G -->|No| I[Check live state]
+  F --> I
+  H --> I
+  I --> J[Hand back brief]
+```
 
-**What you get:** a brief in a fixed format ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L24-L33)).
+The full state means paths, branch, and the change. The scope covers the time window ("recent" defaults to the last 7 days), the topic, and the project (the current one by default; it doesn't read another project's history unless you ask), and it states the scope back to you first.
+
+For chat history, it sends several subagents on a fast, cheap model in parallel, each taking a slice and reading only the chats and passages that match the topic. With only one or two chats, it skips the subagents and searches directly.
+
+Every subagent reports in the same format: the topic, your goal, decisions, open threads, where you got stuck or corrected the agent, and artifacts (PRs, tickets, branches). In Claude Code, it reads this project's history (`.jsonl` files) under `~/.claude/projects/`, and only this project's folder ([Claude Code mapping](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L57)).
+
+The shared record means source control, the issue tracker, chat channels, docs, and error tracking. It sends one subagent per source to ask "what's the current state, what's been tried and didn't hold, and what are users still reporting". When the topic names a feature, file, subsystem, or bug, this step always runs; it skips only MCP servers that aren't connected, and says so.
+
+The last step uses `git` and `gh` to confirm the current state of the PRs, branches, and tickets it found.
+
+The brief follows a fixed format ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/recall/SKILL.md#L24-L33)):
 
 - **Capsule:** at most 5 bullets on what the work is and where it stands overall.
 - **Threads:** one line per thread, each tagged with a status such as `[merged #N]`, `[open PR #N]`, `[in flight <branch>]`, or `[reverted #N]`.
 - **Problems:** at most 5 recurring ones, including symptoms users keep reporting and fixes that shipped and were reverted, so the next attempt starts where the last one failed.
 - **Next move:** the single most useful next action.
 
-Findings from your chats cite the chat ID, and findings from the shared record cite their source, such as a PR number or ticket ID.
+Findings from your chats cite the chat ID, and findings from the shared record cite their source, such as a PR number or ticket ID. Start a new task from the Next move and hand it to `/pstack:poteto-mode`.
 
-**What's next:** start a new task from the Next move and hand it to `/pstack:poteto-mode`.
-
-> `/recall` reads your past chat history. When the topic names a feature or bug, it also uses the MCP servers you've connected to read issues, chat channels, and error tracking. As with `/why`, decide first what data you're willing to let the AI read.
+> `/recall` reads your past chat history, and may also use the MCP servers you've connected to read issues, chat channels, and error tracking. As with `/why`, decide first what data you're willing to let the AI read.
 {: .prompt-tip }
 
 ### /swarm: When You Need Coverage, Not a Comparison
 
-**When to use it:** when running in parallel buys you coverage or lets several independent attempts race. For example, checking every package once, or having several workers try to reproduce a flaky failure at the same time. The difference from `/arena`: `/arena` runs the same brief N times, then picks a base and grafts in the best parts. `/swarm` splits the work into slices that each do their own part, or races workers on the same brief under a selection rule declared up front, with no base selection or grafting ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L47-L55)).
+Use `/swarm` when running in parallel buys you coverage or lets several independent attempts race. For example, checking every package once, or having several workers try to reproduce a flaky failure at the same time.
 
-**How to write the command:** say how to split the work, how to check each slice, and that you want one report:
+Three skills send work out in parallel; they differ in how they converge:
+
+| Skill | How it sends work out | How it converges |
+| --- | --- | --- |
+| `/arena` | The same task N times | A judge scores; it picks a base and grafts in strengths |
+| `/interrogate` | Borrows `/arena`'s fan-out, one adversary per model | No judge, base pick, or grafting; adversaries find different failures, so it keeps every verified finding |
+| `/swarm` | Slices that each do their own part, or workers racing on the same task | A selection rule declared up front, with no base pick or grafting ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L47-L55)) |
+
+Say how to split the work, how to check each slice, and that you want one report:
 
 ```text
 /pstack:swarm check every package under packages/ against its check.sh. one worker per package. one report.
@@ -281,24 +321,41 @@ For a race, state the selection rule up front:
 /pstack:swarm 3 workers, each trying to reproduce this flaky test failure. first one to reproduce it wins.
 ```
 
-**What it does:** it opens a to-do list with four phases ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/swarm/SKILL.md#L11-L41)).
+It opens a to-do list with four phases: Frame, Fan out, Aggregate, and Report ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/swarm/SKILL.md#L11-L41)):
 
-1. **Frame:** it writes down what counts as done and what the swarm must return. Then it picks the shape: slices, N workers racing on the same brief, or a mix. For a race, it declares the selection rule before spawning: `first pass`, `rank all`, or `best-of`. The worker model comes from the `swarm workers` line in your `/setup-pstack` configuration, or Opus 5.5 (high) if that line is missing. Workers that write files each get their own output location, and when workers verify or measure commits, each brief names the exact SHAs and the method.
-2. **Fan out:** it spawns all N workers at once. Every brief stands alone, with the goal, scope, slice, how to verify, and what to report. Workers report `PASS`, `ISSUES`, or `BLOCKED` with evidence, and a worker that can prove a defect lists every issue it can prove, not only the first. In Cursor, workers run in the cloud by default; in Claude Code, each worker gets its own worktree instead ([Claude Code mapping](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L24)). If a worker drops out, it carries on with N-1 and notes it.
-3. **Aggregate:** a result that doesn't record the SHAs and method its brief named is dropped, and that worker is respawned once. After a second miss, it records a gap. A gap doesn't count as a pass. For coverage, every slice needs a result; for a race, it applies the rule declared up front.
-4. **Report:** it returns one consolidated report in the chat, without pasting raw worker output.
+```mermaid
+flowchart TD
+  A[Define done and output] --> B{Slices or race?}
+  B -->|Slices| D[Spawn all workers]
+  B -->|Race or mix| C[Declare selection rule]
+  C --> D
+  D --> E{SHAs and method recorded?}
+  E -->|Yes| G[Merge into one report]
+  E -->|No| F[Respawn once]
+  F -->|Now included| G
+  F -->|Still missing| H[Record gap, not pass]
+  H --> G
+```
 
-**What you get:** one report with a results table, a one-line summary per issue, and any gaps or dropouts, plus the selection rule when it ran a race.
+The selection rule is one of `first pass`, `rank all`, or `best-of`. The worker model comes from the `swarm workers` line in your `/setup-pstack` configuration, or Opus 5.5 (high) if that line is missing.
 
-**What's next:** fix the `ISSUES` one by one. Handle `BLOCKED` results and gaps separately; don't count them as passes.
+Workers that write files each get their own output location, and when workers verify or measure commits, each brief names the exact SHAs and the method.
+
+Every brief stands alone, with the goal, scope, slice, how to verify, and what to report. Workers report `PASS`, `ISSUES`, or `BLOCKED` with evidence, and a worker that can prove a defect lists every issue it can prove, not only the first.
+
+In Cursor, workers run in the cloud by default; in Claude Code, each worker gets its own worktree instead ([Claude Code mapping](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L24)). If a worker drops out, it carries on with N-1 and notes it.
+
+When aggregating, coverage work needs a result for every slice, and a race applies the rule declared up front. The report comes back in the chat without raw worker output: a results table, a one-line summary per issue, and any gaps or dropouts, plus the selection rule for a race.
+
+Fix the `ISSUES` one by one. Handle `BLOCKED` results and gaps separately; don't count them as passes.
 
 ### Prototypes: Decide With Something That Runs
 
-Prototyping runs through the Prototype playbook under `/poteto-mode`; it has no command of its own.
+Prototyping runs through the Prototype playbook, for an open question you can answer by running something, such as a layout, an interaction, a timing, or an approach. The guide's advice is never to take the first design: ask for a few and pick from evidence you can see. It works for behavior and algorithms, not just UI ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L67-L83)).
 
-**When to use it:** for an open question you can answer by running something, such as a layout, an interaction, a timing, or an approach. The guide's advice is never to take the first design: ask for a few and pick from evidence you can see. It works for behavior and algorithms, not just UI ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L67-L83)). `/poteto-mode` also prototypes on its own when it hits a fork that running something can settle, instead of stopping to ask you ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L21)).
+`/poteto-mode` already prototypes on its own when it hits a fork that running something can settle, instead of stopping to ask you ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L21)).
 
-**How to write the command:** say what to compare and what evidence you want to see:
+Say what to compare and what evidence you want to see:
 
 ```text
 /pstack:poteto-mode prototype a few options for the new dropdown menu. put them behind a switcher and send me screenshots of each.
@@ -310,26 +367,22 @@ For a larger design, pair it with `/architect` and keep a review gate:
 /pstack:poteto-mode we need rate limiting for external webhooks. /architect it first, and answer open questions with prototypes. let me review before proceeding.
 ```
 
-**What it does** ([Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L5-L12)): this is the one playbook that inverts "smallest change" and the verification bar. Speed comes before polish, code quality doesn't matter, and there's no planning. The rigor is in picking the right design cheaply, and it proposes variations you didn't ask for.
+This is the one playbook that inverts "smallest change" and the verification bar. Speed comes before polish, code quality doesn't matter, and there's no planning; the rigor is in picking the right design cheaply, and it proposes variations you didn't ask for. The steps ([Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L5-L12)):
 
 1. **Names the decision.** For example, which layout, interaction, or density, or which behavior, timing, or approach. No decision means no prototype; the work goes to the regular Feature playbook instead.
-2. **Gathers references when the direction is open.** It searches for prior art and summarizes themes, palettes, and layouts so you can pick a direction before it builds. It skips this when the direction is set.
-3. **Builds throwaway versions in a scratch directory.** They stay separate from production code. For a visual decision, it uses the lightest stack that shows the idea, such as plain HTML, CSS, and JavaScript. For a behavior or timing decision, it writes the smallest script that tests the question. No production framework, no tests, no abstractions.
+2. **Gathers references when the direction is open.** It searches for prior art and summarizes themes, palettes, and layouts so you can pick a direction first. It skips this when the direction is set.
+3. **Builds throwaway versions in a scratch directory, apart from production code.** For a visual decision, it uses the lightest stack that shows the idea, such as plain HTML, CSS, and JavaScript; for a behavior or timing decision, the smallest script that tests the question. No production framework, no tests, no abstractions.
 4. **Puts the options behind one switcher.** You switch with buttons or a keypress, and each option is labeled.
-5. **Verifies on the matching surface.** For a visual decision, it screenshots each option and drives the interaction. For a behavior or timing decision, it logs the timing, prints the output, or watches the render. Here the observation is the test. Screenshots need a skill that drives the UI, such as `control-ui` from `cursor-team-kit` (see [Part 1](/posts/pstack-install-routing/)).
+5. **Verifies on the matching surface.** For a visual decision, it screenshots each option and drives the interaction; for a behavior or timing decision, it logs the timing, prints the output, or watches the render, and the observation is the test. Screenshots need a skill that drives the UI, such as `control-ui` from `cursor-team-kit` (see [Part 1](/posts/pstack-install-routing/)).
 6. **Lays out the options, tradeoffs, and a recommendation.**
 
-**What you get:** the options it tried, the evidence (screenshots for a visual decision, observed output or timing for a behavioral one), the tradeoffs, its recommendation, and the scratch directory path. It says plainly that the prototype is throwaway ([Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L14)).
-
-**What's next:** once you pick a direction, hand it to the Feature playbook for the real build, or use `/architect` to settle the shape first. Don't merge prototype code into the project.
+You get the options it tried, the evidence (screenshots for a visual decision, observed output or timing for a behavioral one), the tradeoffs, its recommendation, and the scratch directory path. It says plainly that the prototype is throwaway ([Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L14)). Once you pick a direction, hand it to the Feature playbook for the real build, or use `/architect` to settle the shape first; don't merge prototype code into the project.
 
 ### Plans: Split the Work Into PRs After the Design Settles
 
-A written plan comes from the Multi-phase plan playbook under `/poteto-mode`. pstack has no planning skill on purpose; in the README, the author writes about not believing in planning and says the best spec is code ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L268-L270)).
+A written plan comes from the Multi-phase plan playbook. pstack has no planning skill on purpose; in the README, the author writes about not believing in planning and says the best spec is code ([README](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/README.md#L268-L270)).
 
-**When to use it:** when the work spans several PRs and the design has settled ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L95-L111)). For a change of one or two files with an obvious approach, it says no plan is needed and stops.
-
-**How to write the command:** ask once the design has settled, and say how each PR should prove it works:
+Use it only when the work spans several PRs and the design has settled ([guide, chapter 4](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/04-design.md#L95-L111)). Say in your prompt how each PR should prove it works:
 
 ```text
 /pstack:poteto-mode turn this design into a plan. small verifiable PRs, each with its own verification steps.
@@ -343,17 +396,18 @@ For a migration, put the bar in the prompt:
 
 "bugs included" keeps the migration from quietly fixing things along the way, which would make the old and new output impossible to compare.
 
-**What it does** ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L5-L9)):
+The steps ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L5-L9)):
 
-1. **Skips small changes.** For one or two files with an obvious approach, it says so and stops.
+1. **Skips small changes.** For one or two files with an obvious approach, it says no plan is needed and stops.
 2. **Settles open questions with prototypes first.** It asks you only about product or preference calls that no run can settle.
-3. **Writes the plan file.** It opens with what changes, the PRs in landing order, and the dependency graph: which PRs are independent and branch from trunk, which wait for which, and which files each may touch. Then it writes one section per PR, where one PR is one change with its own evidence. Each section has checkboxes for what it depends on, the files it edits, the one change it makes, the result you'll see, and how it's verified.
-4. **Doesn't accept tests alone as verification.** A PR counts as verified only when its unit, live, and perf boxes are all checked. A live check drives the real UI or CLI through a concrete scenario with a pass condition. A perf check names the metric, how it's measured, a trunk baseline measured first, and the number that counts as a failure. A PR that changes an interaction waits for your review before merge.
-5. **Hands back the plan path and stops.** Execution starts only when you explicitly say go.
+3. **Writes the plan file's header.** It covers what changes, the PRs in landing order, and the dependency graph: which PRs are independent and branch from trunk, which wait for which, and which files each may touch.
+4. **Writes one section per PR.** One PR is one change with its own evidence. Each section has checkboxes for what it depends on, the files it edits, the one change it makes, the result you'll see, and how it's verified.
+5. **Doesn't accept tests alone as verification.** The unit, live, and perf boxes must all be checked: a live check drives the real UI or CLI through a concrete scenario with a pass condition, and a perf check names the metric, how it's measured, a trunk baseline measured first, and the number that counts as a failure. A PR that changes an interaction waits for your review before merge.
+6. **Hands back the plan path and stops.** Execution starts only when you explicitly say go.
 
-**What you get:** the plan file path, the PR IDs with their dependencies, which PRs need your review before merging, and what remains unproven ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L11)). The plan also names the playbook that will carry it out ([guide, chapter 10](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md#L45)).
+You get the plan file path, the PR IDs with their dependencies, which PRs need your review before merging, and what remains unproven ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L11)). The plan also names the playbook that will carry it out ([guide, chapter 10](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md#L45)).
 
-**What's next:** read the plan, and tell it to start once you agree. For work that spans several days, the guide suggests committing the plan to the repo for a while so other agents can see the work in progress, then deleting it when the work lands.
+For work that spans several days, the guide suggests committing the plan to the repo for a while so other agents can see the progress, then deleting it when the work lands.
 
 ## A Complete Example (Made Up)
 
@@ -384,7 +438,9 @@ Because you asked for that list at the end of your prompt, the report includes i
 /pstack:architect design a daily digest email option. stop and show me the design before implementing, and tell me which two designs you compared and why you picked this one. i care most about not affecting the existing instant notifications. constraints: <paste the preserve and avoid items from step 2>.
 ```
 
-`/architect`'s first step already traces the code the change touches on its own, but its skill file doesn't have it dig into history; if you want the original reasons as constraints, run `/why` yourself first, as in step 2. I also wrote the first two steps of this example as manual runs so you understand the code yourself and can check whether the AI's understanding is off. If you don't need any of that, you can start at this step. When it stops, look at which two designs it compared and why it picked this one, ask about anything unclear, and then let it implement.
+`/architect`'s first step already traces the code the change touches on its own, but its skill file doesn't have it dig into history. If you want the original reasons as constraints, run `/why` yourself first, as in step 2.
+
+I also wrote the first two steps as manual runs so you understand the code yourself and can check whether the AI's understanding is off. If you don't need that, you can start at this step.
 
 **4. Hand a standalone decision to `/arena`.**
 
@@ -400,14 +456,14 @@ Suppose the design leaves an open question: should the digest list notifications
 /pstack:interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
 ```
 
-Handle the Findings first. Read Dropped too, and override it if you disagree.
+Handle the Findings first, then read Dropped too.
 
-> I wrote this example to call each skill **by hand**, so you stay in control of every step. Normally you can give the goal and constraints to `/pstack:poteto-mode` and let it decide which skills to use and in what order. When you do, don't list the skills in your prompt; that reorders steps it already sequences. Name a skill only when you want to override a default.
+> I wrote this example to call each skill **by hand**, so you stay in control of every step. Normally you can give the goal and constraints to `/pstack:poteto-mode` and let it decide which skills to use and in what order. When you do, don't list the skills in your prompt, since that reorders steps it already sequences; name a skill only when you want to override a default.
 {: .prompt-tip }
 
 ## Which One When
 
-The pstack guide starts with a point I think is important: **most changes need none of these.** Here is its rough ladder, to which I've added `/how`, `/why`, `/teach`, and `/recall`:
+The pstack guide starts with an important point: **most changes need none of these.** Here is its rough ladder, to which I've added `/how`, `/why`, `/teach`, and `/recall`:
 
 | Situation | Use |
 | --- | --- |
@@ -424,20 +480,26 @@ The pstack guide starts with a point I think is important: **most changes need n
 | Work that spans several PRs | A plan through `/poteto-mode`, after the design settles |
 | You want the AI to decide | `/poteto-mode`, which already applies this ladder |
 
-## Cautions
+## How Many Subagents Each Skill Sends
 
-- **Quota:** the more subagents a skill sends out, the more quota it usually uses. `/how` sends one subagent. `/why`'s skill file doesn't say how many to send. `/interrogate` sends one adversary per model, and each one actually runs code in its own worktree. `/arena` sends N candidates plus at most one judge. `/architect` runs a whole `/arena` for a large or contested design, and that is when it sends out the most. `/teach` actually runs `/how` and `/why` (for a small change, maybe just one). `/recall` sends subagents through your chat history in parallel, plus one more per shared-record source when the topic names a feature or bug. `/swarm` sends one worker per slice. A small change isn't worth `/architect` or `/arena`.
-- **`/architect` doesn't stop by default:** if you want to see the design before implementation, say "stop and show me the design first" in your prompt.
-- **Don't take the first design:** the first attempt is usually just the first shape the model thought of. For designs that matter, use `/architect` or `/arena` to see a few.
-- **Don't review an abstract plan:** `/interrogate` keeps only problems a run can show, so a plan with no code behind it gives it little to break. Settle open questions with prototypes first, then use `/interrogate` on actual code changes.
-- **Prototypes are throwaway:** prototype code has no tests and no abstractions. Once you pick a direction, rebuild it through the Feature playbook instead of merging the prototype.
-- **Don't accept every review comment:** `/interrogate` keeps only the findings a rerun proves and lists what it dropped and why, but you decide, and you can override it either way.
-- **Don't let parallel AIs share one working directory:** they overwrite each other, and nobody can tell who changed what. With `/arena`, you can ask for its own worktree per attempt. In Claude Code, `/swarm` gives each worker its own worktree by default.
-- **Versions:** I based everything here on the pstack `0.15.43` skill files; later versions may work differently.
+The more subagents a skill sends out, the more of your quota it usually takes:
+
+| Skill | Subagents it sends |
+| --- | --- |
+| `/how` | One |
+| `/why` | The skill file doesn't say |
+| `/teach` | Actually runs `/how` and `/why`; for a small change, maybe just one |
+| `/recall` | Subagents through your chat history in parallel, plus one per shared-record source when the topic names a feature or bug |
+| `/interrogate` | One adversary per model, each actually running code in its own worktree |
+| `/arena` | N candidates plus at most one judge |
+| `/architect` | A whole `/arena` for a large or contested design, which is when it sends the most |
+| `/swarm` | One worker per slice |
+
+A small change isn't worth `/architect` or `/arena`.
 
 ## Conclusion
 
-Before you change code with pstack, the order I suggest is: use `/how` to learn how the code runs now, and `/why` when you need the reasons that make some parts off-limits. Then use `/architect` to compare two designs and sketch the types, asking it in your prompt to stop so you see the design first. For a standalone decision, let `/arena` compare a few candidates. Once the code is changed, use `/interrogate` to have several models run the code and try to break it, keeping only the problems they can prove, and decide for yourself what to fix. When a summary isn't enough, use `/teach`; before resuming an old topic, run `/recall`; for coverage or a race, use `/swarm`. Hand a question you can answer by running something to a `/poteto-mode` prototype, and for work that spans several PRs, ask it for a plan once the design settles. You don't need all of these every time: for a small change, just make it, and review it afterward if you're unsure.
+You don't need all of these every time. For a small change, just make it, and review it with `/interrogate` if you're unsure; for a change that touches structure, understand it first with `/how` and `/why`, then have `/architect` stop and show you the design.
 
 ## Further Reading
 
