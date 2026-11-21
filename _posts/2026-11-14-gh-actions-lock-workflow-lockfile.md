@@ -24,6 +24,8 @@ GitHub 在 2026-10-28 正式推出 workflow lockfile。`gh actions-lock` 把支�
 
 先認識幾個詞：
 
+- **GitHub Actions**：GitHub 內建的自動化服務，程式一推上去，就能自動跑測試、建置、部署。
+- **repo**（repository）：GitHub 上存放專案程式碼的地方。
 - **workflow**：放在 repo 的 `.github/workflows/` 裡的 YAML 設定檔，寫明要自動做哪些事。
 - **action**：workflow 裡可以重複使用的現成步驟，例如負責「取出程式碼」的 `actions/checkout`。workflow 用 `uses:` 這一行指定要用哪個 action、哪一版。
 - **commit 與 SHA**：commit 是某一次提交時的程式碼快照。SHA 是每個 commit 獨一無二的編號，一長串英數字，內容只要改一個字，編號就不同。
@@ -425,10 +427,10 @@ flowchart LR
   B --> C["PR 上 CI 跑 --verify"]
   C --> D[審查 lockfile diff]
   D --> E[合併]
-  E --> F{有有效 lockfile？}
-  F -->|有| G[runner 驗證後執行]
-  F -->|沒有，政策 Active| H[執行被擋下]
-  F -->|沒有，未開政策| I[照標籤執行]
+  E --> F{workflow 已上鎖？}
+  F -->|是| G[runner 驗證，不符就擋下]
+  F -->|否，政策 Active| H[執行被擋下]
+  F -->|否，未開政策| I[照標籤執行]
 ```
 
 組織若已開「action 必須釘到完整 SHA」的政策，它和 Require lockfile 是各自獨立的檢查，兩個都要通過。已上鎖的 workflow，就算檔案裡沒寫 SHA，也能同時通過兩者。

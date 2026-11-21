@@ -203,7 +203,7 @@ flowchart TD
   E --> G[在受害者账号建仓库上传]
 ```
 
-恶意版本在 2025 年 8 月 26 日美东时间傍晚（北京时间（UTC+8）8 月 27 日清晨）发布。postinstall 脚本是包安装好后会自动运行的脚本。上传数据的仓库建在用户自己的 GitHub 账号下，名称含 `s1ngularity-repository`。
+GitHub Actions 是 GitHub 内置的自动化流程。恶意版本在 2025 年 8 月 26 日美东时间傍晚（北京时间（UTC+8）8 月 27 日清晨）发布。postinstall 脚本是包安装好后会自动运行的脚本。上传数据的仓库建在用户自己的 GitHub 账号下，名称含 `s1ngularity-repository`。
 
 公告附录收录的脚本里，有一段写给“文件搜索 agent”的提示词，要它列出各种配置文件和环境文件的路径。
 

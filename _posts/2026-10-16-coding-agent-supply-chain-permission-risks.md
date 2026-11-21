@@ -203,7 +203,7 @@ flowchart TD
   E --> G[在受害者帳號建 repo 上傳]
 ```
 
-惡意版本在 2025 年 8 月 26 日美東時間傍晚（台灣時間 8 月 27 日清晨）發布。postinstall 腳本是套件裝好後會自動執行的腳本。上傳資料的 repo 建在使用者自己的 GitHub 帳號下，名稱含 `s1ngularity-repository`。
+GitHub Actions 是 GitHub 內建的自動化流程。惡意版本在 2025 年 8 月 26 日美東時間傍晚（台灣時間 8 月 27 日清晨）發布。postinstall 腳本是套件裝好後會自動執行的腳本。上傳資料的 repo 建在使用者自己的 GitHub 帳號下，名稱含 `s1ngularity-repository`。
 
 公告附錄收錄的腳本裡，有一段寫給「檔案搜尋 agent」的提示詞，要它列出各種設定檔和環境檔的路徑。
 

@@ -24,6 +24,8 @@ This post deals with one supply chain risk: an action someone else wrote gets sw
 
 A few terms first:
 
+- **GitHub Actions**: GitHub's built-in automation service. Push code, and it can run tests, builds, and deployments for you.
+- **repo** (repository): where a project's code lives on GitHub.
 - **workflow**: a YAML file in the repo's `.github/workflows/` folder that says what to automate.
 - **action**: a reusable, ready-made step inside a workflow, such as `actions/checkout`, which checks out your code. A workflow picks an action and its version with a `uses:` line.
 - **commit and SHA**: a commit is a snapshot of the code at one point in time. A SHA is the commit's unique ID, a long string of letters and digits. Change a single character and the ID changes.
@@ -425,8 +427,8 @@ flowchart LR
   B --> C["--verify on PR"]
   C --> D[Review lockfile diff]
   D --> E[Merge]
-  E --> F{Valid lockfile?}
-  F -->|Yes| G[Runner verifies, runs]
+  E --> F{Workflow locked?}
+  F -->|Yes| G["Runner verifies, blocks on mismatch"]
   F -->|No, policy Active| H[Run blocked]
   F -->|No, no policy| I[Follows the tag]
 ```

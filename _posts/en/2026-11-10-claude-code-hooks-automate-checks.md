@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-After I ask an AI to edit a file, I still have to check: did formatting run? Did the tests pass? Did it touch `.env`? Claude Code hooks run these checks at fixed points, so you don't wait for the AI to decide whether to run them.
+After I ask an AI to edit a file, I still have to check: did formatting run? Did the tests pass? Did it touch `.env`? Claude Code (an AI coding assistant you use in the terminal) has hooks that run these checks at fixed points, so you don't wait for the AI to decide whether to run them.
 
 This post sets up four common hooks, then covers what they cannot block.
 
@@ -195,7 +195,7 @@ Exit code `2` does something different on each event:
 
 ## Re-inject rules after compaction: SessionStart
 
-When the context gets too long, Claude Code runs compaction: it summarizes the earlier conversation, and details can be lost. The official fix is a SessionStart hook with the matcher `compact` that writes key rules back into the context after each compaction. Plain text the command prints to stdout is added to Claude's context:
+When the context (what is still in front of the model) gets too long, Claude Code runs compaction. It summarizes the earlier conversation to free up space, and details can be lost. The official fix is a SessionStart hook with the matcher `compact` that writes key rules back into the context after each compaction. Plain text the command prints to stdout is added to Claude's context:
 
 ```json
 "SessionStart": [
@@ -211,7 +211,7 @@ When the context gets too long, Claude Code runs compaction: it summarizes the e
 ]
 ```
 
-Replace the reminder with your project rules. `compact` covers both automatic and manual compaction, and SessionStart cannot block compaction itself. Rules that rarely change can live in `CLAUDE.md` instead.
+Per the docs, Claude sees this reminder again after compaction. Replace the reminder with your project rules. `compact` covers both automatic and manual compaction, and SessionStart cannot block compaction itself. Rules that rarely change can live in `CLAUDE.md` instead.
 
 ## Check your setup with /hooks
 
@@ -224,7 +224,7 @@ The screen is read-only. To change a hook, edit its JSON file.
 Say you maintain a small site. You want JavaScript formatted after edits, no Edit or Write on `.env`, tests at the end of every reply, and a reminder after compaction to use Bun and test before committing.
 
 1. At the project root, create `.claude/settings.json` with the four events above. Add `protect-files.sh` and `run-tests-on-stop.sh`, point the test command at your project, and run the `chmod` from earlier.
-2. Make sure `jq` is installed, along with a Node.js that can run `npx prettier`.
+2. Make sure `jq` is installed, along with a Node.js that can run `npx prettier`. Formatting uses `npx prettier`, so it works whether the project manages packages with Bun or npm.
 3. Start Claude Code, type `/hooks`, and confirm that PostToolUse, PreToolUse, Stop, and SessionStart are listed, sourced from project settings.
 4. Ask Claude to add a feature in a `.js` file. After its Edit or Write, Prettier formats the file.
 5. If it tries to change `.env` with Edit or Write, that change is blocked with a `Blocked:` reason.
@@ -261,9 +261,9 @@ _A concept illustration. The matcher watches named tools; changes made through B
 
 **PostToolUse can't undo anything.** By then the file is written, the command has run, and the network request is sent. To block or rewrite a call before it runs, use PreToolUse.
 
-**Hooks run with your full user permissions.** A hook can read, change, or delete any file your account can reach. Read the commands and try them somewhere safe before you add them. Before using hooks in a shared or production environment, read [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations).
+**Hooks run with your full user permissions.** The docs warn that a command hook can read, change, or delete any file your account can reach. Read the commands and try them somewhere safe before you add them. Before using hooks in a shared or production environment, read [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations).
 
-An interactive session asks whether you trust the folder. `claude -p` and the SDK don't ask and treat the folder as trusted, so hooks in a repo's `.claude/settings.json` can run in a directory you never approved.
+An interactive session asks whether you trust the folder. Per the docs, `claude -p` and the SDK don't ask and treat the folder as trusted, so hooks in a repo's `.claude/settings.json` can run in a directory you never approved.
 
 Hooks are not a security boundary. To have the operating system limit what commands can read and write, see [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/).
 

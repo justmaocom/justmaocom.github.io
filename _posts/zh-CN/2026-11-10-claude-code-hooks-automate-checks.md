@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-每次请 AI 改完文件，我都还要自己问：排版跑了没？测试过了没？有没有动到 `.env`？Claude Code 的 hooks 让这些检查在固定时机自动运行，不必等 AI 自己决定要不要做。
+每次请 AI 改完文件，我都还要自己问：排版跑了没？测试过了没？有没有动到 `.env`？Claude Code（在终端里使用的 AI 编程助手）的 hooks 让这些检查在固定时机自动运行，不必等 AI 自己决定要不要做。
 
 这篇设置四个常用的 hook，最后说明它挡不下什么。
 
@@ -195,7 +195,7 @@ exit 0
 
 ## 压缩后把规则补回来：SessionStart
 
-对话太长时，Claude Code 会做 compaction（压缩），把先前的对话摘要成较短的内容，细节可能因此丢失。官方建议用 matcher 为 `compact` 的 SessionStart hook，每次压缩后把关键规则再写进上下文。命令打印到 stdout 的纯文本会加进 Claude 的上下文：
+对话上下文（也就是目前还留在模型眼前的内容）太长时，Claude Code 会做 compaction（压缩）。它把先前的对话摘要成较短的内容，好腾出空间，细节可能因此丢失。官方建议用 matcher 为 `compact` 的 SessionStart hook，每次压缩后把关键规则再写进上下文。命令打印到 stdout 的纯文本会加进 Claude 的上下文：
 
 ```json
 "SessionStart": [
@@ -211,7 +211,7 @@ exit 0
 ]
 ```
 
-把提醒换成你的项目规则。`compact` 涵盖自动与手动压缩，SessionStart 拦不住压缩本身。不常变的规则也可以改放在 `CLAUDE.md`。
+依官方说明，压缩后 Claude 会再看到这段提醒。把提醒换成你的项目规则。`compact` 涵盖自动与手动压缩，SessionStart 拦不住压缩本身。不常变的规则也可以改放在 `CLAUDE.md`。
 
 ## 用 /hooks 检查设置
 
@@ -224,7 +224,7 @@ exit 0
 假设你维护一个小网站：改完 JavaScript 要排版，不能用 Edit 或 Write 改 `.env`，每次回复结束先跑测试，压缩后还要记得“用 Bun、提交前先测”。
 
 1. 在项目根目录建立 `.claude/settings.json`，放入上面四个事件的设置。建立 `protect-files.sh` 和 `run-tests-on-stop.sh`，把测试命令换成你的，再运行前面的 `chmod`。
-2. 确认装了 `jq`，以及能运行 `npx prettier` 的 Node.js。
+2. 确认装了 `jq`，以及能运行 `npx prettier` 的 Node.js。排版用的是 `npx prettier`，所以和项目用 Bun 还是 npm 管理包无关。
 3. 启动 Claude Code 输入 `/hooks`，确认 PostToolUse、PreToolUse、Stop、SessionStart 都在列表里，来源是项目设置。
 4. 请 Claude 在 `.js` 文件加功能。它用 Edit 或 Write 改完后，Prettier 会接着排版。
 5. 它试着用 Edit 或 Write 改 `.env` 时，那次修改会被拦下，并带回 `Blocked:` 说明。
@@ -261,9 +261,9 @@ _概念图。Matcher 守的是指定的工具名称；经由 Bash 或 PowerShell
 
 **PostToolUse 不能还原已经发生的事。** 这时文件已经写入、命令已经运行、网络请求已经发出。要事先阻止或改写调用，用 PreToolUse。
 
-**Hook 以你的完整用户权限运行。** 它能读、改、删你的账号碰得到的任何文件。加进设置前先读过命令，在安全的环境试跑；用在共享或生产环境前，先读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
+**Hook 以你的完整用户权限运行。** 官方警告，command hook 能读、改、删你的账号碰得到的任何文件。加进设置前先读过命令，在安全的环境试跑；用在共享或生产环境前，先读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
 
-交互模式会先问你是否信任这个文件夹。`claude -p` 和 SDK 不会问，直接视为已信任。所以 repo 里的 `.claude/settings.json`，可能在你从没确认过的目录里运行。
+交互模式会先问你是否信任这个文件夹。依官方说明，`claude -p` 和 SDK 不会问，直接视为已信任。所以 repo 里的 `.claude/settings.json`，可能在你从没确认过的目录里运行。
 
 Hooks 不是安全边界。要由操作系统限制命令能读写的范围，见 [Claude Code 沙箱设置教程：挡住 SSH 密钥与 token](/posts/claude-code-sandbox-setup/)。
 
