@@ -8,18 +8,17 @@ media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
   path: cover.en.webp
   alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
+mermaid: true
 ---
 
-> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04, and the official plugin now has 27 skills instead of 25: `resolving-merge-conflicts` is gone, and `implement-spec`, `pr`, and `retro` are new, with `ask-matt` suggesting them too. The project glossary was renamed from `CONTEXT.md` to `GLOSSARY.md`. Skills in the new releases only look for the new name, so rename an existing file with `git mv`. I plan to fully update this series for the new releases.
-{: .prompt-warning }
+You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that `mattpocock/skills` can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?
 
-You're about to add per-seat billing to an existing subscription service, but you're not sure whether to start by clarifying requirements, writing a spec, adding tests, or just diving into the code. You've heard that mattpocock/skills can help an AI coding assistant handle this kind of work more methodically, but when you open the list, you're greeted by 25 skill names. Do you really have to understand every one of them before you can begin?
+You don't. Your first time through takes just two steps:
 
-My answer is no, you don't need to understand them all. Your first time through takes just two steps: use `setup-matt-pocock-skills` to record your project's working rules, then let `ask-matt` suggest the next skill based on the problem in front of you.
+1. Use `setup-matt-pocock-skills` to record your project's working rules.
+2. Describe your problem to `ask-matt`, and let it suggest the next skill to use.
 
-That said, I see `ask-matt` as more of a help desk than a manager that automatically runs the whole pipeline. It only tells you which skill to use next; you still have to start that skill yourself.
-
-First, I'll define a few terms. An AI coding assistant is an AI tool such as Claude Code or Codex that can read and write the files in your project and write code for you. I think of a skill as a set of instructions that tells the AI coding assistant how to do a specific job, such as how to interview you about requirements, or how to break a spec down into individual tasks. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
+`ask-matt` is more of a help desk than a manager that runs the whole pipeline automatically. It only tells you which skill to use next; you still have to start that skill yourself.
 
 > mattpocock/skills Series | Part 1
 >
@@ -29,12 +28,23 @@ First, I'll define a few terms. An AI coding assistant is an AI tool such as Cla
 > I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills. The repository also contains 9 items that are still experimental and 4 that aren't currently being promoted, listed in [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18) and [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8) respectively. This series only covers the 25 included in the official plugin.
 {: .prompt-info }
 
-## Installing vs. Invoking: Two Separate Questions
+> On 2026-10-04, [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) took the official plugin from 25 skills to 27 (checked 2026-10-19):
+>
+> - `resolving-merge-conflicts` is gone.
+> - `implement-spec`, `pr`, and `retro` are new, and `ask-matt` suggests them too.
+> - The project glossary was renamed from `CONTEXT.md` to `GLOSSARY.md`. Skills in the new releases only look for the new name, so rename an existing file with `git mv`.
+>
+> I plan to fully update this series for the new releases.
+{: .prompt-info }
+
+A skill is a set of instructions that tells an AI coding assistant how to do a specific job. Examples include interviewing you about requirements or breaking a spec down into individual tasks. An AI coding assistant is a tool such as Claude Code or Codex that can read and write the files in your project and write code for you. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
+
+## Installing and Invoking Are Separate Questions
+
+The installation method determines where the skill files live and who is responsible for updating them. The invocation method determines who can tell a skill to start working.
 
 ![A six-panel illustration of mattpocock/skills: choose the Claude Code plugin or skills.sh, run setup to create the project configuration, then let ask-matt suggest the next skill. A feature request moves through requirements clarification, spec writing, work breakdown, and implementation in order](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _The full path for first-time use: choose an installation method, run setup, then let ask-matt suggest the next skill._
-
-I treat installing and invoking as two different questions. The installation method determines where the skill files live and who is responsible for updating them; the invocation method determines who can tell a skill to start working.
 
 ### Pick One Installation Method
 
@@ -45,6 +55,8 @@ I treat installing and invoking as two different questions. The installation met
 | Using Claude Code, no plans to modify the skills | Official plugin     | Updates automatically; contents can't be modified              |
 | Using Claude Code, want to modify the skills     | skills.sh           | Files are copied into your project; you modify and update them |
 | Using Codex or another tool that supports skills | skills.sh           | Files are copied into your project; you modify and update them |
+
+Pick only one of the two methods. If you use both, every skill shows up twice.
 
 Claude Code is Anthropic's AI coding assistant, while Codex comes from OpenAI. The command to install the official plugin for Claude Code is:
 
@@ -60,16 +72,16 @@ You can also type this directly inside Claude Code:
 ```
 {: .nolineno }
 
-If you want to modify the skills, or you use Codex or another tool, use the skills.sh installer:
+If you want to modify the skills, or you use Codex or another tool, use the skills.sh installer instead:
 
 ```bash
 npx skills@latest add mattpocock/skills
 ```
 {: .nolineno }
 
-skills.sh lets you check off which skills to install and which AI coding assistants to install them for. Be sure to include `setup-matt-pocock-skills`; if you want to follow along with `ask-matt` in this post, include that too. Any other skill that `ask-matt` recommends later also has to be installed before you can use it.
+skills.sh lets you check off which skills to install and which AI coding assistants to install them for. Be sure to include `setup-matt-pocock-skills`, and include `ask-matt` too if you want to follow along with this post. Any other skill that `ask-matt` recommends later also has to be installed before you can use it.
 
-I'd pick only one of the two methods. Using both will make every skill show up twice. With skills.sh, the command to update a single skill is:
+With skills.sh, the command to update a single skill is:
 
 ```bash
 npx skills@latest update <name>
@@ -96,19 +108,41 @@ Both `setup-matt-pocock-skills` and `ask-matt` are user-invoked, so you have to 
 
 In Codex, you can type `$` and then pick a skill from the list, or type `$skill-name` directly. You can verify this syntax in [OpenAI's Codex skills documentation](https://developers.openai.com/codex/skills/). For other AI coding assistants, use their own skill menu or input syntax.
 
-I think this constraint also explains why `ask-matt` can only make suggestions: `grill-with-docs`, for example, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
+This constraint also explains why `ask-matt` can only make suggestions. For example, `grill-with-docs`, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
 
-## What Setup Leaves Behind in Your Project
+## Setup Inspects, Then Asks, Then Writes
 
-The skills in `mattpocock/skills` that focus on software development (grouped under "engineering" in the repo) need to know some basic information about your project. So before using them for the first time in any project, you need to run `setup-matt-pocock-skills` once. It isn't an installer that does the same thing every time; it inspects first, asks questions next, and writes files only at the end.
+Before a project first uses the skills that focus on software development, you need to run `setup-matt-pocock-skills` once. That's because these skills (grouped under "engineering" in the repo) need some basic information about your project. Setup isn't an installer that does the same thing every time; it inspects first, asks questions next, and writes files only at the end:
 
-It starts by looking at the current state of the project: which platform hosts the code (GitHub, for example), whether the project already has AI instruction files (`AGENTS.md` or `CLAUDE.md`), a glossary, decision records, or configuration files left over from a previous run, and whether the project is made up of multiple subprojects (a monorepo). The glossary (`CONTEXT.md`) records definitions of project-specific terms, and decision records (ADRs) capture the reasoning behind important technical choices. I cover both in detail in the next post.
+```mermaid
+flowchart TD
+  A[Inspect the project] --> B[Confirm issue tracker]
+  B --> C{triage installed?}
+  C -->|Yes| D[Confirm triage labels]
+  C -->|No| E{Multiple subprojects?}
+  D --> E
+  E -->|No| F[One shared glossary]
+  E -->|Yes| G["Ask: one per subproject?"]
+  F --> H[Show drafts to edit]
+  G --> H
+  H --> I[Write after you approve]
+```
 
-Once it's done looking, it confirms three things with you, in order:
+First, it looks at the current state of the project:
 
-- **Where work gets tracked.** The repo calls this the issue tracker: the place where your team records to-do items. If your code is on GitHub, it suggests GitHub Issues by default; if it's on GitLab, it suggests GitLab Issues. You can also track work in Markdown files inside the project folder. If you use another tool such as Jira or Linear, you describe how to work with it in a short paragraph.
-- **Whether to keep the default triage labels.** These labels are used by `triage`, which sorts incoming external reports, so it only asks about them if `triage` is installed.
-- **Where the glossary and decision records live.** For a typical project, a single shared copy is enough. Only when it detects that the project is made up of multiple subprojects does it ask whether each subproject should have its own.
+- Which platform hosts the code, GitHub for example.
+- Whether the project already has AI instruction files (`AGENTS.md` or `CLAUDE.md`).
+- A glossary and decision records.
+- Configuration files left over from a previous run.
+- Whether the project is made up of multiple subprojects (a monorepo).
+
+The glossary (`CONTEXT.md`) records definitions of project-specific terms, and decision records (ADRs) capture the reasoning behind important technical choices. I cover both in detail in the next post.
+
+The issue tracker is the place where your team records to-do items. If your code is on GitHub, setup suggests GitHub Issues by default; if it's on GitLab, it suggests GitLab Issues.
+
+You can also track work in Markdown files inside the project folder. If you use another tool such as Jira or Linear, you describe how to work with it in a short paragraph.
+
+The triage labels are used by `triage`, which sorts incoming external reports, so setup only asks about them if `triage` is installed.
 
 After you confirm, it modifies or creates the following files:
 
@@ -121,11 +155,11 @@ After you confirm, it modifies or creates the following files:
 
 If the project has neither instruction file, it asks which one you want to create rather than deciding on its own. If a file already contains an `## Agent skills` section, it updates that section in place instead of adding a duplicate.
 
-Setup only writes the label names into `docs/agents/triage-labels.md`; the process as written has no step that creates those labels on GitHub or GitLab. Before you start triaging, I'd first make sure the label names in your issue tracker match the configuration file.
+Setup only writes the label names into `docs/agents/triage-labels.md`; the process as written has no step that creates those labels on GitHub or GitLab. So before you start triaging, I'd first make sure the label names in your issue tracker match the configuration file.
 
-Before writing anything, it must show you drafts of the `## Agent skills` section and each configuration file so you can edit and approve them. Once written, these files are just ordinary project documents that you can edit directly from then on. You only need to run setup again if you want to switch issue trackers or start over from scratch.
+Before writing anything, it must show you drafts of the `## Agent skills` section and each configuration file so you can edit and approve them. Once written, these files are just ordinary project documents that you can edit directly. You only need to run setup again if you want to switch issue trackers or start over from scratch.
 
-## How ask-matt Picks the Next Step
+## ask-matt Suggests a Starting Point for Your Situation
 
 `ask-matt` doesn't expect you to memorize every skill first. Just describe your current situation, and it suggests which skill to start with. Common starting points:
 
@@ -137,11 +171,25 @@ Before writing anything, it must show you drafts of the `## Agent skills` sectio
 | Hitting a bug that's hard to reproduce, intermittent, or recently introduced | `diagnosing-bugs` |
 | The scope is fuzzy and won't fit in a single conversation          | `wayfinder`              |
 
-The main path for typical feature development starts with `grill-with-docs`, which clarifies requirements through an interview. If a question can only be answered by building something you can actually try out, such as what a screen should look like, the flow takes a temporary detour: use `handoff` to write up your current progress as a handoff document, build a throwaway prototype with `prototype` in a new conversation, and once you have your answer, use `handoff` again to bring the result back into the original discussion.
+The main path for typical feature development starts with `grill-with-docs`, which clarifies requirements through an interview. Some questions can only be answered by building something you can actually try out, such as what a screen should look like. Then the flow takes a temporary detour:
 
-If you're sure the work will take several conversations to complete, use `to-spec` next to put together a spec and `to-tickets` to split the spec into individual tickets. Finally, open a fresh conversation for each ticket and implement it with `implement`. Internally, `implement` uses `tdd` (a development approach where you write the tests first, then the code) to build the feature, and runs `code-review` before committing the changes.
+```mermaid
+flowchart TD
+  A[grill-with-docs interview] --> B{Need something to try?}
+  B -->|No| F[Requirements clear, continue]
+  B -->|Yes| C[handoff writes progress]
+  C --> D[prototype in new conversation]
+  D --> E[handoff brings result back]
+  E --> A
+```
 
-Everything from the requirements interview through `to-tickets` should stay in the same conversation, so that later steps build on the earlier discussion. Only after the tickets are created does each one get its own new conversation; each ticket already spells out the information it needs, so it doesn't depend on earlier conversation history. The full rules are in [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90).
+`prototype` builds a throwaway prototype.
+
+If you're sure the work will take several conversations to complete, use `to-spec` next to put together a spec and `to-tickets` to split the spec into individual tickets. Finally, open a fresh conversation for each ticket and implement it with `implement`.
+
+Internally, `implement` uses `tdd` (a development approach where you write the tests first, then the code) to build the feature, and runs `code-review` before committing the changes.
+
+Everything from the requirements interview through `to-tickets` should stay in the same conversation, so that later steps build on the earlier discussion. Only after the tickets are created does each one get its own new conversation. That works because each ticket already spells out the information it needs, so it doesn't depend on earlier conversation history. The full rules are in [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90).
 
 ![On the left, a progress bar shows someone memorizing 25 skills; on the right, ask-matt asks which step they're stuck on](ask-matt-router-meme.webp){: width="800" height="450" }
 _Memory test canceled. Time to get to work._
@@ -178,7 +226,7 @@ With setup done, describe the work you're stuck on:
 $ask-matt We need to add per-seat billing to an existing subscription system. Right now there's only a short requirements description. The requirements should be clear after one conversation, but the implementation will happen over several sessions.
 ```
 
-Following its rules, `ask-matt` will suggest starting with `grill-with-docs` to work through questions like how pricing is calculated, when a seat starts and stops being used, the billing cycle, and how existing customers are migrated. The flow doesn't continue automatically; you have to type the next skill yourself:
+Following its rules, `ask-matt` will suggest starting with `grill-with-docs`. That skill works through a few questions: how pricing is calculated, when a seat starts and stops being used, the billing cycle, and how existing customers are migrated. The flow doesn't continue automatically; you have to type the next skill yourself:
 
 ```text
 $grill-with-docs
@@ -203,11 +251,19 @@ This workflow only handles the order of the work. It won't decide your pricing r
 
 ## How to Choose on Your First Run
 
-If you plan to adopt this workflow, I suggest picking one installation method first, then running setup once for your project. After that, whenever you're unsure how to approach a piece of work, ask `ask-matt`.
+```mermaid
+flowchart TD
+  A{One-off, outside a project?} -->|Yes| B[Skip full project setup]
+  A -->|No| C[Pick one install method]
+  C --> D[Run setup once]
+  D --> E{Know the next skill?}
+  E -->|Yes| F[Skip ask-matt, invoke it]
+  E -->|No| G[Ask ask-matt]
+```
 
-If you already know which skill comes next, you can skip `ask-matt` and invoke it directly. However, skills that need to read your issue tracker or glossary configuration still require setup to be completed first. For one-off work that isn't inside a project folder, there's no need to build out the whole project configuration just to use a single skill.
+Even when you know the next skill, skills that read your issue tracker or glossary configuration still need setup to be completed first.
 
-In this post I checked the design and usage of version `1.2.3`; that doesn't mean this workflow will necessarily shorten development time. I think its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
+In this post I checked the design and usage of version `1.2.3`; that doesn't mean this workflow will necessarily shorten development time. Its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
 
 ## Further Reading
 

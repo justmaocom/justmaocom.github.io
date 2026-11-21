@@ -8,12 +8,10 @@ media_subpath: /assets/img/posts/mattpocock-skills-series-guide/
 image:
   path: cover.en.webp
   alt: "The six parts follow the order of development and cover all 25 plugin skills; find the step you're stuck on and start there."
+mermaid: true
 ---
 
-> **Version note (checked 2026-10-19):** I based all six parts of this series on version `1.2.3`. `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04, and the official plugin now has 27 skills, not the 25 mentioned below: `resolving-merge-conflicts`, covered in [Part 5](/posts/mattpocock-skills-design-review-integration/), was removed; I haven't covered the new `implement-spec`, `pr`, and `retro` yet; and the glossary file from [Part 2](/posts/mattpocock-skills-requirements-shared-language/), `CONTEXT.md`, is now `GLOSSARY.md`. The other 24 skills are still there. I plan to update the whole series for the new version.
-{: .prompt-warning }
-
-Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you found a long list of skill names. Or maybe you landed on one part of this series from a search and want to see what comes before and after it. I wrote the series in six parts, and each covers one stretch of the development process. In this guide, I skip the details and answer three questions: what this set of skills is, how the six parts fit together, and which part you should start with.
+Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you found a long list of skill names. Or maybe a search landed you on one part of this series, and you want to see what comes before and after it. The series has six parts, each covering one stretch of the development process. This guide shows how they fit together and suggests where to start for your situation.
 
 > mattpocock/skills Series | Guide
 >
@@ -22,22 +20,31 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 > I based this series on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Each part also notes changes in later versions at the top.
 {: .prompt-info }
 
+> I published the six parts between September 21 and October 14, 2026, while the repo was still changing. On 2026-10-04, [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) took the official plugin from the 25 skills mentioned below to 27 (checked 2026-10-19):
+>
+> - `resolving-merge-conflicts`, covered in [Part 5](/posts/mattpocock-skills-design-review-integration/), was removed. The other 24 skills are still there.
+> - The new `implement-spec`, `pr`, and `retro` aren't covered in this series yet.
+> - The glossary file from [Part 2](/posts/mattpocock-skills-requirements-shared-language/), `CONTEXT.md`, is now `GLOSSARY.md`.
+>
+> I plan to update the whole series for the new version. Before you rely on any detail, check it against the repo's current version.
+{: .prompt-info }
+
 ## What Is mattpocock/skills?
 
-[`mattpocock/skills`](https://github.com/mattpocock/skills) is a complete set of skills published by Matt Pocock. I think of a skill as a set of instructions that tells an AI coding assistant how to do a specific job, such as interviewing you about requirements or breaking a spec into tickets. An AI coding assistant is a tool such as Claude Code or Codex that can read and write the files in your project and write code for you.
+[`mattpocock/skills`](https://github.com/mattpocock/skills) is a complete set of skills published by Matt Pocock. A skill is a set of instructions that tells an AI coding assistant how to do a specific job, such as interviewing you about requirements or breaking a spec into tickets. An AI coding assistant here means a tool such as Claude Code or Codex that can read and write your project files and write code for you.
 
-In the [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19), the author says the skills are designed to be small, easy to adapt, and composable. The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills, and across the six parts of this series, I cover all 25. The repo also has items that are still experimental or not currently promoted; those are outside the series.
+In the [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19), the author says the skills are designed to be small, easy to adapt, and composable. The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills, and the six parts of this series cover all of them. The repo also has items that are still experimental or not currently promoted; those are outside the series.
 
 Two things make the rest easier to follow:
 
 - **Most work starts only when you call for it.** Many skills are set up so that only a person can start them; the AI won't run them on its own.
 - **`ask-matt` is a help desk, not a manager.** You describe where you're stuck, and it suggests the next skill to use. It doesn't run the whole process for you.
 
-I cover installation and first-time setup in [Part 1](/posts/mattpocock-skills-setup-routing-guide/), so I won't repeat them here.
+Installation and first-time setup are in [Part 1](/posts/mattpocock-skills-setup-routing-guide/).
 
-## Who It's For, and Who It Isn't
+## Best for Team Projects That Span Several Conversations
 
-Going by the six parts, I think these skills fit best when:
+Going by the six parts, these skills fit best when:
 
 - Several people maintain the project, or a feature takes more than one conversation to finish.
 - Your team tracks and hands off work in an issue tracker, such as GitHub Issues.
@@ -49,16 +56,35 @@ On the other hand, you may not need the full process when:
 - You're talking through an idea that hasn't taken shape yet. One interview with `grill-me` is enough; there's no need to document every term (Part 2).
 - The task is a one-off outside any project folder. There's no need to set up a whole project just to use one skill (Part 1).
 
-I also want to be clear about what they can't do. In Part 1, I point out that the process doesn't guarantee faster development; the direct benefit is that your project's conventions get written down, and you get a suggestion when you're unsure what to do next. In Part 4, I add that these rules are only instructions in Markdown files, with no program enforcing them. If you approve the AI's list of places to test without reading it, that check does nothing.
+There are also things the skills can't do. As Part 1 points out, the process doesn't guarantee faster development. The direct benefit is that your project's conventions get written down, and you get a suggestion when you're unsure what to do next.
 
-## How the Six Parts Fit Together
+Part 4 adds that these rules are only instructions in Markdown files, with no program enforcing them. So if you approve the AI's list of places to test without reading it, that check does nothing.
+
+## The Six Parts Follow the Order of Development
 
 I put the six parts in the order a feature moves through, from requirements to merge. Parts 1–5 form one main path, and Part 6 handles work that isn't coding but often holds things up.
 
 ![Series map: Parts 1 through 5 cover setup and picking the next step, clarifying requirements, specs and tickets, implementation and tests, and review and merging; Part 6 covers research, handoffs, learning, and other work outside coding. Each part lists the skills it covers](series-map.en.webp){: width="800" height="450" }
 _The six parts follow the order of development, one stretch each, with Part 6 covering the work outside coding._
 
-The main path goes roughly like this. First, `grill-with-docs` clarifies the requirements. If the feature is big enough to need several conversations, `to-spec` writes up a spec and `to-tickets` splits it into tickets. Then each ticket gets its own fresh conversation, where `implement` builds it, using `tdd` along the way and running `code-review` at the end. Most other skills are side roads: reports sent in by other people go to `triage`, work too big to list all its decisions goes to `wayfinder`, and when something breaks, you use `diagnosing-bugs`.
+The skills on the main path connect roughly like this:
+
+```mermaid
+flowchart TD
+  A[grill-with-docs clarifies needs] --> B{Several conversations?}
+  B -->|No| X[Implement right away]
+  B -->|Yes| C[to-spec writes spec]
+  C --> D[to-tickets splits tickets]
+  D --> E[Fresh conversation per ticket]
+  E --> F["implement (uses tdd)"]
+  F --> G[Finish with code-review]
+```
+
+Most other skills are side roads:
+
+- Reports sent in by other people go to `triage`.
+- Work too big to list all its decisions goes to `wayfinder`.
+- When something breaks, use `diagnosing-bugs`.
 
 I use the same example in all six parts: adding per-seat billing to a subscription service. It starts with the simulated scenario in Part 1 and carries through to Part 6, so if you read in order, you can watch one feature move forward step by step.
 
@@ -66,31 +92,49 @@ I use the same example in all six parts: adding per-seat billing to a subscripti
 
 ### Part 1: Get Started Without Memorizing 25 Skills
 
-Faced with 25 skills, where do you begin? This part explains how to choose between the two installation methods, what `setup-matt-pocock-skills` adds to your project, and how to use `ask-matt` to find your next step. You'll see that you can start without understanding every skill first.
+Faced with 25 skills, where do you begin? This part's answer: you can start without understanding every skill first. It explains three things:
+
+- How to choose between the two installation methods.
+- What `setup-matt-pocock-skills` adds to your project.
+- How to use `ask-matt` to find your next step.
 
 → [Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
 
 ### Part 2: From Vague Requirements to Shared Terms
 
-The meeting notes use "member," "user," and "seat" interchangeably. How do you pin them down? This part covers `grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`, and `wait-what`. The AI asks questions round by round in the order they depend on each other. With `grill-with-docs`, agreed terms go into the project glossary, `CONTEXT.md`, and a few important decisions are written up as decision records.
+The meeting notes use "member," "user," and "seat" interchangeably. How do you pin them down? This part covers `grill-me`, `grill-with-docs`, `grilling`, `domain-modeling`, and `wait-what`.
+
+The AI asks questions round by round, in the order they depend on each other. With `grill-with-docs`, agreed terms go into the project glossary, `CONTEXT.md`, and a few important decisions are written up as decision records.
 
 → [Part 2: From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 
 ### Part 3: Spec, Tickets, or More Questions?
 
-Once the requirements are talked through, do you write a spec, break the work into tickets, or go ask the person who has the answer? This part explains which gap each of `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire` fills. I think the point is to figure out what information is missing first, not to run all five.
+Once the requirements are talked through, do you write a spec, break the work into tickets, or go ask the person who has the answer? This part explains which gap each of `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire` fills. The point is to figure out what information is missing first, not to run all five.
 
 → [Part 3: Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 
 ### Part 4: Trusting Code When the AI Writes the Tests
 
-When the AI writes both the code and the tests, how do you know it got things right? This part covers `implement`, `tdd`, `diagnosing-bugs`, and `prototype`. The answer is to look at what the AI can't change: the test locations you approved, expected values taken from the spec, and a command that has failed on the bug. I actually ran the red-to-green test in the post.
+When the AI writes both the code and the tests, how do you know it got things right? This part covers `implement`, `tdd`, `diagnosing-bugs`, and `prototype`. The answer is to look at what the AI can't change:
+
+- The test locations you approved.
+- Expected values taken from the spec.
+- A command that has failed on the bug.
+
+I actually ran the red-to-green test in the post.
 
 → [Part 4: Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
 
 ### Part 5: Structure, Code Review, and Merge Conflicts
 
-Passing tests don't mean the structure isn't getting messier, or that the change does what was asked. This part covers `codebase-design`, `improve-codebase-architecture`, `code-review`, and `resolving-merge-conflicts`: regular health checks, a review that asks "written by the rules?" and "built what was asked?" separately, and merge conflicts resolved by first understanding what each side wanted. The merge conflict in the post is one I actually created.
+Passing tests don't mean the structure isn't getting messier, or that the change does what was asked. This part covers four skills:
+
+- `codebase-design` and `improve-codebase-architecture`: look after structure with regular health checks.
+- `code-review`: asks "written by the rules?" and "built what was asked?" separately.
+- `resolving-merge-conflicts`: in a merge conflict, first understand what each side wanted.
+
+The merge conflict in the post is one I actually created.
 
 → [Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 
@@ -100,9 +144,9 @@ Work outside coding can stall a project too: looking up official docs, handing w
 
 → [Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
 
-## Pick a Starting Point for Your Situation
+## Start Where You're Stuck
 
-You don't have to read from start to finish. I suggest first thinking about where you're stuck right now:
+You don't have to read from start to finish. First think about where you're stuck right now:
 
 ![Reading paths: first-time users read Parts 1, 2, and 3; unclear requirements, Part 2; unsure whether to write a spec or tickets, Part 3; want to trust AI-written code, Parts 4 and 5; reviews, structure, or merge conflicts, Part 5; handoffs, research, or learning, Part 6; the full process, Parts 1 through 6](reading-paths.en.webp){: width="800" height="450" }
 _Find where you're stuck, then start with the matching part._
@@ -118,10 +162,6 @@ _Find where you're stuck, then start with the matching part._
 | Seeing one feature go from start to finish | Parts 1 through 6, in order |
 
 If you already have the skills installed, you can also just ask `ask-matt`. Describe the step you're stuck on, and it will suggest the next skill; then come back and read the part that covers it.
-
-## About Versions
-
-I published the six parts between September 21 and October 14, 2026, and based all of them on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). The repo kept changing while I was writing the series, and I noted changes in later versions in the box at the top of each part. Before you rely on any detail, I suggest checking it against the repo's current version.
 
 ## Further Reading
 
