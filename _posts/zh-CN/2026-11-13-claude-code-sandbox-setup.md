@@ -185,7 +185,7 @@ deny network-outbound example.com:443 (host is not on the allow list)
 </sandbox_violations>
 ```
 
-第 3 组和第 4 组的对比最值得注意：在 `bypassPermissions` 模式下，列表外的域名会不问就放行，要加 `strictAllowlist` 才挡得住。
+我觉得第 3 组和第 4 组的对比最值得注意：在 `bypassPermissions` 模式下，列表外的域名会不问就放行，要加 `strictAllowlist` 才挡得住。
 
 ## 步骤二：确认真的挡得住
 
@@ -300,7 +300,7 @@ unset
 
 - 用官方的 `excludedCommands` 把 `git push` 等命令移出沙箱。但被移出的命令会用你的完整权限执行、能连任何主机，用之前请想清楚。
 
-> 想让工具在沙箱里照常登录、又不让它看到真正的 token，官方另有 `"mode": "mask"`。命令只看到一个替代值，代理在发出请求时才换成真的。它要搭配实验性的 `network.tlsTerminate`，而且 macOS 上对文件使用 `mask` 的效果等于 `deny`。设置较复杂，入门先用 `deny`，细节见 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。
+> 想让工具在沙箱里照常登录、又不让它看到真正的 token，官方另有 `"mode": "mask"`。命令只看到一个替代值，代理在发出请求时才换成真的。它要搭配实验性的 `network.tlsTerminate`，而且 macOS 上对文件使用 `mask` 的效果等于 `deny`。设置较复杂，我建议入门先用 `deny`，细节见 [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials)。
 {: .prompt-tip }
 
 ## 步骤四：关掉“沙箱外重试”
@@ -569,7 +569,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 
 ## 结论
 
-我按这篇的顺序实际跑过一遍，实测到的每一项都和官方文档说的一致。建议你也从步骤一做到步骤四，再按步骤五补上沙箱管不到的地方。最后一个提醒：沙箱只包住命令，实测中 Read 工具就直接绕过了它。
+我按这篇的顺序实际跑过一遍，实测到的每一项都和官方文档说的一致。我建议你也从步骤一做到步骤四，再按步骤五补上沙箱管不到的地方。最后一个提醒：沙箱只包住命令，实测中 Read 工具就直接绕过了它。
 
 ## 延伸阅读
 

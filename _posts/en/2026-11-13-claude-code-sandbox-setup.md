@@ -185,7 +185,7 @@ deny network-outbound example.com:443 (host is not on the allow list)
 </sandbox_violations>
 ```
 
-The most important comparison is 3 versus 4: in `bypassPermissions` mode, domains outside the list go through without a prompt, and only `strictAllowlist` stops them.
+I think the most important comparison is 3 versus 4: in `bypassPermissions` mode, domains outside the list go through without a prompt, and only `strictAllowlist` stops them.
 
 ## Step 2: Confirm It Actually Blocks
 
@@ -300,7 +300,7 @@ The cost of blocking `~/.ssh` is that `git push` and `git pull` over SSH fail in
 
 - Use the official `excludedCommands` to move commands such as `git push` out of the sandbox. Excluded commands run with your full permissions and can connect to any host, so think it through before you use it.
 
-> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so start with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials).
+> If you want a tool to sign in as usual inside the sandbox without seeing the real token, the official docs also offer `"mode": "mask"`. The command sees only a placeholder value, and the proxy swaps in the real one when it sends the request. It requires the experimental `network.tlsTerminate`, and on macOS, `mask` on a file has the same effect as `deny`. The setup is more involved, so I'd suggest starting with `deny`. For details, see [Mask credentials](https://code.claude.com/docs/en/sandboxing#mask-credentials).
 {: .prompt-tip }
 
 ## Step 4: Turn Off Retries Outside the Sandbox
@@ -569,7 +569,7 @@ To turn the sandbox off, temporarily or for good, go to the settings file where 
 
 ## Conclusion
 
-I ran through this post in order once, and everything I tested matched the official docs. Work through Steps 1 to 4 yourself, then use Step 5 to cover what the sandbox doesn't. One last reminder: the sandbox covers only commands, and in my test the Read tool went straight past it.
+I ran through this post in order once, and everything I tested matched the official docs. I suggest working through Steps 1 to 4 yourself, then using Step 5 to cover what the sandbox doesn't. One last reminder: the sandbox covers only commands, and in my test the Read tool went straight past it.
 
 ## Further Reading
 

@@ -18,7 +18,7 @@ From that moment, your coding agent reads instructions you never wrote, runs cod
 > I label three kinds of statements: **Fact** (stated by a linked public source), **Inference** (my conclusion from the facts), and **Opinion** (my judgment, which you may disagree with). I rechecked all sources on October 16, 2026.
 {: .prompt-info }
 
-My short answer: no need to panic, but treat skills and MCP servers as code that runs on your machine, not as a bit of config.
+My short answer: no need to panic, but I'd treat skills and MCP servers as code that runs on your machine, not as a bit of config.
 
 ## Five Terms First
 

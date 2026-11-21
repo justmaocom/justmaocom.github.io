@@ -76,7 +76,7 @@ sequenceDiagram
   end
 ```
 
-Every time the chain crosses a privilege boundary, the security problem you have to deal with changes:
+As I see it, every time the chain crosses a privilege boundary, the security problem you have to deal with changes:
 
 | Boundary crossed | Capability gained at that point | Evidence status | What to follow up on in a review |
 | --- | --- | --- | --- |
@@ -251,7 +251,7 @@ None of this depends on the undisclosed details of OpenAI SSO, and it can also s
 
 ## Start by Checking What Your Logins and Image Process Can Touch
 
-The smallest first step is to open your current access review sheet. Find one service that you can log in to via SSO and that supports agent connectors. Add a column for "external resources operable after login." On the technical side, start with the package revision of your image-processing process and its file and network permissions.
+The smallest first step I'd suggest is to open your current access review sheet. Find one service that you can log in to via SSO and that supports agent connectors. Add a column for "external resources operable after login." On the technical side, start with the package revision of your image-processing process and its file and network permissions.
 
 ## Further Reading
 

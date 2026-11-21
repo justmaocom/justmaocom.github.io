@@ -456,7 +456,7 @@ This is the order I suggest, not an official OWASP ranking. The rule: fix first 
 3. **ASI02 and ASI04, auto-approval and MCP:** remove auto-approvals that can delete, send, or reach the network, and confirm the source and version of every MCP server.
 4. **Everything else.** If you use a single agent, you can skip ASI07 for now.
 
-If you have not started the inventory yet, the easiest first step is to open your permission settings and see which actions currently run without asking you. In Claude Code, type `/permissions`.
+If you have not started the inventory yet, the easiest first step I'd suggest is to open your permission settings and see which actions currently run without asking you. In Claude Code, type `/permissions`.
 
 ## What to Do in Each Situation
 
@@ -500,7 +500,7 @@ If you find one, here is the order I'd follow:
 
 ## What to Do Next
 
-Start today with the inventory and the ten questions, then fix the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool.
+I suggest starting today with the inventory and the ten questions, then fixing the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool.
 
 Further reading:
 

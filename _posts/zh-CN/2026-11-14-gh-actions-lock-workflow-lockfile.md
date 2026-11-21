@@ -479,7 +479,7 @@ flowchart LR
 
 ## 结论与下一步
 
-按这个顺序开始：先开 Dependabot，执行 `gh actions-lock`，看懂 diff 再提交，然后用 `--verify` 让 CI 帮你盯着。标签被移动时，停下来看一眼，不要让自动化替你按下 `--accept-moved`。
+我建议按这个顺序开始：先开 Dependabot，执行 `gh actions-lock`，看懂 diff 再提交，然后用 `--verify` 让 CI 帮你盯着。标签被移动时，停下来看一眼，不要让自动化替你按下 `--accept-moved`。
 
 我会先锁负责发布的 workflow。照[npm Trusted Publishing 配置教程：发包不再放长期 token](/posts/npm-trusted-publishing-github-actions/)配置后，发布流程不再需要长期 token。但 workflow 跑的 action 若被换掉，一样能发出有问题的版本。
 

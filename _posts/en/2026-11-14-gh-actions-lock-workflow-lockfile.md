@@ -479,7 +479,7 @@ If your organization already requires actions to be pinned to a full SHA, that p
 
 ## Wrapping up
 
-Start in this order: turn on Dependabot, run `gh actions-lock`, read the diff before you commit, and let CI watch it with `--verify`. When a tag moves, stop and take a look. Do not let automation press `--accept-moved` for you.
+I recommend starting in this order: turn on Dependabot, run `gh actions-lock`, read the diff before you commit, and let CI watch it with `--verify`. When a tag moves, stop and take a look. Do not let automation press `--accept-moved` for you.
 
 I would lock release workflows first. Following my [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/) removes the long-lived token from your release workflow. But if an action in that workflow is swapped out, it can still ship a bad release.
 

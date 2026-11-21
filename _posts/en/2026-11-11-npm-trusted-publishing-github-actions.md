@@ -378,7 +378,7 @@ Where people most often get stuck, and what to do:
 
 ## What to Do Next
 
-Move GitHub Actions publishing from a long-lived key to a short-lived credential issued on each run, then retire the old tokens, and add an approval or stage publish if you want a tighter gate.
+I recommend moving GitHub Actions publishing from a long-lived key to a short-lived credential issued on each run. Then retire the old tokens, and add an approval or stage publish if you want a tighter gate.
 
 ## Further Reading
 

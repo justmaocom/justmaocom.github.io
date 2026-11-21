@@ -67,7 +67,7 @@ npm -v
   npm install -g npm@12
   ```
 
-Team members and CI (automated tests and builds) should use the same npm version. An older npm is not guaranteed to enforce the same `allowScripts` the same way. Also check whether any setting overrides the default behavior.
+I recommend that team members and CI (automated tests and builds) use the same npm version. An older npm is not guaranteed to enforce the same `allowScripts` the same way. Also check whether any setting overrides the default behavior.
 
 ## Step 2: See Which Packages Need Review
 
@@ -185,7 +185,7 @@ npm install-scripts prune
 strict-allow-scripts=true
 ```
 
-According to the [docs](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts), with this line an unreviewed install script makes the install fail, while explicitly denied scripts are still skipped. After you commit the setting and the list, have CI run `npm ci` and your existing tests with the same npm version. That confirms the project builds from a clean install.
+According to the [docs](https://docs.npmjs.com/cli/v12/using-npm/config/#strict-allow-scripts), with this line an unreviewed install script makes the install fail, while explicitly denied scripts are still skipped. After you commit the setting and the list, I recommend having CI run `npm ci` and your existing tests with the same npm version. That confirms the project builds from a clean install.
 
 ## Step 4: Add a 7-Day Cooldown in .npmrc
 
@@ -361,7 +361,7 @@ _This is the special order from the tensorlake advisory. For other incidents, fo
 | The cooldown blocks an urgent patch | Verify the source, exempt only that package temporarily, and remove the exception after validation |
 | A global or one-off tool needs install scripts | Specify the tool and version, then list approved script packages with `--allow-scripts` |
 
-Start with your existing project's review list. Restore the scripts you need after review, then commit the list and `.npmrc` so your team and CI share them. Whenever you upgrade a dependency, review the new version's scripts too.
+I recommend starting with your existing project's review list. Restore the scripts you need after review, then commit the list and `.npmrc` so your team and CI share them. Whenever you upgrade a dependency, review the new version's scripts too.
 
 ## Further Reading
 
