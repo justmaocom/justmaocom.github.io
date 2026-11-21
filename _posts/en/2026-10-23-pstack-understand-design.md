@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills: first have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems.
+Ask an AI coding assistant to "change this feature," and it often starts editing at the first place that looks reasonable, using the first approach it thinks of. This post shows you how to flip that order with five pstack skills. First have the AI explain how the code works now and why it is shaped that way, then have it compare a few designs, and after the change, have other models look for problems.
 
 > pstack Series | Part 2
 >
@@ -85,7 +85,7 @@ If you suspect the history explains the mess, you can ask for both at once: "do 
 The skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. As I read it, it asks for three things:
 
 1. **Answers from the record, not by guessing from the code.** It reads the commits and PR discussions that introduced the code, then those for each later change to it.
-2. **Looks at other sources only when that trail is thin.** If you have MCP servers connected (an MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion), it may use them.
+2. **Looks at other sources only when that trail is thin.** If you have MCP servers connected, it may use them. An MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion.
 3. **Keeps track of who said what.** It cites what the authors wrote, marks its own inferences as inferences, and says what the record doesn't answer.
 
 The answer cites its sources. "Nobody wrote down why" is an answer too.
@@ -130,7 +130,7 @@ Both designs contain only types, function signatures, and how modules divide the
 
 The skill file doesn't say what format the design comes in. If you want to see how the two designs compare, why it picked this one, and which questions are yours to decide, ask for them in your prompt, as in the template above.
 
-If the design matters and a mistake would be expensive, you can run `/interrogate` on the design before implementation, so the models it sends out build a prototype or probe the current code to find where the design breaks. Otherwise, run `/interrogate` on the change once it's built.
+If the design matters and a mistake would be expensive, you can run `/interrogate` on the design before implementation. In that case, the models it sends out build a prototype or probe the current code to find where the design breaks. Otherwise, run `/interrogate` on the change once it's built.
 
 ## /interrogate: Have Several Models Look for Problems
 
@@ -155,7 +155,7 @@ How it works:
 3. **Sends out adversaries.** It sends one adversary per model you've set in the `interrogate reviewers` line. Each gets its own worktree (a separate working copy of the same project), with your uncommitted changes copied in.
 4. **Reruns to verify.** It reruns the command attached to each finding. A finding stays only if the output shows the failure and that failure breaks the intent of the change; the rest are dropped. Findings that share a root cause are merged into one.
 
-Each adversary gets the same scope, intent, and brief: break this change, and prove every finding with a run against the real code, such as a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, it builds a prototype or probes the current code.
+Each adversary gets the same scope, intent, and brief: break this change, and prove every finding with a run against the real code. That run can be a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, it builds a prototype or probes the current code.
 
 Anything it didn't run stays out of the report, including style, naming, structure, and risks that only matter after some future change. Finding nothing is a valid result.
 
@@ -275,7 +275,7 @@ flowchart TD
   I --> J[Hand back brief]
 ```
 
-The full state means paths, branch, and the change. The scope covers the time window ("recent" defaults to the last 7 days), the topic, and the project (the current one by default; it doesn't read another project's history unless you ask), and it states the scope back to you first.
+The full state means paths, branch, and the change. The scope covers the time window ("recent" defaults to the last 7 days), the topic, and the project (the current one by default; it doesn't read another project's history unless you ask). It states the scope back to you first.
 
 For chat history, it sends several subagents on a fast, cheap model in parallel, each taking a slice and reading only the chats and passages that match the topic. With only one or two chats, it skips the subagents and searches directly.
 
@@ -371,9 +371,9 @@ This is the one playbook that inverts "smallest change" and the verification bar
 
 1. **Names the decision.** For example, which layout, interaction, or density, or which behavior, timing, or approach. No decision means no prototype; the work goes to the regular Feature playbook instead.
 2. **Gathers references when the direction is open.** It searches for prior art and summarizes themes, palettes, and layouts so you can pick a direction first. It skips this when the direction is set.
-3. **Builds throwaway versions in a scratch directory, apart from production code.** For a visual decision, it uses the lightest stack that shows the idea, such as plain HTML, CSS, and JavaScript; for a behavior or timing decision, the smallest script that tests the question. No production framework, no tests, no abstractions.
+3. **Builds throwaway versions in a scratch directory, apart from production code.** For a visual decision, it uses the lightest stack that shows the idea, such as plain HTML, CSS, and JavaScript. For a behavior or timing decision, it uses the smallest script that tests the question. No production framework, no tests, no abstractions.
 4. **Puts the options behind one switcher.** You switch with buttons or a keypress, and each option is labeled.
-5. **Verifies on the matching surface.** For a visual decision, it screenshots each option and drives the interaction; for a behavior or timing decision, it logs the timing, prints the output, or watches the render, and the observation is the test. Screenshots need a skill that drives the UI, such as `control-ui` from `cursor-team-kit` (see [Part 1](/posts/pstack-install-routing/)).
+5. **Verifies on the matching surface.** For a visual decision, it screenshots each option and drives the interaction. For a behavior or timing decision, it logs the timing, prints the output, or watches the render, and the observation is the test. Screenshots need a skill that drives the UI, such as `control-ui` from `cursor-team-kit` (see [Part 1](/posts/pstack-install-routing/)).
 6. **Lays out the options, tradeoffs, and a recommendation.**
 
 You get the options it tried, the evidence (screenshots for a visual decision, observed output or timing for a behavioral one), the tradeoffs, its recommendation, and the scratch directory path. It says plainly that the prototype is throwaway ([Prototype playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/prototype.md#L14)). Once you pick a direction, hand it to the Feature playbook for the real build, or use `/architect` to settle the shape first; don't merge prototype code into the project.
@@ -402,7 +402,7 @@ The steps ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f
 2. **Settles open questions with prototypes first.** It asks you only about product or preference calls that no run can settle.
 3. **Writes the plan file's header.** It covers what changes, the PRs in landing order, and the dependency graph: which PRs are independent and branch from trunk, which wait for which, and which files each may touch.
 4. **Writes one section per PR.** One PR is one change with its own evidence. Each section has checkboxes for what it depends on, the files it edits, the one change it makes, the result you'll see, and how it's verified.
-5. **Doesn't accept tests alone as verification.** The unit, live, and perf boxes must all be checked: a live check drives the real UI or CLI through a concrete scenario with a pass condition, and a perf check names the metric, how it's measured, a trunk baseline measured first, and the number that counts as a failure. A PR that changes an interaction waits for your review before merge.
+5. **Doesn't accept tests alone as verification.** The unit, live, and perf boxes must all be checked. A live check drives the real UI or CLI through a concrete scenario with a pass condition. A perf check names the metric, how it's measured, a trunk baseline measured first, and the number that counts as a failure. A PR that changes an interaction waits for your review before merge.
 6. **Hands back the plan path and stops.** Execution starts only when you explicitly say go.
 
 You get the plan file path, the PR IDs with their dependencies, which PRs need your review before merging, and what remains unproven ([Multi-phase plan playbook](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/multi-phase-plan.md#L11)). The plan also names the playbook that will carry it out ([guide, chapter 10](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/10-recipes-and-pitfalls.md#L45)).
@@ -499,7 +499,7 @@ A small change isn't worth `/architect` or `/arena`.
 
 ## Conclusion
 
-You don't need all of these every time. For a small change, just make it, and review it with `/interrogate` if you're unsure; for a change that touches structure, understand it first with `/how` and `/why`, then have `/architect` stop and show you the design.
+You don't need all of these every time. For a small change, just make it, and review it with `/interrogate` if you're unsure. For a change that touches structure, understand it first with `/how` and `/why`, then have `/architect` stop and show you the design.
 
 ## Further Reading
 

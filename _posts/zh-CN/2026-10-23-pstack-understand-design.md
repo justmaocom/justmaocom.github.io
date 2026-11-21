@@ -20,7 +20,7 @@ AI 编程助手接到“改一下这个功能”，常常直接从第一个看�
 > - 下一篇（第 3 篇）：[写完代码之后，先证明它能用再合并](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
-> 这篇以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)为准，对应 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北时间），搭配 Claude Code 2.1.326。系列五篇我在 2026-11-17 一起以这一版查证，当时 main 在 `2f87c85` 之后没有改动 pstack；之后的版本，行为可能会改变。
+> 这篇以 pstack [`0.15.43` 版](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json)为准，搭配 Claude Code 2.1.326。这一版对应 `cursor/plugins` 的 commit `2f87c85`（2026-11-17 05:47，台北时间）。系列五篇我在 2026-11-17 一起以这一版查证，当时 main 在 `2f87c85` 之后没有改动 pstack；之后的版本，行为可能会改变。
 {: .prompt-info }
 
 ## 开始之前
@@ -279,7 +279,7 @@ flowchart TD
 
 翻对话记录时，它并行派出几个用快速、便宜模型的子代理，各负责一部分，只读和题目有关的对话与段落。只有一两个对话时不派子代理，直接搜。
 
-每个子代理用同样的格式汇报：题目、你的目标、做过的决定、还没完成的事、卡住或被纠正的地方，以及产出（PR、ticket、分支）。在 Claude Code 里，它读的是 `~/.claude/projects/` 下面这个项目的对话记录（`.jsonl` 文件），只读这个项目的文件夹（[Claude Code 对照文档](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L57)）。
+每个子代理用同样的格式汇报：题目、你的目标、做过的决定、还没完成的事、卡住或被纠正的地方，以及产出（PR、ticket、分支）。在 Claude Code 里，它读的是 `~/.claude/projects/` 下面这个项目的对话记录（`.jsonl` 文件）。它只读这个项目的文件夹（[Claude Code 对照文档](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L57)）。
 
 共享记录指版本控制、issue 系统、聊天频道、文档和错误追踪，每个来源各派一位子代理，问“现在的状态是什么、试过哪些没成功、用户还在反馈什么”。题目只要指名了功能、文件、子系统或 bug，这一步就一定会做，没接上的 MCP 才跳过并说明。
 
