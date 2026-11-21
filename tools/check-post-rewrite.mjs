@@ -28,6 +28,11 @@ function parse(text) {
   const paras = prose.split(/\n\s*\n/).map((p) => p.trim())
     .filter((p) => p && !/^(#|\||>|!\[|[-*] |\d+\. |\{:|_)/.test(p));
   const len = (p) => (/[一-鿿]/.test(p) ? p.replace(/\s|\[|\]\([^)]*\)/g, '').length : p.split(/\s+/).length);
+  const zh = /[一-鿿]/.test(prose);
+  const sents = prose.split('\n').filter((l) => l.trim() && !/^(#|\||!\[|\{:|_)/.test(l))
+    .join('\n').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .split(zh ? /[。！？\n]/ : /(?<=[.!?])\s+|\n/).map((s) => s.replace(/^\s*(>|[-*]|\d+\.)\s*/, '').trim()).filter(Boolean);
+  const slen = (s) => (zh ? s.replace(/\s/g, '').length : s.split(/\s+/).length);
   return {
     fm,
     blocks,
@@ -40,6 +45,7 @@ function parse(text) {
     proseLen: paras.reduce((n, p) => n + len(p), 0),
     maxPara: Math.max(0, ...paras.map(len)),
     longParas: paras.filter((p) => len(p) > (/[一-鿿]/.test(p) ? 160 : 90)).length,
+    longSents: sents.filter((s) => slen(s) > (zh ? 80 : 35)).map((s) => `(${slen(s)}) ${s.slice(0, zh ? 40 : 120)}…`),
   };
 }
 
@@ -99,8 +105,10 @@ for (const slug of slugs) {
   for (const r of all) {
     const o = r.old;
     const pct = o ? Math.round((100 * r.now.proseLen) / o.proseLen) : 100;
-    console.log(`  ${r.rel.padEnd(70)} prose ${o?.proseLen ?? '-'}→${r.now.proseLen} (${pct}%)  maxPara ${o?.maxPara ?? '-'}→${r.now.maxPara}  long ${o?.longParas ?? '-'}→${r.now.longParas}  mermaid ${r.now.mermaid.length}`);
+    console.log(`  ${r.rel.padEnd(70)} prose ${o?.proseLen ?? '-'}→${r.now.proseLen} (${pct}%)  maxPara ${o?.maxPara ?? '-'}→${r.now.maxPara}  longPara ${o?.longParas ?? '-'}→${r.now.longParas}  longSent ${o?.longSents.length ?? '-'}→${r.now.longSents.length}  mermaid ${r.now.mermaid.length}`);
     for (const i of r.issues) console.log(`    - ${i}`);
+    // Warnings only: a long sentence is a readability target, not a lost fact.
+    for (const s of r.now.longSents) console.log(`    ~ long sentence ${s}`);
   }
   for (const p of parity) console.log(`  - ${p}`);
 }
