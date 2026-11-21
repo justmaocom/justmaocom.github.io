@@ -19,7 +19,10 @@ config = YAML.load_file(File.expand_path('../_config.yml', __dir__))
 site_dir = ARGV.fetch(0, '_site')
 origin = "#{ config['url'] }#{ config['baseurl'] }"
 default_lang = config['default_lang']
-tabs = Dir[File.expand_path('../_tabs/*.md', __dir__)].map { |file| File.basename(file, '.md') }
+tab_files = Dir[File.expand_path('../_tabs/*.md', __dir__)]
+tabs = tab_files.map { |file| File.basename(file, '.md') }
+# front matter 寫了 noindex 的 tab 不會出現在 sitemap
+listed_tabs = tab_files.reject { |file| File.read(file).match?(/^noindex: true$/) }.map { |file| File.basename(file, '.md') }
 failures = []
 
 # 文章會在程式碼區塊展示 HTML 原始碼，所以 <!DOCTYPE 不看已閉合的 fenced code；未閉合的整段保留
@@ -61,11 +64,11 @@ config['languages'].each do |lang|
      ->(s) { s[%r{<title>(.*?)</title>}m, 1].then { |t| t.end_with?(" | #{ suffix }") && (site_title == suffix || !t.end_with?(" | #{ site_title }")) } }],
     ['tab 頁不是文章', tabs.map { |tab| "#{ root }/#{ tab }/index.html" },
      ->(s) { !s.include?('article:published_time') && json_ld[s].then { |d| d['@type'] != 'BlogPosting' && !d.key?('datePublished') } }],
-    ['標籤頁 noindex', Dir["#{ root }/tags/*/index.html"],
+    ['標籤頁與標籤索引頁 noindex', Dir["#{ root }/tags/{,*/}index.html"],
      ->(s) { s.include?('<meta name="robots" content="noindex, follow">') }],
     ['文章頁沒有 noindex', Dir["#{ root }/posts/*/index.html"], ->(s) { !s.include?('name="robots"') }],
     ['sitemap 只列可收錄的頁面', ["#{ root }/sitemap.xml"],
-     ->(s) { s.scan(%r{<loc>([^<]*)</loc>}).flatten.then { |urls| urls.any? && urls.none? { |u| u =~ %r{/tags/.|/assets/|/google\w+\.html} } } }],
+     ->(s) { s.scan(%r{<loc>([^<]*)</loc>}).flatten.then { |urls| urls.any? && urls.none? { |u| u =~ %r{/tags/|/assets/|/google\w+\.html} } } }],
     ['x-default 指向英文版', Dir["#{ root }/{,posts/*/,about/}index.html"],
      ->(s) { s[/hreflang="x-default" href="([^"]*)"/, 1].to_s.start_with?("#{ origin }/en/") }],
     ['feed 連結', Dir["#{ root }/{,posts/*/}index.html"],
@@ -74,7 +77,7 @@ config['languages'].each do |lang|
      ->(s) { json_ld[s].then { |d| d['@type'] == 'ProfilePage' && d.dig('mainEntity', 'name') == config.dig('social', 'name') } }],
     ['JSON-LD 圖片型別', Dir["#{ root }/posts/*/index.html"], ->(s) { !s.include?('"imageObject"') }],
     ['sitemap 的 tab 頁沒有 lastmod', ["#{ root }/sitemap.xml"],
-     ->(s) { tabs.all? { |tab| s.include?("/#{ tab }/</loc>") && s !~ %r{/#{ tab }/</loc>\s*<lastmod>} } }],
+     ->(s) { listed_tabs.any? && listed_tabs.all? { |tab| s.include?("/#{ tab }/</loc>") && s !~ %r{/#{ tab }/</loc>\s*<lastmod>} } }],
     ['首頁標題', ["#{ root }/index.html"], ->(s) { title[s] == home_title }],
     ['首頁分頁的標題帶頁碼', Dir["#{ root }/page*/index.html"],
      ->(s) { title[s] != home_title && title[s] =~ /\d/ && title[s].end_with?(" | #{ suffix }") }],

@@ -3,6 +3,7 @@
 # 補上 jekyll-seo-tag 與主題沒處理的 SEO 細節。
 #
 # - 標籤頁設為 noindex。它由 jekyll-archives 產生，不吃 front matter defaults，所以在這裡標記。
+#   標籤索引頁（/tags/）的 noindex 寫在 _tabs/tags.md。
 #   帶 noindex 的頁面一律移出 sitemap；<meta name="robots"> 由 _includes/metadata-hook.html 輸出。
 # - <title> 的站名後綴改用 _config.yml 的 title_suffix，首頁改用 home_title。
 # - 首頁的分頁與分類頁原本和別頁共用標題或描述：分頁的 <title> 補上頁碼；分類頁的 <title> 與
