@@ -15,13 +15,13 @@
 # 擋掉本 repo 的 assets/robots.txt 之後，jekyll-sitemap 發現站台沒有 robots.txt 會自己產生一份，
 # 所以要等產生器跑完再移除。
 #
-# 另外依 _config.yml 的 i18n_site，替各語系覆寫 title、home_title、tagline、description。
+# 另外依 _config.yml 的 i18n_site，替各語系覆寫 title、home_title、alternate_name、tagline、description。
 
 require 'cgi'
 
 module I18nHook
 
-  SITE_KEYS = %w(title home_title tagline description).freeze
+  SITE_KEYS = %w(title home_title alternate_name tagline description).freeze
 
   module_function
 

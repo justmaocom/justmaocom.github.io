@@ -1,0 +1,8 @@
+# 文章的作者。_config.yml 的 defaults 讓每篇文章預設 author: JustMao，
+# 主題因此把文章署名連到這裡的 url（否則連到 social.links 的第一個，也就是 X）。
+# jekyll-seo-tag 也會改讀這一筆，所以內容要與 _config.yml 的 author 相同。
+# ID 要與 name 相同：主題的 feed.xml 直接把 ID 當作者名稱輸出。
+JustMao:
+  name: JustMao
+  twitter: justmaocom
+  url: https://justmao.com/about/

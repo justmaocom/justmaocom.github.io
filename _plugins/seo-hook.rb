@@ -18,6 +18,8 @@
 # - 文章頁另外輸出一段 BreadcrumbList JSON-LD（首頁 → 分類 → 子分類 → 文章），分類網址取自
 #   jekyll-archives 產生的分類頁。
 # - 主題的 viewport 帶 user-scalable=no，使用者無法放大頁面，這裡拿掉。
+# - 補上 seo-tag 沒輸出的結構化資料：文章的 inLanguage 與 publisher、首頁 WebSite 的 alternateName、
+#   「關於」頁 Person 的 description。不加 @id：check-i18n 要求 @id 都是本頁網址。
 #
 # 與其他 hook 一樣以精確字串比對改寫輸出，成品由 tools/check-seo.rb 檢查。
 
@@ -97,6 +99,23 @@ module SeoHook
     doc.output = doc.output.sub('user-scalable=no initial-scale=1', 'initial-scale=1')
   end
 
+  # 個人部落格的發行者就是作者本人
+  def enrich_article(doc)
+    doc.output = doc.output.sub(JSON_LD) do
+      head, tail = $1, $3
+      data = JSON.parse($2)
+      data['inLanguage'] = doc.site.active_lang
+      data['publisher'] = data['author'] if data['author']
+      "#{ head }#{ JSON.generate(data).gsub('</', '<\/') }#{ tail }"
+    end
+  end
+
+  # Google 決定搜尋結果上的站台名稱時，會參考首頁 WebSite 的 name 與 alternateName
+  def add_alternate_name(doc)
+    name = doc.site.config['alternate_name'] or return
+    doc.output = doc.output.sub('"@type":"WebSite",', %("@type":"WebSite","alternateName":#{ name.to_json },))
+  end
+
   def fix_image_type(doc)
     doc.output = doc.output.sub('"@type":"imageObject"', '"@type":"ImageObject"')
   end
@@ -159,7 +178,7 @@ module SeoHook
       if data['@type'] == 'WebSite'
         data['@type'] = 'ProfilePage'
         person = data.delete('author') || { '@type' => 'Person' }
-        data['mainEntity'] = person.merge({ 'name' => data.delete('name'), 'sameAs' => data.delete('sameAs') }.compact)
+        data['mainEntity'] = person.merge({ 'name' => data.delete('name'), 'description' => data['description'], 'sameAs' => data.delete('sameAs') }.compact)
       end
       data['headline'] = local if local
       # 不用 script_safe：它會把 / 寫成 \/，i18n-hook 就比對不到 "url":"https://…" 了
@@ -182,6 +201,8 @@ Jekyll::Hooks.register [:documents, :pages], :post_render do |doc|
   SeoHook.prioritize_cover(doc)
   SeoHook.allow_zoom(doc)
   SeoHook.fix_image_type(doc)
+  SeoHook.add_alternate_name(doc) if doc.url == '/'
+  SeoHook.enrich_article(doc) if doc.data['layout'] == 'post'
   SeoHook.add_breadcrumb(doc) if doc.data['layout'] == 'post'
   SeoHook.fix_tab(doc) if doc.is_a?(Jekyll::Document) && doc.collection.label == 'tabs'
 end

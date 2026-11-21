@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
+# 檢查建置成品的 SEO 輸出：作者與署名連結、文章與首頁的結構化資料、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
 # sitemap 內容、x-default 與 feed 連結、封面圖的載入方式與 alt、viewport、首頁與分類頁的標題與描述、
 # llms.txt 的文章清單、給 agent 的 Markdown 版本與其中的圖片路徑、文章的 BreadcrumbList。
 #
@@ -60,6 +60,17 @@ config['languages'].each do |lang|
   checks = [
     ['文章 JSON-LD 的 author', Dir["#{ root }/posts/*/index.html"],
      ->(s) { json_ld[s].then { |d| d['@type'] == 'BlogPosting' && d.dig('author', 'name') == config.dig('author', 'name') } }],
+    ['文章 JSON-LD 的語言與發行者', Dir["#{ root }/posts/*/index.html"],
+     ->(s) { json_ld[s].then { |d| d['inLanguage'] == lang && d['publisher'] && d['publisher'] == d['author'] } }],
+    # 署名原本連到 social.links 的第一個（X）；文章改由 _data/authors.yml 指定作者後連到「關於」頁
+    ['文章署名連到「關於」頁', Dir["#{ root }/posts/*/index.html"],
+     ->(s) { s.include?(%(<a href="#{ origin }#{ prefix }/about/">#{ config.dig('social', 'name') }</a>)) }],
+    # 主題的 feed.xml 直接輸出文章的 author，作者 ID 與名稱不同時會露出 ID
+    ['feed 的作者名稱', ["#{ root }/feed.xml"],
+     ->(s) { s.scan(%r{<author>\s*<name>(.*?)</name>}m).flatten.then { |names| names.any? && names.uniq == [config.dig('social', 'name')] } }],
+    # 英文版在 i18n_site 把 alternate_name 留空，不輸出
+    ['首頁 WebSite 的 alternateName', ["#{ root }/index.html"],
+     ->(s) { json_ld[s].then { |d| d['@type'] == 'WebSite' && d['alternateName'] == config.dig('i18n_site', lang).to_h.fetch('alternate_name', config['alternate_name']) } }],
     ['<title> 後綴', Dir["#{ root }/{posts/*,about,archives}/index.html"],
      ->(s) { s[%r{<title>(.*?)</title>}m, 1].then { |t| t.end_with?(" | #{ suffix }") && (site_title == suffix || !t.end_with?(" | #{ site_title }")) } }],
     ['tab 頁不是文章', tabs.map { |tab| "#{ root }/#{ tab }/index.html" },
@@ -74,7 +85,7 @@ config['languages'].each do |lang|
     ['feed 連結', Dir["#{ root }/{,posts/*/}index.html"],
      ->(s) { s.include?(%(type="application/atom+xml")) && s[/type="application\/atom\+xml"[^>]* href="([^"]*)"/, 1] == "#{ config['baseurl'] }#{ prefix }/feed.xml" }],
     ['「關於」頁是 ProfilePage', ["#{ root }/about/index.html"],
-     ->(s) { json_ld[s].then { |d| d['@type'] == 'ProfilePage' && d.dig('mainEntity', 'name') == config.dig('social', 'name') } }],
+     ->(s) { json_ld[s].then { |d| d['@type'] == 'ProfilePage' && d.dig('mainEntity', 'name') == config.dig('social', 'name') && d['description'] && d.dig('mainEntity', 'description') == d['description'] } }],
     ['JSON-LD 圖片型別', Dir["#{ root }/posts/*/index.html"], ->(s) { !s.include?('"imageObject"') }],
     ['sitemap 的 tab 頁沒有 lastmod', ["#{ root }/sitemap.xml"],
      ->(s) { listed_tabs.any? && listed_tabs.all? { |tab| s.include?("/#{ tab }/</loc>") && s !~ %r{/#{ tab }/</loc>\s*<lastmod>} } }],
