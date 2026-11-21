@@ -16,6 +16,7 @@
 # - seo-tag 把圖片型別寫成 imageObject，schema.org 的型別名稱有分大小寫，改成 ImageObject。
 # - 文章頁另外輸出一段 BreadcrumbList JSON-LD（首頁 → 分類 → 子分類 → 文章），分類網址取自
 #   jekyll-archives 產生的分類頁。
+# - 主題的 viewport 帶 user-scalable=no，使用者無法放大頁面，這裡拿掉。
 #
 # 與其他 hook 一樣以精確字串比對改寫輸出，成品由 tools/check-seo.rb 檢查。
 
@@ -89,6 +90,10 @@ module SeoHook
   # 圖片若在腳本執行前就載入完成，載入中的動畫會一直留著。
   def prioritize_cover(doc)
     doc.output = doc.output.sub(COVER, '\1\2 fetchpriority="high"')
+  end
+
+  def allow_zoom(doc)
+    doc.output = doc.output.sub('user-scalable=no initial-scale=1', 'initial-scale=1')
   end
 
   def fix_image_type(doc)
@@ -174,6 +179,7 @@ Jekyll::Hooks.register [:documents, :pages], :post_render do |doc|
   SeoHook.shorten_title(doc)
   SeoHook.retitle_listing(doc)
   SeoHook.prioritize_cover(doc)
+  SeoHook.allow_zoom(doc)
   SeoHook.fix_image_type(doc)
   SeoHook.add_breadcrumb(doc) if doc.data['layout'] == 'post'
   SeoHook.fix_tab(doc) if doc.is_a?(Jekyll::Document) && doc.collection.label == 'tabs'

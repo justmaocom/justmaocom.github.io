@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 #
 # 檢查建置成品的 SEO 輸出：作者、標題後綴、tab 頁的結構化資料、標籤頁 noindex、
-# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式、首頁與分類頁的標題與描述、
-# llms.txt 的文章清單、給 agent 的 Markdown 版本、文章的 BreadcrumbList。
+# sitemap 內容、x-default 與 feed 連結、封面圖的載入方式與 alt、viewport、首頁與分類頁的標題與描述、
+# llms.txt 的文章清單、給 agent 的 Markdown 版本與其中的圖片路徑、文章的 BreadcrumbList。
 #
 # _plugins/seo-hook.rb 與 _includes/metadata-hook.html 依賴主題和 jekyll-seo-tag 的輸出格式，
 # 格式一變就會靜默失效，所以這裡只看成品。語系網址的檢查在 tools/check-i18n.rb。
@@ -86,11 +86,19 @@ config['languages'].each do |lang|
     # 沒有封面的文章不會有 preview-img；有的話第一張要立即載入，其餘維持 lazy
     ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
      ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }],
+    # 主題處理 <img> 時曾把 alt 裡的「 /」刪掉；og:image:alt 由 seo-tag 輸出，不經過那段，拿來對照
+    ['封面圖的 alt 與 og:image:alt 相同', Dir["#{ root }/posts/*/index.html"],
+     ->(s) { s[/property="og:image:alt" content="([^"]*)"/, 1].then { |alt| alt.nil? || CGI.unescapeHTML(s[/\bpreview-img\b[^>]*>\s*<img\b[^>]*?\balt="([^"]*)"/, 1].to_s) == CGI.unescapeHTML(alt) } }],
+    ['viewport 允許縮放', Dir["#{ root }/{,posts/*/,about/}index.html"],
+     ->(s) { s[/<meta\s+name="viewport"[^>]*>/m].then { |tag| tag && !tag.include?('user-scalable') } }],
     ['llms.txt 列出每篇文章', ["#{ root }/llms.txt"],
      ->(s) { s.scan(%r{\]\(#{ Regexp.escape("#{ origin }#{ prefix }") }/posts/([^/)]+)/\)}).flatten.sort.then { |slugs| slugs.any? && slugs == Dir["#{ root }/posts/*/index.html"].map { |file| File.basename(File.dirname(file)) }.sort } }],
     # Cloudflare 把帶 Accept: text/markdown 的請求改寫到這些檔案，少一份 agent 就會拿到 404
     ['文章與「關於」頁有 Markdown 版本', Dir["#{ root }/{posts/*,about}/index.html"].map { |file| file.sub(/html\z/, 'md') },
      ->(s) { !s.strip.empty? && s !~ /\{% (?:end)?raw %\}/i && markdown_without_closed_fences(s) !~ /<!DOCTYPE/i }],
+    # 圖片路徑要帶上 media_subpath，否則會指到文章目錄下不存在的檔案
+    ['Markdown 版本的圖片都存在', Dir["#{ root }/{posts/*,about}/index.md"],
+     ->(s) { markdown_without_closed_fences(s).scan(/!\[.*?\]\(([^)\s]+)/).flatten.reject { |src| src =~ %r{\A[a-z][a-z0-9+.-]*:}i }.all? { |src| File.exist?("#{ site_dir }#{ src.delete_prefix(config['baseurl'].to_s) }") } }],
     ['首頁的 Markdown 版本是 llms.txt', ["#{ root }/index.md"], ->(s) { s == File.read("#{ root }/llms.txt") }],
     # 首頁 → 分類 → 文章。分類網址要與頁面上的分類連結相同、指向已建置的分類頁；
     # 最後一項沒有 item，名稱與 <title> 相同（seo-tag 的 headline 會把 ' 換成 ’，不能拿來比）
