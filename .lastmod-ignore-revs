@@ -15,3 +15,4 @@ a4f070ce4d09e19b79eede1dcf847f38ca23f56b # fix(posts): 刪除文章裡未實作�
 086e420ac91d4246bd800afb0bdfa91122bb13cb # docs(posts): pstack 第 3、4 篇延伸閱讀同步第 2 篇的新內容
 8dd118a3f0ab558e3e85aa212e9aee237d3a8e53 # docs(posts): pstack 導讀的描述寫明是 Cursor 與 Claude Code 的 agent skill
 bde76fa15403549d41a73e6d644c563ad28ffac2 # docs(posts): 補上同主題文章之間的站內連結
+6ac55dda7bde53b2baaad19be84167811b8f4a78 # docs(posts): 縮短四篇文章過長的描述
