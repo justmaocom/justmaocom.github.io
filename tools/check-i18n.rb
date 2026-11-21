@@ -41,7 +41,7 @@ failures = []
      ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).map { |(json)| JSON.parse(json) }.select { |d| d['@type'] == 'BreadcrumbList' }.flat_map { |d| d['itemListElement'].filter_map { |i| i['item'] } } },
      ->(url, _) { url.start_with?("#{ origin }/#{ lang }/") }],
     ['JSON-LD 作者網址', html,
-     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).flat_map { |(json)| JSON.parse(json).then { |d| [d.dig('author', 'url'), d.dig('mainEntity', 'url')] } }.compact },
+     ->(s) { s.scan(%r{<script type="application/ld\+json">(.*?)</script>}m).flat_map { |(json)| JSON.parse(json).then { |d| [d.dig('author', 'url'), d.dig('publisher', 'url'), d.dig('mainEntity', 'url')] } }.compact },
      ->(url, _) { url.start_with?("#{ origin }/#{ lang }/") }],
     ['分享按鈕網址', html,
      ->(s) { s.scan(/#{ Regexp.escape(CGI.escape(origin)) }[\w.~%-]*/).map { |u| CGI.unescape(u) } },
