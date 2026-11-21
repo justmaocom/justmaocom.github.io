@@ -16,7 +16,7 @@ const LANGS = { 'zh-TW': '_posts', 'zh-CN': '_posts/zh-CN', en: '_posts/en' };
 const git = (...a) => execFileSync('git', a, { cwd: REPO, encoding: 'utf8', maxBuffer: 1 << 26 });
 const BASE = process.env.BASE ?? git('merge-base', 'HEAD', 'main').trim();
 
-function parse(text) {
+function parse(text, zh) {
   const m = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!m) throw new Error('no front matter');
   const [, fm, body] = m;
@@ -27,8 +27,8 @@ function parse(text) {
   });
   const paras = prose.split(/\n\s*\n/).map((p) => p.trim())
     .filter((p) => p && !/^(#|\||>|!\[|[-*] |\d+\. |\{:|_)/.test(p));
-  const len = (p) => (/[一-鿿]/.test(p) ? p.replace(/\s|\[|\]\([^)]*\)/g, '').length : p.split(/\s+/).length);
-  const zh = /[一-鿿]/.test(prose);
+  // The file's language picks the unit; an en table that quotes Chinese queries is still English.
+  const len = (p) => (zh ? p.replace(/\s|\[|\]\([^)]*\)/g, '').length : p.split(/\s+/).length);
   const sents = prose.split('\n').filter((l) => l.trim() && !/^(#|\||!\[|\{:|_)/.test(l))
     .join('\n').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .split(zh ? /[。！？\n]/ : /(?<=[.!?])\s+|\n/).map((s) => s.replace(/^\s*(>|[-*]|\d+\.)\s*/, '').trim()).filter(Boolean);
@@ -44,7 +44,7 @@ function parse(text) {
     h2: (prose.match(/^## /gm) ?? []).length,
     proseLen: paras.reduce((n, p) => n + len(p), 0),
     maxPara: Math.max(0, ...paras.map(len)),
-    longParas: paras.filter((p) => len(p) > (/[一-鿿]/.test(p) ? 160 : 90)).length,
+    longParas: paras.filter((p) => len(p) > (zh ? 160 : 90)).length,
     longSents: sents.filter((s) => slen(s) > (zh ? 80 : 35)).map((s) => `(${slen(s)}) ${s.slice(0, zh ? 40 : 120)}…`),
   };
 }
@@ -54,9 +54,10 @@ const missing = (oldSet, newSet) => [...oldSet].filter((x) => !newSet.has(x));
 
 async function checkFile(rel) {
   const issues = [];
-  const now = parse(readFileSync(path.join(REPO, rel), 'utf8'));
+  const zh = !rel.startsWith(`${LANGS.en}/`);
+  const now = parse(readFileSync(path.join(REPO, rel), 'utf8'), zh);
   let old;
-  try { old = parse(git('show', `${BASE}:${rel}`)); } catch { old = null; }
+  try { old = parse(git('show', `${BASE}:${rel}`), zh); } catch { old = null; }
   if (old) {
     if (fmWithoutMermaid(old.fm) !== fmWithoutMermaid(now.fm)) issues.push('front matter changed');
     const nowCode = now.code.map((b) => `${b.lang}\n${b.code}`);
