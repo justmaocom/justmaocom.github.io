@@ -9,8 +9,10 @@ projects:
   post: 介绍文章
 
 # _plugins/seo-hook.rb 產生的 <title> 與描述。
-# :name 是分類名稱，:count 是該分類的文章數，:latest 是最新一篇的標題，:num 是頁碼
+# :name 是分類名稱，:count 是該分類的文章數，:latest 是最新一篇的標題，:num 是頁碼；:count 在 tab 的描述裡是文章數或分類數
 seo:
   category_title: "“:name”分类文章"
   category_description: "“:name”分类下的 :count 篇文章，最新一篇是《:latest》。"
   page_title: "文章列表（第 :num 页）"
+  archives_description: "JustMao 的全部 :count 篇文章，按发布日期由新到旧排列。"
+  categories_description: "JustMao 的文章分类总览：:count 个分类，各自列出下面的文章。"
