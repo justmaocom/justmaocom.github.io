@@ -304,4 +304,4 @@ _这是 tensorlake 公告的特殊顺序：先移除可能触发删除文件的�
 
 我建议先从现有项目的待审清单开始，让必要的脚本在审查后恢复运作，再把名单与 `.npmrc` 一起提交，让团队和 CI 共用。之后每次升级依赖包，也记得一起审查新版本的脚本。
 
-发布者端如何移除长期 token，见我写的[npm Trusted Publishing 设置教程](/posts/npm-trusted-publishing-github-actions/)；AI 工具与 MCP 的相关风险，见[Coding Agent 供应链与权限风险](/posts/coding-agent-supply-chain-permission-risks/)；更完整的工作流检查，我整理在[OWASP Agentic Top 10 检查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+发布者端如何移除长期 token，见我写的[npm Trusted Publishing 设置教程](/posts/npm-trusted-publishing-github-actions/)；发布流程怎么再加上审查关卡，见[开了 Trusted Publishing 还不够：npm 发布流程也要上锁](/posts/npm-release-pipeline-lockdown/)；AI 工具与 MCP 的相关风险，见[Coding Agent 供应链与权限风险](/posts/coding-agent-supply-chain-permission-risks/)；更完整的工作流检查，我整理在[OWASP Agentic Top 10 检查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。

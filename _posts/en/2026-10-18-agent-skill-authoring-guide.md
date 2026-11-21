@@ -659,6 +659,8 @@ Related posts on this site:
 - [Part 6 of the series](/posts/mattpocock-skills-research-handoff/): the `writing-for-agents` writing principles
 - [Part 4 of the series](/posts/mattpocock-skills-implementation-feedback-loops/): a real manual-only skill
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): risks and a checklist from the user's side
+- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): how to write the project rules that load in every conversation
+- [Modern Web Guidance Hands-On: Agents Fix Legacy Web Code](/posts/modern-web-guidance-coding-agent/): installing a ready-made agent skill and putting it to work
 
 ## Appendix: Example A's Full Files
 

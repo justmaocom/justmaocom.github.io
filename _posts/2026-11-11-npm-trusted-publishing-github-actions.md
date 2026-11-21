@@ -342,6 +342,6 @@ _概念圖：左邊把本文步驟 0 到步驟 4 整理成六項清單，右邊�
 
 ## 結論與下一步
 
-我建議把 GitHub Actions 的發布從「放一把長期鑰匙」改成「每次當場換短期憑證」，之後記得收掉舊 token，必要時再加上核准或 stage publish。使用者那一端還能怎麼降低風險，我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)裡整理過；若要幫這些 workflow 加自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。
+我建議把 GitHub Actions 的發布從「放一把長期鑰匙」改成「每次當場換短期憑證」，之後記得收掉舊 token，必要時再加上核准或 stage publish。使用者那一端還能怎麼降低風險，我在[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)裡整理過；若要幫這些 workflow 加自動化審查，見[用 GitHub Actions 加 AI Agent 自動化審查：以本站 PR 為例](/posts/github-actions-ai-agent-pr-review/)。workflow 用到的第三方 action 怎麼鎖版本，見[gh actions-lock 教學：用 lockfile 鎖定 GitHub Actions 依賴](/posts/gh-actions-lock-workflow-lockfile/)；安裝套件時怎麼擋安裝腳本，見[npm 12 預設擋掉安裝腳本：怎麼用 allowScripts 核准、怎麼加 7 天冷靜期](/posts/npm-12-install-scripts-allowscripts/)。
 
 官方說明以 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 為準，並可參閱 [provenance](https://docs.npmjs.com/generating-provenance-statements)、[about access tokens](https://docs.npmjs.com/about-access-tokens)、[staged publishing](https://docs.npmjs.com/staged-publishing)，以及 [GitHub 的 OIDC 說明](https://docs.github.com/en/actions/concepts/security/openid-connect)。我寫過的其他資安文章，也可看 [OpenSSH 密碼驗證繞過漏洞 CVE-2026-123158：Alpine 怎麼修補](/posts/openssh-musl-password-bypass-alpine/)。

@@ -220,6 +220,8 @@ As I see it, installing third-party skills and MCP servers puts someone else's c
 
 **Opinion**: I think the first thing worth doing isn't buying a guardrail product that claims to catch 95% of attacks (Willison is skeptical of those claims too: in web application security, he says, 95% is very much a failing grade). It's two boring things: shrink the agent's tokens to the minimum, and pin the version of every skill and MCP server you install. The first limits what a fooled agent can do; the second limits what can change without you knowing.
 
+If you want to act on this, I wrote four posts that each cover one piece. The [OWASP Agentic Top 10 checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/) audits your whole workflow with ten questions. The [Claude Code sandbox setup](/posts/claude-code-sandbox-setup/) guide puts the commands Claude runs in a sandbox and keeps keys and tokens out. [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/) covers which files to open before you install a plugin. And the [Claude Code hooks](/posts/claude-code-hooks-automate-checks/) post runs checks automatically at fixed points.
+
 It's the same lesson as my earlier post on the [HEIF image and SSO attack chain](/posts/openai-libheif-sso-attack-chain/): how much damage a small entry point does depends on how much trust sits behind it.
 
 ## Sources

@@ -368,3 +368,4 @@ I suggest starting in this order:
 - [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/) shows how to put your testing rules in the project.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/) shows how to run checks automatically.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/) explains why you should limit an agent's tools.
+- [Modern Web Guidance Hands-On: Agents Fix Legacy Web Code](/posts/modern-web-guidance-coding-agent/) has an agent fix legacy web code from a guide, then verifies the result in Chrome.

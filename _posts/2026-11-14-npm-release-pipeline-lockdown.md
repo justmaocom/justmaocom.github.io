@@ -271,4 +271,4 @@ npm stage reject 'YOUR_STAGE_ID'
 
 我會先把發布權限的入口列清楚，再替來源審查、tag、job 與公開各加上適合的限制。這篇我最想強調的一點是：核准 commit 和核准最後產出的套件，是兩次不同的確認，哪一次都不能省。
 
-還沒設好 OIDC，先看我寫的[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；workflow 的自動化審查可參考[用 GitHub Actions 加 AI Agent 自動化審查](/posts/github-actions-ai-agent-pr-review/)；更完整的工作流風險，我整理在[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+還沒設好 OIDC，先看我寫的[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；安裝套件的那一端怎麼擋安裝腳本，見[npm 12 預設擋掉安裝腳本：怎麼用 allowScripts 核准、怎麼加 7 天冷靜期](/posts/npm-12-install-scripts-allowscripts/)；workflow 的自動化審查可參考[用 GitHub Actions 加 AI Agent 自動化審查](/posts/github-actions-ai-agent-pr-review/)；更完整的工作流風險，我整理在[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。

@@ -271,4 +271,4 @@ npm stage reject 'YOUR_STAGE_ID'
 
 我会先把发布权限的入口列清楚，再为来源审查、tag、job 与公开各加上合适的限制。这篇我最想强调的一点是：批准 commit 和批准最后产出的包，是两次不同的确认，哪一次都不能省。
 
-还没设好 OIDC，先看我写的[npm Trusted Publishing 设置教程](/posts/npm-trusted-publishing-github-actions/)；workflow 的自动化审查可参考[用 GitHub Actions 加 AI Agent 自动化审查](/posts/github-actions-ai-agent-pr-review/)；更完整的工作流风险，我整理在[OWASP Agentic Top 10 检查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+还没设好 OIDC，先看我写的[npm Trusted Publishing 设置教程](/posts/npm-trusted-publishing-github-actions/)；安装包的人这一端怎么挡安装脚本，见[npm 12 默认挡掉安装脚本：怎么用 allowScripts 批准、怎么加 7 天冷静期](/posts/npm-12-install-scripts-allowscripts/)；workflow 的自动化审查可参考[用 GitHub Actions 加 AI Agent 自动化审查](/posts/github-actions-ai-agent-pr-review/)；更完整的工作流风险，我整理在[OWASP Agentic Top 10 检查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。

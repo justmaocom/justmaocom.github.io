@@ -220,6 +220,8 @@ _清单分三段，各自对应不同的时间点。_
 
 **观点**：我认为最值得先做的，不是找一个号称能挡下 95% 攻击的防护产品（Willison 对这类宣称也很怀疑，他的说法是：在 Web 安全里，95% 是不及格的分数），而是两件很无聊的事：把 agent 的令牌缩到最小，以及锁住你装的每一个 skill 和 MCP 的版本。前者限制“被骗之后能做什么”，后者减少“在你不知情时被换掉”。
 
+要动手做的话，我另外写了四篇，各处理其中一块：[OWASP Agentic Top 10 检查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)用十道题盘点整个工作流；[Claude Code 沙箱设置教程](/posts/claude-code-sandbox-setup/)把 Claude 跑的命令关进沙箱，并把密钥和 token 挡在外面；[Claude Code plugin 安全安装](/posts/claude-code-plugin-safe-install/)说明安装 plugin 前要先看哪些文件；[Claude Code hooks 教程](/posts/claude-code-hooks-automate-checks/)则在固定时机自动做检查。
+
 这和我之前写的 [HEIF 图片与 SSO 攻击链](/posts/openai-libheif-sso-attack-chain/)其实是同一个教训：一个看起来很小的入口，真正的损害取决于它背后连着多少信任。
 
 ## 来源

@@ -659,6 +659,8 @@ Agent Skills 是一个开放标准。有官方文档说明支持的，包括 Cla
 - [系列第 6 篇](/posts/mattpocock-skills-research-handoff/)：`writing-for-agents` 的写作原则
 - [系列第 4 篇](/posts/mattpocock-skills-implementation-feedback-loops/)：只能手动启动的 skill 实例
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：用户端的风险与检查清单
+- [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：每次对话都会加载的项目规则该怎么写
+- [Modern Web Guidance 实测：让 coding agent 跟上网页新写法](/posts/modern-web-guidance-coding-agent/)：安装并实际使用一套现成 agent skill 的过程
 
 ## 附录：示例 A 的完整文件
 

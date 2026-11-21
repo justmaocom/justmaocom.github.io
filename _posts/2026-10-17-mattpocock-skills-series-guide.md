@@ -129,3 +129,4 @@ _先找到自己卡住的地方，再從對應的那一篇讀起。_
 - [`README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md)：作者對這套 skill 的說明與安裝方式（`1.2.3` 版）。
 - [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47)：官方外掛收錄的 25 個 skill 清單。
 - [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90)：`ask-matt` 用來建議下一步的完整路線圖。
+- [pstack 系列導讀：這套 skill 是什麼、四篇該怎麼讀](/posts/pstack-series-guide/)：另一套 skill（pstack）的系列導讀。

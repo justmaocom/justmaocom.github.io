@@ -368,3 +368,4 @@ action policy 的結果和文件不同。我先用 Security 文件裡的範例 `
 - 〈[AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)〉說明怎麼把驗收規則放進專案。
 - 〈[Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)〉說明怎麼讓檢查自動執行。
 - 〈[OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)〉說明為什麼要限制 agent 的工具權限。
+- 〈[Modern Web Guidance 實測：讓 coding agent 跟上網頁新寫法](/posts/modern-web-guidance-coding-agent/)〉示範讓 agent 依指南修改舊網頁寫法，再用 Chrome 比對改前改後。
