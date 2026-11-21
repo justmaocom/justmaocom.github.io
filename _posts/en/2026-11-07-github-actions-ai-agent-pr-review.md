@@ -306,7 +306,7 @@ This site's Build and Deploy workflow uses that pair to cancel an unfinished bui
 | `opened` | PR opened | Yes |
 | `synchronize` | New commits pushed | Yes |
 | `reopened` | PR reopened | Yes |
-| `ready_for_review` | Draft marked ready | No; a custom review must list it |
+| `ready_for_review` | Draft marked ready | No; list it only to review when a draft is marked ready |
 
 Add a separate draft condition if drafts should be skipped.
 
@@ -334,7 +334,7 @@ Following this process, every PR leaves a traceable record before merge. The nex
 
 After adoption, review the real records: which suggestions were accepted, which were noise, and how much time and usage each review took.
 
-The lesson I take from this site's example is that connecting existing evidence can already improve review. Approval means something only when all three parties refer to the same changes.
+The lesson I take from this site's example is that connecting existing evidence can already improve review. Actions supplies repeatable checks, the agent raises evidence-backed questions, and a person verifies references, prose, and publishing scope. Approval means something only when all three refer to the same changes.
 
 ## Sources and Further Reading
 

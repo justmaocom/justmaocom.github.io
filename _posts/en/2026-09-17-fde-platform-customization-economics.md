@@ -57,10 +57,9 @@ flowchart TD
   B --> C{How many customers?}
   C -->|Just this one| D[Stays in their implementation]
   C -->|Several| E[Moves into shared platform]
-  E -->|Next customer reuses it| B
 ```
 
-The talk doesn't give a number for "how many customers makes something shareable," so that threshold is still the product team's call. This boundary decides whether the company delivers maintainable solutions or a pile of projects that each evolve on their own.
+The talk doesn't give a number for "how many customers makes something shareable," so I think that threshold is still the product team's call. This boundary decides whether the company delivers maintainable solutions or a pile of projects that each evolve on their own.
 
 ## Treating FDE as staff augmentation misreads the cost structure
 

@@ -67,7 +67,7 @@ Following Alpine's advisory, a host is affected only when all of these condition
 4. **An account has `*` as its password field.** This includes some accounts that use keys and have no usable password set. Alpine also lists directory-service users obtained through musl-nscd. These accounts come from a central account system and have no local shadow entry.
 5. **At least one other local account has a password hash starting with `$5$` or `$6$`.** A hash is the calculated value used to verify a password. This condition means another account's password settings can change the risk.
 
-The attacker must also be able to reach the SSH port and know the target account's name. Other login restrictions still apply to that account. Bypassing the password comparison does not override a rule that denies the account access.
+The attacker must also be able to reach the SSH port and know the target account's name. Other login restrictions still apply to that account. Bypassing the password comparison does not automatically override a rule that denies the account access.
 
 So I would not treat one `*` field as proof that a login is possible. Nor would I skip these checks just because I normally use keys.
 
@@ -85,7 +85,7 @@ The advisory says these images do not meet the exploitation conditions on first 
 ```mermaid
 flowchart TD
   A["First boot: not exploitable"] -->|"For example, console password"| B["$6$ hash appears"]
-  B --> C[Conditions met]
+  B --> C[Conditions may be met]
   C --> D[Attacker logs into alpine]
   D --> E[doas without password]
   E --> F[Root access]
