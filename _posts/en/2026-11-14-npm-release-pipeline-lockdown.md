@@ -8,11 +8,19 @@ media_subpath: /assets/img/posts/npm-release-pipeline-lockdown/
 image:
   path: cover.en.webp
   alt: "Four locks on an npm release pipeline: changing code, pushing a tag, the publish job, and npm going public."
+mermaid: true
 ---
 
 Trusted publishing removes the long-lived publishing token from CI, but it does not review your code. My concern is that an attacker who can change the contents used for a release and trigger an authorized workflow may be able to use your pipeline to publish malware with genuine provenance.
 
-In my view, reducing that risk takes more than changing authentication. You also need to control who can merge code and create release tags, which job can obtain publishing permissions, and whether anyone reviews the package before it goes public. In this post I connect those checkpoints, ending with a CI workflow that can only stage a version for a maintainer to approve on npm. The steps come from the official docs.
+Reducing that risk takes more than changing authentication. You also need to check four things:
+
+- Who can merge code.
+- Who can create release tags.
+- Which job can obtain publishing permissions.
+- Whether anyone reviews the package before it goes public.
+
+This post connects those checkpoints, ending with a CI workflow that can only stage a version for a maintainer to approve on npm. The steps come from the official docs.
 
 This follows my earlier post, [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/). I covered the basic OIDC and `id-token: write` setup there, so I won't repeat it here. Start there if you have not configured trusted publishing yet.
 
@@ -25,7 +33,7 @@ A few terms first:
 - **Staged publishing**: submitting a package to a staging area first; the version becomes public only after a maintainer reviews it and approves with 2FA.
 - **2FA** (two-factor authentication): requiring a second authentication factor for sign-in or a sensitive operation. It is not limited to entering a verification code.
 
-> **Version note:** This post is based on GitHub's [environment docs](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and [ruleset docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets), and npm's [Trusted publishing](https://docs.npmjs.com/trusted-publishers) and [Staged publishing](https://docs.npmjs.com/staged-publishing) docs, as I read them on 2026-11-13. Check the relevant official docs for plans, interfaces, and version requirements.
+> Based on GitHub's [environment docs](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments) and [ruleset docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets), and npm's [Trusted publishing](https://docs.npmjs.com/trusted-publishers) and [Staged publishing](https://docs.npmjs.com/staged-publishing) docs, as of 2026-11-13. Check the relevant official docs for plans, interfaces, and version requirements.
 {: .prompt-info }
 
 ## A Real Case: Genuine Provenance, Malicious Contents
@@ -37,7 +45,9 @@ On October 8, 2026, the npm package `tensorlake` received a malicious release, `
 - At installation, the malware stole GitHub, npm, cloud, and other credentials, then used those permissions to spread to other packages and repositories.
 - The version was on npm for about 1 hour 40 minutes, from 01:12 to 02:54 UTC that day.
 
-To me, the case demonstrates that **a legitimate build source can produce malicious contents**. The advisory does not describe every authentication or protection setting in place, so I would not use provenance alone to conclude that trusted publishing was used, and I cannot tell which protection was bypassed. It does show why checking which workflow published a package is not enough.
+**A legitimate build source can produce malicious contents.** That is what I take from this case, and it shows why checking which workflow published a package is not enough.
+
+The advisory does not describe every authentication or protection setting in place. So I would not use provenance alone to conclude that trusted publishing was used, and I cannot tell which protection was bypassed.
 
 ## What Provenance Does and Does Not Prove
 
@@ -59,14 +69,14 @@ For the tag-based release flow used here, I split the path to a public version i
 | The publishing job runs | Was it approved, and are its permissions appropriate? | Environment and job permissions |
 | The npm version becomes public | Does the staged package match the intended release? | Stage-only publisher and human 2FA approval |
 
-I wouldn't set these up in the table's order. I'd start with human approval for the publishing job. Outside the table, I'd also pin third-party action versions (step 3) so the executed code cannot change while your workflow stays the same.
+I don't set these up in the table's order; I start with human approval for the publishing job. Outside the table, I also pin third-party action versions (step 3), so the executed code cannot change while your workflow stays the same.
 
 ![Checkpoints for source changes, release tags, the publishing job, and npm publication](locks.en.webp){: w="1600" h="900" }
 _Consider these controls together. GitHub and npm are separate authorization boundaries, so protect the accounts, sessions, and authentication devices on each side._
 
 ## Step 1: Require Environment Approval Before Publishing
 
-Start with a human checkpoint for the publishing job. The [GitHub docs](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments) limit required reviewers on Free, Pro, and Team to public repositories. Check plan support for a private repository first.
+Start with a human checkpoint for the publishing job. The [GitHub docs](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments) limit required reviewers on Free, Pro, and Team plans to public repositories. Check plan support for a private repository first.
 
 Configuring it requires repository admin access:
 
@@ -87,11 +97,13 @@ jobs:
     # See the complete example below for the remaining settings
 ```
 
-In the npmjs.com trusted publisher configuration, set **Environment name** to the same `npm-publish`. npm provides this field for projects that use environment protection, and GitHub's [OIDC reference](https://docs.github.com/en/actions/reference/security/oidc) explains that tokens can carry environment information. Adding only the workflow line and leaving the npm field empty drops the npm-side restriction. Setting the field does not make arbitrary workflow changes safe either, so next I'll cover protecting the workflow itself.
+**Set the same name on npmjs.com too.** In the trusted publisher configuration, set **Environment name** to `npm-publish`. Adding only the workflow line and leaving the npm field empty drops the npm-side restriction.
 
-According to npm's Multiple trusted publishers documentation, existing connections cannot be edited directly. A connection has to be deleted and recreated, and the new one must complete its first successful publish within two days. Prepare the workflow and reviewers before switching. If you still have the Single interface, follow that version of the docs.
+npm provides this field for projects that use environment protection, and GitHub's [OIDC reference](https://docs.github.com/en/actions/reference/security/oidc) explains that tokens can carry environment information. But setting the field does not make arbitrary workflow changes safe, so next I'll cover protecting the workflow itself.
 
-Once triggered, the job waits for approval. On the workflow run page, the reviewer selects **Review deployments**, checks the tag, commit, and changes, then chooses **Approve and deploy**. The final package has not been built yet at this checkpoint; inspect it in step 4.
+**Prepare the workflow and reviewers before changing the npm side.** According to npm's Multiple trusted publishers documentation, existing connections cannot be edited directly, so you delete and recreate them. The new connection must then complete its first successful publish within two days. If you still have the Single interface, follow that version of the docs.
+
+Once triggered, the job waits for approval. On the workflow run page, the reviewer selects **Review deployments**, checks the tag, commit, and changes, then chooses **Approve and deploy**. The final package has not been built yet at this checkpoint, so inspect it in step 4.
 
 > Disabling administrator bypass does not prevent an administrator from editing or deleting the environment. An attacker with repository administration rights may still change the rules. For a solo maintainer, self-approval can prevent an accidental release, but cannot distinguish the maintainer from someone using the same compromised account.
 {: .prompt-tip }
@@ -100,36 +112,48 @@ Once triggered, the job waits for approval. On the workflow run page, the review
 
 ### 2-1: Separate Tag Creation From Tag Changes
 
-Go to **Settings → Rules → Rulesets → New tag ruleset**, target `v*`, and set **Enforcement status: Active**.
+Go to **Settings → Rules → Rulesets → New tag ruleset** to create a ruleset. Target `v*` and set **Enforcement status: Active**. I recommend two rulesets:
 
-I recommend two rulesets:
+| Ruleset | Enable | Bypass list |
+| --- | --- | --- |
+| `release-tags-create` | **Restrict creations** | Only the smallest group responsible for releases |
+| `release-tags-immutable` | **Restrict updates** and **Restrict deletions** | Empty, so release publishers cannot freely move or delete existing tags either |
 
-- **`release-tags-create`**: enable **Restrict creations**, granting bypass only to the smallest group responsible for releases.
-- **`release-tags-immutable`**: enable **Restrict updates** and **Restrict deletions**, with an empty bypass list. Release publishers then cannot freely move or delete existing tags either.
+**Separate them because bypass exempts an actor from all three restrictions at once.** The [rules documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) explains that only actors with bypass permission get past these restrictions. Put all three in one ruleset and exempt the release team, and that team can create, rewrite, and delete tags, so the release tags are no longer immutable.
 
-Why separate them? The [rules documentation](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) explains that only actors with bypass permission get past these restrictions. Put all three restrictions in one ruleset and exempt the release team, and that team can create, rewrite, and delete tags, so the release tags are no longer immutable.
+**The bypass list is not an arbitrary username list.** The [ruleset creation docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) list roles, teams, and GitHub Apps among the options.
 
-**The bypass list is not an arbitrary username list.** The [ruleset creation docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository) list roles, teams, and GitHub Apps among the options. An organization repository can use a dedicated release team; a personal repository is limited to the roles its interface offers. Allowing the entire Write or Maintain role exempts everyone with that role.
+An organization repository can use a dedicated release team, while a personal repository is limited to the roles its interface offers. Allowing the entire Write or Maintain role exempts everyone with that role.
 
-Administrators may still change these rules, so I think administration rights and rule changes need oversight too.
+Administrators may still change these rules, so administration rights and rule changes need oversight too.
 
 ### 2-2: Review Code as Well as Workflows
 
-Protecting `.github/` alone is insufficient. An attacker might change package source, publishing scripts in `package.json`, or files used during the build. Here is a CODEOWNERS example I wrote. It covers all files, then gives the release team ownership of `.github/`:
+Protecting `.github/` alone is insufficient. An attacker might also change:
+
+- Package source.
+- Publishing scripts in `package.json`.
+- Files used during the build.
+
+Here is a CODEOWNERS example I wrote. It covers all files, then gives the release team ownership of `.github/`:
 
 ```text
 * @your-org/package-reviewers
 /.github/ @your-org/release-reviewers
 ```
 
-Replace the example teams with real users or teams. Later matching patterns override earlier ones, so release-reviewers alone own `.github/` here; approval from both teams is not required. The [CODEOWNERS docs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) require owners to have repository write access, and teams need the appropriate visibility and permissions.
+Replace the example teams with real users or teams. In CODEOWNERS, later matching patterns override earlier ones, so release-reviewers alone own `.github/` here; approval from both teams is not required.
+
+The [CODEOWNERS docs](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) require owners to have repository write access. Teams also need the appropriate visibility and permissions.
 
 Create an **Active** branch ruleset for the release source, `main` in this example:
 
 - Enable **Require a pull request before merging** and require at least one approving review.
 - Enable **Require review from Code Owners**, so changes need approval from the matching code owners.
-- Enable **Dismiss stale pull request approvals when new commits are pushed**, so reviewed contents cannot simply be replaced. You can also enable **Require approval of the most recent reviewable push**, requiring someone other than the last pusher to approve the latest reviewable changes.
-- Enable **Block force pushes**, keep the bypass list as small as possible, and make essential tests required status checks.
+- Enable **Dismiss stale pull request approvals when new commits are pushed**, so reviewed contents cannot simply be replaced.
+- You can also enable **Require approval of the most recent reviewable push**, requiring someone other than the last pusher to approve the latest reviewable changes.
+- Enable **Block force pushes**, and keep the bypass list as small as possible.
+- Make essential tests required status checks.
 
 **CODEOWNERS does not block merging on its own.** It needs a rule requiring code-owner review. A solo maintainer also does not gain independent review simply by listing their own account as the owner.
 
@@ -145,40 +169,66 @@ That check assumes that `main` really enforces review and that the workflow has 
 
 In `uses: actions/checkout@v6`, `v6` is a movable tag. Pin a directly referenced action to a full commit SHA that you have verified and reviewed. I use this approach in the complete example below.
 
-GitHub's [October 28, 2026 GA announcement](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/) introduced workflow lockfiles for plans including Free, Team, and Enterprise Cloud. However, the [setup guide](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies) still listed availability as Enterprise Cloud when I checked. Check actual support in your repository rather than assuming the plan name means the feature is enabled.
+**The announcement and the docs disagree on which plans support workflow lockfiles.** GitHub's [October 28, 2026 GA announcement](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/) introduced them for plans including Free, Team, and Enterprise Cloud. However, the [setup guide](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies) still listed availability as Enterprise Cloud when I checked.
 
-For a supported repository, follow the docs:
+Check actual support in your repository rather than assuming the plan name means the feature is enabled. For a supported repository, follow the docs:
 
 ```bash
 gh extension install github/gh-actions-lock
 gh actions-lock .github/workflows/publish.yml
 ```
 
-Review and commit the generated workflow changes and `.github/workflows/actions.lock` together. **Onboarding one workflow does not cover the entire repository.** A reusable workflow in another repository needs its source repository's own lockfile. This also does not pin all npm dependencies or programs downloaded by scripts.
+Review and commit the generated workflow changes and `.github/workflows/actions.lock` together.
 
-Dependabot updates matching lockfile entries for onboarded workflows, but those updates still need review. If available, use the **Require lockfile** policy to enforce adoption. Protect the lockfile and policy themselves too; otherwise someone can delete them and the pinning quietly disappears. Pinning preserves which code runs; it does not establish that the code is safe.
+**Onboarding one workflow does not cover the entire repository.** This lockfile also does not pin these:
+
+- A reusable workflow in another repository, which needs its source repository's own lockfile.
+- npm dependencies.
+- Programs downloaded by scripts.
+
+Dependabot updates matching lockfile entries for onboarded workflows, but those updates still need review. If available, use the **Require lockfile** policy to enforce adoption.
+
+**Protect the lockfile and policy themselves too.** Otherwise someone can delete them and the pinning quietly disappears. Pinning also only preserves which code runs; it does not establish that the code is safe.
 
 ## Step 4: Let CI Stage Versions and npm Approve Publication
 
-This separates submitting a package from making it public. The [npm docs](https://docs.npmjs.com/trusted-publishers) say that operations such as `npm stage approve` cannot use the CI OIDC token. The [staged publishing docs](https://docs.npmjs.com/staged-publishing) require a maintainer's 2FA approval before publication.
+This step separates submitting a package from making it public. The [npm docs](https://docs.npmjs.com/trusted-publishers) say that operations such as `npm stage approve` cannot use the CI OIDC token. The [staged publishing docs](https://docs.npmjs.com/staged-publishing) require a maintainer's 2FA approval before publication.
 
-The OIDC token cannot approve, but that separation holds only if CI has no other npm credentials. **Do not give the same publishing pipeline npm account credentials, sessions, or authentication methods capable of approval.** Keeping GitHub and npm authorization separate means a compromise on one side does not automatically defeat the other checkpoint.
+**Do not give the same publishing pipeline npm account credentials, sessions, or authentication methods capable of approval.** The OIDC token cannot approve, but that separation holds only if CI has no other npm credentials. Keeping GitHub and npm authorization separate means a compromise on one side does not automatically defeat the other checkpoint.
 
-I'd plan the transition in this order:
+I plan the transition in this order:
 
 1. Confirm npm CLI **11.15.0 or later**, Node.js **22.14.0 or later**, and an npm account with publishing access and 2FA enabled to approve releases.
-2. Check **every trusted publisher** for the package on npmjs.com. Allow only `npm stage publish` on the target connection and disable `npm publish`. Leave unnecessary `npm dist-tag` permissions off too. Any other connection you keep that still allows direct publishing is another way in.
+2. Check **every trusted publisher** for the package on npmjs.com. Allow only `npm stage publish` on the target connection and disable `npm publish`. Leave unnecessary `npm dist-tag` permissions off too.
 3. Change the workflow's last step to `npm stage publish`. If recreating a publisher is necessary, prepare the workflow first and account for the new connection's validation deadline.
-4. Once the new route works, finish the migration described in the previous post: select **Settings → Publishing access → Require two-factor authentication and disallow tokens**, then revoke unused publishing tokens. This setting restricts traditional tokens; it neither disables OIDC publishers nor makes each publisher stage-only automatically.
+4. Once the new route works, finish the migration described in the previous post. Go to **Settings → Publishing access** and select **Require two-factor authentication and disallow tokens**. Then revoke unused publishing tokens.
 
-The [July 8, 2026 npm announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) schedules further restrictions on direct publishing with 2FA-bypass granular tokens around January 2027. That date is only an announcement, and I see no reason to wait for it before tightening permissions.
+Stage-only covers just one route. If any of these other routes remain, a version can still go public without staging:
+
+```mermaid
+flowchart LR
+  A[Stage-only publisher] -->|staged, then 2FA approval| P[Version goes public]
+  B[Direct-publish publisher] --> P
+  T[Traditional publishing token] --> P
+  M[Manual publish by account] --> P
+```
+
+Checking every publisher in item 2 is what closes the direct-publish publisher route. The Publishing access setting in item 4 restricts only traditional tokens. It neither disables OIDC publishers nor makes each publisher stage-only automatically.
+
+The [July 8, 2026 npm announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) schedules further restrictions on direct publishing with 2FA-bypass granular tokens around January 2027. That date is only an announcement, so there is no reason to wait for it before tightening permissions.
 
 ![CI submits a staged version with OIDC; a maintainer reviews and approves publication on npm](stage-approve.en.webp){: w="1600" h="900" }
 _This division of permissions assumes a stage-only publisher. If direct-publish publishers or other publishing credentials remain, not every route necessarily goes through staging._
 
 ### Example Workflow
 
-I wrote this example assuming releases come from `main`, the `npm-publish` environment exists, and npm is configured for stage-only publishing. The action SHAs are the commits behind the official `v6` tags when I checked. Verify them upstream, review them for your project before adopting them, and use PRs for future updates:
+I wrote this example with three assumptions:
+
+- Releases come from `main`.
+- The `npm-publish` environment exists.
+- npm is configured for stage-only publishing.
+
+The action SHAs are the commits behind the official `v6` tags when I checked. Verify them upstream and review them for your project before adopting them, then use PRs for future updates:
 
 ```yaml
 name: Stage Package
@@ -218,11 +268,17 @@ jobs:
       - run: npm stage publish
 ```
 
-As described in the [checkout docs](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803#usage), `fetch-depth: 0` retrieves full history and branches for the `origin/main` ancestry check; change the branch name if yours is different. Grant `id-token: write` only to the job that needs to publish, but every step in that job can use the permission: installation, builds, and tests also execute code, so review publishing scripts and dependencies too. With npm 12, prepare the necessary install-script approvals rather than allowing every script just to make a release succeed.
+As described in the [checkout docs](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803#usage), `fetch-depth: 0` retrieves full history and branches for the `origin/main` ancestry check. Change the branch name if yours is different.
+
+Grant `id-token: write` only to the job that needs to publish, but every step in that job can use the permission. Installation, builds, and tests also execute code, so review publishing scripts and dependencies too.
+
+With npm 12, prepare the necessary install-script approvals. Do not allow every script just to make a release succeed.
 
 ### What to Review Before Approving
 
-After the workflow finishes, open **Staged Packages in your npmjs.com account settings**, or use the CLI on your own trusted computer. Replace the placeholder package name and stage ID below with real values, keeping the quotes:
+After the workflow finishes, open **Staged Packages in your npmjs.com account settings**, or use the CLI on your own trusted computer.
+
+Replace the placeholder package name and stage ID below with real values, keeping the quotes:
 
 ```bash
 npm stage list '@your-org/your-package'
@@ -232,13 +288,13 @@ npm stage download 'YOUR_STAGE_ID'
 npm stage approve 'YOUR_STAGE_ID'
 ```
 
-At minimum, I'd check:
+At minimum, I check:
 
 - The package name, version, dist-tag, and submitter match the intended release.
 - The workflow run and source commit correspond to reviewed changes.
-- **The actual downloaded tarball**, especially compiled output, install scripts, and added files. A reviewed source PR does not establish that the generated files match; a SHASUM identifies contents but does not review them.
+- **The actual downloaded tarball**, especially compiled output, install scripts, and added files. A reviewed source PR does not establish that the generated files match. A SHASUM identifies contents but does not review them.
 
-If anything is unclear, I'd leave it unapproved and, when appropriate, reject it with:
+If anything is unclear, I leave it unapproved and, when appropriate, reject it with:
 
 ```bash
 npm stage reject 'YOUR_STAGE_ID'
@@ -246,7 +302,9 @@ npm stage reject 'YOUR_STAGE_ID'
 
 Do not execute a suspicious package on a computer holding production credentials to test it.
 
-When staging a new package for the first time, npm creates a public `0.0.0-stage` placeholder. The actual staged contents stay private until approval. Batch approval is still rolling out; even if a batch needs only one 2FA challenge, review each package in it.
+When staging a new package for the first time, npm creates a public `0.0.0-stage` placeholder. The actual staged contents stay private until approval.
+
+Batch approval is still rolling out. Even if a batch needs only one 2FA challenge, review each package in it.
 
 ## Priorities for Different Maintenance Setups
 
@@ -269,6 +327,13 @@ When staging a new package for the first time, npm creates a public `0.0.0-stage
 - **Does 2FA establish content safety?** It authenticates the person acting; it does not review the package for them. Compromised npm accounts, sessions, or authentication devices can still defeat the last checkpoint.
 - **Runner limits:** this post covers GitHub-hosted runners. npm does not currently support trusted publishing on self-hosted runners.
 
-I'd start by identifying all publishing routes, then add suitable controls for source review, tags, jobs, and publication. The distinction I most want to stress is that approving a source commit and approving the resulting package are separate checks, and neither can be skipped.
+## Approving a Commit Is Not Approving the Package
 
-For OIDC setup, start with my [npm Trusted Publishing guide](/posts/npm-trusted-publishing-github-actions/). For blocking install scripts on the side that installs packages, see [npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown](/posts/npm-12-install-scripts-allowscripts/). For automated workflow reviews, see [Automating PR Review With GitHub Actions and an AI Agent](/posts/github-actions-ai-agent-pr-review/). I cover workflow risks more broadly in the [OWASP Agentic Top 10 Checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
+**Approving a source commit and approving the resulting package are separate checks, and neither can be skipped.** That is the point I most want to stress. In practice, I start by identifying all publishing routes, then add suitable controls for source review, tags, jobs, and publication.
+
+## Further Reading
+
+- [npm Trusted Publishing guide](/posts/npm-trusted-publishing-github-actions/): start here if OIDC is not set up yet.
+- [npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown](/posts/npm-12-install-scripts-allowscripts/): blocking install scripts on the side that installs packages.
+- [Automating PR Review With GitHub Actions and an AI Agent](/posts/github-actions-ai-agent-pr-review/): automated workflow reviews.
+- [OWASP Agentic Top 10 Checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/): workflow risks more broadly.

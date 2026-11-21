@@ -8,24 +8,32 @@ media_subpath: /assets/img/posts/npm-release-pipeline-lockdown/
 image:
   path: cover.webp
   alt: "在 npm 發布流程的四個環節各加一道鎖：改程式碼、推 tag、發布 job、npm 公開。"
+mermaid: true
 ---
 
 Trusted Publishing 讓 CI 不必再保存長期發布 token，但它不會替你檢查程式碼。我擔心的是，攻擊者如果能修改發布會用到的內容，又能觸發已授權的 workflow，就可能借用你的發布流程送出惡意版本，連來源證明都是真的。
 
-我認為要降低這種風險，不能只換掉驗證方式，還得檢查誰能合併程式碼、誰能建立發布 tag、哪個 job 可以取得發布權限，以及版本公開前有沒有人確認內容。這篇我會把這些關卡串起來，最後讓 CI 只能送出暫存版本，由維護者在 npm 核准後才公開。步驟都是依官方文件整理的。
+要降低這種風險，不能只換掉驗證方式，還得檢查四件事：
 
-這是我之前那篇[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)的續篇。OIDC、`id-token: write` 的基本設定我在前篇講過，這裡不再重講；還沒設好 Trusted Publishing，請先看那篇。
+- 誰能合併程式碼。
+- 誰能建立發布 tag。
+- 哪個 job 可以取得發布權限。
+- 版本公開前，有沒有人確認內容。
+
+這篇把這些關卡串起來，最後讓 CI 只能送出暫存版本，由維護者在 npm 核准後才公開。步驟都是依官方文件整理的。
+
+這是我之前那篇[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)的續篇。OIDC、`id-token: write` 的基本設定我在前篇講過，這裡不再重講。還沒設好 Trusted Publishing，請先看那篇。
 
 先認識幾個詞：
 
 - **provenance（來源證明）**：讓人查證套件版本的來源 repo、建置 workflow 與相關 commit 的記錄，不是程式碼安全認證。
 - **tag（標籤）**：指向某個 commit 的版本標記，例如 `v1.2.3`。上一篇的 workflow 用 `v*` tag 觸發發布。
-- **GitHub environment**：可替 job 加上必要審核者、允許的分支與 tag 等部署規則；job 必須先通過規則才開始執行。
+- **GitHub environment**：可替 job 加上必要審核者、允許的分支與 tag 等部署規則。job 必須先通過規則才開始執行。
 - **ruleset（規則集）**：限制分支與 tag 如何建立、更新或刪除的 repo 規則。
 - **staged publishing（暫存發布）**：先把套件送進暫存區，維護者審查並通過 2FA 核准後，該版本才公開。
 - **2FA（雙因素驗證）**：登入或敏感操作時，除了原本的驗證方式，再提供第二種驗證因素，不限於輸入驗證碼。
 
-> **版本說明**：我寫這篇時，參考的是 2026-11-13 當天的 GitHub [environment 文件](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)、[ruleset 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)，以及 npm 的 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 與 [Staged publishing](https://docs.npmjs.com/staged-publishing) 文件。方案、介面與版本要求請以對應的官方文件為準。
+> 依據 2026-11-13 當天的 GitHub [environment 文件](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments)、[ruleset 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)，以及 npm 的 [Trusted publishing](https://docs.npmjs.com/trusted-publishers) 與 [Staged publishing](https://docs.npmjs.com/staged-publishing) 文件。方案、介面與版本要求請以對應的官方文件為準。
 {: .prompt-info }
 
 ## 真實案例：來源證明是真的，內容卻是惡意的
@@ -37,7 +45,9 @@ Trusted Publishing 讓 CI 不必再保存長期發布 token，但它不會替你
 - 惡意程式在安裝時竊取 GitHub、npm 與雲端服務等憑證，再利用這些權限向其他套件與 repo 散播。
 - 該版本在 npm 上存活約 1 小時 40 分鐘（當天 UTC 01:12 到 02:54）。
 
-在我看來，這個案例證明的是：**合法的建置來源，也可能產出惡意內容。** 公告沒有交代當時所有的發布驗證與保護設定，所以我不會只憑 provenance 就推論他們用了 Trusted Publishing，也無從判斷是哪一道保護遭到繞過。不過，它清楚說明了為什麼不能只驗證「從哪個 workflow 發出來」。
+**合法的建置來源，也可能產出惡意內容。** 這是我從這個案例看到的事，它也說明了為什麼不能只驗證「從哪個 workflow 發出來」。
+
+公告沒有交代當時所有的發布驗證與保護設定。所以我不會只憑 provenance 就推論他們用了 Trusted Publishing，也無從判斷是哪一道保護遭到繞過。
 
 ## provenance 證明什麼、不證明什麼
 
@@ -59,14 +69,14 @@ _出貨單是真的，不代表內容一定安全。tensorlake 的公告確認�
 | 發布 job 執行 | 是否經核准，權限是否適當 | environment、job permissions |
 | npm 版本公開 | 暫存內容是否符合預期 | stage-only publisher、人工 2FA 核准 |
 
-設定時我不會照表格順序，而是先從發布 job 的人工核准做起。表格之外，我也會固定第三方 action 的版本（步驟 3），避免 workflow 沒改，執行的內容卻變了。
+設定時我不照表格順序，而是先從發布 job 的人工核准做起。表格之外，我也會固定第三方 action 的版本（步驟 3），避免 workflow 沒改，執行的內容卻變了。
 
 ![程式碼、發布 tag、發布 job 與 npm 公開前各有一道關卡](locks.webp){: w="1600" h="900" }
 _這幾個關卡要一起看。GitHub 與 npm 是兩個獨立的授權邊界，兩邊的帳號、登入工作階段與驗證裝置都要各自保護。_
 
 ## 步驟 1：發布 job 先經過 environment 核准
 
-先替發布 job 設一道人工關卡。依 [GitHub 文件](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)，Free、Pro、Team 的 required reviewers 只適用於公開 repo；私有 repo 要先確認方案支援。
+先替發布 job 設一道人工關卡。依 [GitHub 文件](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)，Free、Pro、Team 方案的 required reviewers 只適用於公開 repo。私有 repo 要先確認方案支援。
 
 需要 repo 管理權限才能設定：
 
@@ -87,9 +97,11 @@ jobs:
     # 其餘設定見後面的完整範例
 ```
 
-npmjs.com 的 Trusted Publisher 設定也要在 **Environment name** 填同一個 `npm-publish`。npm 文件為使用 environment 保護的專案提供這個欄位，GitHub 的 [OIDC 文件](https://docs.github.com/en/actions/reference/security/oidc)也說明 token 可以帶有 environment 資訊。只在 workflow 加一行、npm 端卻留空，就少了 npm 這一側的限制。填了這個欄位也不代表 workflow 可以任人修改，所以下一步我會說明怎麼保護 workflow 本身。
+**npmjs.com 這邊也要填同一個名稱。** 在 Trusted Publisher 設定的 **Environment name** 填 `npm-publish`。只在 workflow 加一行、npm 端卻留空，就少了 npm 這一側的限制。
 
-依 npm 的 Multiple trusted publishers 文件，既有連線不能直接修改，需要刪掉重建，新連線須在兩天內完成第一次成功發布。請先準備好 workflow 與核准者，再安排切換；介面若仍是 Single，請對照該版本文件。
+npm 文件為使用 environment 保護的專案提供這個欄位，GitHub 的 [OIDC 文件](https://docs.github.com/en/actions/reference/security/oidc)也說明 token 可以帶有 environment 資訊。但填了這個欄位，不代表 workflow 可以任人修改，所以下一步我會說明怎麼保護 workflow 本身。
+
+**改 npm 端設定前，先準備好 workflow 與核准者。** 依 npm 的 Multiple trusted publishers 文件，既有連線不能直接修改，要刪掉重建，而新連線須在兩天內完成第一次成功發布。介面若仍是 Single，請對照該版本文件。
 
 觸發發布後，job 會等待核准。審核者到 workflow 執行頁面按 **Review deployments**，確認 tag、commit 與這次變更，再選 **Approve and deploy**。這時套件還沒建出來，內容要留到步驟 4 再檢查。
 
@@ -100,36 +112,48 @@ npmjs.com 的 Trusted Publisher 設定也要在 **Environment name** 填同一�
 
 ### 2-1：分開限制 tag 建立與改寫
 
-到 **Settings → Rules → Rulesets → New tag ruleset**，把目標設成 `v*`，並確認 **Enforcement status: Active**。
+到 **Settings → Rules → Rulesets → New tag ruleset** 建立規則。目標設成 `v*`，並確認 **Enforcement status: Active**。我建議分成兩份規則：
 
-我建議分成兩份規則：
+| 規則集 | 勾選 | Bypass list |
+| --- | --- | --- |
+| `release-tags-create` | **Restrict creations** | 只留負責發版的最小範圍 |
+| `release-tags-immutable` | **Restrict updates**、**Restrict deletions** | 留空，讓發版者也不能任意移動或刪除既有 tag |
 
-- **`release-tags-create`**：勾選 **Restrict creations**，Bypass list 只留負責發版的最小範圍。
-- **`release-tags-immutable`**：勾選 **Restrict updates**、**Restrict deletions**，Bypass list 留空，讓發版者也不能任意移動或刪除既有 tag。
+**要分開，是因為 bypass 會一次放行三項限制。** [GitHub 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)說明，這些限制只讓有 bypass 權限者通過。如果三項放在同一份 ruleset，又把發版者加入 bypass，他們就同時能建立、改寫與刪除 tag，發布用的 tag 也就稱不上不可變。
 
-為什麼要分開？[GitHub 文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)說明，這些限制只讓有 bypass 權限者通過。如果三項放在同一份 ruleset，又把發版者加入 bypass，他們就同時能建立、改寫與刪除 tag，發布用的 tag 也就稱不上不可變。
+**Bypass list 也不是任意填使用者名稱。** [建立規則集的文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository)列出的選項包括角色、團隊與 GitHub App。
 
-**Bypass list 也不是任意填使用者名稱。** [建立規則集的文件](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository)列出的選項包括角色、團隊與 GitHub App。組織 repo 可用專門的發版團隊；個人 repo 要看介面提供的角色選項。選整個 Write 或 Maintain 角色，就會放行該角色的所有人。
+組織 repo 可用專門的發版團隊，個人 repo 要看介面提供的角色選項。選整個 Write 或 Maintain 角色，就會放行該角色的所有人。
 
-這些規則仍可能被有管理權限的人修改，所以我認為管理權限與規則變更本身也要受到監督。
+這些規則仍可能被有管理權限的人修改，所以管理權限與規則變更本身也要受到監督。
 
 ### 2-2：程式碼與 workflow 都要審查
 
-只保護 `.github/` 還不夠。攻擊者也可能修改套件原始碼、`package.json` 的發布腳本，或建置時載入的檔案。下面這份 CODEOWNERS 是我寫的範例，先涵蓋所有檔案，再讓發布團隊負責 `.github/`：
+只保護 `.github/` 還不夠，攻擊者也可能修改：
+
+- 套件原始碼。
+- `package.json` 的發布腳本。
+- 建置時載入的檔案。
+
+下面這份 CODEOWNERS 是我寫的範例，先涵蓋所有檔案，再讓發布團隊負責 `.github/`：
 
 ```text
 * @your-org/package-reviewers
 /.github/ @your-org/release-reviewers
 ```
 
-把示意團隊換成實際帳號或團隊。後面的規則會覆寫前面對相同路徑的指定；這裡 `.github/` 由 release-reviewers 負責，不是兩個團隊都必須核准。依 [CODEOWNERS 文件](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)，負責者必須有 repo 寫入權限；使用團隊時，團隊也須具備適當的可見性與權限。
+把示意團隊換成實際帳號或團隊。CODEOWNERS 裡後面的規則會覆寫前面對相同路徑的指定，所以 `.github/` 由 release-reviewers 負責，不是兩個團隊都必須核准。
+
+依 [CODEOWNERS 文件](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)，負責者必須有 repo 寫入權限。使用團隊時，團隊也須具備適當的可見性與權限。
 
 替發布來源分支（本文用 `main`）建立 **Active** 的 branch ruleset，設定：
 
 - **Require a pull request before merging**，並要求至少一位審核者核准。
 - **Require review from Code Owners**，讓變更必須經過對應路徑的負責者核准。
-- **Dismiss stale pull request approvals when new commits are pushed**，避免審過的內容又被換掉；也可加上 **Require approval of the most recent reviewable push**，要求最後推送者以外的人核准最新可審查的變更。
-- **Block force pushes**，Bypass list 盡量留空；把專案必要的測試列為 required status checks。
+- **Dismiss stale pull request approvals when new commits are pushed**，避免審過的內容又被換掉。
+- 也可加上 **Require approval of the most recent reviewable push**，要求最後推送者以外的人核准最新可審查的變更。
+- **Block force pushes**，Bypass list 盡量留空。
+- 把專案必要的測試列為 required status checks。
 
 **CODEOWNERS 本身不會阻擋合併。** 必須搭配要求 code owner 審查的規則才會生效。只有一位維護者時，把自己列成 owner 也不等於有了獨立的第二人審查。
 
@@ -143,42 +167,68 @@ npmjs.com 的 Trusted Publisher 設定也要在 **Environment name** 填同一�
 
 ## 步驟 3：固定 action 版本，並保護 lockfile
 
-`uses: actions/checkout@v6` 裡的 `v6` 是可以移動的 tag。若要固定直接引用的 action，可改成經核對與審查的完整 commit SHA；我在後面的範例採用這種寫法。
+`uses: actions/checkout@v6` 裡的 `v6` 是可以移動的 tag。若要固定直接引用的 action，可改成經核對與審查的完整 commit SHA。我在後面的範例採用這種寫法。
 
-GitHub 在 2026-10-28 的 [GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)宣布 workflow lockfile 正式推出，適用方案列了 Free、Team 與 Enterprise Cloud 等；不過我查閱時，[操作文件](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)的適用方案欄仍標示 Enterprise Cloud。請先確認 repo 的實際支援情況，不能只靠方案名稱判斷已啟用。
+**workflow lockfile 的支援方案，公告與文件寫的不一樣。** GitHub 在 2026-10-28 的 [GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)宣布它正式推出，適用方案列了 Free、Team 與 Enterprise Cloud 等。不過我查閱時，[操作文件](https://docs.github.com/en/actions/how-tos/secure-your-work/lock-workflow-dependencies)的適用方案欄仍標示 Enterprise Cloud。
 
-支援的 repo 可依文件執行：
+請先確認 repo 的實際支援情況，不能只靠方案名稱判斷已啟用。支援的 repo 可依文件執行：
 
 ```bash
 gh extension install github/gh-actions-lock
 gh actions-lock .github/workflows/publish.yml
 ```
 
-檢查 workflow 與 `.github/workflows/actions.lock` 的變更，確認無誤後一起提交。**只鎖這一份 workflow，不代表整個 repo 都已納入。** 跨 repo 的 reusable workflow 要由來源 repo 維護自己的 lockfile；npm 相依套件、腳本臨時下載的程式，也不會因此全部固定。
+檢查 workflow 與 `.github/workflows/actions.lock` 的變更，確認無誤後一起提交。
 
-Dependabot 會替已納入管理的 workflow 更新對應 lockfile，但更新仍要審查。若 repo 提供 **Require lockfile** 政策，可用來強制採用；lockfile 和政策本身也要保護，否則有人把它們刪掉，鎖定就悄悄失效了。鎖定版本只確保執行內容一致，不保證該內容安全。
+**只鎖這一份 workflow，不代表整個 repo 都已納入。** 這份 lockfile 也固定不了下面這些：
+
+- 跨 repo 的 reusable workflow，要由來源 repo 維護自己的 lockfile。
+- npm 相依套件。
+- 腳本臨時下載的程式。
+
+Dependabot 會替已納入管理的 workflow 更新對應 lockfile，但更新仍要審查。若 repo 提供 **Require lockfile** 政策，可用來強制採用。
+
+**lockfile 和政策本身也要保護。** 否則有人把它們刪掉，鎖定就悄悄失效了。鎖定版本也只確保執行內容一致，不保證該內容安全。
 
 ## 步驟 4：CI 只送暫存版本，由 npm 核准公開
 
-這一關把「CI 可以提交套件」和「版本可以公開」分開。依 [npm 文件](https://docs.npmjs.com/trusted-publishers)，`npm stage approve` 等管理暫存內容的操作不能使用 CI 的 OIDC token；[staged publishing 文件](https://docs.npmjs.com/staged-publishing)也要求公開前由維護者通過 2FA 核准。
+這一關把「CI 可以提交套件」和「版本可以公開」分開。依 [npm 文件](https://docs.npmjs.com/trusted-publishers)，`npm stage approve` 等管理暫存內容的操作不能使用 CI 的 OIDC token。[staged publishing 文件](https://docs.npmjs.com/staged-publishing)也要求公開前由維護者通過 2FA 核准。
 
-OIDC token 不能核准，但這道分隔只在 CI 拿不到其他 npm 憑證時才成立。**不要把能核准的 npm 帳號憑證、登入工作階段或驗證手段交給同一個發布流程**；GitHub 與 npm 分開授權，一邊失守時，另一道關卡才還在。
+**不要把能核准的 npm 帳號憑證、登入工作階段或驗證手段交給同一個發布流程。** OIDC token 不能核准，但這道分隔只在 CI 拿不到其他 npm 憑證時才成立。GitHub 與 npm 分開授權，一邊失守時，另一道關卡才還在。
 
 切換時，我會先安排好順序：
 
 1. 確認 npm CLI 至少為 **11.15.0**、Node.js 至少為 **22.14.0**，並有具發布權限、已啟用 2FA 的 npm 帳號負責核准。
-2. 在 npmjs.com 檢查這個套件的**所有 Trusted Publisher**。目標連線只允許 `npm stage publish`，取消 `npm publish`；不需要的 `npm dist-tag` 權限也不要開。保留的其他連線若還能直接發布，就等於留著另一條入口。
+2. 在 npmjs.com 檢查這個套件的**所有 Trusted Publisher**。目標連線只允許 `npm stage publish`，取消 `npm publish`。不需要的 `npm dist-tag` 權限也不要開。
 3. 把 workflow 最後一步改成 `npm stage publish`。若需刪掉重建 publisher，先把 workflow 準備好，留意新連線的驗證期限。
-4. 確認新路徑運作後，依前篇收尾：**Settings → Publishing access → Require two-factor authentication and disallow tokens**，再撤銷不再使用的發布 token。這項設定限制傳統 token，不會停用 OIDC publisher，也不會替每一筆 publisher 自動改成 stage-only。
+4. 確認新路徑運作後，依前篇收尾。先到 **Settings → Publishing access**，選 **Require two-factor authentication and disallow tokens**。再撤銷不再使用的發布 token。
 
-2026-07-08 的 [npm 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)預告約從 2027 年 1 月起，進一步限制用 2FA-bypass granular token 直接發布。這只是預告的時程，我認為不必等到那時才收緊權限。
+stage-only 只管住其中一條路。下面這些入口若還在，版本仍能不經暫存直接公開：
+
+```mermaid
+flowchart LR
+  A[stage-only publisher] -->|暫存後經 2FA 核准| P[版本公開]
+  B[仍可直接發布的 publisher] --> P
+  T[傳統發布 token] --> P
+  M[有權限的帳號手動發布] --> P
+```
+
+清單第 2 項逐筆檢查 publisher，就是為了關掉「仍可直接發布的 publisher」這條路。第 4 項的 Publishing access 設定只限制傳統 token。它不會停用 OIDC publisher，也不會替每一筆 publisher 自動改成 stage-only。
+
+2026-07-08 的 [npm 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)預告約從 2027 年 1 月起，進一步限制用 2FA-bypass granular token 直接發布。這只是預告的時程，不必等到那時才收緊權限。
 
 ![CI 用 OIDC 提交暫存版本，維護者在 npm 審查與核准後才公開](stage-approve.webp){: w="1600" h="900" }
 _圖中的權限分工以 stage-only publisher 為前提；若還有直接發布的 publisher 或其他發布憑證，就不能保證每條路徑都會經過暫存。_
 
 ### workflow 範例
 
-我寫這份範例時，假設從 `main` 發版、有 `npm-publish` environment，且 npm 端已設為 stage-only。兩個 action 的 SHA 是我查閱時官方 `v6` tag 對應的 commit；採用前仍應核對上游並依專案需求審查，之後透過 PR 更新：
+我寫這份範例時，假設三件事：
+
+- 從 `main` 發版。
+- 有 `npm-publish` environment。
+- npm 端已設為 stage-only。
+
+兩個 action 的 SHA 是我查閱時官方 `v6` tag 對應的 commit。採用前仍應核對上游、依專案需求審查，之後透過 PR 更新：
 
 ```yaml
 name: Stage Package
@@ -218,11 +268,17 @@ jobs:
       - run: npm stage publish
 ```
 
-依 [checkout 文件](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803#usage)，`fetch-depth: 0` 會取得完整歷史與分支，供 `origin/main` 的祖先檢查使用；分支名稱若不是 `main`，請一起修改。`id-token: write` 只給需要發布的 job，但同一個 job 裡的每個步驟都拿得到這份權限：`npm ci`、建置與測試也會執行程式碼，所以發布腳本與相依套件同樣要審查。若使用 npm 12，也要準備必要的安裝腳本核准名單；不要為了讓發布成功就一律放行。
+依 [checkout 文件](https://github.com/actions/checkout/tree/d23441a48e516b6c34aea4fa41551a30e30af803#usage)，`fetch-depth: 0` 會取得完整歷史與分支，供 `origin/main` 的祖先檢查使用。分支名稱若不是 `main`，請一起修改。
+
+`id-token: write` 只給需要發布的 job，但同一個 job 裡的每個步驟都拿得到這份權限。`npm ci`、建置與測試也會執行程式碼，所以發布腳本與相依套件同樣要審查。
+
+若使用 npm 12，也要準備必要的安裝腳本核准名單。不要為了讓發布成功就一律放行。
 
 ### 核准前要看什麼
 
-workflow 完成後，到 npmjs.com **帳號設定的 Staged Packages** 查看；也可在自己的可信電腦上操作 CLI。以下名稱都是佔位文字，執行前要換成實際套件名稱與 stage ID，並保留引號：
+workflow 完成後，到 npmjs.com **帳號設定的 Staged Packages** 查看，也可以在自己的可信電腦上用 CLI 操作。
+
+下面的名稱都是佔位文字，執行前要換成實際套件名稱與 stage ID，並保留引號：
 
 ```bash
 npm stage list '@your-org/your-package'
@@ -236,7 +292,7 @@ npm stage approve 'YOUR_STAGE_ID'
 
 - 套件名稱、版本、dist-tag 與提交者，是否對應這次預定發布。
 - workflow 執行與來源 commit，是否對應已審查的變更。
-- **實際下載的 tarball 內容**，尤其編譯產物、安裝腳本與新增檔案。原始碼 PR 通過，不代表產出的檔案一定相同；SHASUM 也只是識別內容，不能代替審查。
+- **實際下載的 tarball 內容**，尤其編譯產物、安裝腳本與新增檔案。原始碼 PR 通過，不代表產出的檔案一定相同。SHASUM 也只是識別內容，不能代替審查。
 
 有疑慮時，我會先不核准，必要時用下面這行拒絕：
 
@@ -246,7 +302,9 @@ npm stage reject 'YOUR_STAGE_ID'
 
 不要在帶有正式憑證的電腦上直接執行可疑套件來「驗證」。
 
-第一次暫存全新套件時，npm 會建立公開的 `0.0.0-stage` 佔位版本，實際暫存內容仍待核准才公開。批次核准功能還在逐步開放；就算一批只需通過一次 2FA，每個套件仍要逐一審查。
+第一次暫存全新套件時，npm 會建立公開的 `0.0.0-stage` 佔位版本，實際暫存內容仍待核准才公開。
+
+批次核准功能還在逐步開放。就算一批只需通過一次 2FA，每個套件仍要逐一審查。
 
 ## 依維護方式安排優先順序
 
@@ -262,13 +320,20 @@ npm stage reject 'YOUR_STAGE_ID'
 ## 常見問題與限制
 
 - **job 一直等待**：先看是不是在等 environment 核准。只有一人卻開啟 Prevent self-review，可能沒人能放行。
-- **environment 名稱寫錯**：GitHub 可能自動建立沒有保護的新 environment。核對 GitHub 與 npm 兩邊設定；不能把 job 開始執行當成設定成功。
+- **environment 名稱寫錯**：GitHub 可能自動建立沒有保護的新 environment。核對 GitHub 與 npm 兩邊設定，不能把 job 開始執行當成設定成功。
 - **tag 符合 `v*`，卻沒經過 `main` 審查**：名稱檢查不等於 commit 來源檢查，兩者都要確認。
 - **改成 `npm stage publish`，仍可直接發布**：檢查所有 publisher 的 Allowed actions，以及其他 token、帳號與手動發布權限。改一行 workflow 不會收回其他入口。
 - **規則都設了，管理員仍能改掉**：執行時的 bypass、修改保護設定的權限，是兩件事。repo 管理員與 npm 管理者都屬於需要保護的高權限身分。
 - **有 2FA 就代表內容安全？** 2FA 只確認操作者是誰，不會替你審查套件。npm 帳號、工作階段與驗證裝置若也失守，最後一關仍可能被通過。
-- **runner 限制**：本文只談 GitHub 代管 runner；npm 文件目前不支援 self-hosted runner 的 Trusted Publishing。
+- **runner 限制**：本文只談 GitHub 代管 runner。npm 文件目前不支援 self-hosted runner 的 Trusted Publishing。
 
-我會先把發布權限的入口列清楚，再替來源審查、tag、job 與公開各加上適合的限制。這篇我最想強調的一點是：核准 commit 和核准最後產出的套件，是兩次不同的確認，哪一次都不能省。
+## 核准 commit 不等於核准套件
 
-還沒設好 OIDC，先看我寫的[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；安裝套件的那一端怎麼擋安裝腳本，見[npm 12 預設擋掉安裝腳本：怎麼用 allowScripts 核准、怎麼加 7 天冷靜期](/posts/npm-12-install-scripts-allowscripts/)；workflow 的自動化審查可參考[用 GitHub Actions 加 AI Agent 自動化審查](/posts/github-actions-ai-agent-pr-review/)；更完整的工作流風險，我整理在[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+**核准 commit 和核准最後產出的套件，是兩次不同的確認，哪一次都不能省。** 這是這篇我最想強調的一點。做法上，我會先把發布權限的入口列清楚，再替來源審查、tag、job 與公開各加上適合的限制。
+
+## 延伸閱讀
+
+- [npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)：還沒設好 OIDC，先看這篇。
+- [npm 12 預設擋掉安裝腳本：怎麼用 allowScripts 核准、怎麼加 7 天冷靜期](/posts/npm-12-install-scripts-allowscripts/)：安裝套件的那一端怎麼擋安裝腳本。
+- [用 GitHub Actions 加 AI Agent 自動化審查](/posts/github-actions-ai-agent-pr-review/)：workflow 的自動化審查。
+- [OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)：更完整的工作流風險。
