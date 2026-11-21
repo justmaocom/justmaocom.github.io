@@ -13,8 +13,8 @@ Object.assign(purify, { addHook() {}, removeHook() {}, removeHooks() {}, sanitiz
 const { default: mermaid } = await import(`${NM}/mermaid/dist/mermaid.core.mjs`);
 
 const LANGS = { 'zh-TW': '_posts', 'zh-CN': '_posts/zh-CN', en: '_posts/en' };
-const HEDGES_ZH = ['我認為', '我认为', '我查了', '依官方', '官方說明', '官方说明', '官方警告', '推測', '推测', '推論', '推论', '推演'];
-const HEDGES_EN = ['I think', 'I checked', 'Per the docs', 'per the docs', 'The docs warn', 'according to', 'According to', 'inferred', 'I infer'];
+const HEDGES_ZH = ['我認為', '我认为', '我覺得', '我觉得', '在我看來', '在我看来', '我建議', '我建议', '我查了', '依官方', '官方說明', '官方说明', '官方警告', '推測', '推测', '推論', '推论', '推演'];
+const HEDGES_EN = ['I think', 'I find', 'In my view', 'in my view', 'As I see it', "I'd suggest", 'I suggest', 'I recommend', "I'd recommend", 'I checked', 'Per the docs', 'per the docs', 'The docs warn', 'according to', 'According to', 'inferred', 'I infer'];
 const git = (...a) => execFileSync('git', a, { cwd: REPO, encoding: 'utf8', maxBuffer: 1 << 26 });
 const BASE = process.env.BASE ?? git('merge-base', 'HEAD', 'main').trim();
 
