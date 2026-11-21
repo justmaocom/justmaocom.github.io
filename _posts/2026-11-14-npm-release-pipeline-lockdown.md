@@ -13,7 +13,7 @@ mermaid: true
 
 Trusted Publishing 讓 CI 不必再保存長期發布 token，但它不會替你檢查程式碼。我擔心的是，攻擊者如果能修改發布會用到的內容，又能觸發已授權的 workflow，就可能借用你的發布流程送出惡意版本，連來源證明都是真的。
 
-要降低這種風險，不能只換掉驗證方式，還得檢查四件事：
+我認為要降低這種風險，不能只換掉驗證方式，還得檢查四件事：
 
 - 誰能合併程式碼。
 - 誰能建立發布 tag。
@@ -125,7 +125,7 @@ npm 文件為使用 environment 保護的專案提供這個欄位，GitHub 的 [
 
 組織 repo 可用專門的發版團隊，個人 repo 要看介面提供的角色選項。選整個 Write 或 Maintain 角色，就會放行該角色的所有人。
 
-這些規則仍可能被有管理權限的人修改，所以管理權限與規則變更本身也要受到監督。
+這些規則仍可能被有管理權限的人修改，所以我認為管理權限與規則變更本身也要受到監督。
 
 ### 2-2：程式碼與 workflow 都要審查
 
@@ -215,7 +215,7 @@ flowchart LR
 
 清單第 2 項逐筆檢查 publisher，就是為了關掉「仍可直接發布的 publisher」這條路。第 4 項的 Publishing access 設定只限制傳統 token。它不會停用 OIDC publisher，也不會替每一筆 publisher 自動改成 stage-only。
 
-2026-07-08 的 [npm 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)預告約從 2027 年 1 月起，進一步限制用 2FA-bypass granular token 直接發布。這只是預告的時程，不必等到那時才收緊權限。
+2026-07-08 的 [npm 變更公告](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/)預告約從 2027 年 1 月起，進一步限制用 2FA-bypass granular token 直接發布。這只是預告的時程，我認為不必等到那時才收緊權限。
 
 ![CI 用 OIDC 提交暫存版本，維護者在 npm 審查與核准後才公開](stage-approve.webp){: w="1600" h="900" }
 _圖中的權限分工以 stage-only publisher 為前提；若還有直接發布的 publisher 或其他發布憑證，就不能保證每條路徑都會經過暫存。_

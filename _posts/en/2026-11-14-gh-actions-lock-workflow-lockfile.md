@@ -69,7 +69,7 @@ The lockfile is the file `.github/workflows/actions.lock`. It records which comm
 
 The lock covers more than the actions in your own `uses:` lines. According to the [GA announcement](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/), the actions that those actions use (transitive dependencies) are locked too.
 
-Once a workflow is added to the lockfile (GitHub calls this "onboarding"; this post calls it "locking"), the [concepts page](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles) lists three rules at run time:
+Once a workflow is added to the lockfile (GitHub calls this "onboarding"; I call it "locking" in this post), the [concepts page](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles) lists three rules at run time:
 
 1. Every action the workflow uses must be in the lockfile.
 2. The commit recorded in the lockfile runs, not whatever the tag points to now.
@@ -240,7 +240,7 @@ CODEOWNERS alone does not block merges. It only takes effect when branch protect
 
 ## Step 4: Day-to-day upkeep
 
-Locking is not a one-time job. These habits decide whether it keeps working.
+Locking is not a one-time job. In my view, these habits decide whether it keeps working.
 
 **Rerun it when `uses:` changes.** When you add a workflow, or add or remove actions in an existing one, run this again:
 

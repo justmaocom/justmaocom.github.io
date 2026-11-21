@@ -47,14 +47,14 @@ flowchart LR
 - **herdr-core（指令是 `hc`）**：隨 Herdr App 附帶，在背景真正執行每個終端機和 agent。README 用一句話講完兩者的分工：「The window arranges terminals. The core runs them.」（視窗負責排版，core 負責執行。）
 - **Herdr TUI**：最早的 Herdr，整個介面都在終端機裡，由它自己的背景程式（server）執行 agent。官方說它照常可用，相關資料都在 [herdr.dev/tui](https://herdr.dev/tui/)。
 
-App 和 TUI **不共用 agent**：在其中一個啟動的 agent，不會出現在另一個裡。手機 App 也只支援 herdr-core，不支援 Herdr TUI。依手機 App 頁面，Herdr TUI 和 herdr-core 可以同時裝在同一台電腦上。
+App 和 TUI **不共用 agent**：依官方 FAQ，在其中一個啟動的 agent，不會出現在另一個裡。手機 App 也只支援 herdr-core，不支援 Herdr TUI。依手機 App 頁面，Herdr TUI 和 herdr-core 可以同時裝在同一台電腦上。
 
 我建議挑一個當主力。因為 agent 不共用，兩邊各開幾個，又會回到「不知道誰在等你」的老問題。想留在終端機裡用的，看[herdr 入門：在終端機同時跑多個 AI，找出卡住的那個](/posts/herdr-run-multiple-ai-agents/)；想要一個桌面視窗、或想用手機查看 agent 的，繼續往下讀。
 
 ## 什麼時候值得用
 
 - 同時讓兩個以上的 agent 在不同 repo 或不同工作上跑，想在一個視窗裡看出哪個在等你：適合。
-- 想關掉視窗、讓 agent 繼續做事：適合（步驟 5）。工作放在 SSH 機器上的話，筆電睡眠時也會繼續（步驟 6）。
+- 想關掉視窗、讓 agent 繼續做事：適合。依官方文件，關掉視窗不會停掉終端機（步驟 5）。工作放在 SSH 機器上的話，筆電睡眠時也會繼續（步驟 6）。
 - 只跑一個 agent，而且目前的做法已經順手：不一定要換（我的看法）。
 
 ## 開始前要準備
@@ -408,7 +408,7 @@ flowchart LR
 
 ### mod 和別人做的 layout：先讀再裝
 
-> 依官方安全文件，mod 是在 Herdr 裡執行、被信任的 JavaScript。它沒有沙箱（把程式隔離起來、限制它能碰哪些東西的機制），權限完整：能以你的身分執行程式、連上任何網址、讀你的檔案，也能在你連線的其他機器上執行程式。
+> 依官方安全文件，mod 是在 Herdr 裡執行、被信任的 JavaScript。它沒有沙箱（sandbox，把程式隔離起來、限制它能碰哪些東西的機制），權限完整。它能以你的身分執行程式、連上任何網址、讀你的檔案，也能在你連線的其他機器上執行程式。
 >
 > 官方明說 mod 不是安全邊界（is not a security boundary），也就是 Herdr 不會替你擋下 mod 做的事，也不會為每個程式或網路請求跳出權限提示。
 >

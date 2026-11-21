@@ -13,7 +13,7 @@ mermaid: true
 
 Trusted publishing removes the long-lived publishing token from CI, but it does not review your code. My concern is that an attacker who can change the contents used for a release and trigger an authorized workflow may be able to use your pipeline to publish malware with genuine provenance.
 
-Reducing that risk takes more than changing authentication. You also need to check four things:
+In my view, reducing that risk takes more than changing authentication. You also need to check four things:
 
 - Who can merge code.
 - Who can create release tags.
@@ -125,7 +125,7 @@ Go to **Settings → Rules → Rulesets → New tag ruleset** to create a rulese
 
 An organization repository can use a dedicated release team, while a personal repository is limited to the roles its interface offers. Allowing the entire Write or Maintain role exempts everyone with that role.
 
-Administrators may still change these rules, so administration rights and rule changes need oversight too.
+Administrators may still change these rules, so I think administration rights and rule changes need oversight too.
 
 ### 2-2: Review Code as Well as Workflows
 
@@ -215,7 +215,7 @@ flowchart LR
 
 Checking every publisher in item 2 is what closes the direct-publish publisher route. The Publishing access setting in item 4 restricts only traditional tokens. It neither disables OIDC publishers nor makes each publisher stage-only automatically.
 
-The [July 8, 2026 npm announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) schedules further restrictions on direct publishing with 2FA-bypass granular tokens around January 2027. That date is only an announcement, so there is no reason to wait for it before tightening permissions.
+The [July 8, 2026 npm announcement](https://github.blog/changelog/2026-07-08-npm-install-time-security-and-gat-bypass2fa-deprecation/) schedules further restrictions on direct publishing with 2FA-bypass granular tokens around January 2027. That date is only an announcement, and I see no reason to wait for it before tightening permissions.
 
 ![CI submits a staged version with OIDC; a maintainer reviews and approves publication on npm](stage-approve.en.webp){: w="1600" h="900" }
 _This division of permissions assumes a stage-only publisher. If direct-publish publishers or other publishing credentials remain, not every route necessarily goes through staging._

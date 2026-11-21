@@ -55,7 +55,7 @@ _A concept illustration: GitHub Actions presents an identity, npm checks your se
 
 ## When to Use It, and When You Cannot Yet
 
-Packages you publish automatically with GitHub Actions on GitHub-hosted runners are a good fit to switch now. Self-hosted runners are not supported yet.
+I think packages you publish automatically with GitHub Actions on GitHub-hosted runners are a good fit to switch now. Self-hosted runners are not supported yet.
 
 **Switch now, because publishing directly with a token is going away.** [npm's docs say](https://docs.npmjs.com/about-access-tokens) legacy tokens were removed in November 2025, leaving only granular access tokens. A granular token is one you can limit by package, permission, and expiry date.
 
@@ -171,7 +171,7 @@ jobs:
 Line by line:
 
 - `on: push: tags: v*` publishes only when you push a tag such as `v1.2.3`. A tag is a name attached to a specific commit (a saved change), often used to mark a version. Ordinary commits do not trigger a publish.
-- `permissions: id-token: write` is the most critical line. It lets GitHub issue an OIDC identity document for this job. [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token) say it only allows fetching an OIDC token; it does not grant write access to other resources.
+- `permissions: id-token: write` is the line I consider most critical. It lets GitHub issue an OIDC identity document for this job. [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token) say it only allows fetching an OIDC token; it does not grant write access to other resources.
 - `contents: read` lets the job read the repository. An example in [GitHub's docs](https://docs.github.com/en/actions/reference/security/oidc) notes that `actions/checkout` needs it to check out your code.
 - `runs-on: ubuntu-latest` uses a GitHub-hosted runner.
 - In `setup-node`, `registry-url` points at the official npm registry, and `package-manager-cache: false` follows the official comment: never use caching in release builds.
@@ -313,7 +313,7 @@ _A concept illustration: on the left, the caller `release.yml`; on the right, th
 
 ## Stricter Options
 
-Trusted publishing removes the long-lived token, but a compromised workflow can still publish. For extra gates, the docs suggest the following; you don't need all of them at once:
+Trusted publishing removes the long-lived token, but a compromised workflow can still publish. For extra gates, the docs suggest the following. I don't think you need all of them at once:
 
 - **Environment approval:** give the publish job a GitHub environment that requires a human approval, and enter the same name in **Environment name** on npmjs.com.
 - **Tag protection rules:** limit who can push the tags that trigger a release.

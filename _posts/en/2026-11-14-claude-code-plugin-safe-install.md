@@ -13,7 +13,7 @@ mermaid: true
 
 Claude Code, the AI coding assistant you use in the terminal, can install plugins. A plugin is a whole bundle of extensions. One install can bring in skills, slash commands, hooks, and MCP servers at once, and the next section explains each of them.
 
-What makes plugins convenient is exactly what you need to be careful about. Some of these pieces run code on their own when you haven't given any command, and they run with your account's permissions. Before installation, Claude Code shows this official warning:
+What makes plugins convenient is exactly what I think you need to be careful about. Some of these pieces run code on their own when you haven't given any command, and they run with your account's permissions. Before installation, Claude Code shows this official warning:
 
 > Plugins can run code on your computer, with access to your files and shell. Make sure you trust a plugin before installing, updating, or using it. Anthropic does not control what MCP servers, files, or other software are included in plugins and cannot verify that they will work as intended or that they won't change. See each plugin's homepage for more information.
 
@@ -51,7 +51,7 @@ A plugin is a folder, and each file in it goes in a set location depending on wh
 | `.lsp.json` | Language servers (background programs that provide code navigation and error hints) | **Yes** |
 | `bin/` | Executables Claude can call directly while the plugin is enabled | Only when Claude calls them, and the call goes through permission rules |
 
-The point from the official security docs most worth remembering is this one. Claude Code's permission rules and sandbox govern the tool calls Claude itself makes, not code that a plugin runs on its own. Hooks, monitors, MCP servers, LSP servers, and mods all run outside the sandbox with your full user permissions.
+The point from the official security docs that I think is most worth remembering is this one. Claude Code's permission rules and sandbox govern the tool calls Claude itself makes, not code that a plugin runs on its own. Hooks, monitors, MCP servers, LSP servers, and mods all run outside the sandbox with your full user permissions.
 
 I showed how to turn on `/sandbox` in [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/). But even with it on, a plugin's hooks and mods still run outside the sandbox.
 

@@ -13,7 +13,7 @@ mermaid: true
 
 After upgrading to npm 12, `npm install` finishes and the packages are there, but a feature no longer works. A dependency's install script may have been skipped, because npm 12 no longer runs these scripts by default.
 
-This post shows how to find the packages that need review, check each script's purpose and source, then approve the ones you need and commit the list. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. These two protections do different jobs, and both have limits.
+This post shows how to find the packages that need review, check each script's purpose and source, then approve the ones you need and commit the list. You can also add a 7-day cooldown to reduce the chance of installing a malicious version as soon as it appears. In my view, these two protections do different jobs, and both have limits. I put the steps together from the official docs.
 
 A few terms first:
 

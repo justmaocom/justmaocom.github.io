@@ -116,7 +116,7 @@ The fix uses two strategies at once, and each answers a different question:
 | Update `libheif` | Fixes the known boundary calculation bug | Keep tracking distro backports and future decoder bugs |
 | Isolate ImageMagick | Limits what the image process can read, write, and connect to | Confirm kernel support, allowlists, and the actual execution path |
 
-Do only the first, and the next decoder bug still runs with the old privileges. Do only the second, and the known vulnerability stays in the image. Fixing the known bug and limiting the consequences of unknown bugs are both needed.
+Do only the first, and the next decoder bug still runs with the old privileges. Do only the second, and the known vulnerability stays in the image. As I see it, fixing the known bug and limiting the consequences of unknown bugs are both needed.
 
 The upstream `libheif` [fix commit](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae) rewrites the overlap area calculation in `HeifPixelImage::overlay`, converting the additions to `int64_t` before comparing bounds. The commit title is just "simplify overlay overlap area computation," with no sign that it is a security fix.
 
@@ -241,7 +241,7 @@ Hacktron also says that HEIF Heist, the research effort covering multiple target
 
 So I would not use the number to estimate the cost of a typical attack. But it can remind people running exercises not to assume that reliably exploiting a memory corruption bug is work only large teams can afford.
 
-The more practical change is to fold agent permissions into every identity review:
+The more practical change, I think, is to fold agent permissions into every identity review:
 
 - Record the resource scope when a connector is added.
 - Re-confirm it when someone changes roles.

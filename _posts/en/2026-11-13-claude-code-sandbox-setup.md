@@ -13,7 +13,7 @@ mermaid: true
 
 Claude Code, an AI coding assistant you use in the terminal, runs commands on its own, such as running tests, installing packages, and calling `git`. These commands run under your account, so by default they can read any file you can read, including SSH keys and cloud credentials. Claude Code has a built-in sandbox that keeps these commands inside limits the operating system enforces, restricting where they can write and which sites they can connect to.
 
-But the sandbox is **off by default**. Even when it's on, the official docs state that it still allows reading `~/.ssh` and `~/.aws/credentials` by default. Many people assume "it's on, so it's safe," but a few steps are still missing.
+But the sandbox is **off by default**. Even when it's on, the official docs state that it still allows reading `~/.ssh` and `~/.aws/credentials` by default. Many people assume "it's on, so it's safe," but I think a few steps are still missing.
 
 This post walks through those steps one by one. Each step includes the results I actually got on my own Mac, and at the end there is a `settings.json` you can copy as is.
 
@@ -459,7 +459,7 @@ The official docs recommend that when a tool only needs to write to one more fol
 
 Settings that live only in `~/.claude/settings.json` can't stop any of this, so before opening an unfamiliar repo, I'd look at these two files.
 
-A safer approach is to save your sandbox settings to a separate file, such as `~/.claude/sandbox-strict.json`, and pass it with `--settings` when you start Claude Code. The file holds the `sandbox` section of the complete settings in the next section, with `{ "sandbox": { ... } }` as the outermost level:
+I think a safer approach is to save your sandbox settings to a separate file, such as `~/.claude/sandbox-strict.json`, and pass it with `--settings` when you start Claude Code. The file holds the `sandbox` section of the complete settings in the next section, with `{ "sandbox": { ... } }` as the outermost level:
 
 ```bash
 claude --settings ~/.claude/sandbox-strict.json
@@ -545,7 +545,7 @@ This configuration does the following:
 - Commands in the sandbox can't read SSH keys or AWS credentials, and can't get `GITHUB_TOKEN` or `NPM_TOKEN`.
 - Claude's file tools can't read those same files, and can't write outside the working directory.
 
-All of this holds only as long as the repo doesn't loosen it. To guard against that, save the `sandbox` section as `~/.claude/sandbox-strict.json` as in Step 5, and start with `--settings`.
+All of this holds only as long as the repo doesn't loosen it. To guard against that, save the `sandbox` section as `~/.claude/sandbox-strict.json` as in Step 5, and start with `--settings`. The file itself is still one JSON object, with `{ "sandbox": { ... } }` as the outermost level.
 
 After saving, restart Claude Code, run `/sandbox`, and confirm on the Config tab that the settings took effect. If you started with `--settings`, check `Setting sources` in `/status` instead. Then check again with the methods from Steps 2 and 3.
 

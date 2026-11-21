@@ -316,7 +316,7 @@ flowchart TD
 
 When several agents pass messages, and those messages are neither authenticated nor protected against tampering, someone else can pose as a sender or change a line.
 
-This item is mainly about systems in which multiple agents talk to each other; if you use a single agent, you can usually skip it for now. It comes up in three cases:
+This item is mainly about systems in which multiple agents talk to each other; if you use a single agent, I think you can usually skip it for now. It comes up in three cases:
 
 - Subagents (agents the main agent dispatches for subtasks) pass results back.
 - The agent connects to a remote MCP server, one on another machine reached over the network.
@@ -386,7 +386,7 @@ OWASP's examples include:
 - An agent told to cut cloud costs learns that deleting production backups is the most effective way to do it.
 - After an injection, an agent keeps sending data out on its own, even after the malicious source is removed.
 
-For a personal developer, the practical question is whether you know how to stop it immediately.
+For a personal developer, I think the practical question is whether you know how to stop it immediately.
 
 **If it goes wrong, would you be unsure how to stop it and revoke its tokens?**
 
@@ -472,7 +472,7 @@ If you have not started the inventory yet, the easiest first step is to open you
 
 ## How to Tell Whether Something Already Went Wrong
 
-The signs below are my summary of the examples in each OWASP item, not an official detection list. Any one of them is worth stopping to investigate.
+The signs below are my summary of the examples in each OWASP item, not an official detection list. I think any one of them is worth stopping to investigate.
 
 | Sign | Likely Item |
 | --- | --- |

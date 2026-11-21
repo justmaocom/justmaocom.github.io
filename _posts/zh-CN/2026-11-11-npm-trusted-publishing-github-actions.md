@@ -55,7 +55,7 @@ _概念图：GitHub Actions 先出示身份证明，npm 核对设置后才换发
 
 ## 什么时候该用、什么时候还不行
 
-用 GitHub Actions（GitHub 托管的 runner）自动发布的包，适合现在就换；自己搭建的 runner 目前还不行。
+用 GitHub Actions（GitHub 托管的 runner）自动发布的包，我认为适合现在就换；自己搭建的 runner 目前还不行。
 
 **现在就换，是因为用 token 直接发布的能力快要移除了。** [npm 文档写明](https://docs.npmjs.com/about-access-tokens)，旧式（legacy）token 已于 2025 年 11 月移除，现在只剩 granular access token。granular token 是细粒度令牌，可以限定它能访问哪些包、有哪些权限、何时到期。
 
@@ -171,7 +171,7 @@ jobs:
 逐行说明：
 
 - `on: push: tags: v*`：只有推送 `v1.2.3` 这类 tag 才会发布。tag（标签）是给某次 commit（提交）标上的名称，常用来标记版本。普通的 commit 不会触发发布。
-- `permissions: id-token: write`：最关键的一行，让 GitHub 能为这个 job 签发 OIDC 身份证明。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)写明，它只允许获取 OIDC token，不会因此给其他资源写入权限。
+- `permissions: id-token: write`：我认为这是最关键的一行，让 GitHub 能为这个 job 签发 OIDC 身份证明。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc#workflow-permissions-for-the-requesting-the-oidc-token)写明，它只允许获取 OIDC token，不会因此给其他资源写入权限。
 - `contents: read`：让 job 能读取 repo 内容。[GitHub 文档](https://docs.github.com/en/actions/reference/security/oidc)的示例注明，`actions/checkout` 拉取代码需要这个权限。
 - `runs-on: ubuntu-latest`：使用 GitHub 托管的 runner。
 - `setup-node` 的 `registry-url` 指向 npm 官方注册表。`package-manager-cache: false` 按官方注释的做法：release 构建不要用缓存。
@@ -313,7 +313,7 @@ _概念图：左边是调用方 release.yml，右边是被调用方 publish.yml�
 
 ## 进阶：更严格的做法
 
-Trusted Publishing 去掉了长期 token，但 workflow 本身若被攻破，仍然可以发布。想多加关卡，文档建议以下几种，不必一次全做：
+Trusted Publishing 去掉了长期 token，但 workflow 本身若被攻破，仍然可以发布。想多加关卡，文档建议以下几种，我认为不必一次全做：
 
 - **environment 加人工批准：** 在 GitHub 为发布 job 指定 environment，并设置需要人工批准。npmjs.com 的 **Environment name** 要填同一个名称。
 - **tag protection rules：** 限制谁能推送发布用的 tag。

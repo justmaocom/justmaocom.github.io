@@ -203,7 +203,9 @@ flowchart TD
   E --> G[Uploads to victim-owned repo]
 ```
 
-GitHub Actions is GitHub's built-in automation. The malicious versions of `nx` and related packages went out on the evening of August 26, 2025 (US Eastern time). A postinstall script runs automatically right after a package is installed. The repo it uploaded to sits under the victim's own GitHub account, with a name containing `s1ngularity-repository`.
+GitHub Actions is GitHub's built-in automation, and the npm publish token is the credential for pushing new versions to the npm registry. The malicious versions of `nx` and related packages went out on the evening of August 26, 2025 (US Eastern time).
+
+A postinstall script runs automatically right after a package is installed. The repo it uploaded to sits under the victim's own GitHub account, with a name containing `s1ngularity-repository`.
 
 The script in the advisory's appendix includes a prompt addressed to a "file-search agent," asking it to list paths of config and environment files.
 

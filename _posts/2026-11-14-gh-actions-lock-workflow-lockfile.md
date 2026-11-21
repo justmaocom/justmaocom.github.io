@@ -69,7 +69,7 @@ lockfile 就是 `.github/workflows/actions.lock` 這個檔案。它記下每個 
 
 被鎖住的不只你直接寫在 `uses:` 的 action。依 [GA 公告](https://github.blog/changelog/2026-10-28-github-actions-workflow-lockfiles-are-generally-available/)，action 自己再用到的其他 action（遞移依賴）也會一起鎖住。
 
-一個 workflow 被納入 lockfile 之後（官方稱為 onboard，這篇叫它「上鎖」），依[概念說明](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，執行時有三條規則：
+一個 workflow 被納入 lockfile 之後（官方稱為 onboard，這篇我叫它「上鎖」），依[概念說明](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles)，執行時有三條規則：
 
 1. 這個 workflow 用到的每個 action，都必須出現在 lockfile 裡。
 2. 執行的是 lockfile 裡記的那個 commit，不是標籤現在指到的 commit。
@@ -240,7 +240,7 @@ CODEOWNERS 本身不會擋下合併，要搭配分支保護或 ruleset 開啟「
 
 ## 步驟 4：日常維護
 
-上鎖不是做一次就結束，下面幾件事決定它能不能長期有效。
+上鎖不是做一次就結束，我認為下面幾件事決定它能不能長期有效。
 
 **改了 `uses:` 就重新執行。** 新增 workflow，或在既有 workflow 增刪 action 時，再跑一次：
 

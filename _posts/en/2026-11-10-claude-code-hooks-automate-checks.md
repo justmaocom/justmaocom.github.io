@@ -22,7 +22,9 @@ I covered the permission risks of third-party skills and MCP servers in [this ea
 
 ## What hooks are
 
-A hook is a command you write that Claude Code runs at a fixed point in the conversation. Use hooks for work that should happen every time and needs no judgment: formatting, running tests, blocking an edit to a given file. Decisions that need judgment stay with you or the permission settings.
+A hook is a command you write that Claude Code runs at a fixed point in the conversation. Per the docs, hooks make selected actions run deterministically instead of relying on the model to decide whether to run them.
+
+I think they fit work that should happen every time and needs no judgment: formatting, running tests, blocking an edit to a given file. Decisions that need judgment stay with you or the permission settings.
 
 The four most useful moments:
 
@@ -126,7 +128,7 @@ Then add this inside `"hooks"` in `.claude/settings.json`:
 ]
 ```
 
-`$CLAUDE_PROJECT_DIR` is an environment variable Claude Code sets to the project root. Exit code `2` blocks the call, and the `Blocked:` line on stderr goes back to Claude. Exit code `0` only means the hook has no opinion. The normal permission flow still applies, so it is not an approval.
+`$CLAUDE_PROJECT_DIR` is an environment variable Claude Code sets to the project root. Exit code `2` blocks the call, and the `Blocked:` line on stderr (the error output stream) goes back to Claude. Exit code `0` only means the hook has no opinion. The normal permission flow still applies, so it is not an approval.
 
 ![Ordinary files pass; that one edit to a sensitive file is blocked with a reminder](guard-edit.webp){: w="1280" h="720" }
 _A concept illustration, not a real permission screen. This hook blocks that Edit or Write, not every path that could change the file._

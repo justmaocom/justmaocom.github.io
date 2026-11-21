@@ -47,14 +47,14 @@ flowchart LR
 - **herdr-core (command: `hc`):** Comes with Herdr App and runs every terminal and agent in the background. The README sums up the split in one line: "The window arranges terminals. The core runs them."
 - **Herdr TUI:** The original Herdr. Its whole interface lives in the terminal, and its own background program (a server) runs the agents. The FAQ says it keeps working, and everything for it is at [herdr.dev/tui](https://herdr.dev/tui/).
 
-The app and the TUI **don't share agents**: an agent started in one does not show up in the other. The phone app also works only with herdr-core, not with Herdr TUI. According to the phone app page, Herdr TUI and herdr-core can both be installed on the same computer.
+The app and the TUI **don't share agents**: according to the official FAQ, an agent started in one does not show up in the other. The phone app also works only with herdr-core, not with Herdr TUI. According to the phone app page, Herdr TUI and herdr-core can both be installed on the same computer.
 
 I suggest picking one as your main tool. Because agents aren't shared, running a few in each brings back the old problem of not knowing who is waiting for you. If you want to stay in the terminal, read [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/); if you want a desktop window, or want to check on agents from your phone, read on.
 
 ## When it's worth using
 
 - You run two or more agents at once, in different repos or on different tasks, and want one window that shows which one is waiting for you: a good fit.
-- You want to close the window and let agents keep working: a good fit (Step 5). Work on an SSH machine also keeps going while your laptop sleeps (Step 6).
+- You want to close the window and let agents keep working: a good fit. According to the official docs, closing the window doesn't stop the terminals (Step 5). Work on an SSH machine also keeps going while your laptop sleeps (Step 6).
 - You only run one agent and your current setup works fine: you don't have to switch (my view).
 
 ## Before you start

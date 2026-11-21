@@ -13,7 +13,7 @@ mermaid: true
 
 Claude Code（在終端機裡使用的 AI 程式助理）會自己下指令：跑測試、裝套件、呼叫 `git`。這些指令用的是你的帳號，所以預設能讀你讀得到的所有檔案，包括 SSH 金鑰和雲端憑證。Claude Code 內建沙箱（sandbox），可以把這些指令關在作業系統強制執行的範圍裡，限制它們能寫到哪裡、能連到哪些網站。
 
-但沙箱**預設是關閉的**。就算打開了，官方文件也寫明：預設仍讀得到 `~/.ssh` 和 `~/.aws/credentials`。很多人以為「開了就安全」，其實還差幾步。
+但沙箱**預設是關閉的**。就算打開了，官方文件也寫明：預設仍讀得到 `~/.ssh` 和 `~/.aws/credentials`。很多人以為「開了就安全」，我認為其實還差幾步。
 
 這篇一步步把這幾步補上，每一步都附上我在自己的 Mac 上實際跑出來的結果，文末有一份可以直接複製的 `settings.json`。
 
@@ -459,7 +459,7 @@ remove that setting.
 
 只寫在 `~/.claude/settings.json` 的設定擋不住這些，所以打開不熟的 repo 前，我會先看一下這兩個檔案。
 
-更穩的做法是把沙箱設定另存一份，例如 `~/.claude/sandbox-strict.json`，再用 `--settings` 帶入啟動。檔案內容是下一節完整設定裡的 `sandbox` 那一段，最外層是 `{ "sandbox": { ... } }`：
+我覺得更穩的做法是把沙箱設定另存一份，例如 `~/.claude/sandbox-strict.json`，再用 `--settings` 帶入啟動。檔案內容是下一節完整設定裡的 `sandbox` 那一段，最外層是 `{ "sandbox": { ... } }`：
 
 ```bash
 claude --settings ~/.claude/sandbox-strict.json
@@ -545,7 +545,7 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 - 沙箱裡的指令讀不到 SSH 金鑰和 AWS 憑證，也拿不到 `GITHUB_TOKEN`、`NPM_TOKEN`。
 - Claude 的檔案工具讀不到同樣的檔案，也不能寫到工作目錄以外。
 
-這些都是「repo 沒有另外放寬」時的效果。要擋住 repo 放寬，照步驟五把 `sandbox` 那一段另存成 `~/.claude/sandbox-strict.json`，用 `--settings` 啟動。
+這些都是「repo 沒有另外放寬」時的效果。要擋住 repo 放寬，照步驟五把 `sandbox` 那一段另存成 `~/.claude/sandbox-strict.json`，用 `--settings` 啟動。檔案本身仍是一個 JSON 物件，最外層是 `{ "sandbox": { ... } }`。
 
 存檔後重啟 Claude Code，執行 `/sandbox`，到 Config 分頁確認設定有生效。用 `--settings` 啟動時，改看 `/status` 的 `Setting sources`。最後照步驟二和步驟三的方法再檢查一次。
 

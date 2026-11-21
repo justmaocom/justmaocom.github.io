@@ -46,7 +46,7 @@ skill 是打包好的做事流程，助理用到時才載入。若你想用一�
 - 它一直跑錯測試指令，例如該用 `pnpm test`，卻一再執行 `npm test`。
 - 這件事新同事也需要知道，或下次再開這個 repo 的人也用得上。
 
-有兩種內容不適合塞進這份檔：只跟某一小區塊有關的長流程，以及「一定得做到」的事。
+我認為有兩種內容不適合塞進這份檔：只跟某一小區塊有關的長流程，以及「一定得做到」的事。
 
 ```mermaid
 flowchart TD
@@ -263,7 +263,7 @@ Read 工具是 Claude Code 內建、用來打開檔案內容的功能。若根�
 
 若你像我一樣同時用兩個工具，目標是只維護一份共用規則。兩份規則一旦互相矛盾，[Claude 的文件](https://code.claude.com/docs/en/memory#write-effective-instructions)寫：它可能任選一條。
 
-做法的關鍵是 import，意思是「引用另一份檔」。CLAUDE.md 不必把 AGENTS.md 的內容抄一遍，只要寫一行 `@AGENTS.md`。Claude 讀 CLAUDE.md 時，就會把 AGENTS.md 的內容展開，當成 CLAUDE.md 的一部分一起讀。
+我認為做法的關鍵是 import，意思是「引用另一份檔」。CLAUDE.md 不必把 AGENTS.md 的內容抄一遍，只要寫一行 `@AGENTS.md`。Claude 讀 CLAUDE.md 時，就會把 AGENTS.md 的內容展開，當成 CLAUDE.md 的一部分一起讀。
 
 它不是複製一份貼過去，所以你只需要維護 AGENTS.md 這一份。要選哪種做法，可以這樣判斷：
 
@@ -430,5 +430,5 @@ my-project/              ← 根目錄
 
 - 為什麼「寫給助理看的每一行都有成本」：見 [mattpocock/skills 系列（6）：查資料、做交接、學新東西，都有固定做法](/posts/mattpocock-skills-research-handoff/)。
 - 把規則變成固定時機會執行的檢查：見[hooks 篇](/posts/claude-code-hooks-automate-checks/)。
-- 完整的架構說明這類長篇內容不適合放進 AGENTS.md。把它整理成 repo 內的 wiki、再由 AGENTS.md 指過去的做法，我在 [OpenWiki 追得到程式碼變更，卻證明不了文件正確](/posts/openwiki-agent-docs-maintenance/)裡談過。
+- 完整的架構說明這類長篇內容，我認為不適合放進 AGENTS.md。把它整理成 repo 內的 wiki、再由 AGENTS.md 指過去的做法，我在 [OpenWiki 追得到程式碼變更，卻證明不了文件正確](/posts/openwiki-agent-docs-maintenance/)裡談過。
 - 官方說明：[Codex 的 AGENTS.md 文件](https://learn.chatgpt.com/docs/agent-configuration/agents-md)、[Claude Code 的記憶說明](https://code.claude.com/docs/en/memory#agents-md)，以及 [AGENTS.md 格式官網](https://agents.md/)。

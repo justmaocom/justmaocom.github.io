@@ -46,7 +46,7 @@ These are good reasons to put the rules in AGENTS.md:
 - It keeps running the wrong test command, for example `npm test` when the project uses `pnpm test`.
 - A new teammate, or anyone who opens this repo next, also needs to know it.
 
-Two kinds of content do not belong here: long workflows that apply only to one small area, and rules that must always happen.
+I think two kinds of content do not belong here: long workflows that apply only to one small area, and rules that must always happen.
 
 ```mermaid
 flowchart TD
@@ -261,7 +261,7 @@ If you are not used to editing settings files, I recommend `/config`, the less e
 
 If you use both tools, as I do, the aim is to maintain one shared set of rules. When two files contradict each other, the [Claude docs](https://code.claude.com/docs/en/memory#write-effective-instructions) say Claude may pick one arbitrarily.
 
-The key is an import, which means "pull in another file by reference." Instead of copying the contents of AGENTS.md into CLAUDE.md, you write one line, `@AGENTS.md`. When Claude reads CLAUDE.md, it expands that line into the contents of AGENTS.md and reads them as part of CLAUDE.md.
+I think the key is an import, which means "pull in another file by reference." Instead of copying the contents of AGENTS.md into CLAUDE.md, you write one line, `@AGENTS.md`. When Claude reads CLAUDE.md, it expands that line into the contents of AGENTS.md and reads them as part of CLAUDE.md.
 
 Nothing is copied, so AGENTS.md stays the only file you maintain. To pick an approach:
 
@@ -428,5 +428,5 @@ If you want to keep reading:
 
 - Why every line written for an assistant has a cost: see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/).
 - Turning a rule into a check that runs at a fixed point: see the [hooks post](/posts/claude-code-hooks-automate-checks/).
-- Long material such as a full architecture write-up doesn't belong in AGENTS.md. I discuss keeping it in a wiki inside the repo and pointing to it from AGENTS.md in [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
+- I think long material such as a full architecture write-up doesn't belong in AGENTS.md. I discuss keeping it in a wiki inside the repo and pointing to it from AGENTS.md in [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
 - Official references: the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/).

@@ -51,7 +51,7 @@ plugin 是一個資料夾，檔案依用途放在固定位置。依官方的參�
 | `.lsp.json` | 語言伺服器（提供程式碼跳轉、錯誤提示的背景程式） | **會** |
 | `bin/` | 可執行檔，plugin 啟用期間 Claude 可以直接呼叫 | Claude 呼叫時才執行，會經過權限規則 |
 
-官方安全說明裡最該記住的是這一點：Claude Code 的權限規則和沙箱，管的是 Claude 自己發出的工具呼叫，不管 plugin 自己執行的程式。hook、monitor、MCP server、LSP server 和 mod 都在沙箱外，以你完整的使用者權限執行。
+官方安全說明裡，我認為最該記住的是這一點：Claude Code 的權限規則和沙箱，管的是 Claude 自己發出的工具呼叫，不管 plugin 自己執行的程式。hook、monitor、MCP server、LSP server 和 mod 都在沙箱外，以你完整的使用者權限執行。
 
 我在〈[Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)〉教過怎麼開 `/sandbox`。但就算開了，plugin 的 hook 和 mod 還是在沙箱外面跑。
 
