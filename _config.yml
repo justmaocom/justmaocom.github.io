@@ -311,6 +311,7 @@ exclude:
   - CLAUDE.md
   - AGENTS.md
   - "package*.json"
+  - seo # SEO 例行工作的狀態檔，不輸出到網站
 
 jekyll-archives:
   enabled: [categories, tags]
