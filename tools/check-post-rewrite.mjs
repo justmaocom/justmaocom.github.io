@@ -13,6 +13,8 @@ Object.assign(purify, { addHook() {}, removeHook() {}, removeHooks() {}, sanitiz
 const { default: mermaid } = await import(`${NM}/mermaid/dist/mermaid.core.mjs`);
 
 const LANGS = { 'zh-TW': '_posts', 'zh-CN': '_posts/zh-CN', en: '_posts/en' };
+const HEDGES_ZH = ['我認為', '我认为', '我查了', '依官方', '官方說明', '官方说明', '官方警告', '推測', '推测', '推論', '推论', '推演'];
+const HEDGES_EN = ['I think', 'I checked', 'Per the docs', 'per the docs', 'The docs warn', 'according to', 'According to', 'inferred', 'I infer'];
 const git = (...a) => execFileSync('git', a, { cwd: REPO, encoding: 'utf8', maxBuffer: 1 << 26 });
 const BASE = process.env.BASE ?? git('merge-base', 'HEAD', 'main').trim();
 
@@ -34,7 +36,12 @@ function parse(text, zh) {
     .join('\n').replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
     .split(zh ? /[。！？\n]/ : /(?<=[.!?])\s+|\n/).map((s) => s.replace(/^\s*(>|[-*]|\d+\.)\s*/, '').trim()).filter(Boolean);
   const slen = (s) => (zh ? s.replace(/\s/g, '').length : s.split(/\s+/).length);
+  const plain = prose.replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/`[^`\n]*`/g, '');
   return {
+    // Glosses ("CI（每次推上去就自動跑的檢查）") and source markers ("依官方說明", "I think") are what rewrites drop most.
+    glosses: [...new Set(plain.match(zh ? /（[^）\n]{2,}）/g : /\([^)\n]{3,}\)/g) ?? [])].map((g) => g.slice(1, -1)),
+    hedges: Object.fromEntries((zh ? HEDGES_ZH : HEDGES_EN).map((h) => [h, plain.split(h).length - 1])),
+    haystack: (plain + blocks.map((b) => b.code).join('\n')).replace(/\s/g, ''),
     fm,
     blocks,
     code: blocks.filter((b) => b.lang !== 'mermaid'),
@@ -113,6 +120,9 @@ for (const slug of slugs) {
     for (const i of r.issues) console.log(`    - ${i}`);
     // Warnings only: a long sentence is a readability target, not a lost fact.
     for (const s of r.now.longSents) console.log(`    ~ long sentence ${s}`);
+    if (!o) continue;
+    for (const g of o.glosses) if (!r.now.haystack.includes(g.replace(/\s/g, ''))) console.log(`    ~ gloss dropped «${g}»`);
+    for (const [h, n] of Object.entries(o.hedges)) if (r.now.hedges[h] < n) console.log(`    ~ source marker «${h}» ${n}→${r.now.hedges[h]}`);
   }
   for (const p of parity) console.log(`  - ${p}`);
 }
