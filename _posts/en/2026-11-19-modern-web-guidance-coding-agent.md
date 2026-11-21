@@ -632,7 +632,7 @@ This time I used my own small DevTools Protocol script. To have the agent open a
 
 ## Conclusion
 
-To try it, scan your own project with the `legacy-scan` command from Step 4 before installing anything, and see what it finds. The first time you hand it to an agent, ask for a modernization plan first. After the agent's changes, read the diff and try the page in a browser yourself.
+To try it, I'd suggest scanning your own project with the `legacy-scan` command from Step 4 before installing anything, and seeing what it finds. The first time you hand it to an agent, ask for a modernization plan first. After the agent's changes, read the diff and try the page in a browser yourself.
 
 ## Further reading
 

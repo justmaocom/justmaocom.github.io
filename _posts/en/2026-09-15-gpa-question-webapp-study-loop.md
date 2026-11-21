@@ -13,7 +13,7 @@ mermaid: true
 
 I built this project because my wife signed up for the Government Procurement Act certification exam.
 
-If you practice straight from the PDF question bank a few times, you end up memorizing the question order along with the answers. Before you turn the page, the answer has already popped into your head. That familiarity can't tell you whether you remember the material or just where the answer sits in the PDF.
+If you practice straight from the PDF question bank a few times, it's easy to end up memorizing the question order along with the answers. Before you turn the page, the answer has already popped into your head. That familiarity can't tell you whether you remember the material or just where the answer sits in the PDF.
 
 So I set out to turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas.
 
@@ -83,6 +83,8 @@ sequenceDiagram
 
 ## Weak areas aren't guessed; they accumulate by category
 
+I think the part most worth checking here is what "cross-session weak areas" actually computes.
+
 "Cross-session weak areas" means the cumulative accuracy of each category, with a clear denominator, threshold, and sort order:
 
 ```mermaid
@@ -113,13 +115,13 @@ The runtime isn't a single static web page, either. [`docker-compose.yml`](https
 
 Cross-session identity relies only on `gpa_anonymous_id` in the browser's `localStorage`. The frontend puts it into the `/api/weakness` query string, as shown in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36). The matching route only accepts `anonymous_id` and has no account-authentication dependency.
 
-That's convenient for a household tool, but it isn't the access control you'd want for storing official exam scores.
+I find that convenient for a household tool, but it isn't the access control you'd want for storing official exam scores.
 
 ## Good for home practice, not a ready-made official exam system
 
 If your question bank comes from a fixed source, your users are a known group, and you only need shuffled questions plus the categories you keep missing, this project already wires the necessary pieces together. When the question bank changes, [`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) can update, keep, or soft-delete existing questions, so you don't have to wipe the database each time.
 
-To open it up to many users, you first need accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, the parser also needs failure reports and tests for new formats. The current code suits a personal practice tool and shouldn't be treated as an official exam platform as-is.
+To open it up to many users, you first need accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, the parser also needs failure reports and tests for new formats. As I see it, the current code suits a personal practice tool and shouldn't be treated as an official exam platform as-is.
 
 ## Run the tests first, then plug in your own question bank
 

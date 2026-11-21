@@ -55,7 +55,7 @@ linked worktree 頂層的 `.git` [不是一個完整的資料夾，而是一個�
 
 ## 什麼時候該用、什麼時候不用
 
-適合用 worktree 的情況大致有三種：
+我認為適合用 worktree 的情況大致有三種：
 
 - 想同時讓兩個 AI（或你和一個 AI）各做一件事，而且不要改到同一批檔案。
 - 手上已經改到一半，暫時不想用 stash 把修改收起來，卻又要去修一件急件。這是[手冊舉的官方情境](https://git-scm.com/docs/git-worktree#_examples)。
@@ -441,7 +441,7 @@ git worktree repair
 
 ## 結論
 
-下次要讓兩個 AI 同時動手，先用 `git worktree add -b` 各開一個資料夾，做完合併回 `main`（或推上去開 PR），再收掉資料夾和分支。repo 裡若有 submodule（最上層有 `.gitmodules`），我就不會用這個方法。
+下次要讓兩個 AI 同時動手，我建議先用 `git worktree add -b` 各開一個資料夾，做完合併回 `main`（或推上去開 PR），再收掉資料夾和分支。repo 裡若有 submodule（最上層有 `.gitmodules`），我就不會用這個方法。
 
 ## 延伸閱讀
 

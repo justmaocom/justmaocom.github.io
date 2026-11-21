@@ -15,11 +15,11 @@ mermaid: true
 
 OpenWiki organizes that information into a wiki inside the repo, which the agent reads when it needs to. I wanted to find out how it decides which pages need rewriting after the code changes, and how far you can trust the updated result. For this post I mainly read the source code, and confirmed locally that the CLI starts.
 
-[When LangChain announced OpenWiki](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation), it argued that an agent instruction file only needs to point to a repo wiki. Coding agents can then pull in docs on demand, instead of you cramming everything into a single instruction file. That keeps the instruction file short, but it adds a wiki that goes stale along with the code.
+[When LangChain announced OpenWiki](https://www.langchain.com/blog/introducing-openwiki-an-open-source-agent-for-repo-documentation), it argued that an agent instruction file only needs to point to a repo wiki, so coding agents can pull in docs on demand instead of cramming a lot of explanation into a single instruction file. That keeps the instruction file short, but it adds a wiki that goes stale along with the code.
 
 > This post analyzes OpenWiki `0.5.2`. When I checked on 2026-10-19, the latest on npm was `0.7.2` (2026-10-10).
 >
-> Since [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0), the native CLI can [work on several pages at once](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers) via `OPENWIKI_PAGE_CONCURRENCY`. The default is still 1, so you have to raise it to get parallel processing, and runs through coding-agent integrations still go page by page. Only when you raise that setting do this post's statements stop holding: that page jobs run in order, and that the worker handles only the page job at the front of the queue.
+> Since [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0), the native CLI can [work on several pages at once](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers) via `OPENWIKI_PAGE_CONCURRENCY`. The default is still 1, so you have to raise it to get parallel processing, and runs through coding-agent integrations still go page by page. Only when you raise that setting do this post's statements stop holding: that page jobs run in order, and that the worker handles only the page job at the front of the queue. I'll decide separately whether to fully update this post.
 {: .prompt-info }
 
 ## OpenWiki turns repo docs into a wiki it can update
@@ -125,7 +125,7 @@ On a personal project, you're both the developer and the doc reviewer. Come back
 
 Say the wiki has a page on the login flow, with Claims linking to the session code, tests, and deploy config. The coding agent can then read those spots first instead of searching the whole repo for keywords.
 
-Personal use also makes it easy to skip review, since nobody will reject a wrong doc PR. If the project is split into several modules, or you come back only every few months, I'd make spot-checking Claims a routine part of every update. If the project has only a few files and you change it every week, reading the source and tests directly is usually faster.
+Personal use also makes it easy to skip review, since nobody will reject a wrong doc PR. If the project is split into several modules, or you come back only every few months, I'd suggest making spot-checking Claims a routine part of every update. If the project has only a few files and you change it every week, reading the source and tests directly is usually faster.
 
 ### On-call and cross-team changes at a company
 
@@ -133,7 +133,7 @@ Say an on-call engineer gets an alert about duplicate orders, and the original a
 
 If the wiki's order-flow page already links to that code and its tests, the engineer and the coding agent can start from the cited locations. The wiki won't determine the incident's root cause, but it helps the engineer confirm which services the request passes through without waiting for the original author.
 
-Cross-team changes make stale docs more costly. Say the payments team adds a required version field to an event format, and both the order and notification services have to update their parsers. OpenWiki can use Git changes and existing Claims to find the pages that may need rewriting, and open a doc PR.
+Cross-team changes make the cost of stale docs more obvious. Say the payments team adds a required version field to an event format, and both the order and notification services have to update their parsers. OpenWiki can use Git changes and existing Claims to find the pages that may need rewriting, and open a doc PR.
 
 Reviewers still have to confirm that the docs say whether old events keep working, and that tests cover both old and new formats. The team also has to decide in advance who reviews doc PRs, how quickly, and whether to accept partial results when generation gets interrupted. Without those arrangements, auto-generated PRs just sit in the queue.
 
@@ -178,7 +178,7 @@ When the install succeeds, the output shows version `0.5.2` and a `Usage` sectio
    openwiki [--init|--update] [message]
 ```
 
-For this post I verified that the CLI starts. The `--init` and `--update` commands below come straight from the project's [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start). Because `--init` changes agent instructions and may add a workflow, run your first test in a throwaway repo or a clean test branch:
+For this post I verified that the CLI starts. The `--init` and `--update` commands below come straight from the project's [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start). Because `--init` changes agent instructions and may add a workflow, I'd recommend running your first test in a throwaway repo or a clean test branch:
 
 ```bash
 openwiki --init
@@ -213,7 +213,7 @@ flowchart TD
 
 OpenWiki stores the code location and content version each Claim cites, so reviewers can find out whether a source still exists. Looking only at when the docs were last generated can't tell you that.
 
-While the team reviews, I think it should keep recording how many wrong statements spot checks find, which major flows the wiki leaves out, and how much manual editing each doc PR needs. If that review takes longer than updating the docs by hand did, automation has only moved the time into PR review.
+While the team reviews, I think it should still record how many wrong statements spot checks find, which major flows the wiki leaves out, and how much manual editing each doc PR needs. If that review takes longer than updating the docs by hand did, automation has only moved the time into PR review.
 
 ## Further reading
 

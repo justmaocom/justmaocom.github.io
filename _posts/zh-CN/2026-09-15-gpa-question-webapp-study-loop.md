@@ -83,6 +83,8 @@ sequenceDiagram
 
 ## 弱项不是猜的，是按类别累积出来
 
+这里我认为最需要确认的是“跨练习弱项”到底算了什么。
+
 “跨练习弱项”算的是各类别的累积正确率，分母、门槛与排序方式都很明确：
 
 ```mermaid
@@ -113,13 +115,13 @@ const weakIds = weakCats.map(c => c.category_id).join(',');
 
 跨练习的身份只靠浏览器 `localStorage` 里的 `gpa_anonymous_id`。前端把它放进 `/api/weakness` 的查询参数，流程写在 [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36)。对应的路由只接收 `anonymous_id`，没有账号验证依赖。
 
-这对家用工具很省事，但不是存放正式测验成绩该有的权限设计。
+我觉得这对家用工具很省事，但不是存放正式测验成绩该有的权限设计。
 
 ## 适合家用练习，不适合直接当正式考试系统
 
 题库来源固定、用户范围明确，需求只是打乱题序并找出常错类别，这个项目已经把必要流程接起来。题库变动时，[`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) 能更新、保留或软删除现有题目，不必每次清空数据库。
 
-要公开给多人使用，得先处理账号、授权、数据隔离与备份策略。题库布局若经常改动，还要替解析器准备失败报告与新格式测试。现有代码适合当自用练习工具，不能直接当成正式考试平台。
+要公开给多人使用，得先处理账号、授权、数据隔离与备份策略。题库布局若经常改动，还要替解析器准备失败报告与新格式测试。在我看来，现有代码适合当自用练习工具，不能直接当成正式考试平台。
 
 ## 先跑测试，再接自己的题库
 

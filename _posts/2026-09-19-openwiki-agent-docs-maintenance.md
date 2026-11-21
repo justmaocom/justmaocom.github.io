@@ -19,7 +19,7 @@ OpenWiki 把這些資訊整理成 repo 內的 wiki，讓 agent 需要時再讀�
 
 > 這篇分析的是 OpenWiki `0.5.2`。2026-10-19 查證時，npm 上最新已是 `0.7.2`（2026-10-10）。
 >
-> [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同時處理多個頁面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。預設值仍是 1，要調高才會平行處理，透過 coding agent 整合執行時也仍然逐頁處理。只有調高這個設定時，下文說的 page job「依序處理」、worker「一次只處理目前排到的 page job」才不成立。
+> [`0.6.0`](https://github.com/langchain-ai/openwiki/releases/tag/v0.6.0) 起，原生 CLI 可以用 `OPENWIKI_PAGE_CONCURRENCY` [同時處理多個頁面](https://github.com/langchain-ai/openwiki/blob/27b3c76cb9b28bc3bb31ccbeb4f0192b0802cf96/README.md#parallel-page-workers)。預設值仍是 1，要調高才會平行處理，透過 coding agent 整合執行時也仍然逐頁處理。只有調高這個設定時，下文說的 page job「依序處理」、worker「一次只處理目前排到的 page job」才不成立。是否全面更新這篇，我之後會另行評估。
 {: .prompt-info }
 
 ## OpenWiki 把 repo 文件做成可更新的 wiki
@@ -178,7 +178,7 @@ PATH="$check_prefix/bin:$PATH" openwiki --help
    openwiki [--init|--update] [message]
 ```
 
-這篇我驗證了 CLI 能啟動。下面的 `--init` 與 `--update` 是專案 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始指令。`--init` 會修改 agent 指引並可能新增 workflow，所以第一次測試建議放在可丟棄的 repo，或沒有其他變更的測試分支：
+這篇我驗證了 CLI 能啟動。下面的 `--init` 與 `--update` 是專案 [`README`](https://github.com/langchain-ai/openwiki/blob/715109a8ab1cda6d47680fcc8170e203c751bf61/README.md#quick-start) 列出的原始指令。`--init` 會修改 agent 指引並可能新增 workflow，所以我建議第一次測試放在可丟棄的 repo，或沒有其他變更的測試分支：
 
 ```bash
 openwiki --init

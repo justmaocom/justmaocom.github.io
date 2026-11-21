@@ -55,7 +55,7 @@ In other words, a linked worktree folder is not a complete repository on its own
 
 ## When to Use It, and When Not To
 
-Worktrees are a good fit in three situations:
+In my view, worktrees are a good fit in three situations:
 
 - You want two AI agents (or you and one agent) to work on separate tasks without editing the same files.
 - You are halfway through a change, you do not want to stash that work, and you still need to fix something urgent. That is the [official example in the manual](https://git-scm.com/docs/git-worktree#_examples).
@@ -439,7 +439,7 @@ git worktree repair
 
 ## Conclusion
 
-The next time two AI agents need to work at once, start with `git worktree add -b` so each gets its own folder. Merge the work back into `main` (or push it and open a PR), then remove the folders and branches. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
+The next time two AI agents need to work at once, I suggest starting with `git worktree add -b` so each gets its own folder. Merge the work back into `main` (or push it and open a PR), then remove the folders and branches. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
 
 ## Further Reading
 

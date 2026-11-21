@@ -30,7 +30,7 @@ Other terms are explained where they first appear. The problem I want to solve i
 
 ## If Content Changes After Review, Record Which Version Was Reviewed
 
-It is worth recording who checked what, and which version, whenever:
+I think it is worth recording who checked what, and which version, whenever:
 
 - Changes continue after a review finishes, such as wording edits, translation fixes, or link changes.
 - The same content exists in several languages, or describes how an external tool behaves.
@@ -81,7 +81,7 @@ The second check appears in the PR discussion. [The Codex summary on PR #29](htt
 
 The comment comes from Codex's GitHub integration (the `chatgpt-codex-connector` account), which is not part of the workflow above. So the absence of `openai/codex-action` from the workflow does not mean the site has no AI review, and it does not mean Actions started this review.
 
-AI review is good at reading prose, comparing claims, and spotting issues that take reasoning to find.
+In my view, AI review is good at reading prose, comparing claims, and spotting issues that take reasoning to find.
 
 ## Case Study: PR #29 Changed After Its Review
 
@@ -96,7 +96,7 @@ Only two versions matter here:
 
 The conclusion I can support is narrow. **The Codex review in that summary covered the initial `6857f1f`. It cannot establish that the final `ff4455b` was covered by the same review.** I do not infer checks that the public summary does not list, or conclude that nobody reviewed the later changes.
 
-Those last two fixes show why the work needs several kinds of review:
+To me, those last two fixes show why the work needs several kinds of review:
 
 - Whether a GitHub link path is correct calls for checking the source or running a separate external-link check.
 - A phrase such as “关光” calls for language editing.

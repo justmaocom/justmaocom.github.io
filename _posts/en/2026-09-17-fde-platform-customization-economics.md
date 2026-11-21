@@ -13,7 +13,7 @@ mermaid: true
 
 You've sold an enterprise a platform that only becomes useful once someone builds on top of it. The contract is signed, and the first onboarding meeting is underway. But the only thing on the projector is a blank workflow diagram. The customer knows they want to improve their product listing rate or sales throughput, but has no idea how to assemble the platform into a working solution.
 
-The real problem is where delivery ends. When a customer can afford the platform but lacks the engineering capacity to turn it into results, how much customization should the vendor deliver? And how do you keep every deal from turning into a new maintenance liability?
+As I see it, the real problem is where delivery ends. When a customer can afford the platform but lacks the engineering capacity to turn it into results, how much customization should the vendor deliver? And how do you keep every deal from turning into a new maintenance liability?
 
 ## FDEs deliver customer outcomes on top of a platform
 
@@ -117,7 +117,7 @@ First, apply the two gates to the three product types from the talk:
 | Jira, Slack | Mostly configuration | No | Not applicable | Normal sales and onboarding, no FDE needed |
 | Foundry with non-technical industry buyers | Yes | No | Yes | Passes both FDE gates |
 
-To apply this to your own company, take your most recent enterprise sales opportunity and fill in the five fields below. Write down only what you already know. Any blank field is the next thing to investigate.
+To apply this to your own company, I suggest taking your most recent enterprise sales opportunity and filling in the five fields below. Write down only what you already know. Any blank field is the next thing to investigate.
 
 | Field | What to fill in |
 | --- | --- |
