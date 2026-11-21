@@ -38,7 +38,7 @@ claude plugin install pstack@cursor-plugins
 
 If you install with `/plugin marketplace add cursor/plugins` instead, you get whatever happens to be latest at that moment, not the version you've reviewed. I covered why that's risky in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 
-pstack's docs use Cursor's form. Claude Code plugin commands carry the plugin name in front, such as `/pstack:correct`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+pstack's docs use Cursor's form. In Claude Code (an AI coding assistant you use in the terminal), plugin commands carry the plugin name in front, such as `/pstack:correct`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
 You start every one of these skills yourself: of pstack's 58 skills, all but `/setup-pstack` are set so the AI can't start them on its own, and that includes the principles. The setting behind this is `disable-model-invocation: true`. That said, `/poteto-mode` can still read and apply relevant principles as part of its own workflow, which I'll explain later.
 
@@ -211,7 +211,7 @@ It works in four steps ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c8
    - Checks that were skipped or never run on the real artifact
    - Skills that should have kicked in but didn't
 2. **Keeps only lessons that last**. A finding stays only if it will still hold in six months, would change what a future AI does, and maps to a skill this conversation used. It reads that skill first and doesn't repeat what the skill already says clearly. It also drops one-offs and details that go stale fast, such as commit SHAs, versions, and counts. For a skill that should have kicked in but didn't, it proposes a change to that skill's description (the text the AI uses to decide when to use the skill).
-3. **Moves lessons better enforced by code to Backlog**. If a lint rule, script, or check would block a mistake more reliably, the lesson goes to Backlog instead of into a skill's prose.
+3. **Moves lessons better enforced by code to Backlog**. If a lint rule (an automatic check on how code is written), script, or check would block a mistake more reliably, the lesson goes to Backlog instead of into a skill's prose.
 4. **Waits for your approval**. It sorts the results into three lists and **changes no skill until you explicitly approve**. It never edits a skill inside the plugin cache; it copies the skill to your project or personal skill folder first and edits the copy. It doesn't open a PR or push, either.
 
 Here is what the three lists hold:
@@ -226,7 +226,7 @@ Accepted items are only proposals waiting for your approval; nothing has changed
 
 ### /correct: Make the Same Mistake Impossible
 
-When you keep correcting the AI for the same kind of mistake, the fix belongs in the repo, not in your next prompt. That's when you use `/correct`.
+When you keep correcting the AI for the same kind of mistake, I think the fix belongs in the repo, not in your next prompt. That's when you use `/correct`.
 
 When you know the mistake, name it (from [guide chapter 9](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L45)):
 
@@ -256,7 +256,7 @@ flowchart TD
 
 To find classes of mistakes, it reads recent commits, reverts, review comments, the AI's instruction files, and comments that explain workarounds. A class only counts if it has happened at least twice.
 
-Blocking with architecture means making the mistake impossible, such as one owner per piece of state and one supported way per task. When types, a lint rule, or CI blocks it, the error message has to say what to use instead. Docs and AI rules come last, because when the AI skips a rule, no check fails.
+Blocking with architecture means making the mistake impossible, such as one owner per piece of state and one supported way per task. When types, a lint rule, or CI (the checks that run automatically on every push) blocks it, the error message has to say what to use instead. Docs and AI rules come last, because when the AI skips a rule, no check fails.
 
 Every new check has to prove it works: it is tried against a real past mistake to confirm it actually fails. The same command runs locally and in CI.
 
@@ -528,7 +528,7 @@ The prompt states your intent, permission rules restrict tool calls, and network
 A few things to know:
 
 - **Deny rules hold even in `bypassPermissions`**. But in `bypassPermissions`, the allowlist has no effect.
-- **Some folders are protected**. Writes to folders such as `.git` and `.claude` ask you first in `default` and `acceptEdits`, and are refused in `dontAsk` ([protected paths](https://code.claude.com/docs/en/permission-modes#protected-paths)). That's actually a good thing, because the AI can't quietly rewrite its own settings. So when `/automate-me` or `/reflect` writes a skill, expect it to stop here.
+- **Some folders are protected**. Writes to folders such as `.git` and `.claude` ask you first in `default` and `acceptEdits`, and are refused in `dontAsk` ([protected paths](https://code.claude.com/docs/en/permission-modes#protected-paths)). I think that's actually a good thing, because the AI can't quietly rewrite its own settings. So when `/automate-me` or `/reflect` writes a skill, expect it to stop here.
 - **Don't turn off every check just to avoid interruptions**. `bypassPermissions` belongs only in an isolated container or VM ([common setups](https://code.claude.com/docs/en/permission-modes#common-setups)).
 
 ### Spending: Set a Cap First

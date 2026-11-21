@@ -31,7 +31,7 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 
 ## What Is mattpocock/skills?
 
-[`mattpocock/skills`](https://github.com/mattpocock/skills) is a complete set of skills published by Matt Pocock. A skill is a set of instructions that tells an AI coding assistant how to do a specific job, such as interviewing you about requirements or breaking a spec into tickets. An AI coding assistant here means a tool such as Claude Code or Codex that can read and write your project files and write code for you.
+[`mattpocock/skills`](https://github.com/mattpocock/skills) is a complete set of skills published by Matt Pocock. I think of a skill as a set of instructions that tells an AI coding assistant how to do a specific job, such as interviewing you about requirements or breaking a spec into tickets. An AI coding assistant here means a tool such as Claude Code or Codex that can read and write your project files and write code for you.
 
 In the [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19), the author says the skills are designed to be small, easy to adapt, and composable. The official plugin's [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) includes 25 skills, and the six parts of this series cover all of them. The repo also has items that are still experimental or not currently promoted; those are outside the series.
 
@@ -44,7 +44,7 @@ Installation and first-time setup are in [Part 1](/posts/mattpocock-skills-setup
 
 ## Best for Team Projects That Span Several Conversations
 
-Going by the six parts, these skills fit best when:
+Going by the six parts, I think these skills fit best when:
 
 - Several people maintain the project, or a feature takes more than one conversation to finish.
 - Your team tracks and hands off work in an issue tracker, such as GitHub Issues.
@@ -110,7 +110,7 @@ The AI asks questions round by round, in the order they depend on each other. Wi
 
 ### Part 3: Spec, Tickets, or More Questions?
 
-Once the requirements are talked through, do you write a spec, break the work into tickets, or go ask the person who has the answer? This part explains which gap each of `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire` fills. The point is to figure out what information is missing first, not to run all five.
+Once the requirements are talked through, do you write a spec, break the work into tickets, or go ask the person who has the answer? This part explains which gap each of `to-spec`, `to-tickets`, `triage`, `wayfinder`, and `to-questionnaire` fills. I think the point is to figure out what information is missing first, not to run all five.
 
 → [Part 3: Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 

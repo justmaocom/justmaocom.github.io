@@ -38,7 +38,7 @@ claude plugin install pstack@cursor-plugins
 
 如果直接用 `/plugin marketplace add cursor/plugins` 安装，拿到的会是安装当下的最新版，而不是固定在你看过的那个版本。这样做有什么风险，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里讲过。
 
-pstack 的文档用 Cursor 的写法。Claude Code 的插件命令要加上插件名称，例如 `/pstack:correct`。下面的示例都用 Claude Code 的写法，在 Cursor 里把 `pstack:` 拿掉就好。
+pstack 的文档用 Cursor 的写法。Claude Code（在终端里使用的 AI 编程助手）的插件命令要加上插件名称，例如 `/pstack:correct`。下面的示例都用 Claude Code 的写法，在 Cursor 里把 `pstack:` 拿掉就好。
 
 这些 skill 都要由你主动调用：pstack 的 58 个 skill 里，除了 `/setup-pstack`，其他都设成不让 AI 自己启动，原则也一样。对应的设置是 `disable-model-invocation: true`。不过 `/poteto-mode` 还是可以按它自己的流程读取并应用相关原则，后面会说明。
 
@@ -211,7 +211,7 @@ flowchart TD
    - 被跳过、或没在真正成品上跑的检查
    - 该启动却没启动的 skill
 2. **只留下长期有用的。** 一项发现要半年后还成立、会改变之后 AI 的做法，而且对应得到这次对话用过的 skill，才会留下。它会先读那个 skill，已经写清楚的就不重复。只发生一次的事，以及 commit 编号、版本、数量这类很快就过时的细节，也会丢掉。该启动却没启动的 skill，它会提议修改那个 skill 的描述（description，AI 用来判断什么时候该用这个 skill 的那段说明）。
-3. **适合用代码强制执行的，放进待办。** 如果某个教训用 lint 规则、脚本或检查来挡会更可靠，就放进 Backlog，而不是写成 skill 里的文字。
+3. **适合用代码强制执行的，放进待办。** 如果某个教训用 lint 规则（自动检查代码写法的规则）、脚本或检查来挡会更可靠，就放进 Backlog，而不是写成 skill 里的文字。
 4. **等你批准。** 它把结果分成三份清单列出来，**你明确同意之前不改任何 skill**。它也不会直接改插件缓存里的 skill，而是先复制到项目或个人的 skill 文件夹再改。它不会开 PR，也不会推送。
 
 三份清单的内容如下：
@@ -226,7 +226,7 @@ Accepted 只是等你批准的建议，不代表已经改了。只批准会改�
 
 ### /correct：让同一种错不可能再发生
 
-你一再为同一种错误纠正 AI 时，该改的是项目，不是你的下一个提示。这时就用 `/correct`。
+你一再为同一种错误纠正 AI 时，我认为该改的是项目，不是你的下一个提示。这时就用 `/correct`。
 
 知道是哪种错时，直接写出来（取自[指南第 9 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/09-make-it-yours.md#L45)）：
 
@@ -256,7 +256,7 @@ flowchart TD
 
 找错误类别时，它会读最近的 commit、还原记录、审查留言、AI 的说明文件，以及解释临时做法的注释。同一类错误至少出现过两次才算数。
 
-用架构挡，指的是让错误不可能发生，例如每个状态只有一个拥有者、只留一种正确做法。用类型、lint 规则或 CI 挡的时候，错误信息要直接写出应该改用什么。文档和 AI 规则放在最后，因为 AI 就算跳过规则，也不会有任何检查失败。
+用架构挡，指的是让错误不可能发生，例如每个状态只有一个拥有者、只留一种正确做法。用类型、lint 规则或 CI（每次推上去就自动跑的检查）挡的时候，错误信息要直接写出应该改用什么。文档和 AI 规则放在最后，因为 AI 就算跳过规则，也不会有任何检查失败。
 
 每个新检查都要证明有效：拿一个真实发生过的错误来试，确认它真的会失败。本地和 CI 跑的是同一个命令。
 
@@ -528,7 +528,7 @@ _界线画在“能不能还原”。写在提示里是第一道防线，权限�
 有几件事要知道：
 
 - **禁止规则连 `bypassPermissions` 也挡得住。** 但在 `bypassPermissions` 下，允许清单没有作用。
-- **有些文件夹受保护。** 写入 `.git`、`.claude` 这类文件夹时，`default` 和 `acceptEdits` 会先问你，`dontAsk` 会直接拒绝（[受保护的路径](https://code.claude.com/docs/en/permission-modes#protected-paths)）。这其实是好事，因为 AI 没办法偷偷改掉自己的设置。所以让 `/automate-me` 或 `/reflect` 写 skill 时，要有心理准备它会在这里停下来。
+- **有些文件夹受保护。** 写入 `.git`、`.claude` 这类文件夹时，`default` 和 `acceptEdits` 会先问你，`dontAsk` 会直接拒绝（[受保护的路径](https://code.claude.com/docs/en/permission-modes#protected-paths)）。我认为这其实是好事，因为 AI 没办法偷偷改掉自己的设置。所以让 `/automate-me` 或 `/reflect` 写 skill 时，要有心理准备它会在这里停下来。
 - **不要为了不被打扰就关掉所有检查。** `bypassPermissions` 只适合放在隔离的容器或虚拟机里（[常见设置](https://code.claude.com/docs/en/permission-modes#common-setups)）。
 
 ### 费用：先设上限

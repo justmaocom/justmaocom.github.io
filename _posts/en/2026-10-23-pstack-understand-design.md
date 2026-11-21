@@ -27,7 +27,7 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 
 pstack is a set of skills in Cursor's official plugin repository. A skill is a set of instructions that tells the AI how to do one kind of job. I covered installing pstack and picking models in [Part 1](/posts/pstack-install-routing/); this post assumes it is already installed.
 
-pstack's docs use Cursor's form, such as `/how`. Claude Code plugin commands carry the plugin name in front, so you type `/pstack:how`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+pstack's docs use Cursor's form, such as `/how`. In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, so you type `/pstack:how`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
 Each of these skills is set so the AI can't invoke it on its own; you have to type the command. The other option is to hand the task to `/pstack:poteto-mode` and let it sequence the work. For example, if your prompt says "don't change any code yet," it runs a read-only investigation, which first traces the code involved and adds `/why` for questions about motivation.
 
@@ -58,7 +58,7 @@ The flow is short:
 2. Whatever the size of the question, it sends a single read-only subagent that reads the code and writes the explanation in one pass. The explanation is for a senior engineer new to this area, who should come away with a solid mental model, enough to start working in it confidently.
 3. It hands you that explanation, with light edits or context from the conversation at most. It doesn't substantially rewrite it.
 
-The skill file doesn't fix the sections. The pstack guide says it covers the runtime flow, the key types, and the non-obvious parts that trip people up. If you want fixed sections, such as "which files to look at before starting," say so in your prompt.
+The skill file doesn't fix the sections. The pstack guide says it covers the runtime flow, the key types (the kinds and shapes of data, such as which fields an order has), and the non-obvious parts that trip people up. If you want fixed sections, such as "which files to look at before starting," say so in your prompt.
 
 When you go through a read-only investigation with `/pstack:poteto-mode`, the result is organized into Overview, Key Concepts, How It Works, Where Things Live, and Gotchas. If the question is a choice between options, you get a recommendation with a tradeoffs table instead.
 
@@ -84,7 +84,7 @@ If you suspect the history explains the mess, you can ask for both at once: "do 
 
 The skill file is a single paragraph. It doesn't say how many subagents to send, which kinds of sources to search, or what sections the report has. As I read it, it asks for three things:
 
-1. **Answers from the record, not by guessing from the code.** It reads the commits and PR discussions that introduced the code, then those for each later change to it.
+1. **Answers from the record, not by guessing from the code.** It reads the commits (a commit is one recorded change in git) and PR (pull request) discussions that introduced the code. Then it reads those for each later change to it.
 2. **Looks at other sources only when that trail is thin.** If you have MCP servers connected, it may use them. An MCP server is a connector that lets the AI use an outside tool, such as an issue tracker, Slack, or Notion.
 3. **Keeps track of who said what.** It cites what the authors wrote, marks its own inferences as inferences, and says what the record doesn't answer.
 
@@ -126,7 +126,7 @@ flowchart TD
   G -->|Same workaround recurs| H["Redesign, don't patch"]
 ```
 
-Both designs contain only types, function signatures, and how modules divide the work. It picks the one that best fits three tests: each piece of state has one owner, each task has one way to do it, and callers need to know the least. When it switches to `/arena`, several subagents each draw one to compare.
+Both designs contain only types, function signatures (a function's name, parameters, and return value), and how modules divide the work. It picks the one that best fits three tests: each piece of state has one owner, each task has one way to do it, and callers need to know the least. When it switches to `/arena`, several subagents each draw one to compare.
 
 The skill file doesn't say what format the design comes in. If you want to see how the two designs compare, why it picked this one, and which questions are yours to decide, ask for them in your prompt, as in the template above.
 
@@ -136,7 +136,7 @@ If the design matters and a mistake would be expensive, you can run `/interrogat
 
 After the code is changed and before you merge, use `/interrogate` to find problems neither you nor the AI noticed. Every finding has to be proven by a run, so it works best on actual code changes. A plan with no code behind it gives it little to break, so settle open questions with prototypes first.
 
-Say what to review: a few files, a diff, or a whole branch. Adding "don't change anything yet" and "no nitpicks" makes the result more useful:
+Say what to review: a few files, a diff (the lines that changed between two versions), or a whole branch (a line of development in git). Adding "don't change anything yet" and "no nitpicks" makes the result more useful:
 
 ```text
 /pstack:interrogate the whole branch, but skeptically. don't change anything yet. no nitpicks unless it's an actual bug or regression in behavior.
@@ -180,7 +180,7 @@ State the task, why it matters, and how many candidates you want. The more the d
 /pstack:arena <the task>. this matters because <it's hard to change later / it affects many places>. <N> candidates, own worktree per attempt.
 ```
 
-Each candidate gets its own place to work, a git worktree where possible. Parallel AIs sharing one working directory overwrite each other, and nobody can tell who changed what, so you can ask for it in your prompt as above.
+Each candidate gets its own place to work, a git worktree where possible, meaning a separate working copy of the same project. Parallel AIs sharing one working directory overwrite each other, and nobody can tell who changed what, so you can ask for it in your prompt as above.
 
 For example:
 
@@ -463,7 +463,7 @@ Handle the Findings first, then read Dropped too.
 
 ## Which One When
 
-The pstack guide starts with an important point: **most changes need none of these.** Here is its rough ladder, to which I've added `/how`, `/why`, `/teach`, and `/recall`:
+The pstack guide starts with a point I think is important: **most changes need none of these.** Here is its rough ladder, to which I've added `/how`, `/why`, `/teach`, and `/recall`:
 
 | Situation | Use |
 | --- | --- |

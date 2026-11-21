@@ -31,7 +31,7 @@ Passing tests only mean the code behaves the way the tests say. Three things rem
 > - [`v1.3.0` removed `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1), and the official note says nothing replaces it.
 > - The same release renamed the glossary file `CONTEXT.md` to `GLOSSARY.md`.
 >
-> To stay consistent with the first four parts, this post still uses [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
+> To stay consistent with the first four parts, this post still uses [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the skill invocations in the per-seat billing example from the original instructions. The merge conflict and the post-merge test failure come from commands I actually ran.
 {: .prompt-warning }
 
 ## Three Terms First
@@ -89,7 +89,7 @@ _The same seat feature: five buttons to remember on the left, three on the right
 3. **Tests press the same buttons as users.** If you want to reach past the buttons to test the insides, the module is cut the wrong way.
 4. **A socket only one plug ever fits isn't really a socket.** "We might swap it someday" isn't a reason. Only leave a seam when at least two things actually plug in, such as the real version and a fake one for tests.
 
-The situation rule 4 describes comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
+I think the situation rule 4 describes comes up a lot. People often add an extra layer "in case we change databases later," and the project only ever uses one. By this rule, that layer just makes the code take a detour.
 
 ### Two Appendices
 
@@ -100,7 +100,7 @@ The situation rule 4 describes comes up a lot. People often add an extra layer "
 
 ## `improve-codebase-architecture`: A Regular Health Check for the Project
 
-If `codebase-design` is the toolbox you tidy with, `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
+I think of `codebase-design` as the toolbox you tidy with; `improve-codebase-architecture` is [walking the site first to find what's worth tidying](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52). Its goal is to [turn shallow modules into deep ones](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9), so the code is easier to test and easier for AI to understand.
 
 It works in three steps. The two branches at the end of the diagram are the two ways step 3 can end:
 
@@ -361,7 +361,7 @@ export function deactivateMember(workspace, memberId, billing) {
 ```
 {: file="seats.js (resolved)" }
 
-The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging. So I'd put it in the merge commit message, where you'll see it during review.
+The order matters too: check whether the member exists first, and stop right there if not, so billing never gets a notification for a count that didn't change. Neither commit says this; it's a call the AI made while merging. So I think it belongs in the merge commit message, where you'll see it during review.
 
 Then, per step 4, run the tests. The test from the previous post, run with `node --test seats.test.js`, calls `deactivateMember()` without passing in a billing system.
 

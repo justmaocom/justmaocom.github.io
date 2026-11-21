@@ -59,7 +59,7 @@ Pulling together what I wrote across the four posts, this skill set fits situati
 - You want "prove it works" to be a routine: reproduce, clean up, check the blast radius, exercise the change with a verification skill, open a PR, and press merge yourself ([Part 3](/posts/pstack-build-verify-merge/)).
 - You want to steer mid-task with principle names, turn your habits into your own mode, and let it run unattended within permission and spending limits ([Part 4](/posts/pstack-principles-customization/)).
 
-You don't need the whole set in cases like these:
+On the other hand, I don't think you need the whole set in cases like these:
 
 - **Small, obvious changes**: just tell the AI; you don't need pstack. Parts 1 and 2 both say so, and Part 2 says outright that most changes don't need those tools.
 - **You don't want to spend extra usage on a careful process**: pstack sends out subagents and assembles reviewers. The more they read and write, the more usage you burn (see the caveats in Parts 1 and 2).

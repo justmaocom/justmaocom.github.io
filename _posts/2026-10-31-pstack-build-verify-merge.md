@@ -29,7 +29,7 @@ AI 程式助理改完程式，常常回一句「改好了，應該沒問題」�
 
 pstack 是 Cursor 官方外掛庫裡的一整組 skill，skill 是告訴 AI 怎麼完成某類工作的操作說明。安裝方法寫在[第 1 篇](/posts/pstack-install-routing/)，改程式之前怎麼看懂和設計寫在[第 2 篇](/posts/pstack-understand-design/)，這篇假設你已經裝好了。
 
-Claude Code 的外掛指令要加上外掛名稱，例如 `/pstack:tdd`。下面的範例都用 Claude Code 的寫法，在 Cursor 裡把 `pstack:` 拿掉就好。
+Claude Code（在終端機裡使用的 AI 程式助理）的外掛指令要加上外掛名稱，例如 `/pstack:tdd`。下面的範例都用 Claude Code 的寫法，在 Cursor 裡把 `pstack:` 拿掉就好。
 
 這篇的工具分成兩種，叫法不一樣：
 
@@ -111,7 +111,7 @@ flowchart TD
 
 commit 的順序是：會失敗的重現（例如一個測試）先進 git 歷史，修正排在它後面。bug 有低成本的本機測試路徑時，照 `/tdd` 的節奏做；測試很貴、要動用一大堆環境，或不清楚怎麼測時，就跳過。
 
-整個過程有一條最值得記住的規則：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下。證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
+整個過程有一條規則，我覺得最值得記住：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下。證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
 
 它的回覆會說明哪裡壞了、根本原因、怎麼修、怎麼驗證，並**原文貼上修之前失敗、修之後通過的重現輸出**。自己讀一遍那段前後輸出，確認失敗的原因真的是你回報的那個 bug。預設流程會接著開 PR；如果你要求它先停下，就在確認證據後再讓它繼續。
 
@@ -163,7 +163,7 @@ flowchart TD
 
 ### /tdd：先寫一個會失敗的測試
 
-你明確想要 TDD、一個會失敗的測試或回歸測試，或是 bug 有明顯又低成本的本機測試可以寫時，用 `/tdd`（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
+你明確想要 TDD（先寫測試再寫程式）、一個會失敗的測試或回歸測試，或是 bug 有明顯又低成本的本機測試可以寫時，用 `/tdd`（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)）。測試路徑不清楚、很貴、要整合一大堆環境時，不要用。
 
 對話裡已經有 bug 的前後文時，輸入下面這行就夠（[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L43-L51)）：
 
@@ -203,7 +203,7 @@ flowchart TD
 - 依賴時間
 - 證明完修好就會被刪掉
 
-你會拿到修之前失敗的測試（或檢查）叫什麼、它產生了什麼失敗，以及修之後通過的那次執行。如果沒辦法示範「修之前會失敗」，它會說明原因和改用的檢查。接著清理 diff，再開 PR。
+你會拿到修之前失敗的測試（或檢查）叫什麼、它產生了什麼失敗，以及修之後通過的那次執行。如果沒辦法示範「修之前會失敗」，它會說明原因和改用的檢查。接著清理 diff（diff 是兩個版本之間改了哪些行），再開 PR。
 
 ## 清理：讓 diff 好審
 
@@ -290,7 +290,7 @@ flowchart TD
 
 你自己程式裡令人意外的地方，不會因為有註解就過關。它會標成 `MUST KILL`，要求用改名、抽出函式或改型別的方式，讓程式不用註解也看得懂。
 
-宣告限制的註解，像是「不要刪」「改之前先找某某人」。它會提議用成本最低的方式把這個限制寫進程式，例如型別、執行時檢查、測試或 lint 規則，**等你同意**才做。
+宣告限制的註解，像是「不要刪」「改之前先找某某人」。它會提議用成本最低的方式把這個限制寫進程式，例如型別、執行時檢查、測試或 lint 規則（自動檢查程式寫法的規則），**等你同意**才做。
 
 Comment Sicko 交回報告之後，接著這樣處理：
 
@@ -436,7 +436,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 /pstack:maintain-verification-skill
 ```
 
-指南說的排程自動化指的是 Cursor Automations。pstack 的 Claude Code 對照說明寫明，在 Claude Code 裡遇到這一步就略過（[對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)）。Claude Code 有自己的排程任務，但 pstack 沒有提供設定方式，所以最簡單的做法是自己定期跑。
+指南說的排程自動化指的是 Cursor Automations。pstack 的 Claude Code 對照說明寫明，在 Claude Code 裡遇到這一步就略過（[對照說明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)）。Claude Code 有自己的排程任務，但 pstack 沒有提供設定方式，所以我認為最簡單的做法是自己定期跑。
 
 它的流程如下（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md#L23-L37)）：
 
@@ -493,9 +493,9 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
    - Tradeoffs（取捨，只寫審查者會問到、但沒有採用的做法）
    - Blast Radius（影響範圍）
    - Verification（驗證）
-6. **預設用 `gh` 開 PR**，而且直接開成可以審查的狀態，不開草稿。
+6. **預設用 `gh`（GitHub 的命令列工具）開 PR**，而且直接開成可以審查的狀態，不開草稿。
 
-**它不會在開完 PR 之後自動開始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI 失敗或有審查留言要處理時，要你開口叫 babysit。指南也建議，後續的修改另開一個疊在上面的 PR，不要讓同一個分支越長越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
+**它不會在開完 PR 之後自動開始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI（每次推上去就自動跑的檢查）失敗或有審查留言要處理時，要你開口叫 babysit。指南也建議，後續的修改另開一個疊在上面的 PR，不要讓同一個分支越長越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
 
 PR 開好之後，先自己讀一遍說明裡的 Verification。
 
@@ -524,7 +524,7 @@ PR 開了之後，CI 失敗、審查者留言、main 往前走造成衝突，這
 處理時它遵守這些規則：
 
 - **一次只清一個 PR。** 同時有好幾個 PR 時，一個處理完，才換下一個。
-- **不改 PR 的結構。** 不 rebase、不改目標分支、不 force push。需要 rebase 的情況，它會回報給你，讓 PR 的主人自己做。
+- **不改 PR 的結構。** 不 rebase（把分支的 commit 改接到新的基準上）、不改目標分支、不 force push（強制覆蓋遠端分支的歷史）。需要 rebase 的情況，它會回報給你，讓 PR 的主人自己做。
 - **順序是衝突、審查留言、CI。** 遇到衝突時，它不會自行解決，而是說哪個分支需要 rebase，然後停下來。
 - **用 `watch-pr` 查 GitHub 上的狀態。** 這是 pstack 附的腳本，只支援 GitHub。`drive` 模式會一直監看到出現最終結果，`check` 模式加上 `--status-only`，只看一次。
 - **CI 的偶發失敗只重跑一次。** 偶發失敗（flake）是程式沒改、有時通過有時失敗的情況，它只重新跑一次建置。只有這次改動自己的程式造成的失敗，才會為它提交修正。
@@ -536,9 +536,9 @@ PR 開了之後，CI 失敗、審查者留言、main 往前走造成衝突，這
 
 **babysit 從不合併，就算全部都綠了也一樣**（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L150)）。只有你明確說「合併」「上線」，才會轉到另一個叫 Shipping 的 playbook（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L27)）。Shipping 會先逐一獨立驗證每個 PR，再從最底下開始一個一個合併（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
 
-> 叫 babysit，會讓 AI 在你的電腦上從網路下載並安裝套件。`watch-pr` 是用 bun（一個 JavaScript 執行環境）執行的腳本。**第一次執行時**，它會在外掛資料夾裡的 `skills/poteto-mode/scripts/` 跑 `bun install --frozen-lockfile`。這個指令會依照 lockfile 從 npm 下載它需要的套件，裝進那裡的 `node_modules`。
+> 叫 babysit，會讓 AI 在你的電腦上從網路下載並安裝套件。`watch-pr` 是用 bun（一個 JavaScript 執行環境）執行的腳本。**第一次執行時**，它會在外掛資料夾裡的 `skills/poteto-mode/scripts/` 跑 `bun install --frozen-lockfile`。這個指令會依照 lockfile（鎖定每個套件確切版本的檔案）從 npm 下載它需要的套件，裝進那裡的 `node_modules`。
 >
-> 之後外掛更新時，如果改到套件清單（`package.json`）或 lockfile，它會再裝一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。lockfile 固定了版本，但你還是應該知道這件事。風險和怎麼收權限，我在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過。
+> 之後外掛更新時，如果改到套件清單（`package.json`）或 lockfile，它會再裝一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。lockfile 固定了版本，但我認為你還是應該知道這件事。風險和怎麼收權限，我在〈[裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)〉談過。
 {: .prompt-warning }
 
 `drive` 正常完成時，會回報 PR 已可合併，以及處理過的留言、CI 失敗與判斷依據。遇到需要你處理的衝突或核准，則會說明目前卡在哪裡。`check` 則是交回一份狀態報告。

@@ -13,7 +13,7 @@ image:
 
 如果我讓兩個 coding agent（會自己讀檔、改檔、跑指令的 AI 程式助理）在同一個資料夾各做各的，等於兩個人共用一張桌子、一台電腦。一個 AI 切到別的分支（一條獨立的修改路線）時，資料夾裡的檔案會換成那條分支的版本，另一個 AI 做到一半的檔案就跟著變了。
 
-更好的做法是讓同一個 repo（放專案檔案和完整修改歷史的儲存庫）長出第二、第三個工作目錄，每個都停在自己的分支上。這就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
+我認為更好的做法是讓同一個 repo（放專案檔案和完整修改歷史的儲存庫）長出第二、第三個工作目錄，每個都停在自己的分支上。這就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
 
 這篇只談怎麼把工作目錄隔開，以及做完怎麼合併、收尾，不比較各家 AI 工具。若你在想「一次讓多個 AI 平行做事」在流程上是什麼意思，我在[AI 寫程式變快了，產品為什麼還是交不出去？我怎麼理解 AI 原生開發流程](/posts/ai-native-sdlc-playbook/)談過。
 
@@ -50,7 +50,7 @@ linked worktree 頂層的 `.git` [不是一個完整的資料夾，而是一個�
 > git config extensions.worktreeConfig true
 > ```
 >
-> 再用 `git config --worktree` 寫入。[手冊提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：舊版 Git 會拒絕讀取開了這個擴充的 repo。一般情況用共用的設定就夠了。
+> 再用 `git config --worktree` 寫入。[手冊提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：舊版 Git 會拒絕讀取開了這個擴充的 repo。我認為一般情況用共用的設定就夠了。
 {: .prompt-tip }
 
 ## 什麼時候該用、什麼時候不用
@@ -441,7 +441,7 @@ git worktree repair
 
 ## 結論
 
-下次要讓兩個 AI 同時動手，先用 `git worktree add -b` 各開一個資料夾，做完合併回 `main`，再收掉資料夾和分支。repo 裡若有 submodule（最上層有 `.gitmodules`），我就不會用這個方法。
+下次要讓兩個 AI 同時動手，先用 `git worktree add -b` 各開一個資料夾，做完合併回 `main`（或推上去開 PR），再收掉資料夾和分支。repo 裡若有 submodule（最上層有 `.gitmodules`），我就不會用這個方法。
 
 ## 延伸閱讀
 

@@ -66,7 +66,7 @@ On the `ask-matt` roadmap, [`handoff` sits under "phase boundaries"](https://git
 2. Use only primary sources. Every claim has to be traced back to where it really comes from, not to someone's retelling.
 3. Write the results as a Markdown note (a plain-text file formatted with simple symbols), with a source for every claim. Save it where the project usually keeps notes; if there's no such place, pick a sensible one and say where.
 
-The reason to insist on primary sources is that tutorials online are often written for one particular version, and they go stale when the version changes. It's like asking for directions: a passer-by saying "turn left up ahead, I think" is far less reliable than opening the map yourself.
+The reason to insist on primary sources is that tutorials online are often written for one particular version, and they go stale when the version changes. I think of it like asking for directions: a passer-by saying "turn left up ahead, I think" is far less reliable than opening the map yourself.
 
 ![On the left, a chain of hearsay: a forum post cites a blog, which cites another tutorial, drifting further with each retelling; on the right, official docs, source code, and a spec are read directly and turned into a note with a source for every line; the bottom reads "Trace every claim to its original source"](research-primary-sources.webp){: width="800" height="450" }
 _Second-hand articles drift with every retelling; primary sources are the current rules._
@@ -87,7 +87,7 @@ It has just [five rules](https://github.com/mattpocock/skills/blob/c55ee46073ed9
 4. Redact anything sensitive, such as passwords, keys, and personal data.
 5. If you said what the next session is for when calling it, tailor the sheet to that.
 
-Rule 3 matters most. A handoff sheet has to be short for anyone to read it. Copying the spec in not only makes it longer; the two copies can later drift apart.
+I think rule 3 matters most. A handoff sheet has to be short for anyone to read it. Copying the spec in not only makes it longer; the two copies can later drift apart.
 
 ![On the left, a long conversation log that still hasn't reached the point after scrolling top to bottom; on the right, a handoff sheet with just four parts: "where we are," "next step," "suggested skills," and "links," with passwords blacked out; the bottom reads "The handoff sheet holds only what the next person needs; link the rest"](handoff-note.webp){: width="800" height="450" }
 _The next person doesn't need the whole conversation, just a sheet that states where things are and what's next._
@@ -206,7 +206,7 @@ The biggest time cost is `teach`, because learning takes your own effort, and no
 
 ## Walkthrough: Research, Handoff, and Key Setup for Per-Seat Billing
 
-The wizard script in this section is a minimal example I wrote for this post from the `1.2.3` template. I ran a syntax check on it with bash 5.2.37.
+I inferred the flow below from the `1.2.3` instructions. The wizard script in this section is a minimal example I wrote for this post from the `1.2.3` template. I ran a syntax check on it with bash 5.2.37.
 
 ### First, Pin Down the Proration Rules
 

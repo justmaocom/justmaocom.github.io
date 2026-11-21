@@ -17,7 +17,7 @@ When a coding agent changes a web page and only reads the code, it can't see whe
 
 This post tests it on a small local newsletter form and on a copy I broke on purpose. Then it hands the check to an AI and limits which domains the AI can visit and which actions it can take. The source of both demo pages is in the post, so you can repeat every step.
 
-> Based on the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) at the agent-browser v0.43.0 tag, plus four official docs pages: [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version.
+> The official material I checked is the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) at the agent-browser v0.43.0 tag, plus four official docs pages: [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version.
 >
 > I ran the test on 2026-11-19 (Taipei time) on a Debian 13 (x86_64) machine. I used agent-browser 0.43.0 and the Chrome for Testing 158.0.8127.36 build it downloaded. That day, 0.43.0 was the release GitHub marked as Latest, published on 2026-11-13 Taipei time. GitHub lists 10 releases from v0.39.1 (2026-10-14 Taipei time) through 0.43.0, so check your version before you follow along:
 >

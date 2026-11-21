@@ -31,7 +31,7 @@ mermaid: true
 
 ## mattpocock/skills 是什么
 
-[`mattpocock/skills`](https://github.com/mattpocock/skills) 是 Matt Pocock 公开的一整套 skill。skill 是一份告诉 AI 编程助手怎么完成某项工作的操作说明，比如怎么访谈需求，或者怎么把规格拆成一张张工作单。这里的 AI 编程助手，指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的工具。
+[`mattpocock/skills`](https://github.com/mattpocock/skills) 是 Matt Pocock 公开的一整套 skill。我会把 skill 理解成一份告诉 AI 编程助手怎么完成某项工作的操作说明，比如怎么访谈需求，或者怎么把规格拆成一张张工作单。这里的 AI 编程助手，指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的工具。
 
 作者在 [README](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md#L19) 里说，这些 skill 刻意做得小、容易改，也能自由组合。官方插件的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47) 收录了 25 个 skill，这个系列的六篇正好把它们都介绍了一遍。仓库里另外还有仍在试验或目前不主动推广的条目，不在系列范围内。
 
@@ -44,7 +44,7 @@ mermaid: true
 
 ## 适合多人、跨多次对话的项目
 
-从六篇的内容来看，这套 skill 最适合下面这类项目：
+从六篇的内容来看，我认为这套 skill 最适合下面这类项目：
 
 - 由好几个人一起维护，或者一个功能要分好几次对话才能做完。
 - 用工作跟踪工具（比如 GitHub Issues）记录待办事项、交接工作。
@@ -110,7 +110,7 @@ AI 会按问题的先后关系一轮一轮地问。用 `grill-with-docs` 时，�
 
 ### 第 3 篇：先找出缺口，再决定要写规格还是拆工作单
 
-需求谈完了，下一步是写规格、拆工作单，还是去问掌握答案的人？这篇说明 `to-spec`、`to-tickets`、`triage`、`wayfinder` 和 `to-questionnaire` 各自补哪一种缺口。关键是先看缺的是哪种信息，而不是把五个都跑一遍。
+需求谈完了，下一步是写规格、拆工作单，还是去问掌握答案的人？这篇说明 `to-spec`、`to-tickets`、`triage`、`wayfinder` 和 `to-questionnaire` 各自补哪一种缺口。我认为关键是先看缺的是哪种信息，而不是把五个都跑一遍。
 
 → [第 3 篇：先找出缺口，再决定要写规格还是拆工作单](/posts/mattpocock-skills-specs-work-breakdown/)
 

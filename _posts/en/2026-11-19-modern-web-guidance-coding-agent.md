@@ -19,7 +19,7 @@ Before writing web code, the agent looks up a guide. The guide tells it which HT
 
 In this post I wrote a small guestbook page, scanned it with `legacy-scan`, had Claude Code fix it using the guides, and compared the before and after versions in a browser. Then I ran it again on another machine, with a different sample and Codex.
 
-> Based on the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README, SKILL.md, and CLI source inside the npm package version 1.0.1. I read them on 2026-11-19 and checked them again on 2026-11-20 when I updated this post.
+> The official sources I checked are the [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance), the [1.0 announcement](https://developer.chrome.com/blog/modern-web-guidance-v1) (published 2026-11-10), [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow), and the README, SKILL.md, and CLI source inside the npm package version 1.0.1. I read them on 2026-11-19 and checked them again on 2026-11-20 when I updated this post.
 >
 > I ran the tests on 2026-11-19 (Taipei time) on macOS with Node.js 25.2.1 and npm 11.6.2. The agent was Claude Code 2.1.328, with model `claude-opus-5-5`. I used modern-web-guidance 1.0.1, which was tagged latest on npm that day. The `skills` package that the installer pulled in was 1.9.0.
 >

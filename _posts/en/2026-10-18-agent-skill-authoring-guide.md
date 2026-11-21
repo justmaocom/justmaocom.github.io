@@ -103,7 +103,7 @@ The tools also react differently when a field is wrong or extra:
 Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
 ```
 
-That's the trap: a mistake in Claude Code gets no warning, and the error shows up only when you upload the same skill somewhere else. So the safest choice is to **use only the six spec fields**, and the cross-agent checks later in this post build on that.
+That's the trap: a mistake in Claude Code gets no warning, and the error shows up only when you upload the same skill somewhere else. So I think the safest choice is to **use only the six spec fields**, and the cross-agent checks later in this post build on that.
 
 ## The description decides whether it gets picked
 
@@ -273,11 +273,11 @@ A's script follows the [agentskills.io scripts guide](https://agentskills.io/ski
 
 | What the guide asks | What A's script does |
 | --- | --- |
-| No interactive prompts (agents run in a non-interactive shell, and waiting for input hangs) | Reads the message from a file, or from stdin with `-`; never stops to ask |
+| No interactive prompts (agents run in non-interactive shells, and a script waiting for input hangs) | Reads the message from a file, or from stdin with `-`; never stops to ask |
 | Provide `--help` | `--help` lists both usages, the options, the output format, the exit codes and examples |
 | Error messages say what's wrong and how to fix it | e.g. `write the type in lowercase: 'fix'` |
 | Data to stdout, diagnostics to stderr | The result is always one JSON object; notes like "nothing is staged" and errors go to stderr |
-| Meaningful exit codes, documented in `--help` | 0 passed (or something is staged), 1 problems found (or nothing staged), 2 usage error |
+| Meaningful exit codes, documented in `--help` | 0 passed (or something is staged), 1 problems found (or nothing is staged), 2 usage error |
 | Predictable output size | Returns only the header and the list of problems, never the whole diff |
 
 The full `--help` text is the docstring at the top of the script in the appendix.
@@ -772,7 +772,7 @@ I covered the risks of installing other people's skills, and how users should ch
 - **Pin dependency versions.** The scripts guide asks for [versions on one-off commands](https://agentskills.io/skill-creation/using-scripts#one-off-commands), so the same command gives the same result later. With `npx`, for example, pin ESLint to 9.0.0 instead of writing just `npx eslint`. npm's [package spec docs](https://docs.npmjs.com/cli/using-npm/package-spec/) show how.
 - **Offer `--dry-run` for operations that change things.** The scripts guide suggests [letting the agent preview](https://agentskills.io/skill-creation/using-scripts#further-considerations) destructive or state-changing operations. A's script only reads git state and never writes files. The one command that changes things, `git commit`, lives outside the script and runs only when the user asks, so the script doesn't need this flag.
 
-Users will review your skill like any other software. What you can do is make it easy to review: few files, scripts whose purpose is obvious, and nothing that reaches outside.
+Users will review your skill like any other software. I think what you can do is make it easy to review: few files, scripts whose purpose is obvious, and nothing that reaches outside.
 
 ## My take
 

@@ -103,7 +103,7 @@ description: A description of what this skill does and when to use it.
 Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
 ```
 
-麻烦就在这里：在 Claude Code 里写错，没有人会提醒你，等你想把同一个 skill 上传到别的地方，才会出错。所以最稳妥的做法是**只用规范的六个字段**，后面“换一个 Agent”的检查也建立在这一点上。
+麻烦就在这里：在 Claude Code 里写错，没有人会提醒你，等你想把同一个 skill 上传到别的地方，才会出错。所以我认为最稳妥的做法是**只用规范的六个字段**，后面“换一个 Agent”的检查也建立在这一点上。
 
 ## Description 决定它会不会被调出来
 
@@ -158,7 +158,7 @@ description: Turns meeting notes or a meeting transcript into a to-do list of ta
 它的三句各做一件事：
 
 - 第一句说清楚产出是“有负责人和截止日期的待办”，不是会议总结。
-- 第二句列出用户实际会怎么说（笔记、文字记录、谁要做什么、后续跟进），包括没说“action items”这个词的时候。
+- 第二句列出用户实际会怎么说（笔记、纪要、逐字稿、谁负责什么、后续跟进），包括没说“action items”这个词的时候。
 - 最后一句把三个最像的请求排除掉。
 
 我拿几条查询来对照：
@@ -265,11 +265,11 @@ A 的脚本按照 [agentskills.io 的脚本指南](https://agentskills.io/skill-
 
 | 指南的要求 | A 的脚本怎么做 |
 | --- | --- |
-| 不能有交互式提问（agent 跑的是非交互 shell，等输入会一直卡住） | 信息从文件读取，或用 `-` 从标准输入读取，不会停下来提问 |
+| 不能有交互式提问（agent 跑的是非交互式 shell，等输入会一直卡住） | 信息从文件读取，或用 `-` 从标准输入读取，不会停下来提问 |
 | 提供 `--help` | `--help` 列出两种用法、参数、输出格式、exit code 和示例 |
 | 错误信息要说清楚哪里错、该怎么改 | 比如 `write the type in lowercase: 'fix'` |
 | 数据输出到 stdout，诊断信息输出到 stderr | 结果一律是一个 JSON 对象；“暂存区是空的”这类提醒和错误写到 stderr |
-| exit code 有意义，并写在 `--help` 里 | 0 通过（或暂存区里有东西）、1 有问题（或暂存区是空的）、2 用法错误 |
+| exit code 有意义，并写在 `--help` 里 | 0 通过（或暂存区有内容）、1 有问题（或暂存区是空的）、2 用法错误 |
 | 输出长度可以预期 | 只返回第一行和问题列表，不把整份 diff 打印出来 |
 
 完整的 `--help` 说明，就是附录里脚本开头那段文字。
@@ -644,7 +644,7 @@ Claude Code 的文档用的是[同一个思路](https://code.claude.com/docs/en/
 
 我给 A 写了 20 条查询，10 条该触发、10 条不该触发。训练集 12 条、验证集 8 条，两组里该触发和不该触发的各占一半。
 
-`split` 是我自己加的字段，用来把分组固定下来，指南的示例格式只有 `query` 和 `should_trigger`。完整的 JSON 在附录，这里挑几条：
+`split` 是我自己加的字段，用来把分组固定下来，指南的示例格式只有 `query` 和 `should_trigger`。完整的 JSON 在附录里（查询原文是繁体中文和英文），这里挑几条：
 
 | 查询 | 该触发吗 | 为什么挑它 |
 | --- | --- | --- |
@@ -674,7 +674,7 @@ Claude Code 的文档用的是[同一个思路](https://code.claude.com/docs/en/
 
 两个 `.diff` 文件都是我从前面那个临时 repo，实际用 `git show` 和 `git diff --cached` 导出的，不是手写的。其中 `mixed-changes.diff` 是在前面那次 commit 之后，我又在同一个 repo 加了登出功能，连同 README 的改动一起加进暂存区后导出的。
 
-每道题要跑两次，一次有 skill，一次没有；改版时则用旧版当对照。每次都要从干净的 context 开始。
+每道题要跑两次，一次有 skill，一次没有；改版时则用旧版做对照。每次都要从干净的 context 开始。
 
 assertion 要能客观判断，像“输出是合法的 JSON”就比“输出很好”有用。指南也提到，机械性的检查用脚本做，比让 LLM 判断更可靠。以 A 来说，“信息通过检查”我会直接用 A 自己的脚本判断；“没有运行 `git commit`”对比前后的 `git log -1` 就知道，不必让 AI 打分。
 
@@ -760,7 +760,7 @@ flowchart TD
 - **依赖要锁定版本。** 脚本指南要求[一次性命令写明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，这样同一个命令隔一段时间再运行，结果也会一样。比如用 `npx` 时明确指定 ESLint 用 9.0.0 版，不要只写 `npx eslint`，指定版本的写法见 npm 的 [package spec 文档](https://docs.npmjs.com/cli/using-npm/package-spec/)。
 - **会改东西的操作要提供 `--dry-run`。** 脚本指南建议，破坏性或会改变状态的操作，[让 agent 能先预览会发生什么](https://agentskills.io/skill-creation/using-scripts#further-considerations)。A 的脚本只读 git 的状态、从不写文件，真正会改东西的 `git commit` 不在脚本里，而是留到用户要求时才运行，所以脚本不需要这个参数。
 
-用户会把你的 skill 当成软件来审查，你能做的，就是让它好审查：文件少、每个脚本做什么一看就懂、没有连到外部的东西。
+用户会把你的 skill 当成软件来审查，我认为你能做的，就是让它好审查：文件少、每个脚本做什么一看就懂、没有连到外部的东西。
 
 ## 我的判断
 
@@ -770,7 +770,9 @@ flowchart TD
 
 **能写成脚本的规则就写成脚本，要判断的事就留给文字。** B 这种整件事都要读懂句子的 skill，硬写脚本只会更不可靠，给它一份模板就够了。
 
-**为了跨 agent，宁可放弃一些方便的字段。** `when_to_use`、`disable-model-invocation` 在 Claude Code 里都很好用，但一写进 `SKILL.md`，就过不了 skills-ref 和 claude.ai 上传。如果这个 skill 只给自己在 Claude Code 里用，写了也没关系；要给团队、跨工具用，我会只用六个字段。
+**为了跨 agent，宁可放弃一些方便的字段。** `when_to_use`、`disable-model-invocation` 在 Claude Code 里都很好用，但一写进 `SKILL.md`，就过不了 skills-ref 和 claude.ai 上传。
+
+如果这个 skill 只给自己在 Claude Code 里用，写了也没关系；要给团队、跨工具用，我会只用六个字段。
 
 **没跑过触发测试的 description，只是一个猜测。** 写好题目之后，要在真正的 agent 里跑过，才知道有人问“这次改动要怎么描述”的时候，A 会不会被调出来。
 

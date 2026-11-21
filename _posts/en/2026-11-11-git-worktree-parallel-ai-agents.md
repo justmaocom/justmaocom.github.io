@@ -13,7 +13,7 @@ image:
 
 Suppose I let two coding agents (AI assistants that can read files, edit them, and run commands) work on different tasks in the same folder. That is like two people sharing one desk and one computer. When one agent switches to another branch (a separate line of work), the files in the folder are replaced with that branch's version, and the files the other agent is halfway through change as well.
 
-A better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory. Each one is checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
+I think a better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory. Each one is checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
 
 This post only covers isolating those working directories, merging the work back, and cleaning up afterward. It does not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, I covered that in [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/).
 
@@ -50,7 +50,7 @@ In other words, a linked worktree folder is not a complete repository on its own
 > git config extensions.worktreeConfig true
 > ```
 >
-> Then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, shared configuration is enough.
+> Then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, I think shared configuration is enough.
 {: .prompt-tip }
 
 ## When to Use It, and When Not To
@@ -439,7 +439,7 @@ git worktree repair
 
 ## Conclusion
 
-The next time two AI agents need to work at once, start with `git worktree add -b` so each gets its own folder, merge the work back into `main`, then remove the folders and branches. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
+The next time two AI agents need to work at once, start with `git worktree add -b` so each gets its own folder. Merge the work back into `main` (or push it and open a PR), then remove the folders and branches. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
 
 ## Further Reading
 

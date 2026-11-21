@@ -31,7 +31,7 @@ This post shows how pstack makes "prove it works" part of the process: you repro
 
 pstack is a set of skills in Cursor's official plugin repository, where a skill is a set of instructions that tells the AI how to do one kind of job. [Part 1](/posts/pstack-install-routing/) covers installing it, and [Part 2](/posts/pstack-understand-design/) covers understanding and designing before you change code. This post assumes it is already installed.
 
-In Claude Code, plugin commands carry the plugin name in front, such as `/pstack:tdd`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
+In Claude Code (an AI coding assistant you use in a terminal), plugin commands carry the plugin name in front, such as `/pstack:tdd`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
 This post uses two kinds of tools, and you call them differently:
 
@@ -113,7 +113,7 @@ The implementation goes to a subagent, a separate AI a skill sends off to do par
 
 Commits go in this order: the failing reproduction (for example, a test) goes into git history first, and the fix comes after it. When the bug has a cheap local test path, it follows the `/tdd` cadence; when testing is expensive, needs a lot of setup, or the test path is unclear, it skips that.
 
-One rule runs through the whole process and is the one most worth remembering: **every line of the change that stays must trace back to runtime evidence**. A "might help" defensive tweak is only a hypothesis and doesn't stay. If evidence disproves a hypothesis, the code changed because of it gets reverted too ([bug-fix playbook, line 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)).
+One rule runs through the whole process, and I think it's the one most worth remembering: **every line of the change that stays must trace back to runtime evidence**. A "might help" defensive tweak is only a hypothesis and doesn't stay. If evidence disproves a hypothesis, the code changed because of it gets reverted too ([bug-fix playbook, line 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)).
 
 Its reply explains what was broken, the root cause, the fix, and how it was verified, with **the reproduction output pasted verbatim, failing before the fix and passing after it**. Read that before-and-after output yourself and confirm the failure is really the bug you reported. The default flow opens a PR next; if you asked it to pause, review the evidence before letting it continue.
 
@@ -165,7 +165,7 @@ Its reply covers what it did, what it chose and why, the four split checks, and 
 
 ### /tdd: Write a Failing Test First
 
-Use `/tdd` when you explicitly want TDD, a failing test, or a regression test, or when the bug has an obvious, cheap local test to write ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)). Skip it when the test path is unclear, expensive, or needs a lot of integration setup.
+Use `/tdd` when you explicitly want TDD (writing the test before the code), a failing test, or a regression test, or when the bug has an obvious, cheap local test to write ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)). Skip it when the test path is unclear, expensive, or needs a lot of integration setup.
 
 When the chat already has the bug's context, this line is enough ([chapter 5 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L43-L51)):
 
@@ -205,7 +205,7 @@ When a failing test isn't worth writing, it uses the closest runnable check inst
 - depends on timing
 - only proves the fix and then gets deleted
 
-You get the name of the test (or check) that failed before the fix and the failure it produced, plus the passing run after the fix. If it can't show a failure before the fix, it explains why and which check it used instead. Next, clean the diff, then open the PR.
+You get the name of the test (or check) that failed before the fix and the failure it produced, plus the passing run after the fix. If it can't show a failure before the fix, it explains why and which check it used instead. Next, clean the diff (a diff is the set of lines that changed between two versions), then open the PR.
 
 ## Clean: Make the Diff Easy to Review
 
@@ -292,7 +292,7 @@ It lets only these five kinds of comments through:
 
 Surprising parts of your own code don't pass just because they have a comment. It marks them `MUST KILL` and asks for a rename, an extracted function, or a type change so the code reads clearly without the comment.
 
-A comment like "don't delete this" or "ask so-and-so before changing this" states a constraint. It proposes the cheapest way to put that constraint into the code, such as a type, a runtime check, a test, or a lint rule, and **waits for your approval** before doing it.
+A comment like "don't delete this" or "ask so-and-so before changing this" states a constraint. It proposes the cheapest way to put that constraint into the code, such as a type, a runtime check, a test, or a lint rule (an automatic check on how code is written). It **waits for your approval** before doing it.
 
 After Comment Sicko hands back its report:
 
@@ -375,7 +375,7 @@ flowchart TD
   C -->|No| X
   C -->|Yes| D{Questions 4, 7 checkable?}
   D -->|No| X
-  D -->|Yes| E[Faster, slower, no difference]
+  D -->|Yes| E[Faster, slower, no measurable difference]
 ```
 
 The report leads with the verdict, then the numbers with units, how many runs, the spread, and the limiting factor. Put one headline number in the PR description, and keep the detailed run logs in a separate linked file.
@@ -438,7 +438,7 @@ Every code change can make the feature map go stale, so the guide suggests runni
 /pstack:maintain-verification-skill
 ```
 
-The scheduled automation in the guide means Cursor Automations, and pstack's Claude Code adapter notes say to skip that step in Claude Code ([adapter notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)). Claude Code has its own scheduled tasks, but pstack doesn't set them up. So the simplest option is to run it yourself on a regular schedule.
+The scheduled automation in the guide means Cursor Automations, and pstack's Claude Code adapter notes say to skip that step in Claude Code ([adapter notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)). Claude Code has its own scheduled tasks, but pstack doesn't set them up. So I think the simplest option is to run it yourself on a regular schedule.
 
 Its flow ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md#L23-L37)):
 
@@ -495,9 +495,9 @@ Its steps ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fc
    - Tradeoffs (only alternatives you rejected that a reviewer would otherwise ask about)
    - Blast Radius
    - Verification
-6. **Opens the PR with `gh` by default**, ready for review, not as a draft.
+6. **Opens the PR with `gh` (GitHub's command-line tool) by default**, ready for review, not as a draft.
 
-**It doesn't start babysit on its own after opening the PR** ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)). When CI fails or review comments need handling, you ask for babysit. The guide also suggests stacking follow-up changes as a new PR on top instead of letting one branch keep growing ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)).
+**It doesn't start babysit on its own after opening the PR** ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)). When CI (the checks that run automatically on every push) fails or review comments need handling, you ask for babysit. The guide also suggests stacking follow-up changes as a new PR on top instead of letting one branch keep growing ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)).
 
 Once the PR is open, read the Verification section of its description yourself first.
 
@@ -526,7 +526,7 @@ It names its mode in the first line of its reply, before checking any status ([b
 It follows these rules while working:
 
 - **One PR at a time**. With several PRs open, it finishes one before moving to the next.
-- **No changes to the PR's structure**. No rebase, no change of base branch, no force push. When a rebase is needed, it reports that so the PR's owner can do it.
+- **No changes to the PR's structure**. No rebase (replaying the branch's commits onto a new base), no change of base branch, no force push (overwriting the remote branch's history). When a rebase is needed, it reports that so the PR's owner can do it.
 - **Conflicts, then review comments, then CI**. When it finds a conflict, it doesn't resolve it; it says which branch needs a rebase, then stops.
 - **Status from `watch-pr` on GitHub**. This is a script that ships with pstack and supports GitHub only. `drive` mode keeps watching until there's a final result; `check` mode passes `--status-only` and looks once.
 - **One rerun for a flaky CI failure**. A flake is a failure that comes and goes without any code change, and it gets one fresh build. Only failures caused by this change's own code get a fix committed.
@@ -538,9 +538,9 @@ On GitHub, `drive` ends when watch-pr reports `READY` ([watch-pr](https://github
 
 **Babysit never merges, even when everything is green** ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L150)). Only when you clearly say "merge" or "ship" does it move to a separate playbook called Shipping ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L27)). Shipping first verifies each PR independently, then merges them one at a time from the bottom up ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L152-L160)).
 
-> Calling babysit makes the AI download and install packages from the internet on your computer. `watch-pr` is a script that runs on bun (a JavaScript runtime). **The first time it runs**, it runs `bun install --frozen-lockfile` in `skills/poteto-mode/scripts/` inside the plugin folder. That command downloads the packages it needs from npm according to the lockfile and installs them into `node_modules` there.
+> Calling babysit makes the AI download and install packages from the internet on your computer. `watch-pr` is a script that runs on bun (a JavaScript runtime). **The first time it runs**, it runs `bun install --frozen-lockfile` in `skills/poteto-mode/scripts/` inside the plugin folder. That command downloads the packages it needs from npm according to the lockfile (a file that pins the exact version of every package) and installs them into `node_modules` there.
 >
-> Later, if a plugin update changes the package list (`package.json`) or the lockfile, it installs again ([bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)). The lockfile pins the versions, but you should still know this happens. I covered the risks and how to tighten permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+> Later, if a plugin update changes the package list (`package.json`) or the lockfile, it installs again ([bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)). The lockfile pins the versions, but I think you should still know this happens. I covered the risks and how to tighten permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-warning }
 
 When `drive` completes normally, it confirms the PR can merge, along with the comments it handled, the CI failures it saw, and its reasoning. If a conflict or required approval needs your attention, it reports what is holding up the PR. `check` gives you a status report.

@@ -13,7 +13,7 @@ image:
 
 如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。
 
-更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
+我认为更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
 
 这篇只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，我在[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)里讲过。
 
@@ -50,7 +50,7 @@ linked worktree 顶层的 `.git` [不是一个完整的文件夹，而是一个�
 > git config extensions.worktreeConfig true
 > ```
 >
-> 再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。一般情况用共用的配置就够了。
+> 再用 `git config --worktree` 写入。[手册提醒](https://git-scm.com/docs/git-worktree#_configuration_file)：旧版 Git 会拒绝读取开启了这个扩展的 repo。我认为一般情况用共用的配置就够了。
 {: .prompt-tip }
 
 ## 什么时候该用、什么时候不用
@@ -441,7 +441,7 @@ git worktree repair
 
 ## 结论
 
-下次要让两个 AI 同时动手，先用 `git worktree add -b` 各开一个文件夹，做完合并回 `main`，再收掉文件夹和分支。repo 里若有 submodule（最上层有 `.gitmodules`），我就不会用这个方法。
+下次要让两个 AI 同时动手，先用 `git worktree add -b` 各开一个文件夹，做完合并回 `main`（或推送上去开 PR），再收掉文件夹和分支。repo 里若有 submodule（最上层有 `.gitmodules`），我就不会用这个方法。
 
 ## 延伸阅读
 

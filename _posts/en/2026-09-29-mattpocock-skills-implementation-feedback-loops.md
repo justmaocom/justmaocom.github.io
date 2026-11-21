@@ -22,6 +22,8 @@ But the AI wrote those tests too, so they might just vouch for the code it wrote
 > - Previous (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 > - Next (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+>
+> I inferred the skill invocations in the per-seat billing example from the original instructions; the red and green test outputs shown in the post are real results from my own runs.
 {: .prompt-info }
 
 > **Version note (checked 2026-10-19):** I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). `mattpocock/skills` released [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) and [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1) on 2026-10-04. All four skills covered here are still there, but three things are different:
@@ -263,7 +265,7 @@ The first version recomputes `expected` with `reduce`. The test calculates the s
 
 Still, both rules are just instructions written in Markdown, with no code enforcing them. I looked through [the `tdd` folder](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd), and it has no checking scripts at all. It contains only `SKILL.md`, `tests.md`, `mocking.md`, and an `agents/openai.yaml`.
 
-If you approve the AI's list of seams without looking closely, the first rule does nothing. So whether the tests count comes down to two things you have to check yourself: the list of seams you confirmed, and whether each expected value traces back to the spec.
+If you approve the AI's list of seams without looking closely, the first rule does nothing. So in my view, whether the tests count comes down to two things you have to check yourself: the list of seams you confirmed, and whether each expected value traces back to the spec.
 
 ![On the left, an exam where the AI writes the questions, answers them, and grades them; the answer key column says "Calculate it the same way as the answer," stamped with a score of 100; on the right, an exam whose questions come from seams you confirmed, with the answer key reading "15, from the spec," graded by node --test; at the bottom: "Writing your own questions, answering them, and grading yourself"](tautological-test-exam.webp){: width="800" height="450" }
 _If the expected value is recomputed with the code's own algorithm, the test will always pass._

@@ -37,7 +37,7 @@ You don't. Your first time through takes just two steps:
 > I plan to fully update this series for the new releases.
 {: .prompt-info }
 
-A skill is a set of instructions that tells an AI coding assistant how to do a specific job. Examples include interviewing you about requirements or breaking a spec down into individual tasks. An AI coding assistant is a tool such as Claude Code or Codex that can read and write the files in your project and write code for you. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
+I think of a skill as a set of instructions that tells an AI coding assistant how to do a specific job. Examples include interviewing you about requirements or breaking a spec down into individual tasks. An AI coding assistant is a tool such as Claude Code or Codex that can read and write the files in your project and write code for you. `mattpocock/skills` is a complete set of skills published by Matt Pocock.
 
 ## Installing and Invoking Are Separate Questions
 
@@ -108,7 +108,7 @@ Both `setup-matt-pocock-skills` and `ask-matt` are user-invoked, so you have to 
 
 In Codex, you can type `$` and then pick a skill from the list, or type `$skill-name` directly. You can verify this syntax in [OpenAI's Codex skills documentation](https://developers.openai.com/codex/skills/). For other AI coding assistants, use their own skill menu or input syntax.
 
-This constraint also explains why `ask-matt` can only make suggestions. For example, `grill-with-docs`, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
+I think this constraint also explains why `ask-matt` can only make suggestions. For example, `grill-with-docs`, which it often recommends, is also user-invoked, so you have to type it yourself. It also won't automatically go on to run `to-spec`, `to-tickets`, and `implement`.
 
 ## Setup Inspects, Then Asks, Then Writes
 
@@ -263,7 +263,7 @@ flowchart TD
 
 Even when you know the next skill, skills that read your issue tracker or glossary configuration still need setup to be completed first.
 
-In this post I checked the design and usage of version `1.2.3`; that doesn't mean this workflow will necessarily shorten development time. Its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
+In this post I checked the design and usage of version `1.2.3`; that doesn't mean this workflow will necessarily shorten development time. I think its direct benefits are that it turns your project conventions into written documentation and suggests a suitable skill when you're unsure what to do next. The next post covers how to clarify requirements and build a vocabulary your team shares.
 
 ## Further Reading
 

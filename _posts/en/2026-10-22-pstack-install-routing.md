@@ -334,7 +334,7 @@ This description gives the symptom, the done check, and the proof you want, but 
 
 ## Conclusion
 
-You don't need to learn every skill before using pstack: do the three steps above once, then hand each task to `/poteto-mode`. In the next part, I'll cover how to use pstack to understand the code, then design, before you change it.
+I don't think you need to learn every skill before using pstack. Do the three steps above once, then hand each task to `/poteto-mode`. In the next part, I'll cover how to use pstack to understand the code, then design, before you change it.
 
 ## Further Reading
 

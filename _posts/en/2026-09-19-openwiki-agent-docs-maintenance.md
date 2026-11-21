@@ -108,7 +108,7 @@ This check answers only two questions: does the cited location still exist, and 
 
 Say the docs claim "after three retries, it writes to the dead-letter queue," but the cited code actually retries only twice. As long as that code hasn't changed, the stored hash stays the same, and neither `stale` nor `unresolved` shows up.
 
-So an all-green source check only means each Claim still links to the content it originally cited. Reviewers still need to read that code and its tests to confirm the docs haven't misread conditions, counts, or execution order.
+So an all-green source check only means each Claim still links to the content it originally cited. I think reviewers still need to read that code and its tests to confirm the docs haven't misread conditions, counts, or execution order.
 
 ![A CI panel shows all-green source checks, a developer asks whether the docs are correct, and a reviewer pulls out a red pen](claims-green-review-red-pen.webp){: width="800" height="430" }
 _Even with all Claims green, the doc statements still need a human check._
@@ -213,7 +213,7 @@ flowchart TD
 
 OpenWiki stores the code location and content version each Claim cites, so reviewers can find out whether a source still exists. Looking only at when the docs were last generated can't tell you that.
 
-While the team reviews, keep recording how many wrong statements spot checks find, which major flows the wiki leaves out, and how much manual editing each doc PR needs. If that review takes longer than updating the docs by hand did, automation has only moved the time into PR review.
+While the team reviews, I think it should keep recording how many wrong statements spot checks find, which major flows the wiki leaves out, and how much manual editing each doc PR needs. If that review takes longer than updating the docs by hand did, automation has only moved the time into PR review.
 
 ## Further reading
 

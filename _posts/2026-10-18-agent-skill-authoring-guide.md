@@ -103,7 +103,7 @@ description: A description of what this skill does and when to use it.
 Unexpected key(s) in SKILL.md frontmatter: argument-hint. Allowed properties are: allowed-tools, compatibility, description, license, metadata, name
 ```
 
-麻煩就在這裡：在 Claude Code 裡寫錯，沒有人會提醒你，等你想把同一個 skill 上傳到別的地方，才會出錯。所以最穩的做法是**只用規範的六個欄位**，後面「換一個 Agent」的檢查也建立在這一點上。
+麻煩就在這裡：在 Claude Code 裡寫錯，沒有人會提醒你，等你想把同一個 skill 上傳到別的地方，才會出錯。所以我認為最穩的做法是**只用規範的六個欄位**，後面「換一個 Agent」的檢查也建立在這一點上。
 
 ## Description 決定它會不會被叫出來
 
@@ -760,7 +760,7 @@ flowchart TD
 - **依賴要鎖版本。** 腳本指南要求[一次性指令寫明版本](https://agentskills.io/skill-creation/using-scripts#one-off-commands)，這樣同一個指令隔一段時間再跑，結果也會一樣。例如用 `npx` 時明確指定 ESLint 用 9.0.0 版，不要只寫 `npx eslint`，指定版本的寫法見 npm 的 [package spec 文件](https://docs.npmjs.com/cli/using-npm/package-spec/)。
 - **會改東西的操作要提供 `--dry-run`。** 腳本指南建議，破壞性或會改變狀態的操作，[讓 agent 能先預覽會發生什麼](https://agentskills.io/skill-creation/using-scripts#further-considerations)。A 的腳本只讀 git 的狀態、從不寫檔，真正會改東西的 `git commit` 不在腳本裡，而是留到使用者要求時才執行，所以腳本不需要這個參數。
 
-使用者會把你的 skill 當成軟體來審查，你能做的，就是讓它好審：檔案少、每個腳本做什麼一看就懂、沒有連到外面的東西。
+使用者會把你的 skill 當成軟體來審查，我認為你能做的，就是讓它好審：檔案少、每個腳本做什麼一看就懂、沒有連到外面的東西。
 
 ## 我的判斷
 
@@ -770,7 +770,9 @@ flowchart TD
 
 **能寫成腳本的規則就寫成腳本，要判斷的事就留給文字。** B 這種整件事都要讀懂句子的 skill，硬寫腳本只會更不可靠，給它一份範本就夠了。
 
-**為了跨 agent，寧可放棄一些方便的欄位。** `when_to_use`、`disable-model-invocation` 在 Claude Code 裡都很好用，但一寫進 `SKILL.md`，就過不了 skills-ref 和 claude.ai 上傳。如果這個 skill 只給自己在 Claude Code 裡用，寫了也沒關係；要給團隊、跨工具用，我會只用六個欄位。
+**為了跨 agent，寧可放棄一些方便的欄位。** `when_to_use`、`disable-model-invocation` 在 Claude Code 裡都很好用，但一寫進 `SKILL.md`，就過不了 skills-ref 和 claude.ai 上傳。
+
+如果這個 skill 只給自己在 Claude Code 裡用，寫了也沒關係；要給團隊、跨工具用，我會只用六個欄位。
 
 **沒跑過觸發測試的 description，只是一個猜測。** 寫好題目之後，要在真的 agent 裡跑過，才知道有人問「這次改動要怎麼描述」的時候，A 會不會被叫出來。
 

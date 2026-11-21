@@ -37,7 +37,7 @@ mermaid: true
 > 这个系列我之后会按新版全面更新。
 {: .prompt-info }
 
-skill 是一份告诉 AI 编程助手如何完成特定工作的操作说明，例如怎么访谈需求，或者怎么把规格拆成一项项工作。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的工具。`mattpocock/skills` 则是 Matt Pocock 公开的一整套 skill。
+我把 skill 理解成一份告诉 AI 编程助手如何完成特定工作的操作说明，例如怎么访谈需求，或者怎么把规格拆成一项项工作。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的工具。`mattpocock/skills` 则是 Matt Pocock 公开的一整套 skill。
 
 ## 安装与启动是两个问题
 
@@ -108,7 +108,7 @@ npx skills@latest update <name>
 
 在 Codex 中，可以先输入 `$` 再从清单选择 skill，也可以直接输入 `$skill-name`。这项语法可在 [OpenAI 的 Codex skills 文档](https://developers.openai.com/codex/skills/)核对。其他 AI 编程助手，请依各自的 skill 菜单或输入方式操作。
 
-这项限制也说明了 `ask-matt` 为什么只能提出建议。例如它常推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
+我认为这项限制也说明了 `ask-matt` 为什么只能提出建议。例如它常推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
 
 ## setup 先检查、再询问，最后才写入
 
@@ -263,7 +263,7 @@ flowchart TD
 
 就算已经知道下一个 skill，需要读取工作跟踪工具或词汇表设置的 skill，仍要先完成 setup。
 
-这篇我核对的是 `1.2.3` 版的设计与操作方式，不代表这套流程一定能缩短开发时间。它直接带来的好处，是把项目惯例写成文档，并在你不确定下一步时建议合适的 skill。下一篇会接着讨论如何把需求问清楚，并建立团队共用的词汇。
+这篇我核对的是 `1.2.3` 版的设计与操作方式，不代表这套流程一定能缩短开发时间。我认为它直接带来的好处，是把项目惯例写成文档，并在你不确定下一步时建议合适的 skill。下一篇会接着讨论如何把需求问清楚，并建立团队共用的词汇。
 
 ## 延伸阅读
 

@@ -29,7 +29,7 @@ AI 编程助手改完代码，常常回一句“改好了，应该没问题”�
 
 pstack 是 Cursor 官方插件库里的一整组 skill，skill 是告诉 AI 怎么完成某类工作的操作说明。安装方法写在[第 1 篇](/posts/pstack-install-routing/)，改代码之前怎么看懂和设计写在[第 2 篇](/posts/pstack-understand-design/)，这篇假设你已经装好了。
 
-Claude Code 的插件命令要加上插件名称，例如 `/pstack:tdd`。下面的示例都用 Claude Code 的写法，在 Cursor 里把 `pstack:` 拿掉就好。
+Claude Code（在终端里使用的 AI 编程助手）的插件命令要加上插件名称，例如 `/pstack:tdd`。下面的示例都用 Claude Code 的写法，在 Cursor 里把 `pstack:` 拿掉就好。
 
 这篇的工具分成两种，叫法不一样：
 
@@ -103,7 +103,7 @@ flowchart TD
   G --> H[开 PR]
 ```
 
-重现时，它在问题发生的同一个界面（命令行、网页界面等）实际操作，把 bug 弄出来。只有在它真的碰不到、而且说得出具体原因时，才会请你帮忙重现。直接重现不了，它会自己造出触发条件，或加上日志，直到 bug 出现。
+重现时，它在问题发生的同一个界面（命令行、网页界面等）实际操作，把 bug 弄出来。只有在它真的碰不到、而且说得出具体原因时，才会请你帮忙重现。直接重现不了，它会自己造出触发条件，或加上日志（log），直到 bug 出现。
 
 找原因用的是二分法。它先追一遍相关的代码、用 `/why` 查这段代码的修改历史，列出几个可能的原因。接着每一轮挑最能缩小范围的切法，拿运行时的证据来排除，不用猜的。
 
@@ -111,7 +111,7 @@ flowchart TD
 
 commit 的顺序是：会失败的重现（例如一个测试）先进 git 历史，修正排在它后面。bug 有低成本的本地测试路径时，照 `/tdd` 的节奏做；测试很贵、要动用一大堆环境，或不清楚怎么测时，就跳过。
 
-整个过程有一条最值得记住的规则：**每一行留下来的修改，都要能对应到运行时的证据。**“也许有帮助”的保险写法只是假设，不会留下。证据推翻了某个假设，因它而改的代码也要还原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
+整个过程有一条规则，我觉得最值得记住：**每一行留下来的修改，都要能对应到运行时的证据。**“也许有帮助”的保险写法只是假设，不会留下。证据推翻了某个假设，因它而改的代码也要还原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
 
 它的回复会说明哪里坏了、根本原因、怎么修、怎么验证，并**原文粘贴修之前失败、修之后通过的重现输出**。自己读一遍那段前后输出，确认失败的原因真的是你反馈的那个 bug。默认流程会接着开 PR；如果你要求它先停下，就在确认证据后再让它继续。
 
@@ -163,7 +163,7 @@ flowchart TD
 
 ### /tdd：先写一个会失败的测试
 
-你明确想要 TDD、一个会失败的测试或回归测试，或是 bug 有明显又低成本的本地测试可以写时，用 `/tdd`（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)）。测试路径不清楚、很贵、要搭一大堆环境时，不要用。
+你明确想要 TDD（先写测试再写代码）、一个会失败的测试或回归测试，或是 bug 有明显又低成本的本地测试可以写时，用 `/tdd`（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/tdd/SKILL.md#L3)）。测试路径不清楚、很贵、要搭一大堆环境时，不要用。
 
 对话里已经有 bug 的上下文时，输入下面这行就够（[指南第 5 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/05-build-and-clean.md#L43-L51)）：
 
@@ -203,7 +203,7 @@ flowchart TD
 - 依赖时间
 - 证明完修好就会被删掉
 
-你会拿到修之前失败的测试（或检查）叫什么、它产生了什么失败，以及修之后通过的那次运行。如果没办法示范“修之前会失败”，它会说明原因和改用的检查。接着清理 diff，再开 PR。
+你会拿到修之前失败的测试（或检查）叫什么、它产生了什么失败，以及修之后通过的那次运行。如果没办法示范“修之前会失败”，它会说明原因和改用的检查。接着清理 diff（diff 是两个版本之间改了哪些行），再开 PR。
 
 ## 清理：让 diff 好审
 
@@ -290,7 +290,7 @@ flowchart TD
 
 你自己代码里令人意外的地方，不会因为有注释就过关。它会标成 `MUST KILL`，要求用改名、抽出函数或改类型的方式，让代码不用注释也看得懂。
 
-声明限制的注释，像是“不要删”“改之前先找某某人”。它会提议用成本最低的方式把这个限制写进代码，例如类型、运行时检查、测试或 lint 规则，**等你同意**才做。
+声明限制的注释，像是“不要删”“改之前先找某某人”。它会提议用成本最低的方式把这个限制写进代码，例如类型、运行时检查、测试或 lint 规则（自动检查代码写法的规则），**等你同意**才做。
 
 Comment Sicko 交回报告之后，接着这样处理：
 
@@ -436,7 +436,7 @@ _生成一次，commit 进项目；代码改了，用 /maintain-verification-ski
 /pstack:maintain-verification-skill
 ```
 
-指南说的定时自动化指的是 Cursor Automations。pstack 的 Claude Code 对照说明写明，在 Claude Code 里遇到这一步就跳过（[对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)）。Claude Code 有自己的定时任务，但 pstack 没有提供设置方式，所以最简单的做法是自己定期跑。
+指南说的定时自动化指的是 Cursor Automations。pstack 的 Claude Code 对照说明写明，在 Claude Code 里遇到这一步就跳过（[对照说明](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L59-L65)）。Claude Code 有自己的定时任务，但 pstack 没有提供设置方式，所以我认为最简单的做法是自己定期跑。
 
 它的流程如下（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/maintain-verification-skill/SKILL.md#L23-L37)）：
 
@@ -493,9 +493,9 @@ _生成一次，commit 进项目；代码改了，用 /maintain-verification-ski
    - Tradeoffs（取舍，只写审查者会问到、但没有采用的做法）
    - Blast Radius（影响范围）
    - Verification（验证）
-6. **默认用 `gh` 开 PR**，而且直接开成可以审查的状态，不开草稿。
+6. **默认用 `gh`（GitHub 的命令行工具）开 PR**，而且直接开成可以审查的状态，不开草稿。
 
-**它不会在开完 PR 之后自动开始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI 失败或有审查留言要处理时，要由你开口调用 babysit。指南也建议，后续的修改另开一个叠在上面的 PR，不要让同一个分支越长越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
+**它不会在开完 PR 之后自动开始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI（每次推上去就自动跑的检查）失败或有审查留言要处理时，要由你开口调用 babysit。指南也建议，后续的修改另开一个叠在上面的 PR，不要让同一个分支越长越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
 
 PR 开好之后，先自己读一遍说明里的 Verification。
 
@@ -524,7 +524,7 @@ PR 开了之后，CI 失败、审查者留言、main 往前走造成冲突，这
 处理时它遵守这些规则：
 
 - **一次只清一个 PR。** 同时有好几个 PR 时，一个处理完，才换下一个。
-- **不改 PR 的结构。** 不 rebase、不改目标分支、不 force push。需要 rebase 的情况，它会报告给你，让 PR 的主人自己做。
+- **不改 PR 的结构。** 不 rebase（把分支的 commit 改接到新的基准上）、不改目标分支、不 force push（强制覆盖远程分支的历史）。需要 rebase 的情况，它会报告给你，让 PR 的主人自己做。
 - **顺序是冲突、审查留言、CI。** 遇到冲突时，它不会自行解决，而是说哪个分支需要 rebase，然后停下来。
 - **用 `watch-pr` 查 GitHub 上的状态。** 这是 pstack 附的脚本，只支持 GitHub。`drive` 模式会一直监看到出现最终结果，`check` 模式加上 `--status-only`，只看一次。
 - **CI 的偶发失败只重跑一次。** 偶发失败（flake）是代码没改、有时通过有时失败的情况，它只重新跑一次构建。只有这次改动自己的代码造成的失败，才会为它提交修正。
@@ -536,9 +536,9 @@ PR 开了之后，CI 失败、审查者留言、main 往前走造成冲突，这
 
 **babysit 从不合并，就算全部都绿了也一样**（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L150)）。只有你明确说“合并”“上线”，才会转到另一个叫 Shipping 的 playbook（[SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md#L27)）。Shipping 会先逐一独立验证每个 PR，再从最底下开始一个一个合并（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L152-L160)）。
 
-> 调用 babysit，会让 AI 在你的电脑上从网络下载并安装依赖包。`watch-pr` 是用 bun（一个 JavaScript 运行环境）运行的脚本。**第一次运行时**，它会在插件文件夹里的 `skills/poteto-mode/scripts/` 跑 `bun install --frozen-lockfile`。这个命令会依照 lockfile 从 npm 下载它需要的依赖包，装进那里的 `node_modules`。
+> 调用 babysit，会让 AI 在你的电脑上从网络下载并安装依赖包。`watch-pr` 是用 bun（一个 JavaScript 运行环境）运行的脚本。**第一次运行时**，它会在插件文件夹里的 `skills/poteto-mode/scripts/` 跑 `bun install --frozen-lockfile`。这个命令会依照 lockfile（锁定每个包确切版本的文件）从 npm 下载它需要的依赖包，装进那里的 `node_modules`。
 >
-> 之后插件更新时，如果改到依赖清单（`package.json`）或 lockfile，它会再装一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。lockfile 固定了版本，但你还是应该知道这件事。风险和怎么收权限，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里讲过。
+> 之后插件更新时，如果改到依赖清单（`package.json`）或 lockfile，它会再装一次（[bootstrap.ts](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/scripts/bootstrap.ts#L25-L52)）。lockfile 固定了版本，但我认为你还是应该知道这件事。风险和怎么收权限，我在[装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)里讲过。
 {: .prompt-warning }
 
 `drive` 正常完成时，会反馈 PR 已可合并，以及处理过的留言、CI 失败与判断依据。遇到需要你处理的冲突或批准，则会说明目前卡在哪里。`check` 则是交回一份状态报告。

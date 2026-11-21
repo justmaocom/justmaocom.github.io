@@ -22,6 +22,8 @@ mermaid: true
 > - 上一篇（第 3 篇）：[先找出缺口，再決定要寫規格還是拆工作單](/posts/mattpocock-skills-specs-work-breakdown/)
 > - 下一篇（第 5 篇）：[程式寫完之後，誰來看結構、審修改、解衝突](/posts/mattpocock-skills-design-review-integration/)
 > - 系列導讀：[這套 skill 是什麼、六篇該怎麼讀](/posts/mattpocock-skills-series-guide/)
+>
+> 按席次計費的 skill 呼叫流程是我依原始指令推演的；文中的紅燈與綠燈測試輸出，則是我實際執行的結果。
 {: .prompt-info }
 
 > **版本提醒（2026-10-19 查證）**：這篇以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)為準。`mattpocock/skills` 已在 2026-10-04 發布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，本文介紹的四個 skill 都還在，但有三點不同：
@@ -263,7 +265,7 @@ test("calculateTotal sums line items", () => {
 
 不過，這兩條規則都只是寫在 Markdown 裡的指令，沒有程式強制執行。我看過 [`tdd` 資料夾](https://github.com/mattpocock/skills/tree/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd)，裡面沒有任何檢查腳本。整個資料夾只有 `SKILL.md`、`tests.md`、`mocking.md` 與一份 `agents/openai.yaml`。
 
-AI 列出接點時，你若沒細看就按同意，第一條規則等於沒有作用。所以測試算不算數，要你自己看兩樣東西：你確認過的接點清單，以及每個預期值能不能在規格裡找到出處。
+AI 列出接點時，你若沒細看就按同意，第一條規則等於沒有作用。所以我認為，測試算不算數，要你自己看兩樣東西：你確認過的接點清單，以及每個預期值能不能在規格裡找到出處。
 
 ![左側考卷的出題、作答、批改都是 AI，標準答案欄寫著「照作答算一遍」，蓋著 100 分；右側考卷由你確認的接點出題，標準答案寫著「15，出自規格」，由 node --test 批改；底部寫著「自己出題、自己作答、自己打分數」](tautological-test-exam.webp){: width="800" height="450" }
 _預期值若照程式的算法重算，測試就會永遠通過。_

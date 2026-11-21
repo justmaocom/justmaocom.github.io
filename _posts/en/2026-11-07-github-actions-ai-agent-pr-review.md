@@ -119,7 +119,7 @@ flowchart TD
   F -->|Acceptable| G[Human approval and merge]
 ```
 
-**Give fixed rules to Actions.** Front matter (the settings block at the top of a post, holding the title and date) either parses or it doesn't. The site either builds or it doesn't, and localized URLs either land in the right place or they don't. These have clear right answers and can be checked repeatedly. To check on your own computer first, run this in the site's repository:
+**Give fixed rules to Actions.** Front matter (the settings block at the top of a post, holding the title, date, and similar details) either parses or it doesn't. The site either builds or it doesn't, and localized URLs either land in the right place or they don't. These have clear right answers and can be checked repeatedly. To check on your own computer first, run this in the site's repository:
 
 ```bash
 bash tools/test.sh

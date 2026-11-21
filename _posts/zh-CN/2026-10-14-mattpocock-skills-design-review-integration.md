@@ -13,7 +13,7 @@ mermaid: true
 
 上一篇用 `implement` 做完了“停用成员并释放席位”，测试从红灯（失败）转成绿灯（通过），AI 最后也照指令跑了一次 `code-review`。现在你手上有三张做完的工作单，和一条准备合并回主线的分支。分支就是从主线复制出来、让你放心修改的一份副本。
 
-测试通过，只代表代码的行为和测试写的一样。还有三件事是测试看不出来的，`mattpocock/skills` 用四个 skill 处理：
+测试通过，只代表代码的行为和测试写的一样。但我认为还有三件事是测试看不出来的，`mattpocock/skills` 用四个 skill 处理：
 
 - 代码的结构，会不会越改越乱？交给 `codebase-design` 和 `improve-codebase-architecture`。
 - 这次的修改，有没有多做或漏做需求里的东西？交给 `code-review`。
@@ -31,7 +31,7 @@ mermaid: true
 > - [`v1.3.0` 移除了 `resolving-merge-conflicts`](https://github.com/mattpocock/skills/blob/984a2c023c9fb42bb6ea40c70a652284a109dc05/docs/engineering/resolving-merge-conflicts.md#L1)，官方说没有其他 skill 取代它。
 > - 同一版把词汇表 `CONTEXT.md` 改名为 `GLOSSARY.md`。
 >
-> 为了和前四篇一致，这篇仍以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。
+> 为了和前四篇一致，这篇仍以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。按席位计费的 skill 调用流程，是我按原始指令推演的。文中的合并冲突与合并后的测试失败，则是我实际运行的结果。
 {: .prompt-warning }
 
 ## 先认识三个词
@@ -89,7 +89,7 @@ _同样的席位功能，左边要记五颗按钮，右边只要三颗。_
 3. **测试和用户按同一组按钮。** 如果你想绕过按钮直接去测里面，代表这个模块切得不对。
 4. **只有一种零件可以插的插座，不算插座。** “以后可能要换”不是理由，至少要真的有两种东西会插进来（例如正式版和测试用的假版本），才值得在这里留一个接缝。
 
-第 4 条说的情况很常见。很多人为了“以后可能要换数据库”先多包一层，结果项目从头到尾只用过一种。按这条原则，那一层只是让代码多绕了一圈。
+第 4 条说的情况，我觉得很常见。很多人为了“以后可能要换数据库”先多包一层，结果项目从头到尾只用过一种。按这条原则，那一层只是让代码多绕了一圈。
 
 ### 两份附录
 
@@ -100,7 +100,7 @@ _同样的席位功能，左边要记五颗按钮，右边只要三颗。_
 
 ## `improve-codebase-architecture`：定期帮项目做体检
 
-如果 `codebase-design` 是整理时用的工具箱，`improve-codebase-architecture` 就是[先到现场转一圈，找出值得整理的地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)。它的目标是[把浅模块整理成深模块](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9)，让代码更好测，AI 也更容易看懂。
+我会把 `codebase-design` 想成整理时用的工具箱。`improve-codebase-architecture` 则是[先到现场转一圈，找出值得整理的地方](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L52)。它的目标是[把浅模块整理成深模块](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/improve-codebase-architecture/SKILL.md#L9)，让代码更好测，AI 也更容易看懂。
 
 它分三步，图的最后两个分支是第三步谈完之后的两种结果：
 
