@@ -15,7 +15,7 @@ mermaid: true
 
 這篇設定四個常用的 hook，最後說明它擋不下什麼。
 
-> 依據 2026-11-10（台北時間）的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)、[Hooks reference](https://code.claude.com/docs/en/hooks)與 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)，當天 npm 上最新的 Claude Code 是 2.1.322。之後的版本可能調整事件與欄位。
+> 依據官方的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)、[Hooks reference](https://code.claude.com/docs/en/hooks)與 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。查證日期是 2026-11-10（台北時間），當天 npm 上最新的 Claude Code 是 2.1.322。之後的版本可能調整事件與欄位。
 {: .prompt-info }
 
 第三方 skill 和 MCP 的權限風險，我在[先前這篇](/posts/coding-agent-supply-chain-permission-risks/)談過。這篇只談你自己設定的日常檢查。
@@ -85,7 +85,7 @@ chmod +x .claude/hooks/*.sh
 
 ## 改到敏感檔時擋下：PreToolUse
 
-這個 hook 擋的是 Claude 用 `Edit` 或 `Write` 改 `.env`、`.git/` 裡的檔或 `package-lock.json` 的那一次呼叫，並把原因回饋給 Claude。它不代表 AI 碰不到這些檔。
+Claude 用 `Edit` 或 `Write` 改 `.env`、`.git/` 裡的檔或 `package-lock.json` 時，這個 hook 會擋下那一次呼叫。擋下的原因會回饋給 Claude。它不代表 AI 碰不到這些檔。
 
 新增 `.claude/hooks/protect-files.sh`。寫法來自官方指南的保護檔範例，另外處理了 Windows 路徑的反斜線：
 
@@ -263,7 +263,7 @@ _概念圖。Matcher 守的是指定的工具名稱；經由 Bash 或 PowerShell
 
 **Hook 以你的完整使用者權限執行。** 它能讀、改、刪你的帳號碰得到的任何檔案。加進設定前先讀過指令，在安全的環境試跑；用在共用或正式環境前，先讀 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
 
-互動模式會先問你是否信任這個資料夾，但 `claude -p` 和 SDK 不會問，直接視為已信任，所以 repo 裡的 `.claude/settings.json` 可能在你從沒確認過的目錄裡執行。
+互動模式會先問你是否信任這個資料夾。`claude -p` 和 SDK 不會問，直接視為已信任。所以 repo 裡的 `.claude/settings.json`，可能在你從沒確認過的目錄裡執行。
 
 Hooks 不是安全邊界。要由作業系統限制指令能讀寫的範圍，見 [Claude Code 沙箱設定教學：擋住 SSH 金鑰與 token](/posts/claude-code-sandbox-setup/)。
 
