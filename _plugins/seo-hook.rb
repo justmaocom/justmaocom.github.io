@@ -62,6 +62,17 @@ module SeoHook
     end
   end
 
+  # 「彙整」與「分類」這兩個 tab 沒有內文，不補描述的話 seo-tag 會沿用站台描述，與首頁重複
+  def describe_listing_tabs(site)
+    counts = { 'archives' => site.posts.docs.size, 'categories' => site.pages.count { |page| page.data['layout'] == 'category' } }
+
+    site.collections['tabs'].docs.each do |tab|
+      name = tab.basename_without_ext
+      template = strings(site)["#{ name }_description"] or next
+      tab.data['description'] = fill(template, count: counts[name])
+    end
+  end
+
   # 首頁、首頁的分頁與分類頁各自的 <title>；其他頁面回傳 nil，維持主題的輸出
   def listing_title(doc)
     site = doc.site
@@ -191,6 +202,7 @@ end
 Jekyll::Hooks.register :site, :pre_render do |site|
   SeoHook.mark_noindex(site)
   SeoHook.describe_categories(site)
+  SeoHook.describe_listing_tabs(site)
 end
 
 Jekyll::Hooks.register [:documents, :pages], :post_render do |doc|

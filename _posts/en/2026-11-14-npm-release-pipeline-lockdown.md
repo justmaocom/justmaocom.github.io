@@ -1,6 +1,6 @@
 ---
 title: "Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline"
-description: "The malicious tensorlake release carried valid provenance. Use GitHub environments, rulesets, and npm staged publishing to add review checkpoints for source changes, release triggers, and package publication."
+description: "The malicious tensorlake release carried valid provenance. Add review gates to your npm release with GitHub environments, rulesets, and staged publishing."
 date: 2026-11-14 18:25:00 +0800
 categories: [Security, Supply Chain]
 tags: [supply-chain-security, github-actions, ci, application-security, npm]
