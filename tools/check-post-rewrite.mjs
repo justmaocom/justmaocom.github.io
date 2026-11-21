@@ -68,6 +68,8 @@ async function checkFile(rel) {
       if (i < 0) issues.push(`code block lost or changed: ${b.lang} «${b.code.slice(0, 60).replace(/\n/g, '⏎')}»`);
       else nowCode.splice(i, 1);
     }
+    // A diagram the author already drew stays as drawn (colors and labels included).
+    for (const src of old.mermaid) if (!now.mermaid.includes(src)) issues.push(`existing mermaid changed: «${src.slice(0, 60).replace(/\n/g, '⏎')}»`);
     for (const u of missing(old.urls, now.urls)) issues.push(`url lost: ${u}`);
     for (const l of missing(old.links, now.links)) issues.push(`internal link lost: ${l}`);
     for (const im of missing(new Set(old.images), new Set(now.images))) issues.push(`image lost: ${im}`);
