@@ -121,7 +121,7 @@ flowchart TD
   C -->|Yes| D[Confirm triage labels]
   C -->|No| E{Multiple subprojects?}
   D --> E
-  E -->|No| F[One shared glossary]
+  E -->|No| F[One shared glossary and ADR set]
   E -->|Yes| G["Ask: one per subproject?"]
   F --> H[Show drafts to edit]
   G --> H
