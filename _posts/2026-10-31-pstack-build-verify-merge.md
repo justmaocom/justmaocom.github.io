@@ -113,7 +113,7 @@ commit 的順序是：會失敗的重現（例如一個測試）先進 git 歷�
 
 整個過程有一條規則，我覺得最值得記住：**每一行留下來的修改，都要能對應到執行時的證據。**「也許有幫助」的保險寫法只是假設，不會留下。證據推翻了某個假設，因它而改的程式也要還原（[bug-fix playbook 第 5 行](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)）。
 
-它的回覆會說明哪裡壞了、根本原因、怎麼修、怎麼驗證，並**原文貼上修之前失敗、修之後通過的重現輸出**。自己讀一遍那段前後輸出，確認失敗的原因真的是你回報的那個 bug。預設流程會接著開 PR；如果你要求它先停下，就在確認證據後再讓它繼續。
+它的回覆會說明哪裡壞了、根本原因、怎麼修、怎麼驗證，並**原文貼上修之前失敗、修之後通過的重現輸出**。我建議自己讀一遍那段前後輸出，確認失敗的原因真的是你回報的那個 bug。預設流程會接著開 PR；如果你要求它先停下，就在確認證據後再讓它繼續。
 
 ### 新功能：先說清楚資料形狀
 
@@ -250,7 +250,7 @@ README、文件、PR 說明、commit 說明這類給人看的文字，讀起來�
 - 抽象的比喻名詞
 - 白話原則：主動語態、一句只講一件事、用平常的字
 
-你會拿到改寫後的文字。自己再讀一遍，確認意思沒被改掉。
+你會拿到改寫後的文字。我建議自己再讀一遍，確認意思沒被改掉。
 
 ### /no-comments：讓沒寫過註解的人來審註解
 
@@ -341,7 +341,7 @@ Comment Sicko 交回報告之後，接著這樣處理：
 - 已排除的項目
 - 「合併之前」：成本最低、能抓到真正 bug 的測試或重現方式
 
-如果事實被標成 unproven，或列出了確認的風險，先處理再開 PR。「合併之前」那段的測試，可以直接加進這次的改動。
+如果事實被標成 unproven，或列出了確認的風險，我建議先處理再開 PR。「合併之前」那段的測試，可以直接加進這次的改動。
 
 ### /benchmark-checklist：檢查效能數字可不可信
 
@@ -410,12 +410,12 @@ flowchart TD
 | Cleanup | 怎麼收拾自己開的東西 |
 | Helpers | 附帶的腳本怎麼用 |
 
-> Claude Code 把專案的 `.claude/` 資料夾當成受保護的位置，在預設模式下，寫進去之前會先問你（[Claude Code 文件](https://code.claude.com/docs/en/permission-modes)）。看到詢問時，先確認路徑是 `.claude/skills/verify-<app>/` 再同意。
+> Claude Code 把專案的 `.claude/` 資料夾當成受保護的位置，在預設模式下，寫進去之前會先問你（[Claude Code 文件](https://code.claude.com/docs/en/permission-modes)）。看到詢問時，我建議先確認路徑是 `.claude/skills/verify-<app>/` 再同意。
 {: .prompt-tip }
 
 你會拿到一個專案專屬的驗證 skill，加上一份功能地圖。之後「在程式裡驗證一下」就是任何 AI 在這個專案都能直接做的步驟，不用再從頭交代怎麼啟動。
 
-把它 commit 進專案，讓每個人和每個 AI 用同一套方式操作程式。之後要它用這套方法驗證，就在提示裡點名（取自[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)）：
+我建議把它 commit 進專案，讓每個人和每個 AI 用同一套方式操作程式。之後要它用這套方法驗證，就在提示裡點名（取自[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)）：
 
 ```text
 /pstack:poteto-mode 做一個「批次封存」的動作。用 /verify-<app> 驗證你的修改，給我影片和截圖當證據。
@@ -497,7 +497,7 @@ _產生一次，commit 進專案；程式改了，用 /maintain-verification-ski
 
 **它不會在開完 PR 之後自動開始 babysit**（[opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)）。CI（每次推上去就自動跑的檢查）失敗或有審查留言要處理時，要你開口叫 babysit。指南也建議，後續的修改另開一個疊在上面的 PR，不要讓同一個分支越長越大（[指南第 6 章](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)）。
 
-PR 開好之後，先自己讀一遍說明裡的 Verification。
+PR 開好之後，我建議先自己讀一遍說明裡的 Verification。
 
 ### Babysit：把 PR 推到可以合併，但不替你合併
 

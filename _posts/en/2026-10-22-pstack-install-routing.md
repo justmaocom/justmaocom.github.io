@@ -65,7 +65,7 @@ According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/inst
 > None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment (the default branch is the main line of work in a repo, usually called main). I covered what to check before installing someone else's plugin in [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
-There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, read through it and pin a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
+There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, I suggest reading through it and pinning a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Step 2: Check the Version, Update, or Pin It
 
@@ -90,7 +90,7 @@ According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/inst
 claude plugin update pstack@cursor-plugins
 ```
 
-> Auto-update being off by default gives you a chance to check first. Before you update, look at what changed in pstack on `cursor/plugins`, then decide. Turning on auto-update means you accept every new change as it lands. The [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why this matters.
+> As I see it, auto-update being off by default gives you a chance to check first. Before you update, I suggest looking at what changed in pstack on `cursor/plugins`, then deciding. Turning on auto-update means you accept every new change as it lands. The [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/) explains why this matters.
 {: .prompt-tip }
 
 ### Pin a Specific Commit
@@ -174,7 +174,7 @@ The settings go into a global model settings file. Cursor writes `~/.cursor/rule
 
 According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L38), Claude Code loads the file automatically at the start of every new session. Open a new chat once setup is done, because according to the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L43), the model settings only apply to new sessions.
 
-> **Pick only models your account can actually use.** According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45), in Claude Code the "detected models" are the model names the subagent tool accepts. That doesn't mean your account or plan can use every one of them. If you're not sure, you can set a role to `inherit-parent` or `auto`, so it uses the main chat's model (see the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)).
+> **Pick only models your account can actually use.** According to the [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md#L45), in Claude Code the "detected models" are the model names the subagent tool accepts. That doesn't mean your account or plan can use every one of them. If you're not sure, I suggest setting a role to `inherit-parent` or `auto`, so it uses the main chat's model (see the [setup guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/01-setup.md#L31)).
 {: .prompt-tip }
 
 ## When You're Unsure: Ask /poteto-help

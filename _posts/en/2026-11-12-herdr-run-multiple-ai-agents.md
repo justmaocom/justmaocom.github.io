@@ -54,7 +54,7 @@ For commands, shortcuts, state definitions, and what happens when you disconnect
 
 ## When it is worth using
 
-I suggest herdr if you run two or more agents at once, or you often step away or work on a remote machine over SSH. If you only run one agent, or you already have a setup that works, you do not need to switch.
+I suggest herdr if you run two or more agents at once, or you often step away or work on a remote machine over SSH. If you only run one agent, or you already have a setup that works, I do not think you need to switch.
 
 ## Before you start
 
@@ -79,7 +79,7 @@ If you already use [Homebrew](https://formulae.brew.sh/formula/herdr), I recomme
 brew install herdr
 ```
 
-If you already use [mise](https://mise.jdx.dev/), install with mise:
+If you already use [mise](https://mise.jdx.dev/), I recommend installing with mise:
 
 ```bash
 mise use -g herdr
@@ -124,7 +124,7 @@ Once you are satisfied, run:
 sh herdr-install.sh
 ```
 
-If you cannot tell what the script does, use brew or mise instead.
+If you cannot tell what the script does, I suggest using brew or mise instead.
 
 ### Check the install
 

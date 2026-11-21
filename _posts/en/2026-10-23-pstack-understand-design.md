@@ -66,7 +66,7 @@ The pstack guide's suggested order is how first, then why: mechanics before hist
 
 ## /why: Find Out Why the Code Looks This Way
 
-Use `/why` when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. It is especially useful before you change something, so you know which parts exist for a reason and shouldn't be touched lightly.
+Use `/why` when you want to know why a piece of code was written this way, why an approach was chosen, where a threshold number came from, or how a regression (something that used to work and then broke) came about. I think it is especially useful before you change something, so you know which parts exist for a reason and shouldn't be touched lightly.
 
 Name the target and ask your question. If you're asking because you plan to change it, include the change you have in mind and ask whether the original reason still holds:
 
@@ -90,7 +90,7 @@ The skill file is a single paragraph. It doesn't say how many subagents to send,
 
 The answer cites its sources. "Nobody wrote down why" is an answer too.
 
-If you plan to change the code, end your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it. Take the list to `/architect` as constraints for the design.
+If you plan to change the code, I suggest ending your prompt by asking it to list what to **Preserve**, what you can **Change**, what to **Avoid**, and what the **Risks** are. The skill file doesn't ask for this list, so you have to request it. Take the list to `/architect` as constraints for the design.
 
 > `/why` may use the MCP servers you've connected to read issues, docs, and chat history. Before you start, decide what you're willing to let the AI read. For how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }

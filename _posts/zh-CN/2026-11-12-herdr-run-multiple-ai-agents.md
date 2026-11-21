@@ -54,7 +54,7 @@ flowchart LR
 
 ## 什么时候值得用
 
-同时跑两个以上的 agent，或经常要离开座位、用 SSH 连远程机器时，我建议用 herdr。只跑一个 agent，或已经有顺手的安排，不一定要换。
+同时跑两个以上的 agent，或经常要离开座位、用 SSH 连远程机器时，我建议用 herdr。只跑一个 agent，或已经有顺手的安排，我觉得不一定要换。
 
 ## 开始前要准备
 
@@ -79,7 +79,7 @@ _概念图：左边是本站建议的做法，用 brew 或 mise 安装与升级�
 brew install herdr
 ```
 
-已经在用 [mise](https://mise.jdx.dev/) 的人，用 mise 安装：
+已经在用 [mise](https://mise.jdx.dev/) 的人，我建议用 mise 安装：
 
 ```bash
 mise use -g herdr
@@ -124,7 +124,7 @@ less herdr-install.sh
 sh herdr-install.sh
 ```
 
-看不懂脚本在做什么的话，改用 brew 或 mise。
+看不懂脚本在做什么的话，我建议改用 brew 或 mise。
 
 ### 确认装好
 

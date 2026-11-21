@@ -115,7 +115,7 @@ Commits go in this order: the failing reproduction (for example, a test) goes in
 
 One rule runs through the whole process, and I think it's the one most worth remembering: **every line of the change that stays must trace back to runtime evidence**. A "might help" defensive tweak is only a hypothesis and doesn't stay. If evidence disproves a hypothesis, the code changed because of it gets reverted too ([bug-fix playbook, line 5](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/bug-fix.md#L5)).
 
-Its reply explains what was broken, the root cause, the fix, and how it was verified, with **the reproduction output pasted verbatim, failing before the fix and passing after it**. Read that before-and-after output yourself and confirm the failure is really the bug you reported. The default flow opens a PR next; if you asked it to pause, review the evidence before letting it continue.
+Its reply explains what was broken, the root cause, the fix, and how it was verified, with **the reproduction output pasted verbatim, failing before the fix and passing after it**. I recommend reading that before-and-after output yourself and confirming the failure is really the bug you reported. The default flow opens a PR next; if you asked it to pause, review the evidence before letting it continue.
 
 ### New Feature: State the Data Shapes First
 
@@ -252,7 +252,7 @@ It finds AI writing habits in the prose and rewrites them, keeping the meaning a
 - abstract metaphor nouns
 - plain-language rules: active voice, one idea per sentence, everyday words
 
-You get the rewritten prose. Read it once more yourself to make sure the meaning didn't change.
+You get the rewritten prose. I recommend reading it once more yourself to make sure the meaning didn't change.
 
 ### /no-comments: Have Someone Who Didn't Write the Comments Review Them
 
@@ -343,7 +343,7 @@ You get ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca
 - what it ruled out
 - a "before merging" section: the cheapest test or reproduction that would catch a real bug
 
-If the fact is marked unproven, or there are confirmed risks, deal with them before opening the PR. The tests in "before merging" can go straight into this change.
+If the fact is marked unproven, or there are confirmed risks, I recommend dealing with them before opening the PR. The tests in "before merging" can go straight into this change.
 
 ### /benchmark-checklist: Check Whether a Performance Number Holds Up
 
@@ -412,12 +412,12 @@ The generated skill is a set of instructions for the AI, in these sections:
 | Cleanup | How to clean up what it started |
 | Helpers | How to use the bundled scripts |
 
-> Claude Code treats the project's `.claude/` folder as a protected location and, in the default mode, asks you before writing to it ([Claude Code docs](https://code.claude.com/docs/en/permission-modes)). When it asks, check that the path is `.claude/skills/verify-<app>/` before you approve.
+> Claude Code treats the project's `.claude/` folder as a protected location and, in the default mode, asks you before writing to it ([Claude Code docs](https://code.claude.com/docs/en/permission-modes)). When it asks, I recommend checking that the path is `.claude/skills/verify-<app>/` before you approve.
 {: .prompt-tip }
 
 You get a verification skill for your project, plus a feature map. From then on, "verify it in the app" is a step any AI can take in this project, without you explaining again how to start it.
 
-Commit it to the project so every person and every AI drives the app the same way. To have the AI verify with it later, name it in your prompt (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)):
+I recommend committing it to the project so every person and every AI drives the app the same way. To have the AI verify with it later, name it in your prompt (from [chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L63-L71)):
 
 ```text
 /pstack:poteto-mode Add a "bulk archive" action. Verify your changes with /verify-<app> and give me a video and screenshots as evidence.
@@ -499,7 +499,7 @@ Its steps ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fc
 
 **It doesn't start babysit on its own after opening the PR** ([opening-a-pr](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/playbooks/opening-a-pr.md#L9)). When CI (the checks that run automatically on every push) fails or review comments need handling, you ask for babysit. The guide also suggests stacking follow-up changes as a new PR on top instead of letting one branch keep growing ([chapter 6 of the guide](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/06-verify-and-ship.md#L134)).
 
-Once the PR is open, read the Verification section of its description yourself first.
+Once the PR is open, I recommend reading the Verification section of its description yourself first.
 
 ### Babysit: Get the PR to Mergeable, Without Merging for You
 

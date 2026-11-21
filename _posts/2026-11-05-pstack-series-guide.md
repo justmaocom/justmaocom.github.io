@@ -48,7 +48,7 @@ flowchart LR
   B -.->|卡住、不知道用哪個 skill| D["先問 /poteto-help"]
 ```
 
-安裝方式、怎麼固定版本，以及 Claude Code 裡的指令要加 `/pstack:` 前綴，都寫在[第 1 篇](/posts/pstack-install-routing/)。想裝和這個系列相同的版本，建議先 clone 下來、checkout 到 `2f87c85`，再加進 marketplace。詳細步驟和不釘版本的風險，見[第 1 篇](/posts/pstack-install-routing/)和[供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)。
+安裝方式、怎麼固定版本，以及 Claude Code 裡的指令要加 `/pstack:` 前綴，都寫在[第 1 篇](/posts/pstack-install-routing/)。想裝和這個系列相同的版本，我建議先 clone 下來、checkout 到 `2f87c85`，再加進 marketplace。詳細步驟和不釘版本的風險，見[第 1 篇](/posts/pstack-install-routing/)和[供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 適合誰、不適合誰
 

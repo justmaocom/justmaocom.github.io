@@ -184,7 +184,7 @@ It works in six steps ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c85
 5. **Edits the prose**. It runs `/unslop` so every line is direct and clear.
 6. **Delivers it as you asked**. In the guide's full workflow, it commits in a worktree (a separate working directory for the same repo) and then opens a PR, rather than pushing straight to main. The prompt above explicitly asks for a draft and no commit, so this run should stop at the draft and wait until you've read it and decided whether to send it for review.
 
-You get a draft `<your-name>-mode/SKILL.md`. Claude Code protects the project's `.claude/` folder, so writing the draft there may ask you first or be refused; see the Permissions section below for details. If it's refused, have it write somewhere else first, then move the file in yourself once you've read it.
+You get a draft `<your-name>-mode/SKILL.md`. Claude Code protects the project's `.claude/` folder, so writing the draft there may ask you first or be refused; see the Permissions section below for details. If it's refused, I'd suggest having it write somewhere else first, then moving the file in yourself once you've read it.
 
 Read the draft and ask yourself, "Does this read like me? What did it miss?" ([SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/automate-me/SKILL.md#L94-L96)). Keep in mind that it mines **your conversations in this project**. If most of them were for something unusual, such as one-off tests, the result won't look like the way you usually work.
 
