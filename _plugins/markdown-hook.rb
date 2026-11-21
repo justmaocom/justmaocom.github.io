@@ -34,6 +34,14 @@ module MarkdownHook
       body = raw
         .gsub(/\{% (?:end)?raw %\}\n?/, '')
         .gsub('](/posts/', "](#{ site.baseurl }#{ prefix }/posts/") # polyglot 只替 HTML 的 href 補語系前綴
+      # 主題只在 HTML 替圖片補上 media_subpath，原始 Markdown 裡的相對路徑會指到文章目錄下不存在的檔案
+      # shortcut: 不避開程式碼區塊與行內程式碼，文章開始示範圖片語法時要改成跳過它們
+      if (subpath = doc.data['media_subpath'])
+        # alt 文字裡會有 ]（例如 [ref=e1]），所以比到第一個 ]( 為止；絕對路徑與外部網址維持原樣
+        body = body.gsub(%r{(!\[.*?\]\()([^)\s]+)}) do
+          $2.match?(%r{\A(?:/|[a-z][a-z0-9+.-]*:)}i) ? $& : "#{ $1 }#{ site.baseurl }#{ subpath.chomp('/') }/#{ $2 }"
+        end
+      end
       title = doc.data['title'] ? "# #{ doc.data['title'] }\n\n" : ''
       File.write(site.in_dest_dir(doc.url, 'index.md'), "#{ title }#{ body.strip }\n")
     end
