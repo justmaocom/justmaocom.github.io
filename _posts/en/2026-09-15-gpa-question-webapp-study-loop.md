@@ -8,33 +8,42 @@ media_subpath: /assets/img/posts/gpa-question-webapp-study-loop/
 image:
   path: cover.en.webp
   alt: "Parse the official PDF question bank, shuffle every quiz, and track weak categories across sessions."
+mermaid: true
 ---
 
 I built this project because my wife signed up for the Government Procurement Act certification exam.
 
-If you practice straight from the PDF question bank a few times, it's easy to end up memorizing the question order along with the answers. Before you even turn the page, the answer has already popped into your head. That kind of familiarity can't tell you whether you actually remember the material or just where the answer sits in the PDF.
+If you practice straight from the PDF question bank a few times, you end up memorizing the question order along with the answers. Before you turn the page, the answer has already popped into your head. That familiarity can't tell you whether you remember the material or just where the answer sits in the PDF.
 
-The problem I set out to solve: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
+So I set out to turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas.
 
 ![On the left, a fixed question order lets you predict the answer; on the right, once the order is shuffled, understanding shows as "reloading"](pdf-order-memory.webp){: width="800" height="430" }
 _Once the question order is shuffled, familiarity can no longer stand in for understanding._
 
-## A Web App That Turns the Official Question Bank Into Practice Records
+> This post examines commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb). [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21) declares package version `0.1.0` and requires Python `3.11` or later.
+{: .prompt-info }
 
-[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) is a practice site for the Government Procurement Act question bank. The version I examined for this post is commit [`b29fe3f`](https://github.com/7a6ac0/gpa-question-webapp/tree/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb). The package declares version `0.1.0`, requires Python `3.11` or later, and uses FastAPI, SQLAlchemy, Jinja2, pdfplumber, and python-docx. All of this is listed in [`pyproject.toml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/pyproject.toml#L5-L21). The project is released under the [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20).
+## A web app that turns the official question bank into practice records
 
-It takes the official PDF or DOCX files you've already downloaded locally and writes the questions into a database through [`parse_command`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L86). The browser-facing routes cover randomized practice, instant answer checking, per-session scores, and cross-session weak-area stats, all wired up in [`src/api/main.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/main.py#L5-L40).
+[gpa-question-webapp](https://github.com/7a6ac0/gpa-question-webapp) is a practice site for the Government Procurement Act question bank. It uses FastAPI, SQLAlchemy, Jinja2, pdfplumber, and python-docx, and is released under the [MIT License](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/LICENSE#L1-L20).
 
-The overall architecture has two data paths. In the upper half, the manually downloaded official question bank goes to a CLI, which parses it and writes it into PostgreSQL. In the lower half, the browser UI calls FastAPI to read and write questions, sessions, and answer records.
+It has two data paths. On import, [`parse_command`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L86) reads the official PDF or DOCX files you've downloaded locally and writes the questions into PostgreSQL. During practice, the browser UI calls FastAPI to read and write questions, sessions, and answer records.
 
 ![The official question bank goes through local files and the import CLI into PostgreSQL, while the browser reads and writes practice data through the UI and FastAPI](system-architecture.webp){: width="1200" height="548" }
 _Architecture diagram based on commit `b29fe3f`; [open the interactive version](/assets/img/posts/gpa-question-webapp-study-loop/system-architecture.html)._
 
-## How Data Travels From a PDF to an Answerable Question
+The browser-facing routes are wired up in [`src/api/main.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/main.py#L5-L40) and cover four features:
 
-The first stage is import. The CLI scans the input directory for `.pdf` and `.docx` files and hands each one to the matching parser based on its extension. If no category is specified, a leading `1` to `13` in the filename is treated as the category number. See [`src/ingestion/cli.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L84) for the implementation.
+- Randomized practice
+- Instant answer checking
+- Per-session scores
+- Cross-session weak-area stats
 
-The PDF parser first splits the document into sections using the Chinese headings for "true/false questions" (是非題) and "multiple-choice questions" (選擇題), then uses regular expressions to recognize question numbers and answers. Multiple-choice answers `1` to `4` are converted to `A` to `D`. The actual rules are in [`src/ingestion/pdf_parser.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/pdf_parser.py#L11-L19).
+## How data travels from a PDF to an answerable question
+
+The first stage is import. The CLI scans the input directory for `.pdf` and `.docx` files and hands each one to the parser that matches its extension. If no category is specified, a leading `1` to `13` in the filename is treated as the category number. See [`src/ingestion/cli.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/cli.py#L39-L84).
+
+The PDF parser first splits the document at the Chinese headings for "true/false questions" (是非題) and "multiple-choice questions" (選擇題). It then uses regular expressions to recognize question numbers and answers. Multiple-choice answers `1` to `4` become `A` to `D`. The rules are in [`src/ingestion/pdf_parser.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/pdf_parser.py#L11-L19):
 
 ```python
 MC_QUESTION_START = re.compile(r"^\s*(\d+)\s+([1-4])\s+(.+)")
@@ -43,7 +52,7 @@ ANSWER_NUM_TO_LETTER = {"1": "A", "2": "B", "3": "C", "4": "D"}
 ```
 {: file="src/ingestion/pdf_parser.py" }
 
-The second stage is deduplication and updating. Each question's `source_hash` is a SHA-256 hash of its category, question type, and question text joined together. On re-import, a matching hash updates the answer, options, or legal reference; questions that have disappeared from the source get marked with `deleted_at`. The full flow is in [`src/ingestion/base.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L13-L100).
+The second stage is deduplication and updating. Each question's `source_hash` is the SHA-256 of its category, question type, and question text joined together:
 
 ```python
 @property
@@ -53,13 +62,40 @@ def source_hash(self) -> str:
 ```
 {: file="src/ingestion/base.py" }
 
-Actual practice only begins in the third stage. [`create_session`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L32-L97) uses `func.random()` to shuffle the questions matching the chosen categories and types, then takes as many as requested. The [`QuestionResponse`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/models/schemas.py#L15-L23) you receive at first has no correct-answer field. Only after you submit does [`submit_answer`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L100-L170) check the answer on the server, record the result, and return the correct answer.
+On re-import, a question with a matching hash gets its answer, options, or legal reference updated. Questions that have disappeared from the source get marked with `deleted_at`. The full flow is in [`src/ingestion/base.py`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L13-L100).
 
-## Weak Areas Aren't Guessed; They Accumulate by Category
+Practice only begins in the third stage. Questions reach the browser without the correct answer, and the server checks each answer:
 
-I think the part most worth checking here is what "cross-session weak areas" actually computes.
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant API as FastAPI
+  participant DB as PostgreSQL
+  B->>API: Start practice with categories, types, count
+  API->>DB: Shuffle with func.random, take N
+  API-->>B: Questions, no answers
+  B->>API: Submit answer
+  API->>DB: Check and record result
+  API-->>B: Return correct answer
+```
 
-[`get_weakness`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L173-L225) first looks up practice records by `anonymous_id`, then groups every answer by question category. Each category's accuracy is the number of correct answers divided by the total number of answers, and the results are sorted from lowest to highest accuracy. The frontend then filters for categories below `80%` and takes up to five of them to build a "practice weak areas" button. The condition lives in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L48-L69).
+[`create_session`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L32-L97) draws the questions, shuffling the matching ones with `func.random()`. The [`QuestionResponse`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/models/schemas.py#L15-L23) you get first has no correct-answer field. Checking happens in [`submit_answer`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L100-L170).
+
+## Weak areas aren't guessed; they accumulate by category
+
+"Cross-session weak areas" means the cumulative accuracy of each category, with a clear denominator, threshold, and sort order:
+
+```mermaid
+flowchart TD
+  A[Find records by anonymous_id] --> B[Group answers by category]
+  B --> C["Accuracy = correct ÷ answered"]
+  C --> D[Sort lowest first]
+  D --> E[Frontend keeps under 80%]
+  E --> F[Take up to five]
+  F --> G["'Practice weak areas' button"]
+```
+
+On the backend, [`get_weakness`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/api/routes/sessions.py#L173-L225) stops after sorting. The `80%` threshold and the five-category cap live in the frontend, in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L48-L69):
 
 ```javascript
 const weakCats = data.categories.filter(c => c.percentage < 80).slice(0, 5);
@@ -67,25 +103,27 @@ const weakIds = weakCats.map(c => c.category_id).join(',');
 ```
 {: file="src/templates/weakness.html" }
 
-So this assessment has a clear denominator, threshold, and sort order. It computes the cumulative accuracy of all past answers in each category. It isn't an ability-estimation model, and it doesn't give extra weight to recent results. If you answer the same question several times, every attempt counts toward the stats. I worked out these limits from how the code counts `SessionAnswer.id` rows, not from the README's description of the feature.
+It isn't an ability-estimation model, and it doesn't give extra weight to recent results. If you answer the same question several times, every attempt counts toward the stats. I worked out these limits from how the code counts `SessionAnswer.id` rows, not from the README's description of the feature.
 
-## The Price of Convenience: Format Coupling and Anonymous Identity
+## The price of convenience: format coupling and anonymous identity
 
-The question-bank parser depends directly on the layout text and answer format of the official documents. If the section headings no longer read "true/false questions" or "multiple-choice questions," or multiple-choice answers no longer use `1` to `4`, the current rules will stop recognizing them. You can see this maintenance cost directly in [`_split_sections`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/pdf_parser.py#L57-L85) and the two question-type parsing functions.
+The parser depends directly on the layout text and answer format of the official documents. If the section headings no longer read "true/false questions" or "multiple-choice questions," or multiple-choice answers no longer use `1` to `4`, the current rules stop recognizing questions. You can see this maintenance cost in [`_split_sections`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/pdf_parser.py#L57-L85) and the two question-type parsing functions.
 
-The runtime isn't a single static web page, either. [`docker-compose.yml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/docker-compose.yml#L1-L29) starts the application and PostgreSQL 16, and persists data in a `pgdata` volume. If practice records need to survive a disk failure, you'll have to arrange backups separately when deploying.
+The runtime isn't a single static web page, either. [`docker-compose.yml`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/docker-compose.yml#L1-L29) starts the application and PostgreSQL 16, and keeps data in a `pgdata` volume. If practice records need to survive a disk failure, you have to arrange backups separately when you deploy.
 
-Cross-session identity currently relies on `gpa_anonymous_id` in the browser's `localStorage`, which the frontend puts into the `/api/weakness` query string. This flow is in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36). The matching route only accepts `anonymous_id` and has no account-authentication dependency. I find that very convenient for a household tool, but it isn't an access-control design suitable for storing official exam scores.
+Cross-session identity relies only on `gpa_anonymous_id` in the browser's `localStorage`. The frontend puts it into the `/api/weakness` query string, as shown in [`src/templates/weakness.html`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/templates/weakness.html#L12-L36). The matching route only accepts `anonymous_id` and has no account-authentication dependency.
 
-## Good for Home Practice, Not a Ready-Made Official Exam System
+That's convenient for a household tool, but it isn't the access control you'd want for storing official exam scores.
 
-If your question bank comes from a fixed source, your users are a well-defined group, and what you need is shuffled question order plus a view of the categories you keep getting wrong, this project already wires the necessary pieces together. When the question bank changes, [`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) can update, keep, or soft-delete existing questions, so you don't have to wipe the database every time.
+## Good for home practice, not a ready-made official exam system
 
-If you want to make it publicly available to many users, you'll first need to handle accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, you'll also want failure reports and tests for new formats in the parser. As I see it, the current code is suited for use as a personal practice tool and shouldn't be treated as an official exam platform as-is.
+If your question bank comes from a fixed source, your users are a known group, and you only need shuffled questions plus the categories you keep missing, this project already wires the necessary pieces together. When the question bank changes, [`upsert_questions`](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/src/ingestion/base.py#L28-L100) can update, keep, or soft-delete existing questions, so you don't have to wipe the database each time.
 
-## Run the Tests First, Then Plug In Your Own Question Bank
+To open it up to many users, you first need accounts, authorization, data isolation, and a backup strategy. If the question bank's layout changes often, the parser also needs failure reports and tests for new formats. The current code suits a personal practice tool and shouldn't be treated as an official exam platform as-is.
 
-I'd confirm the dependencies, the CLI entry point, and the core behavior before dealing with the official question-bank files. I actually ran the commands below on macOS with Python `3.14.2` and uv `0.9.17`.
+## Run the tests first, then plug in your own question bank
+
+Confirm the dependencies, the CLI entry point, and the core behavior before you deal with the official question-bank files. I ran the commands below on macOS with Python `3.14.2` and uv `0.9.17`:
 
 ```bash
 git clone https://github.com/7a6ac0/gpa-question-webapp.git
@@ -96,25 +134,19 @@ uv run pytest -q
 ```
 {: .nolineno }
 
-I got `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. This only confirms that installation works and the tests pass at the current commit; it doesn't mean every version of the official PDF will parse successfully. As a next step, download one category's file from the [Public Construction Commission question bank page](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion), put it in `data/`, and process it with the import command in the [project README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58).
+I got `34 passed in 1.05s`, and the CLI listed the `parse` subcommand. This only confirms that the current commit installs and passes its tests. It doesn't mean every version of the official PDF will parse.
 
-## What Really Matters Is a Practice Record You Can Look Back On
+Next, download one category's file from the [Public Construction Commission question bank page](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion) and put it in `data/`. Then process it with the import command in the [project README](https://github.com/7a6ac0/gpa-question-webapp/blob/b29fe3fc0ccd9ba8b534a974d4c7921a78e007bb/README.md#L47-L58) and check the parsing results.
 
-Everything above confirms only that these features exist; it can't prove the project will raise exam scores. I still believe this project's value lies in closing a review loop.
+## What really matters is a practice record you can look back on
 
-A fixed PDF gives you questions and answers; the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For my family's need, the tech choices are just a means to an end. The real product is being able to keep repeating the loop of "answer, find weak areas, practice again."
+Everything checked above confirms only that these features exist. It can't prove the project will raise exam scores. I still judge that its value lies in closing a review loop.
 
-## Get Your First Question Bank Running End to End
+A fixed PDF gives you only questions and answers, while the website turns every attempt into data. Randomized quizzes cut off the question-order cues, and category stats point to what to practice next round. For my family's need, the tech choices are just a means. The real product is being able to keep repeating "answer, find weak areas, practice again."
 
-The opening question was: how do you turn a fixed question bank into practice rounds that come in a different order every time and still leave a record of your weak areas?
+## Further reading
 
-This project is my answer, and it's a concrete one. The parser turns the PDF into queryable questions, each session draws questions afresh, and answer records accumulate by category. What it tackles is the familiarity caused by a fixed question order. It's meant for personal or small-scale practice and doesn't include the permissions and management features an official exam would need.
-
-The smallest next step I'd suggest is to clone the project and run the tests. Once your local environment checks out, validate the parsing results with one official question-bank file.
-
-## Further Reading
-
-- [gpa-question-webapp source code](https://github.com/7a6ac0/gpa-question-webapp): compare directly against the import, answering, and weak-area stats implementations discussed in this post.
-- [Public Construction Commission procurement professional question bank](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion): the official question-bank source this project actually processes.
-- [FastAPI documentation](https://fastapi.tiangolo.com/): learn how routing, response models, and dependency injection work.
-- [SQLAlchemy 2.0 documentation](https://docs.sqlalchemy.org/en/20/): the official reference for sessions, queries, and ORM relationships.
+- [gpa-question-webapp source code](https://github.com/7a6ac0/gpa-question-webapp): the import, answering, and weak-area stats code discussed here.
+- [Public Construction Commission procurement professional question bank](https://web.pcc.gov.tw/psms/plrtqdm/questionPublic/indexReadQuestion): the official source this project processes.
+- [FastAPI documentation](https://fastapi.tiangolo.com/): routing, response models, and dependency injection.
+- [SQLAlchemy 2.0 documentation](https://docs.sqlalchemy.org/en/20/): sessions, queries, and ORM relationships.
