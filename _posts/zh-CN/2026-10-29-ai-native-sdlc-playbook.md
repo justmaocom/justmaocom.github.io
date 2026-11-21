@@ -1,6 +1,6 @@
 ---
 title: "AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程"
-description: "AI 写代码更快，为什么产品仍交付不了？我读 Anthropic 的 AI-native SDLC playbook，用假想的候补通知功能走过规划、设计、开发、测试、部署与维护六阶段，附需求草稿、提示词、验收场景、PR 模板与停止上线的演练，说明交接证据与人的决策责任，并示范如何简化到个人博客的小型修改。"
+description: "AI 写代码更快，产品为什么仍交付不了？我读 Anthropic 的 AI-native SDLC playbook，用候补通知功能走过规划到维护六阶段，附提示词、验收场景、PR 模板与停止上线的演练。"
 date: 2026-10-29 08:30:00 +0800
 categories: [AI, 软件开发]
 tags: [ai-native-sdlc, coding-agent, workflow, claude-code]
