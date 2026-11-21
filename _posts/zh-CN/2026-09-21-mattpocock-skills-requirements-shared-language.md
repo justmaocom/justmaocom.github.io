@@ -43,7 +43,7 @@ mermaid: true
 这五个 skill 不是一套必须依次跑完的步骤。你只要选一个符合目前状况的起点，其余工作会由内部流程接手。
 
 ![grill-me、grill-with-docs 与 wait-what 是由用户启动的入口，其中 grill-me 和 grill-with-docs 会把访谈交给 grilling，grill-with-docs 也会把词汇整理交给 domain-modeling](mattpocock-skills-requirements-1.webp){: width="800" height="450" }
-_选任选其一个符合目前状况的入口，其余工作由内部流程接手。_
+_选择一个符合目前状况的入口，其余工作由内部流程接手。_
 
 | 角色 | skill | 直接用途 |
 | --- | --- | --- |
