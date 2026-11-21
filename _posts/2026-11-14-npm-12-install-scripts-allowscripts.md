@@ -304,4 +304,4 @@ _這是 tensorlake 公告的特殊順序：先移除可能觸發刪檔的常駐�
 
 我建議先從現有專案的待審清單開始，讓必要的腳本在審查後恢復運作，再把名單與 `.npmrc` 一起提交，讓團隊和 CI 共用。之後每次升級相依套件，也記得一起審查新版的腳本。
 
-發布者端如何移除長期 token，見我寫的[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；AI 工具與 MCP 的相關風險，見[Coding Agent 供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)；更完整的工作流檢查，我整理在[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+發布者端如何移除長期 token，見我寫的[npm Trusted Publishing 設定教學](/posts/npm-trusted-publishing-github-actions/)；發布流程怎麼再加上審查關卡，見[開了 Trusted Publishing 還不夠：npm 發布流程也要上鎖](/posts/npm-release-pipeline-lockdown/)；AI 工具與 MCP 的相關風險，見[Coding Agent 供應鏈與權限風險](/posts/coding-agent-supply-chain-permission-risks/)；更完整的工作流檢查，我整理在[OWASP Agentic Top 10 檢查表](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。

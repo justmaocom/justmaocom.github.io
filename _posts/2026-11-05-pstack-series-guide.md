@@ -1,6 +1,6 @@
 ---
 title: "pstack 系列導讀：這套 skill 是什麼、四篇該怎麼讀"
-description: "還在考慮要不要用 pstack，或只想解決其中一個問題？這篇導讀說明這套 skill 是什麼、四篇怎麼串，並依你的情況建議從哪一篇讀起。"
+description: "pstack 是 Cursor 官方外掛庫裡的一套 agent skill，在 Claude Code 或 Cursor 都能安裝。這篇導讀說明它是什麼、四篇怎麼串，並依你的情況建議從哪一篇讀起。"
 date: 2026-11-05 18:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]

@@ -475,3 +475,4 @@ touch: ../outside/probe-T15b.txt: Operation not permitted
 - [OWASP Agentic Top 10 檢查表：AI 工作流十項風險與修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)：這篇的起點，十題自我檢查。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：MCP server 和外掛在沙箱外執行，這篇說明它們帶來的風險。
 - [Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)：hooks 以你的完整權限執行，不受沙箱限制。
+- [Claude Code plugin 安全安裝：裝之前先看哪些檔案](/posts/claude-code-plugin-safe-install/)：plugin 可能帶進 hook 和 MCP server，這些都在沙箱外執行；這篇說明安裝前要看哪些檔案。

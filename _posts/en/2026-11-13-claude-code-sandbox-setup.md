@@ -475,3 +475,4 @@ Finally, I want to remind you again that the sandbox covers only commands. Claud
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): where this post started, a ten-question self-check.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): MCP servers and plugins run outside the sandbox, and this post explains the risks they bring.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): hooks run with your full permissions and aren't limited by the sandbox.
+- [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): a plugin can add hooks and MCP servers, which run outside the sandbox; this post covers which files to open before you install one.

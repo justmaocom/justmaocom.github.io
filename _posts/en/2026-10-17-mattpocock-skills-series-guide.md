@@ -129,3 +129,4 @@ I published the six parts between September 21 and October 14, 2026, and based a
 - [`README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md): the author's overview and installation instructions (version `1.2.3`).
 - [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47): the list of 25 skills in the official plugin.
 - [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90): the full route map `ask-matt` uses to suggest your next step.
+- [pstack Series Guide: What It Is and How to Read the Four Parts](/posts/pstack-series-guide/): my guide to another skill pack, pstack.

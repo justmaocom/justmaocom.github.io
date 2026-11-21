@@ -270,3 +270,4 @@ Hooks 让排版、敏感文件提醒和收尾测试在固定时机自动发生�
 - [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)：说明 skill 和 hook 的差别。
 - [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：hooks 在 Claude Code 的会话里执行；这篇谈 PR 提交后的固定规则检查、AI 审查与人工批准。
 - [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：只需要让 AI 知道、不必强制执行的项目规则，该怎么写成规则文件。
+- [Claude Code plugin 安全安装：装之前先看哪些文件](/posts/claude-code-plugin-safe-install/)：plugin 可能带进别人写的 hook，这篇说明安装前要打开哪些文件。

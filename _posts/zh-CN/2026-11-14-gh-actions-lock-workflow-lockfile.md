@@ -377,4 +377,4 @@ gh actions-lock
 
 `@v3` 是一张可以被移走的贴纸。workflow lockfile 让你保留好读的版本号，同时把“实际跑哪个 commit”记下来交给 GitHub 把关。我建议照这个顺序做：先开 Dependabot，执行 `gh actions-lock`，看懂 diff 再提交，然后用 `--verify` 让 CI 帮你盯着。标签被移动时，停下来看一眼，不要让自动化替你按下 `--accept-moved`。
 
-我认为负责发布的 workflow 特别值得先锁。照我写的[npm Trusted Publishing 配置教程：发包不再放长期 token](/posts/npm-trusted-publishing-github-actions/)配置后，发布流程不再需要长期 token；但 workflow 跑的 action 若被换掉，一样能发出有问题的版本。想替同一条 CI 流程加上自动化审查，见[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)；更完整的 AI 工作流风险检查，我整理在 [OWASP Agentic Top 10 检查表：AI 工作流十项风险与修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
+我认为负责发布的 workflow 特别值得先锁。照我写的[npm Trusted Publishing 配置教程：发包不再放长期 token](/posts/npm-trusted-publishing-github-actions/)配置后，发布流程不再需要长期 token；但 workflow 跑的 action 若被换掉，一样能发出有问题的版本。发布流程本身怎么加上批准与审查关卡，见[开了 Trusted Publishing 还不够：npm 发布流程也要上锁](/posts/npm-release-pipeline-lockdown/)。想替同一条 CI 流程加上自动化审查，见[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)；更完整的 AI 工作流风险检查，我整理在 [OWASP Agentic Top 10 检查表：AI 工作流十项风险与修法](/posts/owasp-agentic-top-10-ai-workflow-checklist/)。
