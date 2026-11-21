@@ -8,48 +8,50 @@ media_subpath: /assets/img/posts/claude-code-hooks-automate-checks/
 image:
   path: cover.webp
   alt: "改完文件自动排版、碰到敏感文件先挡下再提醒，结束这轮时再跑测试。"
+mermaid: true
 ---
 
-每次请 AI 改完文件，我都还要自己想：排版有没有跑？测试有没有过？有没有不小心改到 `.env`？这些事其实不必每次开口。Claude Code（在终端里使用的 AI 编程助手）提供 hooks：在对话过程的固定时机，运行你事先写好的指令，而不是等 AI 自己决定要不要做。
+每次请 AI 改完文件，我都还要自己问：排版跑了没？测试过了没？有没有动到 `.env`？Claude Code 的 hooks 让这些检查在固定时机自动运行，不必等 AI 自己决定要不要做。
 
-这篇我会说明 hooks 是什么、什么时候适合用，以及怎么在项目里设置四种常见检查：改完文件自动排版、碰到敏感文件时挡下该次修改、结束这轮时跑测试，还有对话被压缩后把项目规则补回来。最后我会说明它挡不下什么，因为 hooks 不是安全边界。
+这篇设置四个常用的 hook，最后说明它挡不下什么。
 
-> **版本**：我写这篇时，参考的是 2026-11-10（台北时间）当天的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)与 [Hooks reference](https://code.claude.com/docs/en/hooks)（含 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)）。当天 npm 上最新的 Claude Code 版本是 2.1.322。之后的版本可能会调整事件与字段。
+> 依据 2026-11-10（台北时间）的 [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)、[Hooks reference](https://code.claude.com/docs/en/hooks)与 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)，当天 npm 上最新的 Claude Code 是 2.1.322。之后的版本可能调整事件与字段。
 {: .prompt-info }
 
-若你关心的是第三方 skill 和 MCP 带来的权限风险，我在[先前这篇](/posts/coding-agent-supply-chain-permission-risks/)谈过。这篇我只谈日常可以自己设置的自动检查。
+第三方 skill 和 MCP 的权限风险，我在[先前这篇](/posts/coding-agent-supply-chain-permission-risks/)谈过。这篇只谈你自己设置的日常检查。
 
-## hooks 是什么，什么时候用
+## hooks 是什么
 
-Hook 是你定义的指令，Claude Code 会在生命周期的关键时机运行它。官方的说法是：某些动作会固定发生，而不依赖模型自己选择是否运行。我认为它适合处理不需要临场判断、每次都该做的事，例如格式化、运行测试，或在改到特定文件时先拦截并说明原因。需要斟酌的决定，还是留给你或权限设置。
+Hook 是你写好的命令，Claude Code 会在对话的固定时机运行它。它适合每次都该做、不需要临场判断的事，例如排版、跑测试、拦下对特定文件的修改。需要斟酌的决定，留给你或权限设置。
 
-常见的时机包括：
+最常用的四个时机：
 
-- **PreToolUse**：工具（例如改文件、运行指令）实际运行前，可以挡下该次调用。
-- **PostToolUse**：工具成功运行后，例如用来排版刚刚改过的文件。
-- **Stop**：Claude 结束这轮回复时。注意，它在每次回复结束时都会触发，不只在“整个任务完成”时。
-- **SessionStart**：对话开始或接续时。若只想在压缩后补规则，可以用 matcher 限定 `compact`。
+- **PreToolUse**：工具（改文件、运行命令等）运行前，可以拦下这次调用。
+- **PostToolUse**：工具成功运行后，例如排版刚改过的文件。
+- **Stop**：Claude 结束这轮回复时。每次回复结束都会触发，不只在整个任务完成时。
+- **SessionStart**：会话开始或恢复时。matcher 设成 `compact`，就只在压缩后运行。
 
-Hook 事件比上面列出的还多，完整列表见 [Hooks reference](https://code.claude.com/docs/en/hooks#hook-lifecycle)。入门不必一次全用。
+完整的事件列表见 [Hooks reference](https://code.claude.com/docs/en/hooks#hook-lifecycle)。
 
 ![对话过程中四个固定时机，各自可以运行你设置的检查](hook-timeline.webp){: w="1280" h="720" }
-_概念图，不是实际接口。四个时机依序可以是：工具运行前、运行成功后、这轮回复结束、以及对话开始或被压缩之后。_
+_概念图，不是实际界面。四个时机依序是：工具运行前、运行成功后、这轮回复结束、会话开始或被压缩之后。_
 
-**什么时候用：** 同一件事你已经提醒过不止一次，而且判断规则写得清楚，例如“改完 JavaScript 就排版”“不要用 Edit 或 Write 改 `.env`”。
-
-**下一步：** 先决定设置要放在哪个文件，再从一个 hook 开始。
+同一件事你已经提醒过不止一次，而且规则写得清楚，例如“改完 JavaScript 就排版”“不要用 Edit 或 Write 改 `.env`”，就适合写成 hook。
 
 ## 设置放在哪里
 
-这篇的示例，我都写在项目根目录的 `.claude/settings.json`。这个文件可以提交到代码仓库，让同一项目的人共用。其他位置还有：只作用于你本机所有项目的 `~/.claude/settings.json`，以及不会纳入版本控制的 `.claude/settings.local.json`。各层的 hooks 会合并生效，不会互相取代。
+这篇的示例都写在项目根目录的 `.claude/settings.json`，可以提交到 repo 让团队共用。另外两个位置：
 
-配置文件是 JSON，不能有注解，也不能在最后一个条目后面多写逗号。结构是三层：先写事件名称，再写一组带 matcher 的规则，最后是要运行的 hooks。
+- `~/.claude/settings.json`：作用于你本机的所有项目。
+- `.claude/settings.local.json`：不进版本控制。
 
-Matcher 是用来过滤“这次要不要跑”的条件。对 PreToolUse 和 PostToolUse 来说，它比的是工具名称，而且大小写必须完全一致。例如 `"Edit|Write"` 只在 Claude 使用 `Edit` 或 `Write` 时触发，用 `Bash`、`Read` 或其他工具时不会跑。也可以写成 `"Edit, Write"`，意思相同。没有写 matcher，或写 `"*"`，就会在该事件每次发生时都运行。
+各层的 hooks 会合并生效，不会互相取代。
 
-设置好之后，在 Claude Code 的提示符输入 `/hooks`，会打开一个只读的浏览画面，列出目前的 hooks，以及它们来自用户设置、项目设置、本机设置、插件或目前这次对话。这只是查看，不能在这里改设置。
+设置文件是 JSON，不能有注释，最后一项后面不能有逗号。结构分三层，依序是事件名称、带 matcher 的规则、要运行的 hooks。
 
-下面的指令范例需要 [`jq`](https://jqlang.org/)（用来从 hooks 传入的 JSON 取出字段）。排版那一项另外需要 Node.js 和 `npx`，才能运行依官方指南 Prettier 示例改写的指令：路径先存进变量再加引号，空格或单引号才不会被拆开。Hook 脚本在 macOS 和 Linux 上必须是可执行文件，设置后请运行：
+Matcher 决定这次要不要跑。在 PreToolUse 和 PostToolUse，它比对工具名称，大小写要完全一致。`"Edit|Write"` 只在 Claude 用 `Edit` 或 `Write` 时触发，写成 `"Edit, Write"` 也一样。不写 matcher 或写 `"*"`，该事件每次发生都会运行。
+
+示例需要 [`jq`](https://jqlang.org/) 从 hook 收到的 JSON 取出字段，排版那一项另外需要 Node.js 的 `npx`。macOS 和 Linux 上的 hook 脚本要有执行权限：
 
 ```bash
 chmod +x .claude/hooks/*.sh
@@ -57,9 +59,7 @@ chmod +x .claude/hooks/*.sh
 
 ## 改完文件自动排版：PostToolUse
 
-**什么时候用：** 你希望 Claude 用 `Edit` 或 `Write` 改完文件后，自动依项目的排版规则重排，不必每次再提醒。
-
-把这段加到项目的 `.claude/settings.json`（若文件里已有 `"hooks"`，只要在里面加上 `PostToolUse`，不要整份覆盖）：
+把这段加进 `.claude/settings.json`。文件里已经有 `"hooks"` 的话，只在里面加 `PostToolUse`，不要整份覆盖：
 
 ```json
 {
@@ -79,17 +79,15 @@ chmod +x .claude/hooks/*.sh
 }
 ```
 
-**它会做什么：** 工具成功改文件后，这条指令从输入的 JSON 取出文件路径，交给 `npx prettier --write` 就地排版。这是我依官方指南的 Prettier 示例改写的：先把路径存进变量、再加引号交给 `npx prettier --write`，路径里有空格或单引号也不会被拆开。
+`Edit` 或 `Write` 成功后，这条命令从输入的 JSON 取出文件路径，交给 `npx prettier --write` 就地排版。它改写自官方指南的 Prettier 示例：路径先存进变量再加引号，含空格或单引号也不会被拆开。
 
-**你会得到什么：** 成功时，对话里通常不会跳出消息；要看的是文件是否已被重排。官方的检查方式是：请 Claude 在 JavaScript 文件里加上单引号字符串，再打开文件确认是否被改成双引号（依 Prettier 默认设置）。
+成功时对话里通常没有消息，要打开文件看有没有被重排。官方的测法是请 Claude 在 JavaScript 文件里加一个单引号字符串，再确认它有没有变成双引号（Prettier 默认）。
 
-**下一步：** 若你还想在改到 `.env` 或 `.git/` 时先挡下来，接着设置 PreToolUse。
+## 改到敏感文件时拦下：PreToolUse
 
-## 改到敏感文件时挡下该次修改：PreToolUse
+这个 hook 拦的是 Claude 用 `Edit` 或 `Write` 改 `.env`、`.git/` 里的文件或 `package-lock.json` 的那一次调用，并把原因反馈给 Claude。它不代表 AI 碰不到这些文件。
 
-**什么时候用：** 你不希望 Claude 用 `Edit` 或 `Write` 直接改 `.env`、`.git/` 里的文件，或 `package-lock.json`。我这里说的是挡下该次修改并把原因反馈给 Claude，不是“AI 不能碰这些文件”。
-
-先添加 `.claude/hooks/protect-files.sh`（官方指南保护文件范例的写法，并处理 Windows 路径的反斜线）：
+新增 `.claude/hooks/protect-files.sh`。写法来自官方指南的保护文件示例，另外处理了 Windows 路径的反斜杠：
 
 ```bash
 #!/bin/bash
@@ -128,22 +126,33 @@ exit 0
 ]
 ```
 
-`$CLAUDE_PROJECT_DIR` 是 Claude Code 提供的环境变量，指向目前项目根目录。结束码 `2` 在 PreToolUse 会阻止该次工具调用，脚本写到 stderr（标准错误输出）的 `Blocked:` 说明，会成为给 Claude 的反馈。结束码 `0` 代表没有额外决定，仍走原本的权限流程，并不等于核准这次操作。
+`$CLAUDE_PROJECT_DIR` 是 Claude Code 提供的环境变量，指向项目根目录。脚本以退出码 `2` 拦下这次调用，写到 stderr 的 `Blocked:` 说明会反馈给 Claude。退出码 `0` 只代表 hook 没有意见，接着走原本的权限流程，不等于批准。
 
 ![一般文件通过，对敏感文件的那一次修改被挡下并留下提醒](guard-edit.webp){: w="1280" h="720" }
 _概念图，不是实际权限画面。这个 hook 挡的是该次 Edit 或 Write，不是所有可能改到这个文件的路径。_
 
-**你会得到什么：** 若路径符合保护条件，该次修改不会运行，Claude 会看到挡下的原因。
-
-**下一步：** 请记得，只用 `Edit|Write` 挡不住通过 `Bash` 或 `PowerShell` 改文件的情况，限制一节我会说明怎么补。若还想在结束这轮时跑测试，接着设置 Stop。
+只比对 `Edit|Write` 拦不住通过 `Bash` 或 `PowerShell` 改文件，补法见最后的限制一节。
 
 ## 结束这轮时跑测试：Stop
 
-**什么时候用：** 你希望 Claude 结束这轮回复时，先跑项目测试；测试失败就不要就此结束，把失败原因反馈后继续修。
+这个 hook 在 Claude 结束这轮回复时跑测试，失败就把原因交回去，让它继续修。
 
-Stop hook 没有 matcher。它在每次回复结束时都会跑，用户中断时不会跑。若 hook 让对话继续，输入里的 `stop_hook_active` 会是 `true`。官方提醒一定要检查这个字段，或改读对话记录，以免在永远不会满足的条件上一直挡下去。连续挡下并让对话继续八次之后，Claude Code 会强制结束这一轮；Claude 一旦再调用工具，这个计数就会归零。
+Stop hook 没有 matcher，每次回复结束都会跑，用户中断时不跑。它要防的是无限循环：hook 让对话继续之后，下一次收到的 `stop_hook_active` 会是 `true`，脚本看到它就要放行。
 
-添加 `.claude/hooks/run-tests-on-stop.sh`。我在这里用 `bun test`，配合后面的 Bun 场景；请换成你项目自己的测试指令，例如 `npm test` 或 `pytest`：
+```mermaid
+flowchart TD
+  A[Claude 结束这轮回复] --> B{"stop_hook_active 是 true？"}
+  B -->|是| Z["exit 0：让它停下"]
+  B -->|否| C[跑测试]
+  C -->|通过| Z
+  C -->|失败| D["exit 2：stderr 交给 Claude"]
+  D --> E[Claude 依反馈继续修]
+  E --> A
+```
+
+官方要求一定要检查 `stop_hook_active`，或改读对话记录，以免在永远不会满足的条件上一直拦。连续拦下八次后，Claude Code 会强制结束这一轮；Claude 只要再调用工具，计数就归零。
+
+新增 `.claude/hooks/run-tests-on-stop.sh`。这里用 `bun test` 配合后面的场景，请换成你的测试命令，例如 `npm test` 或 `pytest`：
 
 ```bash
 #!/bin/bash
@@ -176,17 +185,17 @@ exit 0
 ]
 ```
 
-在 Stop 事件里，结束码 `2` 会不让 Claude 停下，stderr 的说明会成为继续工作的理由。
+退出码 `2` 在三个事件的效果不同：
 
-**你会得到什么：** 测试通过，这轮可以结束；失败时，Claude 会依反馈继续处理，而不是在已经由 hook 接续的情况下再挡一次。
-
-**下一步：** 若你担心对话压缩后遗漏项目惯例，再加上 SessionStart。
+| 事件 | 退出码 `2` 的效果 |
+| --- | --- |
+| PreToolUse | 拦下这次工具调用，stderr 反馈给 Claude |
+| PostToolUse | 工具已经运行完，无法撤回，只把 stderr 交给 Claude |
+| Stop | 不让 Claude 停下，stderr 成为继续工作的理由 |
 
 ## 压缩后把规则补回来：SessionStart
 
-对话脉络（上下文，也就是目前还留在模型眼前的内容）太长时，Claude Code 会做 compaction（压缩）：把先前的对话摘要，好腾出空间，过程中可能漏掉重要细节。官方建议用 SessionStart hook，并把 matcher 设成 `compact`，在每次压缩后把关键规则再写进脉络。指令印到标准输出的纯文本，会被加进 Claude 的脉络。静态、不太会变的规则，也可以改放在 `CLAUDE.md`。
-
-**什么时候用：** 有几条规则你希望每次压缩后都还在，例如软件包管理工具或测试指令。
+对话太长时，Claude Code 会做 compaction（压缩），把先前的对话摘要成较短的内容，细节可能因此丢失。官方建议用 matcher 为 `compact` 的 SessionStart hook，每次压缩后把关键规则再写进上下文。命令打印到 stdout 的纯文本会加进 Claude 的上下文：
 
 ```json
 "SessionStart": [
@@ -202,72 +211,72 @@ exit 0
 ]
 ```
 
-把提醒文本改成你的项目规则即可。`compact` 对应自动或手动压缩。SessionStart 不能用来挡住压缩本身。
-
-**你会得到什么：** 依官方说明，压缩后 Claude 会再看到这段提醒。
-
-**下一步：** 用 `/hooks` 确认四个事件都出现在清单里。
+把提醒换成你的项目规则。`compact` 涵盖自动与手动压缩，SessionStart 拦不住压缩本身。不常变的规则也可以改放在 `CLAUDE.md`。
 
 ## 用 /hooks 检查设置
 
-在 Claude Code 提示符输入 `/hooks`，打开只读的 hooks 浏览画面。清单会标示每条 hook 的来源，例如用户设置、项目设置、本机设置、插件或目前这次对话。选一条可以看到它实际运行的内容，以及定义它的配置文件路径或插件名称。也可以改看 `All events`，连尚未设置的事件一并列出。
+在 Claude Code 提示符输入 `/hooks`，会打开只读的浏览界面。每条 hook 都标出来源：用户设置、项目设置、本地设置、插件或当前这次会话。选一条可以看它实际运行的命令，以及定义它的设置文件或插件。切到 `All events` 会连没设置的事件一起列出。
 
-这个画面只供查看，改设置仍要编辑对应的 JSON 文件。
+这个界面只能看。要改设置，得编辑对应的 JSON 文件。
 
-## 完整范例：一个小项目的一天
+## 完整示例：一个小项目的一天
 
-假设你在维护一个小型网站，希望改完 JavaScript 就排版、不要用 Edit 或 Write 改到 `.env`、每次回复结束先跑测试，压缩后还记得“用 Bun、提交前先测”。
+假设你维护一个小网站：改完 JavaScript 要排版，不能用 Edit 或 Write 改 `.env`，每次回复结束先跑测试，压缩后还要记得“用 Bun、提交前先测”。
 
-排版仍用前面依官方指南 Prettier 示例改写的 `npx prettier` 指令，路径加引号后空格或单引号不会被拆开；这和你用 Bun 还是 npm 管理软件包无关。
+1. 在项目根目录建立 `.claude/settings.json`，放入上面四个事件的设置。建立 `protect-files.sh` 和 `run-tests-on-stop.sh`，把测试命令换成你的，再运行前面的 `chmod`。
+2. 确认装了 `jq`，以及能运行 `npx prettier` 的 Node.js。
+3. 启动 Claude Code 输入 `/hooks`，确认 PostToolUse、PreToolUse、Stop、SessionStart 都在列表里，来源是项目设置。
+4. 请 Claude 在 `.js` 文件加功能。它用 Edit 或 Write 改完后，Prettier 会接着排版。
+5. 它试着用 Edit 或 Write 改 `.env` 时，那次修改会被拦下，并带回 `Blocked:` 说明。
+6. 它说做完时，Stop hook 会跑测试，失败就依反馈继续修。
+7. 对话经过压缩后，SessionStart 会把你的提醒送回上下文。
 
-1. 在项目根目录创建 `.claude/settings.json`，放入上面四个事件的设置；创建 `protect-files.sh` 和 `run-tests-on-stop.sh`，把测试指令改成你的项目指令，并运行 `chmod +x .claude/hooks/*.sh`。
-2. 确认已安装 `jq`，以及可运行 `npx prettier` 的 Node.js 环境。
-3. 启动 Claude Code，输入 `/hooks`，确认 PostToolUse、PreToolUse、Stop、SessionStart 都在清单中，来源是项目设置。
-4. 请 Claude 在一个 `.js` 文件加上功能。它用 Edit 或 Write 改完后，Prettier 会接着排版。
-5. 若它试着用 Edit 或 Write 改 `.env`，该次修改会被挡下，并带回 `Blocked:` 的说明。
-6. 它说做完时，Stop hook 会跑测试；失败就依反馈继续，而不是直接结束。
-7. 若这次对话经过压缩，SessionStart 会把你写的提醒再送进脉络。
-
-这四种 hook 可以分开添加，不必一次全部启用。
+四个 hook 可以分开加，不必一次全开。
 
 ## 该用哪个 hook
 
 | 你的情况 | 用这个 |
 | --- | --- |
 | 用 Edit 或 Write 改完文件，要自动排版 | PostToolUse，matcher 设 `Edit\|Write` |
-| 不要让该次 Edit 或 Write 改到 `.env`、`.git/` 等文件 | PreToolUse，matcher 设 `Edit\|Write`，结束码 2 挡下并说明原因 |
-| 不论谁改了某个文件，都要在文件写入后做扫描 | FileChanged（文件写入后才运行，不能事先挡住） |
+| 不要让该次 Edit 或 Write 改到 `.env`、`.git/` 等文件 | PreToolUse，matcher 设 `Edit\|Write`，退出码 2 拦下并说明原因 |
+| 不论谁改了某个文件，都要在文件写入后做扫描 | FileChanged（文件写入后才跑，不能事先拦住） |
 | 这轮回复结束时先跑测试或扫描工作目录 | Stop，并检查 `stop_hook_active` |
-| 压缩后把项目规则补回脉络 | SessionStart，matcher 设 `compact` |
+| 压缩后把项目规则补回上下文 | SessionStart，matcher 设 `compact` |
 | 只想确认目前设置了哪些 hooks | `/hooks`（只读浏览） |
 
-## 使用前要先知道的限制
+## 它挡不下什么
 
-这些限制是我从官方文档整理出来的，使用前请先看过。
+**Matcher 只比对工具名称。** Claude 改用 `Bash` 或 `PowerShell` 改文件时，`"Edit|Write"` 不会触发。官方的补法有三种：
 
-**Matcher 只比工具名称。** `"Edit|Write"` 在 Claude 改用 `Bash` 或 `PowerShell` 改文件时不会触发。官方建议：若必须看到每一次改文件，例如做合规扫描或稽核记录，加一个 Stop hook，在每轮结束时扫描工作目录；若要在每次调用时都看到，另外 match `Bash|PowerShell`，并用 `git status --porcelain` 列出已修改和尚未追踪的文件。若只在意某个文件被写入，不论是谁写的，改用 [FileChanged](https://code.claude.com/docs/en/hooks#filechanged)。因此，我只把上面的保护脚本说成“挡下该次 Edit 或 Write”，不要理解成 AI 完全不能碰到这些文件。
+- 要看到每一轮的所有改动（合规扫描、审计记录）：加一个 Stop hook，在每轮结束时扫描工作目录。
+- 要在每次调用时都看到：另外 match `Bash|PowerShell`，用 `git status --porcelain` 列出已修改和未跟踪的文件。
+- 只在意某个文件被写入，不论是谁写的：用 [FileChanged](https://code.claude.com/docs/en/hooks#filechanged)。
 
 ![正门有人看守，侧路仍可绕过；只比对 Edit 和 Write 挡不住经由指令改文件](bash-bypass.webp){: w="1280" h="720" }
 _概念图。Matcher 守的是指定的工具名称；经由 Bash 或 PowerShell 改文件，会走另一条路。_
 
-**`if` 只能尽量过滤。** 除了 matcher，工具事件还能加 `if`，用权限规则的语法依工具名称和参数决定要不要启动 hook，例如 `"Edit(*.ts)"`。官方写明它是 best-effort（尽力而为，不保证每次都滤对）。真正要强制允许或禁止时，我会用权限系统，而不是只靠 hook。`if` 只对工具相关事件有效，加在其他事件上反而会让 hook 完全不跑。
+**`if` 只能尽力过滤。** 工具事件可以加 `if`，用权限规则的语法依工具名称和参数决定要不要启动，例如 `"Edit(*.ts)"`。官方写明它是 best-effort，不保证每次都过滤对，要强制允许或禁止就用权限系统。`if` 只对工具事件有效，加在其他事件上会让 hook 完全不跑。
 
-**Hook 回传 allow，不会绕过 deny。** 设置里的拒绝规则，包括组织代管的拒绝清单，仍然有效。相对地，hook 的 deny 在各种权限模式都有效。结束码 0 也不等于核准。
+**Hook 返回 allow 不会绕过 deny。** 设置里的拒绝规则，包括组织托管的拒绝列表，仍然有效。反过来，hook 的 deny 在每种权限模式都有效。
 
-**PostToolUse 不能还原已经发生的事。** 工具运行完才会跑到这个 hook，文件写入、指令运行或网络请求都已经生效。Exit 2 在这里也不能撤回，只能把说明交给 Claude。要事先阻挡或改写调用，用 PreToolUse。
+**PostToolUse 不能还原已经发生的事。** 这时文件已经写入、命令已经运行、网络请求已经发出。要事先阻止或改写调用，用 PreToolUse。
 
-**Hook 以你的完整用户权限运行。** 官方警告：command hook 会用你的账号权限运行指令，能修改、删除或读取这个账号有权访问的任何文件。加入设置前，请先亲自检查，并在安全的环境中试运行。在共享或生产环境使用前，请先阅读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。交互式会话会先询问你是否信任该文件夹；但使用 `claude -p` 或 SDK 时，官方说明不会弹出这个对话框，而会直接把文件夹视为已信任，因此代码仓库里的 `.claude/settings.json` 也可能在你从未确认过的目录中运行。所以我不把 hooks 当成安全边界，它拦不住所有修改途径。要由操作系统限制命令能读写的范围，可以参考我写的[Claude Code 沙箱设置教程：挡住 SSH 密钥与 token](/posts/claude-code-sandbox-setup/)。
+**Hook 以你的完整用户权限运行。** 它能读、改、删你的账号碰得到的任何文件。加进设置前先读过命令，在安全的环境试跑；用在共享或生产环境前，先读 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
+
+交互模式会先问你是否信任这个文件夹，但 `claude -p` 和 SDK 不会问，直接视为已信任，所以 repo 里的 `.claude/settings.json` 可能在你从没确认过的目录里运行。
+
+Hooks 不是安全边界。要由操作系统限制命令能读写的范围，见 [Claude Code 沙箱设置教程：挡住 SSH 密钥与 token](/posts/claude-code-sandbox-setup/)。
 
 ## 结论
 
-Hooks 让排版、敏感文件提醒和收尾测试在固定时机自动发生，不必每次再开口。我建议先从项目的 `.claude/settings.json` 加一个 hook，用 `/hooks` 确认它出现在清单里，再依需要往上加。同时要记得：matcher 只看工具名称，Bash 或 PowerShell 可以绕过只看守 Edit 和 Write 的规则；`if` 只是尽量过滤；allow 不会绕过 deny；PostToolUse 无法还原已运行的动作。在我看来，它是提高效率的固定检查，而不是最后一道防线。
+先在项目的 `.claude/settings.json` 加一个 hook，用 `/hooks` 确认它在列表里，再按需要往上加。把它当成省事的固定检查，不要当成最后一道防线。
 
 ## 延伸阅读
 
-- [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)：常见用法与可拷贝范例。
+- [Claude Code hooks 指南](https://code.claude.com/docs/en/hooks-guide)：常见用法与可拷贝的示例。
 - [Hooks reference](https://code.claude.com/docs/en/hooks)：事件、输入输出与 [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations)。
-- [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：权限与供应链风险，和本篇的日常检查互补。
-- [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)：说明 skill 和 hook 的差别。
-- [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：hooks 在 Claude Code 的会话里执行；这篇谈 PR 提交后的固定规则检查、AI 审查与人工批准。
-- [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：只需要让 AI 知道、不必强制执行的项目规则，该怎么写成规则文件。
-- [Claude Code plugin 安全安装：装之前先看哪些文件](/posts/claude-code-plugin-safe-install/)：plugin 可能带进别人写的 hook，这篇说明安装前要打开哪些文件。
+- [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：权限与供应链风险。
+- [AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)：skill 和 hook 的差别。
+- [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：PR 提交后的规则检查、AI 审查与人工批准。
+- [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：只需要让 AI 知道、不必强制执行的规则。
+- [Claude Code plugin 安全安装：装之前先看哪些文件](/posts/claude-code-plugin-safe-install/)：plugin 可能带进别人写的 hook。
