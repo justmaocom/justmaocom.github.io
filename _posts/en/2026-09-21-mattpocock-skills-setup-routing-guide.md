@@ -18,7 +18,7 @@ You don't. Your first time through takes just two steps:
 1. Use `setup-matt-pocock-skills` to record your project's working rules.
 2. Describe your problem to `ask-matt`, and let it suggest the next skill to use.
 
-`ask-matt` is more of a help desk than a manager that runs the whole pipeline automatically. It only tells you which skill to use next; you still have to start that skill yourself.
+As I see it, `ask-matt` is more of a help desk than a manager that runs the whole pipeline automatically. It only tells you which skill to use next; you still have to start that skill yourself.
 
 > mattpocock/skills Series | Part 1
 >
@@ -56,7 +56,7 @@ _The full path for first-time use: choose an installation method, run setup, the
 | Using Claude Code, want to modify the skills     | skills.sh           | Files are copied into your project; you modify and update them |
 | Using Codex or another tool that supports skills | skills.sh           | Files are copied into your project; you modify and update them |
 
-Pick only one of the two methods. If you use both, every skill shows up twice.
+I suggest picking only one of the two methods. If you use both, every skill shows up twice.
 
 Claude Code is Anthropic's AI coding assistant, while Codex comes from OpenAI. The command to install the official plugin for Claude Code is:
 

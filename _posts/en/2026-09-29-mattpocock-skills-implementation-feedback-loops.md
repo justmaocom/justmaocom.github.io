@@ -242,7 +242,7 @@ Both paths share [six rules](https://github.com/mattpocock/skills/blob/c55ee4607
 
 I asked at the start: when the AI writes both the code and the tests, are the tests just vouching for the code? `tdd` guards against this with two rules.
 
-**The first rule is that you confirm where the tests go.** As mentioned earlier, the AI can only write tests at the seams it lists after you approve them. Use this step to mark behaviors stated in the requirements as must-verify items, such as "available seats go up after a member is deactivated."
+**The first rule is that you confirm where the tests go.** As mentioned earlier, the AI can only write tests at the seams it lists after you approve them. I'd suggest using this step to mark behaviors stated in the requirements as must-verify items, such as "available seats go up after a member is deactivated."
 
 **The second rule is that expected values need an independent source.** When `tdd` explains [the tautology anti-pattern](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31), it requires expected values to come from somewhere outside the code. That can be a known-correct value, a hand-calculated example, or the spec. `tests.md` shows both approaches with the same sum function:
 
@@ -284,11 +284,11 @@ These four skills mean you no longer have to go by gut feeling to decide whether
 | After `prototype` is delivered | You or a domain expert | Actually click through every scenario or variant, and say what's wrong |
 | Wrapping up `prototype` | The team | Maintain the `prototype/<name>` branch and leave a note on the ticket pointing to it |
 
-The most time-consuming part is phase 1 of `diagnosing-bugs`. The skill holds that [once the loop is right, the bug is 90% fixed](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37), so that's where the time goes.
+In my view, the most time-consuming part is phase 1 of `diagnosing-bugs`. The skill holds that [once the loop is right, the bug is 90% fixed](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37), so that's where the time goes.
 
 ## Which One to Use When
 
-Pick based on the situation in front of you:
+I'd suggest picking based on the situation in front of you:
 
 | Your situation | Skill to use | When it doesn't fit |
 | --- | --- | --- |

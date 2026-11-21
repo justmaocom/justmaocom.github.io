@@ -18,7 +18,7 @@ mermaid: true
 1. 用 `setup-matt-pocock-skills` 把项目的工作规则记下来。
 2. 用 `ask-matt` 描述你遇到的问题，让它建议下一个该用的 skill。
 
-`ask-matt` 比较像服务台，不是会自动跑完整套流程的总管。它只告诉你下一步该用哪个 skill，实际启动仍要由你来做。
+在我看来，`ask-matt` 比较像服务台，不是会自动跑完整套流程的总管。它只告诉你下一步该用哪个 skill，实际启动仍要由你来做。
 
 > mattpocock/skills 系列｜第 1 篇
 >
@@ -56,7 +56,7 @@ _第一次使用的完整路径：选择安装方式、运行 setup，再由 ask
 | 使用 Claude Code，想自行修改内容   | skills.sh | 文件复制进项目，由你自行修改与更新 |
 | 使用 Codex 或其他支持 skill 的工具 | skills.sh | 文件复制进项目，由你自行修改与更新 |
 
-两种方式任选其一就好。同时使用的话，每个 skill 会各出现两份。
+我建议两种方式任选其一。同时使用的话，每个 skill 会各出现两份。
 
 Claude Code 是 Anthropic 推出的 AI 编程助手，Codex 则来自 OpenAI。Claude Code 的官方插件安装命令是：
 

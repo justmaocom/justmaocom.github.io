@@ -26,7 +26,7 @@ mermaid: true
 > - 新增的 `implement-spec`、`pr`、`retro`，本系列还没有介绍。
 > - [第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)的词汇表 `CONTEXT.md` 改名为 `GLOSSARY.md`。
 >
-> 我之后会按新版全面更新这个系列。实际使用前，请对照仓库当前的版本。
+> 我之后会按新版全面更新这个系列。实际使用前，我建议对照仓库当前的版本。
 {: .prompt-info }
 
 ## mattpocock/skills 是什么

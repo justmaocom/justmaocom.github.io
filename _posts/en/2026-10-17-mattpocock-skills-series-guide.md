@@ -26,7 +26,7 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 > - The new `implement-spec`, `pr`, and `retro` aren't covered in this series yet.
 > - The glossary file from [Part 2](/posts/mattpocock-skills-requirements-shared-language/), `CONTEXT.md`, is now `GLOSSARY.md`.
 >
-> I plan to update the whole series for the new version. Before you rely on any detail, check it against the repo's current version.
+> I plan to update the whole series for the new version. Before you rely on any detail, I suggest checking it against the repo's current version.
 {: .prompt-info }
 
 ## What Is mattpocock/skills?

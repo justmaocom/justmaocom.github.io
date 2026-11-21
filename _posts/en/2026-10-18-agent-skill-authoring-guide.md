@@ -39,7 +39,7 @@ This post doesn't cover installing skills other people wrote. To start with read
 
 ## Worth a skill: what you keep pasting and the AI gets wrong alone
 
-The Claude Code docs give a practical test. Write a skill when you keep [pasting the same instructions, checklist or multi-step procedure into chat](https://code.claude.com/docs/en/skills). The same goes for a section of `CLAUDE.md` that has grown from facts into a procedure.
+The Claude Code docs give a test I find practical. Write a skill when you keep [pasting the same instructions, checklist or multi-step procedure into chat](https://code.claude.com/docs/en/skills). The same goes for a section of `CLAUDE.md` that has grown from facts into a procedure.
 
 The difference is when each one loads: `CLAUDE.md` is read into every conversation, but a skill's body loads only when it's used. The same docs note that long reference material costs almost nothing until it's needed. `AGENTS.md` is always loaded too, so every line has a cost, as I covered in [Part 6 of the series](/posts/mattpocock-skills-research-handoff/).
 
@@ -618,7 +618,7 @@ Validation failed for writing-commit-messages:
   - Unexpected fields in frontmatter: when_to_use. Only ['allowed-tools', 'compatibility', 'description', 'license', 'metadata', 'name'] are allowed.
 ```
 
-The last one matters most. The same field is perfectly valid in Claude Code and an error in skills-ref.
+I find the last one matters most. The same field is perfectly valid in Claude Code and an error in skills-ref.
 
 Claude Code also has a command that finds `SKILL.md` files whose frontmatter fails to parse. It [needs v2.1.233 or later](https://code.claude.com/docs/en/skills):
 
@@ -754,9 +754,9 @@ flowchart TD
   E -->|Yes| F[Tag with change note]
 ```
 
-Keeping the old version as a baseline is [how the output evaluation guide handles revisions](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs). Comparing both on the same cases tells you whether the new version is really better, or just wrong in a different way.
+Keeping the old version as a baseline is [how the output evaluation guide handles revisions](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs), a routine I find practical. Comparing both on the same cases tells you whether the new version is really better, or just wrong in a different way.
 
-I'd also build three upkeep habits:
+Three more upkeep habits I recommend:
 
 - **Don't write information that goes stale.** Anthropic's authoring guide suggests moving retired approaches into [an "old patterns" section](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices#avoid-time-sensitive-information) instead of mixing them into the main steps.
 - **Add a Gotcha every time you correct the AI.** agentskills.io calls this [one of the most direct ways to improve a skill](https://agentskills.io/skill-creation/best-practices#gotchas-sections).

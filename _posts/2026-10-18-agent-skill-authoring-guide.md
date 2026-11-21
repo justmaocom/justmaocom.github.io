@@ -39,7 +39,7 @@ Agent Skill 就是做這件事的。這篇從寫 skill 的人的角度，實際�
 
 ## 值得寫成 Skill 的事：你一再重貼、AI 自己又做不好
 
-Claude Code 的文件給了一個實際的判準。你一直把[同一段指示、檢查清單或多步驟流程貼進對話](https://code.claude.com/docs/en/skills)，或是 `CLAUDE.md` 裡某一段已經從「事實」長成了「流程」，就該寫成 skill。
+Claude Code 的文件給了一個我覺得很實際的判準。你一直把[同一段指示、檢查清單或多步驟流程貼進對話](https://code.claude.com/docs/en/skills)，或是 `CLAUDE.md` 裡某一段已經從「事實」長成了「流程」，就該寫成 skill。
 
 差別在載入的時機：`CLAUDE.md` 每次對話都會讀進去，skill 的本文只在用到時才載入。同一份文件也寫明，長篇參考資料在用到之前幾乎不佔成本。`AGENTS.md` 也是常駐的，每一行都有成本，我在[系列第 6 篇](/posts/mattpocock-skills-research-handoff/)談過這一點。
 
@@ -610,7 +610,7 @@ Validation failed for writing-commit-messages:
   - Unexpected fields in frontmatter: when_to_use. Only ['allowed-tools', 'compatibility', 'description', 'license', 'metadata', 'name'] are allowed.
 ```
 
-最後這個最值得注意：同一個欄位，在 Claude Code 裡完全合法，到了 skills-ref 就是錯誤。
+我覺得最後這個最值得注意：同一個欄位，在 Claude Code 裡完全合法，到了 skills-ref 就是錯誤。
 
 Claude Code 另外提供一個指令，可以找出 frontmatter 解析失敗的 `SKILL.md`，[需要 v2.1.233 以上](https://code.claude.com/docs/en/skills)：
 
@@ -742,7 +742,7 @@ flowchart TD
   E -->|是| F[打 tag，寫變更說明]
 ```
 
-先留舊版當對照組，是輸出評測指南[改版時的做法](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs)。新舊版對同一組題目比過，才知道新版是真的變好，還是只是換了一種錯法。
+先留舊版當對照組，是輸出評測指南[改版時的做法](https://agentskills.io/skill-creation/evaluating-skills#spawning-runs)，我覺得很實用。新舊版對同一組題目比過，才知道新版是真的變好，還是只是換了一種錯法。
 
 另外，我建議養成三個維護習慣：
 

@@ -13,7 +13,7 @@ mermaid: true
 
 In the previous post, `implement` finished "Deactivate a member and release the seat": the test went from red (failing) to green (passing), and at the end the AI ran `code-review` as instructed. You now have three finished tickets and a branch ready to merge back into the main branch. A branch is a copy of the main branch where you can make changes safely.
 
-Passing tests only mean the code behaves the way the tests say. Three things remain that tests can't see, and `mattpocock/skills` handles them with four skills:
+Passing tests only mean the code behaves the way the tests say. In my view, three things remain that tests can't see, and `mattpocock/skills` handles them with four skills:
 
 - Is the structure of the code getting messier with every change? That's for `codebase-design` and `improve-codebase-architecture`.
 - Did this change do more, or less, than what was asked? That's for `code-review`.
@@ -179,7 +179,7 @@ The checklist comes with two conditions:
 - The project's own guidelines come first, so anything the project explicitly allows isn't a smell.
 - Every item is only a heads-up, so the report says "may have this problem," never a hard violation.
 
-The third example is the same idea as `codebase-design`'s "a socket only one plug ever fits isn't really a socket": one warns you while designing, the other catches it during review.
+As I see it, the third example is the same idea as `codebase-design`'s "a socket only one plug ever fits isn't really a socket": one warns you while designing, the other catches it during review.
 
 ### Why Two Sides
 

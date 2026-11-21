@@ -54,7 +54,7 @@ mermaid: true
 | `teach` | 在一個資料夾裡，分好幾次教你一個新主題 | 想真正學會某件事時 | 不會，要你手動叫它 |
 | `writing-for-agents` | 一份「怎麼寫給 AI 看的文件」的參考手冊 | 寫 skill 或專案說明文件 `AGENTS.md` 時 | 會 |
 
-`handoff` 和 `teach` 都[設定成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5)[AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4)。交接和上課都是你決定要開始的事，AI 不該在聊天聊到一半時突然幫你做。
+`handoff` 和 `teach` 都[設定成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5)[AI 不能自己啟動](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4)。在我看來，交接和上課都是你決定要開始的事，AI 不該在聊天聊到一半時突然幫你做。
 
 在 `ask-matt` 的路線圖裡，[`handoff` 被放在「階段交界」](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L61-L69)。其他四個都在[不屬於任何流程的單獨區塊](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L73-L86)，需要時才拿出來用。
 
@@ -287,7 +287,7 @@ bash -n setup-billing.sh
 
 這一節是我自己的看法，原始資料沒有直接這樣說。
 
-五個 skill 裡，最容易被小看的是 `handoff`，它只有五條規則。但第 3 條「已經寫在別處的東西不要重抄，只附連結」，不只適用於交接單。其他 skill 背後也是同一個想法：讓每件事只有一份正本，其他地方都指向它。
+五個 skill 裡，最容易被小看的是 `handoff`，它只有五條規則。但我覺得第 3 條「已經寫在別處的東西不要重抄，只附連結」，不只適用於交接單。其他 skill 背後也是同一個想法：讓每件事只有一份正本，其他地方都指向它。
 
 - `research` 的筆記附出處。
 - `wizard` 把值存進 `.env`，而不是寫在對話裡。

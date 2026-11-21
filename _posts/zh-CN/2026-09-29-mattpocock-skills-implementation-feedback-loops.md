@@ -242,7 +242,7 @@ _版本之间要在布局与操作方式上有所不同，只换颜色看不出�
 
 开头问过：AI 自己写代码也自己写测试，测试会不会只是在替程序背书？`tdd` 靠两条规则防止这种情况。
 
-**第一条是测试位置由你确认。** 前面提过，AI 列出的接缝要经过你同意，才能在那里写测试。建议趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
+**第一条是测试位置由你确认。** 前面提过，AI 列出的接缝要经过你同意，才能在那里写测试。我建议趁这一步，把“禁用成员后可用席位增加”这类需求里写明的行为，指定为一定要验证的项目。
 
 **第二条是预期值要有独立来源。** `tdd` 在说明[同义反复这个反模式](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/tdd/SKILL.md#L31)时，要求预期值来自程序以外的依据，例如已知正确的数值、手算过的例子或规格。`tests.md` 用同一个求和函数示范了两种写法：
 
@@ -284,11 +284,11 @@ _预期值若照程序的算法重算，测试就会永远通过。_
 | `prototype` 交付后 | 你或领域专家 | 实际点过每个场景或每个版本，并说出哪里不对 |
 | `prototype` 收尾 | 团队 | 维护 `prototype/<name>` 分支，并在工作单上留下指向它的说明 |
 
-最花时间的是 `diagnosing-bugs` 的第一阶段。原文认为[回路做对了，bug 就等于修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以时间都花在这里。
+在我看来，最花时间的是 `diagnosing-bugs` 的第一阶段。原文认为[回路做对了，bug 就等于修好了九成](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/diagnosing-bugs/SKILL.md#L37)，所以时间都花在这里。
 
 ## 什么情况用哪一个
 
-照你手上的状况挑：
+我建议照你手上的状况挑：
 
 | 你手上的状况 | 使用的 skill | 不适用的时候 |
 | --- | --- | --- |

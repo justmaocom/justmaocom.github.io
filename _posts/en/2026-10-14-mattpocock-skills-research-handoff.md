@@ -54,7 +54,7 @@ This post covers the five skills `mattpocock/skills` uses for these: `research`,
 | `teach` | Teaches you a new topic over several sessions, inside one folder | When you want to really learn something | No, you start it yourself |
 | `writing-for-agents` | A reference manual for writing documents the AI reads | When writing a skill or the project instructions file `AGENTS.md` | Yes |
 
-Both `handoff` and `teach` are [set](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5) [so the AI can't start them on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4). Handing off and taking a lesson are things you decide to begin, so the AI shouldn't spring them on you mid-chat.
+Both `handoff` and `teach` are [set](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/handoff/SKILL.md#L5) [so the AI can't start them on its own](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/teach/SKILL.md#L4). As I see it, handing off and taking a lesson are things you decide to begin, so the AI shouldn't spring them on you mid-chat.
 
 On the `ask-matt` roadmap, [`handoff` sits under "phase boundaries"](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L61-L69). The other four are in [a standalone section outside every flow](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L73-L86), used only when needed.
 
@@ -287,7 +287,7 @@ This command printed nothing and exited with 0 (the signal for a normal finish),
 
 This section is my own view; the source material doesn't say it directly.
 
-Of the five skills, the easiest to underrate is `handoff`, with just five rules. But rule 3, "don't copy what's already written elsewhere; just link it," applies far beyond handoff sheets. The other skills share the same idea: give everything a single original copy, and have everything else point to it.
+Of the five skills, the easiest to underrate is `handoff`, with just five rules. But I think rule 3, "don't copy what's already written elsewhere; just link it," applies far beyond handoff sheets. The other skills share the same idea: give everything a single original copy, and have everything else point to it.
 
 - `research` notes cite their sources.
 - `wizard` saves values to `.env` instead of leaving them in the conversation.
