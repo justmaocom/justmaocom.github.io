@@ -21,8 +21,9 @@ function parse(text, zh) {
   if (!m) throw new Error('no front matter');
   const [, fm, body] = m;
   const blocks = [];
-  const prose = body.replace(/^(`{3,})([^\n]*)\n([\s\S]*?)\n\1[ \t]*$/gm, (_, f, info, code) => {
-    blocks.push({ lang: info.trim().split(/\s/)[0], code });
+  // Fences indented inside list items count too; the indent stays part of the code so a re-indent shows up.
+  const prose = body.replace(/^([ \t]*)(`{3,})([^\n]*)\n([\s\S]*?)\n\1\2[ \t]*$/gm, (_, ind, f, info, code) => {
+    blocks.push({ lang: info.trim().split(/\s/)[0], code: code.split('\n').map((l) => l.slice(ind.length)).join('\n') });
     return '';
   });
   const paras = prose.split(/\n\s*\n/).map((p) => p.trim())
