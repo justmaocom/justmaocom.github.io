@@ -4,36 +4,45 @@ description: "同一个 repo 要让两个 AI 分开干活时，用 git worktree 
 date: 2026-11-11 09:00:00 +0800
 categories: [AI, 软件开发]
 tags: [git, coding-agent, workflow]
+mermaid: true
 media_subpath: /assets/img/posts/git-worktree-parallel-ai-agents/
 image:
   path: cover.zh-CN.webp
   alt: "用 git worktree 帮两个 AI 各开一个工作目录，停在自己的分支上干活，做完再收掉。"
 ---
 
-如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。我认为更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
+如果我让两个 coding agent（会自己读文件、改文件、跑命令的 AI 编程助手）在同一个文件夹里各干各的，等于两个人共用一张桌子、一台电脑。一个 AI 切换到别的分支（一条独立的修改路线）时，文件夹里的文件会换成那条分支的版本，另一个 AI 做到一半的文件就跟着变了。
 
-这篇我只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，我在[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)里讲过。
+我认为更好的做法是让同一个 repo（放项目文件和完整修改历史的仓库）长出第二、第三个工作目录，每个都停在自己的分支上。这就是 [git worktree](https://git-scm.com/docs/git-worktree) 做的事。
 
-> **版本说明**：我写这篇时，参考的是 2026-11-11 当天 git-scm.com 上的 [git-worktree 手册](https://git-scm.com/docs/git-worktree)（Git 2.56.0 版）；git worktree 的多重 checkout 官方仍标记为实验性，之后行为可能改变，以手册为准。
+这篇只谈怎么把工作目录隔开，以及做完怎么合并、收尾，不比较各家 AI 工具。若你在想“一次让多个 AI 并行做事”在流程上是什么意思，我在[AI 写代码更快了，产品为什么还是交付不了？我如何理解 AI 原生开发流程](/posts/ai-native-sdlc-playbook/)里讲过。
+
+> **版本说明**：我写这篇时，参考的是 2026-11-11 当天 git-scm.com 上的 [git-worktree 手册](https://git-scm.com/docs/git-worktree)（Git 2.56.0 版）。git worktree 的多重 checkout 官方仍标记为实验性，之后行为可能改变，以手册为准。
 {: .prompt-info }
 
 ## worktree 是什么
 
 git 手册介绍 worktree 的第一句话是：一个 repo 可以有好几个工作目录，让你同时 checkout 不止一个分支。checkout 的意思，是把某个分支或 commit（一次存档记录）的文件内容放到文件夹里让你编辑。
 
-工作目录（working tree）是你实际打开、编辑文件的那个文件夹。git 把“一个工作目录，加上它自己的 HEAD（标明这个文件夹当前停在哪个分支、哪个 commit）等数据”合称为 worktree。你用 `git clone` 或 `git init` 得到的第一个，叫 main worktree（主工作目录）；之后用 `git worktree add` 加出来的，叫 linked worktree。[手册的说明段](https://git-scm.com/docs/git-worktree#_description)这样定义：一个 repo 会有一个主工作目录，以及零个或多个 linked worktree。手册把 bare repository（裸仓库）排除在这条定义之外，这篇我不会用到它。
+工作目录（working tree）是你实际打开、编辑文件的那个文件夹。git 把“一个工作目录，加上它自己的 HEAD（标明这个文件夹当前停在哪个分支、哪个 commit）等数据”合称为 worktree。
 
-这些工作目录[共用几乎所有东西](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)，只有少数属于各个 worktree 自己的数据是分开的，例如 HEAD 和暂存区（index，也就是 `git add` 之后、commit 之前放东西的地方）。整理一下：
+[手册的说明段](https://git-scm.com/docs/git-worktree#_description)这样定义：一个 repo 会有一个主工作目录，以及零个或多个 linked worktree。你用 `git clone` 或 `git init` 得到的第一个，叫 main worktree（主工作目录）。之后用 `git worktree add` 加出来的，叫 linked worktree。
+
+手册把 bare repository（裸仓库）排除在这条定义之外，这篇不会用到它。
+
+这些工作目录[共用几乎所有东西](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)，只有少数属于各个 worktree 自己的数据是分开的：
 
 - 共用：commit 历史、分支、标签、stash（把还没 commit 的修改先收起来的机制），以及默认的 repo 配置。
-- 各自：文件夹里实际的文件、当前停在哪个分支（HEAD）、各自的暂存区。
+- 各自：文件夹里实际的文件、当前停在哪个分支（HEAD）、各自的暂存区（index，也就是 `git add` 之后、commit 之前放东西的地方）。
 
 “分支共用”的意思是每个工作目录都看得到同一批分支，但每个文件夹各自决定现在停在哪一条。所以你在一个工作目录里新增一个 commit，其他工作目录立刻都看得到这段历史；但两边桌上的文件不会自动变成同一份。
 
 ![每个工作目录有自己的文件和当前位置，但共用同一份历史记录和分支](shared-core.zh-CN.webp){: w="1600" h="900" }
 _概念图，不是实际界面。上方是所有工作目录共用的历史记录、分支、stash 和设置；下方每个工作目录各有自己的文件、HEAD 和暂存区。_
 
-还有一件实现上的事情要知道：linked worktree 顶层的 `.git` [不是一个完整的文件夹，而是一个小文件](https://git-scm.com/docs/git-worktree#_details)，指向主 repo 里为这个 worktree 保留的管理数据（手册称为 administrative files）。也就是说，linked worktree 的文件夹本身不是完整的 repo。不要把它当成独立的 repo 复制到别处，也不要删掉这个 `.git` 文件。
+linked worktree 顶层的 `.git` [不是一个完整的文件夹，而是一个小文件](https://git-scm.com/docs/git-worktree#_details)。它指向主 repo 里为这个 worktree 保留的管理数据（手册称为 administrative files）。
+
+也就是说，linked worktree 的文件夹本身不是完整的 repo。不要把它当成独立的 repo 复制到别处，也不要删掉这个 `.git` 文件。
 
 > **进阶：** 若你希望某个 worktree 有自己的配置，例如不同的 `user.email`，可先执行：
 >
@@ -52,9 +61,9 @@ _概念图，不是实际界面。上方是所有工作目录共用的历史记�
 - 手上已经改到一半，暂时不想用 stash 把修改收起来，却又要去修一件急事。这是[手册举的官方场景](https://git-scm.com/docs/git-worktree#_examples)。
 - 只想在一个用完就丢的干净文件夹里跑测试或试东西。这时可用稍后会提到的 `-d`。
 
-不需要 worktree 的情况：一次只做一件事，或改动很小、切换分支就够了。这些是我的使用建议，不是手册里的硬性规定。
+一次只做一件事，或改动很小、切换分支就够了，就不需要 worktree。这些是我的使用建议，不是手册里的硬性规定。
 
-有一种情况则明确不适合。submodule 是把另一个 repo 当成子文件夹挂进来的做法；挂着这些子 repo 的外层，手册称为 superproject。
+有 submodule 的 repo 则明确不适合。submodule 是把另一个 repo 当成子文件夹挂进来的做法；挂着这些子 repo 的外层，手册称为 superproject。
 
 > **有 submodule 的 repo，不要用这个方法并行开发。** [官方手册的 BUGS 段](https://git-scm.com/docs/git-worktree#_bugs)写道：
 >
@@ -63,19 +72,32 @@ _概念图，不是实际界面。上方是所有工作目录共用的历史记�
 > 翻译：多重 checkout 总体上仍属实验性质，对 submodule 的支持也不完整。不建议对 superproject 做多重 checkout。
 {: .prompt-warning }
 
-不确定自己的 repo 有没有用 submodule，可以这样确认。用了 submodule 的 repo，最上层会有一个叫 `.gitmodules` 的配置文件，[手册说明](https://git-scm.com/docs/gitmodules)每个 submodule 在里面各有一段配置。这个文件名以点开头，文件资源管理器默认可能会把它隐藏，所以我建议用命令确认，结果更准确：
+不确定自己的 repo 有没有用 submodule，用命令确认最准确：
 
 ```bash
 git submodule status
 ```
 
-[这条命令](https://git-scm.com/docs/git-submodule#Documentation/git-submodule.txt-status--cached--recursive--path)会为每个 submodule 打印一行，包含它当前停在的 commit 和路径。什么都没打印出来，就说明这个 repo 没有 submodule，可以按下面的步骤做。
+[这条命令](https://git-scm.com/docs/git-submodule#Documentation/git-submodule.txt-status--cached--recursive--path)会为每个 submodule 打印一行，包含它当前停在的 commit 和路径。
+
+```mermaid
+flowchart LR
+  A[想让 AI 并行做事] --> B["git submodule status"]
+  B -->|打印出任何一行| C[别用 worktree 并行开发]
+  B -->|什么都没打印| D[按步骤 1 开始]
+```
+
+用了 submodule 的 repo，最上层也会有一个叫 `.gitmodules` 的配置文件，[手册说明](https://git-scm.com/docs/gitmodules)每个 submodule 在里面各有一段配置。但这个文件名以点开头，文件资源管理器默认可能会把它隐藏，所以我建议用上面的命令确认。
 
 ## 步骤 1：开一个新的工作目录
 
+`git worktree add` 会开出一个独立的文件夹，停在自己的分支上，和原来的工作目录互不干扰。这一节的命令是各种写法的示范，不用全部照着敲；后面的“实际场景”会从头到尾完整做一遍。
+
 下面的命令都是打开终端、在原来的 repo 文件夹里执行。我用一个叫 `myapp` 的文件夹做例子；新开的 worktree 会关联到你执行命令时所在的这个 repo。
 
-我建议把新的 worktree 放在 repo 文件夹**旁边**，例如 `../myapp-login`。`../` 表示上一级文件夹，所以 `myapp-login` 会和 `myapp` 并排。不要放在 repo 里面，以免它和项目里的普通文件混在一起。这是我的建议，手册没有规定路径。
+我建议把新的 worktree 放在 repo 文件夹**旁边**，例如 `../myapp-login`。`../` 表示上一级文件夹，所以 `myapp-login` 会和 `myapp` 并排。
+
+不要放在 repo 里面，以免它和项目里的普通文件混在一起。这是我的建议，手册没有规定路径。
 
 最常用的写法，是一边开新分支、一边开新文件夹。`-b` 后面接新分支的名字，再接新文件夹的路径：
 
@@ -84,9 +106,11 @@ git worktree add -b feature-login ../myapp-login
 git worktree add -b fix-typo ../myapp-typo main
 ```
 
-这两行是两个独立的例子。第一行没有指定起点，新分支会从当前的 HEAD 开始，也就是你在 `myapp` 里当前停的那个 commit；第二行在最后写了 `main`，新分支就从 `main` 开始。
+这两行是两个独立的例子。第一行没有指定起点，新分支会从当前的 HEAD 开始，也就是你在 `myapp` 里当前停的那个 commit。第二行在最后写了 `main`，新分支就从 `main` 开始。
 
-`-b` 遇到已经存在的分支名称会拒绝创建。另一个选项 `-B` 会跳过这个保护，把那个分支**重置**到你指定的起点，分支原来指向的位置就被换掉了，请谨慎使用。
+`-b` 遇到已经存在的分支名称会拒绝创建。这时换一个新名字；如果本来就想接手那条分支，改用下面接手已有分支的写法。
+
+另一个选项 `-B` 会跳过这个保护，把那个分支**重置**到你指定的起点。分支原来指向的位置就被换掉了，请谨慎使用。
 
 如果只给路径，git 会[自动用文件夹的最后一段作为新分支名](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)。例如 `git worktree add ../hotfix` 会创建名为 `hotfix` 的分支。
 
@@ -108,17 +132,19 @@ git worktree add -d ../myapp-try
 cd ../myapp-login
 ```
 
-在这里打开任何 coding agent、照常 commit 就可以。要注意，新文件夹里只有被 git 跟踪（已经交给 git 管理）的文件。像 `node_modules`（安装好的依赖包）、`.env`（常用来放密码或密钥的配置文件）这类没被跟踪的东西不会跟过来，需要重新安装，或自己复制过来。
+在这里打开任何 coding agent、照常 commit 就可以。要注意，新文件夹里只有被 git 跟踪（已经交给 git 管理）的文件。项目规则若写在被跟踪的 AGENTS.md，每个 worktree 都会有同一份，写法见[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。
 
-这一节的命令是各种写法的示范，不用全部照着敲；后面的“实际场景”会从头到尾完整做一遍。
-
-**你会得到：** 一个独立的文件夹，停在自己的分支上，和原来的工作目录互不干扰。
+像 `node_modules`（安装好的依赖包）、`.env`（常用来放密码或密钥的配置文件）这类没被跟踪的东西不会跟过来，需要重新安装，或自己复制过来。
 
 ## 同一个分支一次只能在一个地方
 
-[手册写明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)：如果某个分支已经在别的 worktree 被 checkout，再对它执行 `add` 会被拒绝，除非加上 `--force`。这是保护，避免两个文件夹同时改同一条分支。**我不建议用 `--force` 绕过。**
+[手册写明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish)：如果某个分支已经在别的 worktree 被 checkout，再对它执行 `add` 会被拒绝，除非加上 `--force`。这是保护，避免两个文件夹同时改同一条分支。
 
-切换分支时也有同样的保护。[`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) 和 `git checkout` 遇到已经被别的 worktree 占用的分支，会拒绝切换过去。所以主文件夹不能直接切换到 AI 正在用的那条分支。想看那条分支改了什么，不用切换过去，步骤 3 我会教你用 `git diff` 直接比较。
+**我不建议用 `--force` 绕过**，其他命令被拒绝时也一样。一看到拒绝就加 `--force`，可能让没 commit 的修改被丢掉，或绕过“同一条分支只能在一个地方”的保护。
+
+切换分支时也有同样的保护。[`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) 和 `git checkout` 遇到已经被别的 worktree 占用的分支，会拒绝切换过去。
+
+所以主文件夹不能直接切换到 AI 正在用的那条分支。想看那条分支改了什么，不用切换过去，步骤 3 我会教你用 `git diff` 直接比较。
 
 ![同一个分支已经在一个工作目录里，另一个工作目录就不能再用它](one-branch-one-place.zh-CN.webp){: w="1600" h="900" }
 _概念图，不是实际界面。左边的工作目录已经占用了这条分支，右边再想用同一条时会被挡住。_
@@ -147,11 +173,23 @@ git worktree list --porcelain
 
 手册说这个格式跨版本稳定，并建议搭配 `-z`，这样即使路径里有换行符也能正确拆分。
 
-**你会得到：** 一份当前所有工作目录的列表，包含各自停在哪里。
-
 ## 步骤 3：把成果合并回 main
 
-在 worktree 里做完、要保留的修改都 commit 之后，下一步是把这条分支的成果放回 `main`。有两种做法，选一种就行。
+在 worktree 里做完、要保留的修改都 commit 之后，就可以把这条分支的成果放回 `main`。有两种做法，差别在合并前要不要先给人审：
+
+```mermaid
+flowchart TD
+  A[worktree 里都 commit 了] --> B{要先给人审吗？}
+  B -->|不用| C[回 myapp 切换到 main]
+  C --> D[git diff 看差异]
+  D --> E[git merge]
+  B -->|要| F[git push -u]
+  F --> G[在网站上合并 PR]
+  G --> H[回 myapp 更新 main]
+  E --> I[main 有了成果]
+  H --> I
+  I --> J[步骤 4：收尾]
+```
 
 **做法一：在本地自己合并。** 回到主文件夹 `myapp`，例如从 `myapp-login` 回去：
 
@@ -171,7 +209,9 @@ git merge feature-login
 - `git diff main...feature-login`：列出 `feature-login` 从和 `main` 分叉那一刻起改了哪些地方。[手册说明](https://git-scm.com/docs/git-diff)，三个点的写法是从两条分支的共同起点开始比较。先看一遍，确认没问题再合并。
 - `git merge feature-login`：[把那条分支上的 commit 合并进当前所在的分支](https://git-scm.com/docs/git-merge)，也就是 `main`。
 
-合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，我在 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)里讲过。
+合并时不需要切换到 `feature-login`，所以它还留在 worktree 里也没关系。
+
+如果两边改到同一个文件的同一段，git 没办法自己决定保留哪一边，[会停下来让你处理](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented)，这种情况叫冲突（conflict）。怎么处理冲突，我在 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)里讲过。
 
 **做法二：推送上去开 PR。** 想让别人或自动审查先看一遍，就把分支推送到远程 repo（放在 GitHub 这类网站上的那一份），再到网站上开 PR（pull request，请求把分支合并进主分支）：
 
@@ -179,7 +219,7 @@ git merge feature-login
 git push -u origin feature-login
 ```
 
-`origin` 是 `git clone` 时，git 默认给远程 repo 起的名字。[`-u`](https://git-scm.com/docs/git-push#Documentation/git-push.txt--u) 会让本地分支记住它对应的远程分支，这个对应的分支叫上游（upstream），之后不带参数的 `git pull` 就知道要从哪里更新。
+`origin` 是 `git clone` 时，git 默认给远程 repo 起的名字。[`-u`](https://git-scm.com/docs/git-push#Documentation/git-push.txt--u) 会让本地分支记住它对应的远程分支，这个对应的分支叫上游（upstream）。之后不带参数的 `git pull` 就知道要从哪里更新。
 
 PR 在网站上合并以后，你电脑里的 `main` 不会自动跟着更新。回到 `myapp` 执行：
 
@@ -190,9 +230,23 @@ git pull
 
 [`git pull`](https://git-scm.com/docs/git-pull) 会先拉取远程的新变更，再合并进当前所在的分支。
 
-**你会得到：** `main` 上有了这条分支的成果，接下来就可以收掉 worktree。
-
 ## 步骤 4：收尾
+
+收尾有两件事：收掉 linked worktree，再删除用完的分支。两条命令遇到还没处理完的东西都会拒绝，被拒绝时按这张图处理：
+
+```mermaid
+flowchart TD
+  A[git worktree remove] -->|被拒绝| B{还要里面的修改？}
+  B -->|要| C[回文件夹 commit]
+  C --> A
+  B -->|不要| D["加 --force 再移除"]
+  A -->|成功| E[git branch -d]
+  D --> E
+  E -->|被拒绝| F{还要这些 commit？}
+  F -->|要| G[合并回 main 或推送上去]
+  G --> E
+  F -->|不要| H[git branch -D]
+```
 
 做完以后，回到主文件夹 `myapp`，用移除命令收掉 linked worktree。路径可以写相对路径或绝对路径：
 
@@ -200,7 +254,7 @@ git pull
 git worktree remove ../myapp-login
 ```
 
-[手册规定](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-remove)：只有干净的 worktree（没有未跟踪文件，被跟踪的文件也没有修改）才能移除；还有东西没处理时会被拒绝。这时先回到那个文件夹，把要保留的修改 commit 好。确定里面的东西都不要了，才加上 `--force`，没 commit 的修改会跟着文件夹一起消失。主 worktree 不能移除。
+[手册规定](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-remove)：只有干净的 worktree（没有未跟踪文件，被跟踪的文件也没有修改）才能移除，主 worktree 则不能移除。加上 `--force` 时，没 commit 的修改会跟着文件夹一起消失。
 
 `remove` 只去掉文件夹和 worktree 的记录，**分支还在**，要另外删除。顺序是先 remove 占用这条分支的 worktree，再删除分支：
 
@@ -208,7 +262,9 @@ git worktree remove ../myapp-login
 git branch -d feature-login
 ```
 
-[`-d` 只删除已经合并的分支](https://git-scm.com/docs/git-branch#Documentation/git-branch.txt--d)。手册的条件是：分支必须已经完全合并进它的上游分支（例如用 `push -u` 设置过的远程分支）；没有设置上游的话，就是要合并进当前所在的分支。条件不满足时 git 会拒绝删除，提醒你这条分支上还有没合并的 commit。这时先回头确认，成果是不是还没合并回 `main`，或者还没推送上去。确定那些 commit 都不要了，才改用：
+[`-d` 只删除已经合并的分支](https://git-scm.com/docs/git-branch#Documentation/git-branch.txt--d)。手册的条件是：分支必须已经完全合并进它的上游分支（例如用 `push -u` 设置过的远程分支）；没有设置上游的话，就是要合并进当前所在的分支。
+
+条件不满足时 git 会拒绝删除，提醒你这条分支上还有没合并的 commit。确定那些 commit 都不要了，才改用：
 
 ```bash
 git branch -D feature-login
@@ -223,9 +279,11 @@ git worktree prune -n -v
 git worktree prune
 ```
 
-[prune 的说明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-prune)是：清掉已经不见的工作目录所留下的管理数据。手册也说，下次请改用 `git worktree remove`。prune 同样不会删除分支。
+[prune 的说明](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-prune)是：清掉已经不见的工作目录所留下的管理数据。prune 同样不会删除分支。手册也说，下次请改用 `git worktree remove`。
 
-若你什么都不做，之后执行 `git gc` 时，git 会调用 `git worktree prune --expire 3.months.ago`，也就是只清掉超过三个月的、已经不见的工作目录记录。宽限期可用配置项 [`gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire) 调整：设成 `now` 是不留宽限期、立即清掉，设成 `never` 则是不自动清理。
+若你什么都不做，之后执行 `git gc` 时，git 会调用 `git worktree prune --expire 3.months.ago`。这只会清掉超过三个月的、已经不见的工作目录记录。
+
+宽限期可用配置项 [`gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire) 调整：设成 `now` 是不留宽限期、立即清掉，设成 `never` 则是不自动清理。
 
 ![做完的工作目录用 remove 收掉，被手动删掉的用 prune 清记录，上锁的不会被清](cleanup.zh-CN.webp){: w="1600" h="900" }
 _概念图，不是实际界面。做完的工作目录可以收掉，只留下记录的用 prune 清理；有上锁的会留着。_
@@ -248,7 +306,7 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
    git worktree add -b fix-typo ../myapp-typo main
    ```
 
-   **这一步你会得到：** 两个新文件夹，分别停在 `feature-login` 和 `fix-typo`。
+   这样会有两个新文件夹，分别停在 `feature-login` 和 `fix-typo`。
 
 3. 打开两个终端，分别进入 `../myapp-login` 和 `../myapp-typo`，各开一个 coding agent，各自 commit。两边的文件互不影响。执行：
 
@@ -264,13 +322,13 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
    git diff main...feature-login
    ```
 
-   要给别人审，就把每个分支各自推上去开 PR（pull request，请求把分支合并进主分支）：
+   要给别人审，就把每个分支各自推上去开 PR：
 
    ```bash
    git push -u origin feature-login
    ```
 
-   另一条分支同样处理。之后可以让审查自动跑起来，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)；若想对“谁来看结构、审修改”有一套固定做法，请看 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
+   另一条分支同样处理。之后可以让审查自动跑起来，请看[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。若想对“谁来看结构、审修改”有一套固定做法，请看 [mattpocock/skills 系列（5）：代码写完之后，谁来看结构、审修改、解冲突](/posts/mattpocock-skills-design-review-integration/)。
 
 5. 合并：开了 PR 的，等 PR 在网站上合并，再回到 `myapp` 更新 `main`：
 
@@ -304,11 +362,9 @@ _概念图，不是实际界面。做完的工作目录可以收掉，只留下�
 
    应该只剩主文件夹。
 
-小提醒：如果项目的规则写在 AGENTS.md，而且这份文件有被 git 跟踪，每个 worktree 都会有同一份，请看[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。若还想在某个工作目录里做固定时机的自动检查，请看[Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)。
-
 ## 保护：lock 与 unlock
 
-若 worktree 放在 U 盘或网络共享上，这类设备不一定随时连着电脑，可以把它锁住，以免它的管理数据被自动清掉。锁住之后，也不能 move 或 remove。
+worktree 放在 U 盘或网络共享上时，可以把它锁住。这类设备不一定随时连着电脑，锁住能避免它的管理数据被自动清掉。锁住之后，也不能 move 或 remove。
 
 给已经创建好的 worktree 上锁：
 
@@ -383,23 +439,16 @@ git worktree repair
 | repo 有 submodule | 不要用 worktree 并行开发 |
 | 只做一件事 | 不需要 worktree，切换分支就好 |
 
-## 常见错误
+## 结论
 
-- 两个 worktree 想用同一个分支，结果被拒绝。请各开一条分支。
-- 用 `-b` 开分支时，名字和已经存在的分支重复，结果被拒绝。换一个新名字；如果本来就想接手那条分支，改用 `git worktree add <路径> <分支>`。
-- `git worktree remove` 被拒绝。通常是文件夹里还有没 commit 的修改或未跟踪文件。先把要保留的 commit 好，确定不要了才加 `--force`。
-- 用 `rm -rf` 删文件夹，而不是 `git worktree remove`。留下的记录再用 `git worktree prune` 清理。
-- 在主文件夹想切换到 AI 正在用的分支，结果被拒绝。不用切换过去，用 `git diff main...<分支>` 看差异，或直接 `git merge <分支>`。
-- `remove` 之后忘了删除分支，分支仍留在 repo 里。
-- `git branch -d` 拒绝删除。说明分支上还有没合并的 commit，先确认成果已经合并或推送上去，确定不要了才用 `-D`。
-- 以为新文件夹会自动带有 `node_modules` 或 `.env`。没被跟踪的文件要自己补。
-- 把 worktree 开在 repo 文件夹里面，之后容易和项目文件混在一起。
-- 用文件资源管理器搬走之后，git 找不到它。到新位置执行 `git worktree repair`。
-- 有 submodule 的 repo 仍然强行使用。请回到前面的限制说明。
-- 一看到拒绝就加 `--force`。这可能让未提交的修改被丢掉，或绕过“同一条分支只能在一个地方”的保护。
+下次要让两个 AI 同时动手，我建议先用 `git worktree add -b` 各开一个文件夹，做完合并回 `main`（或推送上去开 PR），再收掉文件夹和分支。repo 里若有 submodule（最上层有 `.gitmodules`），我就不会用这个方法。
 
-## 结论与下一步
+## 延伸阅读
 
-下次要让两个 AI 同时动手，我建议先用 `git worktree add -b` 各开一个文件夹。做完把成果合并回 `main`（或推送上去开 PR），再 `git worktree remove`，并记得删除用完的分支。repo 里若有 submodule（最上层有 `.gitmodules`），我就不会用这个方法。
-
-接下来，可以给每个工作目录里的 AI 写好项目规则，写法我在[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)里讲过；若要把审查自动化，可以看我写的[用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)。worktree 开多了、想同时看好几个 AI 的状态，可以看[herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)，或[Herdr 桌面 App 入门：用 space 与标签页管理多个 AI](/posts/herdr-app-desktop-manage-ai-agents/)。命令的细节以 [git-worktree 手册](https://git-scm.com/docs/git-worktree)为准，自动清理的宽限期见 [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)。
+- [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)：给每个工作目录里的 AI 写好项目规则。
+- [Claude Code hooks 教程：自动排版、跑测试与敏感文件提醒](/posts/claude-code-hooks-automate-checks/)：在工作目录里做固定时机的自动检查。
+- [用 GitHub Actions 加 AI Agent 自动化审查：以本站 PR 为例](/posts/github-actions-ai-agent-pr-review/)：把审查自动化。
+- [herdr 入门：在终端同时跑多个 AI，找出卡住的那个](/posts/herdr-run-multiple-ai-agents/)：worktree 开多了，在终端同时看好几个 AI 的状态。
+- [Herdr 桌面 App 入门：用 space 与标签页管理多个 AI](/posts/herdr-app-desktop-manage-ai-agents/)：同样的事改用桌面 App 管理。
+- [git-worktree 手册](https://git-scm.com/docs/git-worktree)：命令细节以此为准。
+- [git-config 中的 `gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire)：自动清理的宽限期。

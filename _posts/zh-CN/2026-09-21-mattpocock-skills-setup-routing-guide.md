@@ -8,33 +8,43 @@ media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
   path: cover.zh-CN.webp
   alt: "不必先背 25 个 skill：给项目跑一次设置，卡住时再让 ask-matt 建议下一步，但仍要你亲自启动。"
+mermaid: true
 ---
 
-> **版本提醒（2026-10-19 核实）**：这篇我以 `1.2.3` 版为准。`mattpocock/skills` 已于 2026-10-04 发布 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，官方插件从 25 个 skill 变为 27 个：移除了 `resolving-merge-conflicts`，新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也会推荐这三个新 skill。项目词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`，新版 skill 只认新文件名，旧文件请用 `git mv` 改名。这个系列我之后会按新版全面更新。
-{: .prompt-warning }
+你准备替现有的订阅服务加入按席位计费，却不确定该先厘清需求、写规格、补测试，还是直接动手写代码。听说 `mattpocock/skills` 能让 AI 编程助手把这类工作做得更有条理，打开清单却看到 25 个 skill 名称。难道要先把每一个都搞懂才能开始？
 
-你准备替现有的订阅服务加入按席位计费，却不确定该先厘清需求、写规格、补测试，还是直接动手写代码。你听说 mattpocock/skills 能让 AI 编程助手把这类工作做得更有条理，打开清单却看到 25 个 skill 名称。难道要先把每一个都搞懂才能开始？
+不必全部看懂。第一次使用只需要两步：
 
-我的答案是不必全部看懂。第一次使用只需要两步：先用 `setup-matt-pocock-skills` 把项目的工作规则记下来，再用 `ask-matt` 依你遇到的问题，建议下一个该用的 skill。
+1. 用 `setup-matt-pocock-skills` 把项目的工作规则记下来。
+2. 用 `ask-matt` 描述你遇到的问题，让它建议下一个该用的 skill。
 
-不过，在我看来，`ask-matt` 比较像服务台，不是会自动跑完整套流程的总管。它只会告诉你下一步该用哪个 skill，实际启动仍要由你来做。
-
-我先说明几个名词。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、替你写代码的 AI 工具。我把 skill 理解成一份“告诉 AI 编程助手如何完成特定工作”的操作说明，例如怎么访谈需求，或怎么把规格拆成一项项工作。`mattpocock/skills` 是 Matt Pocock 公开的一整组 skill。
+在我看来，`ask-matt` 比较像服务台，不是会自动跑完整套流程的总管。它只告诉你下一步该用哪个 skill，实际启动仍要由你来做。
 
 > mattpocock/skills 系列｜第 1 篇
 >
 > - 下一篇（第 2 篇）：[把模糊需求问清楚，留下共用词汇](/posts/mattpocock-skills-requirements-shared-language/)
 > - 系列导读：[这套 skill 是什么、六篇该怎么读](/posts/mattpocock-skills-series-guide/)
 >
-> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。官方插件的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47)收录 25 个 skill；代码库里另有 9 个仍在试验中、4 个目前不主动推广的项目，分别列在 [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18)和 [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8)。本系列只讨论官方插件收录的 25 个。
+> 这篇我以 [`1.2.3` 版](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10)为准。官方插件的 [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47)收录 25 个 skill。代码库里另有 9 个仍在试验中、4 个目前不主动推广的项目，分别列在 [`in-progress/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/in-progress/README.md#L1-L18)和 [`misc/README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/misc/README.md#L1-L8)。本系列只讨论官方插件收录的 25 个。
 {: .prompt-info }
 
-## 先分清楚安装与启动
+> 2026-10-04 发布的 [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0) 和 [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1)，把官方插件从 25 个 skill 变为 27 个（2026-10-19 核实）：
+>
+> - 移除了 `resolving-merge-conflicts`。
+> - 新增 `implement-spec`、`pr`、`retro`，`ask-matt` 也会推荐这三个新 skill。
+> - 项目词汇表从 `CONTEXT.md` 改名为 `GLOSSARY.md`。新版 skill 只认新文件名，旧文件要用 `git mv` 改名。
+>
+> 这个系列我之后会按新版全面更新。
+{: .prompt-info }
+
+我把 skill 理解成一份告诉 AI 编程助手如何完成特定工作的操作说明，例如怎么访谈需求，或者怎么把规格拆成一项项工作。AI 编程助手指的是 Claude Code、Codex 这类能读写项目文件、帮你写代码的工具。`mattpocock/skills` 则是 Matt Pocock 公开的一整套 skill。
+
+## 安装与启动是两个问题
+
+安装方式决定 skill 文件放在哪里、由谁负责更新。启动方式则决定谁能叫某个 skill 开始工作。
 
 ![六格图解说明 mattpocock/skills：选择 Claude Code 插件或 skills.sh，运行 setup 创建项目设置，再由 ask-matt 建议下一个 skill。功能需求依次经过需求厘清、撰写规格、拆分工作与实现](ask-matt-router-tutorial.webp){: width="800" height="450" }
 _第一次使用的完整路径：选择安装方式、运行 setup，再由 ask-matt 建议下一个 skill。_
-
-我把安装与启动当成两个不同的问题来看。安装方式决定 skill 文件放在哪里、由谁负责更新；启动方式则决定谁能叫某个 skill 开始工作。
 
 ### 选一种安装方式
 
@@ -45,6 +55,8 @@ _第一次使用的完整路径：选择安装方式、运行 setup，再由 ask
 | 使用 Claude Code，不打算修改内容   | 官方插件  | 自动更新，内容不能修改             |
 | 使用 Claude Code，想自行修改内容   | skills.sh | 文件复制进项目，由你自行修改与更新 |
 | 使用 Codex 或其他支持 skill 的工具 | skills.sh | 文件复制进项目，由你自行修改与更新 |
+
+我建议两种方式任选其一。同时使用的话，每个 skill 会各出现两份。
 
 Claude Code 是 Anthropic 推出的 AI 编程助手，Codex 则来自 OpenAI。Claude Code 的官方插件安装命令是：
 
@@ -60,16 +72,16 @@ claude plugins install mattpocock-skills
 ```
 {: .nolineno }
 
-想自行修改内容，或使用 Codex 等其他工具时，则使用 skills.sh 这个安装工具：
+想自行修改内容，或使用 Codex 等其他工具时，改用 skills.sh 这个安装工具：
 
 ```bash
 npx skills@latest add mattpocock/skills
 ```
 {: .nolineno }
 
-skills.sh 会让你勾选要安装哪些 skill，以及要装给哪些 AI 编程助手使用。一定要选入 `setup-matt-pocock-skills`；若想照本文使用 `ask-matt`，也要选入它。之后 `ask-matt` 建议的其他 skill，同样要先安装才能使用。
+skills.sh 会让你勾选要安装哪些 skill，以及要装给哪些 AI 编程助手使用。一定要选入 `setup-matt-pocock-skills`，想照本文使用 `ask-matt` 的话也要选入它。之后 `ask-matt` 建议的其他 skill，同样要先安装才能使用。
 
-我建议两种方式任选其一，同时使用会让每个 skill 各出现两份。使用 skills.sh 时，更新单一 skill 的命令是：
+使用 skills.sh 时，更新单一 skill 的命令是：
 
 ```bash
 npx skills@latest update <name>
@@ -94,21 +106,43 @@ npx skills@latest update <name>
 | Claude Code | `/setup-matt-pocock-skills` |
 | Codex       | `$setup-matt-pocock-skills` |
 
-在 Codex 中，可以先输入 `$` 再从清单选择 skill，也可以直接输入 `$skill-name`。这项语法可在 [OpenAI 的 Codex skills 文档](https://developers.openai.com/codex/skills/)核对。其他 AI 编程助手请依各自的 skill 菜单或输入方式操作。
+在 Codex 中，可以先输入 `$` 再从清单选择 skill，也可以直接输入 `$skill-name`。这项语法可在 [OpenAI 的 Codex skills 文档](https://developers.openai.com/codex/skills/)核对。其他 AI 编程助手，请依各自的 skill 菜单或输入方式操作。
 
-我认为这项限制也说明了为什么 `ask-matt` 只能提出建议：例如它常推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
+我认为这项限制也说明了 `ask-matt` 为什么只能提出建议。例如它常推荐的 `grill-with-docs` 同样只能由人启动，所以你得自己输入。它也不会自动一路往下执行 `to-spec`、`to-tickets` 和 `implement`。
 
-## setup 会替项目留下哪些设置
+## setup 先检查、再询问，最后才写入
 
-`mattpocock/skills` 里偏重软件开发的 skill（原文归在 engineering 类）需要知道项目的一些基本信息。因此，每个项目在第一次使用它们之前，要先运行一次 `setup-matt-pocock-skills`。它不是固定不变的安装程序，而是先检查、再询问，最后才写入文件的流程。
+每个项目第一次使用偏重软件开发的 skill 之前，要先运行一次 `setup-matt-pocock-skills`。因为这些 skill（原文归在 engineering 类）需要知道项目的一些基本信息。它不是固定不变的安装程序，而是一段先检查、再询问、最后才写入文件的流程：
 
-它会先查看项目现状：代码放在哪个平台（例如 GitHub）、项目里是否已有给 AI 看的说明文件（`AGENTS.md` 或 `CLAUDE.md`）、词汇表与决策记录、先前留下的配置文件，以及项目是否由多个子项目组成（原文称 monorepo）。其中，词汇表（`CONTEXT.md`）记录项目专用名词的定义，决策记录（ADR）则记录重要技术选择的理由，下一篇我会详细介绍。
+```mermaid
+flowchart TD
+  A[查看项目现状] --> B[确认工作跟踪工具]
+  B --> C{装了 triage？}
+  C -->|是| D[确认分类标签]
+  C -->|否| E{由多个子项目组成？}
+  D --> E
+  E -->|否| F[词汇表与决策记录集中放一份]
+  E -->|是| G[问是否每个子项目各放一份]
+  F --> H[展示草稿给你修改]
+  G --> H
+  H --> I[你确认后才写入]
+```
 
-查看完毕后，它会依次确认三件事：
+一开始，它会查看项目的这些现状：
 
-- **工作记录在哪里。** 原文称为 issue tracker，本系列称为“工作跟踪工具”，也就是团队记录待办事项的地方。代码放在 GitHub 时，默认建议 GitHub Issues；放在 GitLab 时，则建议 GitLab Issues。你也可以直接用项目文件夹里的 Markdown 文件记录。若使用 Jira、Linear 等其他工具，则由你用一段文字说明操作方式。
-- **是否沿用默认的分类标签。** 这些标签是给整理外部反馈的 `triage` 使用的，所以只有安装了 `triage` 才会询问。
-- **词汇表与决策记录放在哪里。** 一般项目集中放一份即可；只有发现项目由多个子项目组成时，才会询问是否每个子项目各放一份。
+- 代码放在哪个平台，例如 GitHub。
+- 项目里是否已有给 AI 看的说明文件（`AGENTS.md` 或 `CLAUDE.md`）。
+- 词汇表与决策记录。
+- 先前留下的配置文件。
+- 项目是否由多个子项目组成（原文称 monorepo）。
+
+词汇表（`CONTEXT.md`）记录项目专用名词的定义，决策记录（ADR）则记录重要技术选择的理由，下一篇我会详细介绍。
+
+工作跟踪工具（原文称 issue tracker）是团队记录待办事项的地方。代码放在 GitHub 时，setup 默认建议 GitHub Issues；放在 GitLab 时，则建议 GitLab Issues。
+
+你也可以直接用项目文件夹里的 Markdown 文件记录。若使用 Jira、Linear 等其他工具，则由你用一段文字说明操作方式。
+
+分类标签是给整理外部反馈的 `triage` 使用的，所以只有安装了 `triage` 才会询问。
 
 确认后，它会修改或创建以下文件：
 
@@ -121,11 +155,11 @@ npx skills@latest update <name>
 
 如果项目里两份说明文件都没有，它会先问你要创建哪一份，不会自行决定。如果文件里已经有 `## Agent skills` 段落，它会直接更新该段落，不会重复添加。
 
-setup 只把标签名称写进 `docs/agents/triage-labels.md`，原始流程里没有到 GitHub 或 GitLab 创建标签的步骤。开始分类之前，我会先确认工作跟踪工具里的标签名称与配置文件一致。
+setup 只把标签名称写进 `docs/agents/triage-labels.md`，原始流程里没有到 GitHub 或 GitLab 创建标签的步骤。所以开始分类之前，我会先确认工作跟踪工具里的标签名称与配置文件一致。
 
-写入前，它必须先展示 `## Agent skills` 段落与各份配置文件的草稿，让你修改和确认。完成后，这些文件就是一般的项目文档，之后可以直接编辑。只有想更换工作跟踪工具或从头设置时，才需要再运行一次。
+写入前，它必须先展示草稿，包含 `## Agent skills` 段落与各份配置文件，让你修改和确认。完成后，这些文件就是一般的项目文档，之后可以直接编辑。只有想更换工作跟踪工具或从头设置时，才需要再运行一次。
 
-## ask-matt 如何选下一步
+## ask-matt 按你的状况建议起点
 
 `ask-matt` 不要求你先记住所有 skill。你只要描述目前的状况，它就会建议从哪个 skill 开始。常见的起点如下：
 
@@ -137,11 +171,25 @@ setup 只把标签名称写进 `docs/agents/triage-labels.md`，原始流程里�
 | 遇到难以复现、时有时无，或最近才出现的错误   | `diagnosing-bugs` |
 | 工作范围模糊，而且一次对话谈不完             | `wayfinder`       |
 
-一般功能开发的主线，是先用 `grill-with-docs` 通过访谈厘清需求。如果某个问题得先做出能实际操作的东西才答得出来，例如界面该长什么样子，流程会暂时岔出去：先用 `handoff` 把目前的进度写成交接文档，在新的对话里用 `prototype` 做一个用完即丢的原型，得到答案后再用 `handoff` 把结果带回原本的讨论。
+一般功能开发的主线，是先用 `grill-with-docs` 通过访谈厘清需求。有些问题得先做出能实际操作的东西才答得出来，例如界面该长什么样子，这时流程会暂时岔出去：
 
-如果确定这项工作要分成好几次对话才做得完，接着用 `to-spec` 整理规格、用 `to-tickets` 把规格切成一张张工作单，最后每张工作单各开一次新的对话，用 `implement` 实现。`implement` 会在内部用 `tdd`（先写测试、再写代码的开发方式）完成功能，并在提交修改前用 `code-review` 检查一遍。
+```mermaid
+flowchart TD
+  A[grill-with-docs 访谈需求] --> B{要先做出东西才答得出？}
+  B -->|否| F[需求谈清楚，往下走]
+  B -->|是| C[handoff 把进度写成交接文档]
+  C --> D[新对话用 prototype 做原型]
+  D --> E[handoff 把结果带回]
+  E --> A
+```
 
-从需求访谈到 `to-tickets`，都应该留在同一段对话里，让后面的步骤接续前面的讨论。工作单创建好之后，每张工作单才各自开新的对话；工作单已写明所需信息，不必依赖先前的对话内容。完整规则位于 [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90)。
+`prototype` 做的是用完即丢的原型。
+
+确定这项工作要分成好几次对话才做得完时，接着用 `to-spec` 整理规格、用 `to-tickets` 把规格切成一张张工作单。最后每张工作单各开一次新的对话，用 `implement` 实现。
+
+`implement` 会在内部用 `tdd`（先写测试、再写代码的开发方式）完成功能，并在提交修改前用 `code-review` 检查一遍。
+
+从需求访谈到 `to-tickets`，都应该留在同一段对话里，让后面的步骤接续前面的讨论。工作单创建好之后，才给每张工作单各开新的对话；因为工作单已写明所需信息，不必依赖先前的对话内容。完整规则位于 [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90)。
 
 ![左侧进度条显示正在背 25 个 skills，右侧 ask-matt 询问目前卡在哪一步](ask-matt-router-meme.webp){: width="800" height="450" }
 _记忆测试取消，工作开始。_
@@ -150,7 +198,7 @@ _记忆测试取消，工作开始。_
 
 这一节是我依 `1.2.3` 版的原始规则推演的。假设项目由几个子项目组成，代码放在 GitHub，工作也用 GitHub Issues 跟踪。
 
-以 Codex 为例，先用 skills.sh 安装需要的 skill，这里我假设后文提到的 skill 都已选入。接着输入：
+以 Codex 为例，先用 skills.sh 安装需要的 skill，这里假设后文提到的 skill 都已选入。接着输入：
 
 ```text
 $setup-matt-pocock-skills
@@ -168,7 +216,7 @@ ready-for-human
 wontfix
 ```
 
-这五个标签依次代表“等待评估”、“等待补充信息”、“可以交给 AI 处理”、“需要由人处理”与“决定不处理”。如果团队的工作跟踪工具早已使用别的标签名称，也可以改成对应的名称，避免出现重复的标签。
+这五个标签依次代表“等待评估”“等待补充信息”“可以交给 AI 处理”“需要由人处理”与“决定不处理”。如果团队的工作跟踪工具早已使用别的标签名称，也可以改成对应的名称，避免出现重复的标签。
 
 你确认这些选择后，AI 编程助手会先展示要写入的内容。你同意后，它才修改 `CLAUDE.md` 或 `AGENTS.md`，并在 `docs/agents/` 创建配置文件。
 
@@ -178,7 +226,7 @@ wontfix
 $ask-matt 需要替现有订阅系统加入按席位计费。目前只有一段需求描述；需求应该能在一次对话中谈清楚，但实现会分好几次进行。
 ```
 
-依照 `ask-matt` 的规则，它会建议先用 `grill-with-docs`，把价格怎么算、席位何时开始与停止使用、账单周期，以及旧客户如何迁移等问题谈清楚。流程不会自动往下跑，你要自己输入：
+依照 `ask-matt` 的规则，它会建议先用 `grill-with-docs` 把几个问题谈清楚：价格怎么算、席位何时开始与停止使用、账单周期，以及旧客户如何迁移。流程不会自动往下跑，你要自己输入：
 
 ```text
 $grill-with-docs
@@ -203,9 +251,17 @@ $implement <工作单链接或编号>
 
 ## 第一次使用时怎么选
 
-如果打算采用这套流程，我建议先选一种安装方式，再替项目运行一次 setup。之后若不确定某项工作该怎么进行，再问 `ask-matt`。
+```mermaid
+flowchart TD
+  A{一次性、不在项目文件夹里？} -->|是| B[不必创建整套项目设置]
+  A -->|否| C[选一种安装方式]
+  C --> D[给项目运行一次 setup]
+  D --> E{知道下一个 skill？}
+  E -->|是| F[跳过 ask-matt，直接启动]
+  E -->|否| G[问 ask-matt]
+```
 
-如果你已经知道下一个 skill 是什么，可以跳过 `ask-matt`，直接启动它。不过，需要读取工作跟踪工具或词汇表设置的 skill，仍要先完成 setup。若只是一次性、不在项目文件夹里的工作，就不必为了使用单一 skill 而创建整套项目设置。
+就算已经知道下一个 skill，需要读取工作跟踪工具或词汇表设置的 skill，仍要先完成 setup。
 
 这篇我核对的是 `1.2.3` 版的设计与操作方式，不代表这套流程一定能缩短开发时间。我认为它直接带来的好处，是把项目惯例写成文档，并在你不确定下一步时建议合适的 skill。下一篇会接着讨论如何把需求问清楚，并建立团队共用的词汇。
 

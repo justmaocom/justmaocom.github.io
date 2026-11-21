@@ -8,20 +8,12 @@ media_subpath: /assets/img/posts/mattpocock-skills-requirements-shared-language/
 image:
   path: cover.en.webp
   alt: "Clear requirements need each word to mean one thing; Q&A stays in the chat, and only definitions and key decisions go into the project."
+mermaid: true
 ---
-
-> **Version note (checked 2026-10-19):** I based this post on version `1.2.3`. In [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, `mattpocock/skills` renamed the glossary files this post relies on, `CONTEXT.md` and `CONTEXT-MAP.md`, to `GLOSSARY.md` and `GLOSSARY-MAP.md`. From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. When you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it:
->
-> ```bash
-> git mv CONTEXT.md GLOSSARY.md
-> ```
->
-> When I checked, all five skills covered here were still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). I plan a full update of this series.
-{: .prompt-warning }
 
 You're about to add per-seat billing to a subscription service. The meeting notes use "member," "user," and "seat" more or less interchangeably, yet nobody has checked whether the three words mean the same thing. Before the team can discuss whether deactivated members should still be charged, it first needs to pin down what is actually being billed: a person, an account, or an entitlement that can be assigned.
 
-I think of a skill, as used in this post, as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks the work of clarifying requirements into interviewing, vocabulary curation, and re-explaining. In this post, I lay out how five related skills divide the work and what stays in the project once the interview is over.
+I think of a skill, as used in this post, as a set of instructions that tells an AI coding assistant how to do a specific job. `mattpocock/skills` breaks the work of clarifying requirements into interviewing, vocabulary curation, and re-explaining. This post lays out how five related skills divide the work and what stays in the project once the interview is over.
 
 > mattpocock/skills Series | Part 2
 >
@@ -32,12 +24,26 @@ I think of a skill, as used in this post, as a set of instructions that tells an
 > I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
 {: .prompt-info }
 
-## How the Five Skills Relate
+> [`1.3.0`](https://github.com/mattpocock/skills/releases/tag/v1.3.0), released on 2026-10-04, renamed the glossary files this post relies on (checked 2026-10-19):
+>
+> - `CONTEXT.md` became `GLOSSARY.md`.
+> - `CONTEXT-MAP.md` became `GLOSSARY-MAP.md`.
+>
+> From then on, `grill-with-docs`, `domain-modeling`, and `wait-what` only read and write the new names. So when you follow this post, use `GLOSSARY.md` wherever it says `CONTEXT.md`. If your project already has the old file, rename it:
+>
+> ```bash
+> git mv CONTEXT.md GLOSSARY.md
+> ```
+>
+> When I checked, all five skills covered here were still in the latest release, [`1.3.1`](https://github.com/mattpocock/skills/releases/tag/v1.3.1). I plan a full update of this series.
+{: .prompt-info }
+
+## Five Skills: Three Entry Points, Two Internal Flows
+
+These five skills are not a sequence of steps you must run in order. You only pick the starting point that fits your current situation, and the internal flows take over the rest.
 
 ![grill-me, grill-with-docs, and wait-what are user-invoked entry points; grill-me and grill-with-docs hand the interview to grilling, and grill-with-docs also hands vocabulary curation to domain-modeling](mattpocock-skills-requirements-1.webp){: width="800" height="450" }
 _Pick the entry point that fits your current situation, and the internal flows take over the rest._
-
-These five skills are not a sequence of steps you must run in order. `grill-me` and `grill-with-docs` are two alternative starting points. `grilling` and `domain-modeling` take over the interview and the vocabulary work behind the scenes. `wait-what` asks the AI to re-explain its last message when it wasn't clear.
 
 | Role | Skill | What it's for |
 | --- | --- | --- |
@@ -47,7 +53,7 @@ These five skills are not a sequence of steps you must run in order. `grill-me` 
 | Internal flow | `domain-modeling` | Keep project terminology consistent and record key decisions when needed |
 | Invoked by you | `wait-what` | Ask the AI to fill in the background and say it more plainly |
 
-`grill-me`, `grill-with-docs`, and `wait-what` only run when you call them by name; the AI won't use them on its own. `grilling` and `domain-modeling`, on the other hand, can be picked up by the AI on its own and can also be called by other skills. The [invocation rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.agents/invocation.md#L1-L22) document this difference. In everyday use, you only choose the starting point, and the internal flows handle the rest.
+`grill-me`, `grill-with-docs`, and `wait-what` only run when you call them by name; the AI won't use them on its own. `grilling` and `domain-modeling`, on the other hand, can be picked up by the AI on its own and can also be called by other skills. The [invocation rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.agents/invocation.md#L1-L22) document this difference.
 
 ## The Two Starting Points Differ in Whether They Leave Documents Behind
 
@@ -55,27 +61,57 @@ Both starting points use the same interview approach. The difference is whether 
 
 [`grill-me`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/grill-me/SKILL.md#L1-L7) only starts the interview. It suits situations where there's no project folder yet, such as talking through an idea that hasn't taken shape. It doesn't build a glossary, and it leaves no files on your machine when the conversation ends.
 
-[`grill-with-docs`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/grill-with-docs/SKILL.md#L1-L7) starts two internal flows at once. `grilling` runs the interview, and `domain-modeling` curates terms and decisions. When a project folder already exists, `ask-matt` recommends this starting point first; see its [routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L13-L18) for the exact conditions.
+[`grill-with-docs`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/grill-with-docs/SKILL.md#L1-L7) starts two internal flows at once: `grilling` runs the interview, and `domain-modeling` curates terms and decisions. When a project folder already exists, `ask-matt` recommends this starting point first; see its [routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L13-L18) for the exact conditions.
 
 ## grilling First Asks the Questions That Can't Be Skipped
 
 `grilling` starts by working out the order in which questions depend on each other. The skill's rules call this structure a "decision tree." If a question depends on the answer to an earlier one, the AI holds it for a later round.
 
-"Should deactivated members be billed?" can't be answered until the definition of a billable seat is settled. While that definition is still open, the AI shouldn't guess at the deactivation rule. In each round, the AI lists every question that can be decided right now, numbers them, and attaches a recommended answer to each. Once you reply, it decides what to ask in the next round.
+"Should deactivated members be billed?" can't be answered until the definition of a billable seat is settled. While that definition is still open, the AI shouldn't guess at the deactivation rule. Each round goes like this:
 
-[The `grilling` rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/grilling/SKILL.md#L6-L28) also spell out who answers what. Facts that can be found in files, code, or tools are for the AI to investigate; choices between different approaches are yours to make. While the AI is looking something up, it doesn't stall the whole round: only the questions that need that information wait for the result, and the rest are asked as usual. The interview ends only when every question has been dealt with and you've confirmed that you and the AI understand things the same way.
+```mermaid
+flowchart TD
+  A[Map question dependencies] --> B[List every decidable question]
+  B --> C[Number each, suggest answers]
+  C --> D[You reply]
+  D --> E{All questions handled?}
+  E -->|No| B
+  E -->|Yes| F[You confirm shared understanding]
+  F --> G[Interview ends]
+```
+
+[The `grilling` rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/grilling/SKILL.md#L6-L28) also spell out who answers what. Facts that can be found in files, code, or tools are for the AI to investigate; choices between different approaches are yours to make.
+
+While the AI is looking something up, it doesn't stall the whole round. Only the questions that need that information wait for the result, and the rest are asked as usual.
 
 ## domain-modeling Builds a Project Glossary
 
-The "domain" in `domain-modeling` means the things and rules the project deals with. In this post's example, that's workspaces, members, seats, and how billing works. This skill writes confirmed names into `CONTEXT.md`. I think of that file as a glossary specific to the project.
+The "domain" in `domain-modeling` means the things and rules the project deals with. In this post's example, that's workspaces, members, seats, and how billing works. This skill writes confirmed names into `CONTEXT.md`, a file I think of as a glossary specific to the project.
 
 If you're only reading the glossary and reusing existing names, you don't need to invoke `domain-modeling` explicitly. It only needs to step in when an existing definition might be wrong, a name isn't clear enough, or an important decision needs to be recorded.
 
-If a word you use conflicts with an existing definition, the AI should point out the discrepancy right away; when a name carries more than one meaning, it proposes a more precise canonical term. When discussing how terms relate to each other, the AI also comes up with edge cases to test the definitions, such as "If a member is deactivated and later reactivated, do they still have their original seat?", so that both sides spell out where one concept ends and another begins. When you describe existing behavior, it also has to check the code. If the code disagrees with what you said, you are still the one who decides whether to keep the current behavior or change it.
+When discussing terms, the AI should do the following:
 
-Once a term is confirmed, `domain-modeling` updates `CONTEXT.md` immediately instead of waiting until the interview is over. The file holds only names and definitions, not implementation details. A large project made up of several subprojects may have a separate glossary for each one. In that case, `CONTEXT-MAP.md` in the project's top-level folder works like an index that points to where each glossary lives. [The file rules in `domain-modeling`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/SKILL.md#L8-L64) define these boundaries.
+- When a word you use conflicts with an existing definition, point out the discrepancy right away.
+- When a name carries more than one meaning, propose a more precise canonical term.
+- When discussing how terms relate to each other, come up with edge cases to test the definitions, so that both sides spell out where one concept ends and another begins. For example: "If a member is deactivated and later reactivated, do they still have their original seat?"
+- When you describe existing behavior, check the code.
 
-Significant technical choices may be written up as an ADR, short for Architecture Decision Record. It's a short document that explains what was chosen and why. The AI proposes an ADR only when a decision will be hard to change later, will be hard to understand without context, and actually involved weighing alternatives. It writes the ADR only after you agree. The skill's format allows an ADR to be a single paragraph and doesn't ask you to pad it out just to fill a template. You can check the three conditions and the format in [`ADR-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/ADR-FORMAT.md#L1-L37).
+If the code disagrees with what you said, you are still the one who decides whether to keep the current behavior or change it.
+
+Once a term is confirmed, `domain-modeling` updates `CONTEXT.md` immediately instead of waiting until the interview is over. The file holds only names and definitions, not implementation details.
+
+A large project made up of several subprojects may have a separate glossary for each one. In that case, `CONTEXT-MAP.md` in the project's top-level folder works like an index that points to where each glossary lives. [The file rules in `domain-modeling`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/SKILL.md#L8-L64) define these boundaries.
+
+Significant technical choices may be written up as an ADR, short for Architecture Decision Record. It's a short document that explains what was chosen and why. The skill's format allows an ADR to be a single paragraph and doesn't ask you to pad it out just to fill a template.
+
+The AI proposes an ADR only when all three of these conditions hold, and it writes the ADR only after you agree:
+
+- The decision will be hard to change later.
+- It will be hard to understand without context.
+- It actually involved weighing alternatives.
+
+You can check the three conditions and the format in [`ADR-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/ADR-FORMAT.md#L1-L37).
 
 ![Product, finance, and engineering all agree to per-seat billing, but each defines a seat differently; the glossary document on the right records a shared definition of a billable seat](mattpocock-skills-requirements-2.webp){: width="800" height="450" }
 _Agreeing on the same word is not the same as agreeing on the same thing._
@@ -84,11 +120,11 @@ _Agreeing on the same word is not the same as agreeing on the same thing._
 
 `wait-what` is a correction entry point you use mid-conversation. When the AI's last explanation skips ahead too quickly or leaves out context, you invoke it explicitly.
 
-It asks the AI to re-explain what it just said and add the background needed to understand it. The re-explanation must be worded in English that follows ASD-STE100, a standard that restricts the vocabulary and sentence patterns used in technical English. You don't need to learn the standard first; its role here is to make the AI use shorter sentences and consistent terms. The content must also stick to the terms already confirmed in `CONTEXT.md`.
+It asks the AI to re-explain what it just said and add the background needed to understand it. The content must stick to the terms already confirmed in `CONTEXT.md`; if the project uses multiple glossary files, it first looks up the right one in `CONTEXT-MAP.md`.
 
-If the project uses multiple glossary files, it first looks up the right one in `CONTEXT-MAP.md`. The full instruction is a single paragraph; you can check it in [`wait-what/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/wait-what/SKILL.md#L1-L7).
+The re-explanation must be worded in English that follows ASD-STE100, a standard that restricts the vocabulary and sentence patterns used in technical English. You don't need to learn the standard first; its role here is to make the AI use shorter sentences and consistent terms.
 
-Its instruction only asks for the previous message to be re-explained; it doesn't rerun the whole interview. If the problem isn't a single message you didn't follow but requirements that are still vague overall, I'd suggest going back to `grill-with-docs` and continuing the interview.
+The full instruction is a single paragraph; you can check it in [`wait-what/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/productivity/wait-what/SKILL.md#L1-L7). It only asks for the previous message to be re-explained; it doesn't rerun the whole interview. If the problem isn't a single message you didn't follow but requirements that are still vague overall, I'd suggest going back to `grill-with-docs` and continuing the interview.
 
 ## Interview Results Don't All Go Into the Same Document
 
@@ -107,9 +143,13 @@ _Interview results are written to the glossary, an ADR, or a later spec dependin
 
 ## There's No Fixed Number of Interview Questions
 
-The two starting points don't have their own question banks; both hand the interview to `grilling`. And `grilling` has no fixed number of rounds or questions either. If a question needs an earlier answer, the AI saves it for later. The interview ends only when every question has been dealt with and you've confirmed that both sides understand things the same way.
+The two starting points don't have their own question banks; both hand the interview to `grilling`, which has no fixed number of rounds or questions either. So how long the interview takes depends on how much is still undecided, not on which skill you used.
 
-How long the interview takes depends on how much is still undecided, not on which skill you used. Rather than counting how many questions the AI asked, I'd check three things: which questions already have answers, which are still waiting on earlier answers, and whether terms and ADRs were written to the right place.
+Rather than counting how many questions the AI asked, I'd check three things:
+
+- Which questions already have answers.
+- Which questions are still waiting on earlier answers.
+- Whether terms and ADRs were written to the right place.
 
 Because `grill-with-docs` modifies project documentation, I think the team still needs to review whether newly added terms are worth adopting, and whether each ADR meets the three conditions. Definitions that haven't been agreed on shouldn't be written down early; otherwise, the next person or AI to pick up the work will just be reading another vague definition.
 
@@ -125,13 +165,30 @@ I'd first ask whether you already have a project folder holding code and docs, t
 | You only need to sort out project terminology or key decisions | `domain-modeling` | It won't capture every requirements answer |
 | You didn't follow the last explanation | `wait-what` | It won't rerun the whole interview |
 
-I put this table together to help you choose a starting point; it isn't an order of execution. Normally you only invoke one starting point, and the rest of the flow takes over on its own.
+This table is for choosing a starting point; it isn't an order of execution.
 
 `grill-with-docs` suits requirements that can be fully clarified in a single conversation. If the requirements are too big to clarify in one conversation, [the `ask-matt` routing rules](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L38-L46) point you to `wayfinder` instead. `wayfinder` is a separate skill for exploring large pieces of work first to figure out where to start.
 
 ## Simulated Scenario: Questioning Seats Until a Spec Can Be Written
 
-What follows is worked out from the skills' rules. The scenario: you've finished the project setup from the previous post, and you're now working on per-seat billing inside the subscription service's project folder.
+What follows is worked out from the skills' rules. The scenario: you've finished the project setup from the previous post, and you're now working on per-seat billing inside the subscription service's project folder. The whole conversation goes like this:
+
+```mermaid
+sequenceDiagram
+  participant U as You
+  participant A as AI
+  participant P as Project
+  U->>A: Invoke grill-with-docs
+  A->>P: Read terms, ADRs, and code
+  A->>U: Round 1, independent questions
+  U->>A: Confirm the seat definition
+  A->>P: Write CONTEXT.md right away
+  A->>U: Round 2, follow-up questions
+  A->>U: Propose an ADR
+  U->>A: Agree
+  A->>P: Write the ADR
+  U->>A: Invoke wait-what to re-explain
+```
 
 Using Codex, an AI coding assistant, as the example, start by entering the requirement and explicitly invoking `grill-with-docs`:
 
@@ -141,9 +198,11 @@ $grill-with-docs
 We want to add per-seat billing to our existing subscription service. Please help me get the requirements clear.
 ```
 
-The AI first reads the existing glossary, related ADRs, and code. Facts that can be looked up in the project, such as "Does the system currently charge through the payment platform based on the number of active members?", are for the AI to investigate, not to toss back to you.
+As the AI reads the project, facts it can look up there are for it to investigate, not to toss back to you. One such fact is whether the system currently charges through the payment platform based on the number of active members.
 
-The first round handles questions that don't depend on any other answer. For example: is billing based on purchased seats, assigned seats, or the number of active members? And does the subscription belong to the workspace or to a single payer? Suppose the team eventually confirms that a workspace owns a pool of purchased seats, and a member can use paid features only after being given a seat. `domain-modeling` can then write the terms down right away:
+The first round handles questions that don't depend on any other answer. For example: is billing based on purchased seats, assigned seats, or the number of active members? And does the subscription belong to the workspace or to a single payer?
+
+Suppose the team eventually confirms that a workspace owns a pool of purchased seats, and a member can use paid features only after being given a seat. `domain-modeling` can then write the terms down right away:
 
 ```markdown
 **Workspace**:
@@ -165,15 +224,29 @@ _Avoid_: user, seat
 
 This is illustrative content I organized according to [`CONTEXT-FORMAT.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L1-L30). Each `_Avoid_` line lists names that are easy to mix up and should be avoided from now on.
 
-Only with these definitions in place can the second round follow up on whether a pending invitation takes up a seat, what happens to the assignment when a member is deactivated, and when adding or removing seats affects the price. If the existing code bills directly by the number of active members, the AI also has to point out that the new definition differs from the current behavior and ask you to confirm whether to change it.
+Only with these definitions in place can the second round follow up on:
 
-Suppose the team then decides that the billing code should store the start and end time of every seat assignment, instead of working backward from the current member list to reconstruct past counts. This makes it easy to look up history later, at the cost of having to update billing data every time membership changes. This choice may meet the three ADR conditions, so `domain-modeling` should first propose an ADR and write it only after getting your agreement.
+- Whether a pending invitation takes up a seat.
+- What happens to the assignment when a member is deactivated.
+- When adding or removing seats affects the price.
 
-Suppose the AI then explains seat changes in a long block of text, but you don't follow how "seat change" relates to "seat assignment." That's the moment to invoke `wait-what` and ask it to re-explain using the terms it just wrote down.
+If the existing code bills directly by the number of active members, the AI also has to point out that the new definition differs from the current behavior. Then it asks you to confirm whether to change it.
 
-When this stretch of the flow is done, the requirements still haven't been turned into a full spec. What you have at this point are the answers confirmed in the conversation, the terms in `CONTEXT.md`, and a few ADRs created with your agreement. If this feature will take several conversations to build, the next step is to invoke `to-spec` in the same conversation and have it organize the requirements into a spec.
+Suppose the team then decides that the billing code should store the start and end time of every seat assignment, instead of working backward from the current member list to reconstruct past counts. This makes it easy to look up history later, at the cost of having to update billing data every time membership changes.
 
-## What Matters More to Me Is What Gets Left Behind
+This choice may meet the three ADR conditions, so `domain-modeling` should first propose an ADR and write it only after getting your agreement.
+
+Suppose the AI then explains seat changes in a long block of text, but you can't tell how "seat change" and "seat assignment" are related. That's the moment to invoke `wait-what` and ask it to re-explain using the terms it just wrote down.
+
+When this stretch of the flow is done, the requirements still haven't been turned into a full spec. What you have at this point:
+
+- The answers confirmed in the conversation.
+- The terms in `CONTEXT.md`.
+- A few ADRs created with your agreement.
+
+If this feature will take several conversations to build, the next step is to invoke `to-spec` in the same conversation and have it organize the requirements into a spec.
+
+## Reusable Vocabulary Is What's Most Worth Keeping
 
 At this point, both the invocation rules and the document-keeping rules I've described can be checked against the original sources. But the rules themselves can't prove that a shared vocabulary will necessarily improve how a team works together.
 
@@ -183,7 +256,7 @@ This view only applies to projects maintained by several people, or ones that ta
 
 ## Make the Same Word Mean the Same Thing First
 
-If you want to try this flow, I'd suggest starting by finding the one word in your requirements that's most likely to be ambiguous, such as "seat." Invoke `grill-with-docs` inside the project, confirm how it relates to "member" first, and then discuss whether inviting a member takes up a seat and when billing stops after deactivation.
+To try this flow, first pick a word like "seat" that is the most likely to be ambiguous in your requirements. Invoke `grill-with-docs` inside the project and confirm how it relates to "member" first. Then discuss whether inviting a member takes up a seat, and when billing stops after deactivation.
 
 The goal of the interview isn't to pile up questions, but to make sure the same word always means the same thing throughout the spec that follows. In the next post, I'll cover how to use `to-spec` to write the spec, and then `to-tickets` to break it down into tickets you can start working on right away.
 

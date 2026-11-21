@@ -8,21 +8,23 @@ media_subpath: /assets/img/posts/ai-native-sdlc-playbook/
 image:
   path: cover.en.webp
   alt: "Faster delivery with AI depends on clear handoffs, verifiable results, and human judgment."
+mermaid: true
 ---
 
 After reading Anthropic's [*The AI-native SDLC playbook*](https://claude.com/resources/articles/the-ai-native-sdlc-playbook), I kept coming back to one question: if AI can write code so quickly, what are we still waiting for?
 
-Suppose I run an event registration website and want to add waitlist notifications. I ask AI to build the feature, and it quickly produces the email flow and confirmation page. But I haven't decided how long to hold an open place for someone on the waitlist. If they don't respond, when should the next person get an offer? And what happens if someone opens an expired link?
+Suppose I run an event registration website and want to add waitlist notifications. AI quickly builds the email flow and confirmation page, but a few decisions are still open. How long should an open place be held for someone on the waitlist? If they don't respond, should the next person get an offer? And can an expired link still be used?
 
-At that point, having the code ready is still a long way from being ready to launch.
+Having the code ready is still a long way from being ready to launch.
 
-The original article is by Louis Claxton, and its page lists a publication date of August 21, 2026. It argues that as AI accelerates code production, bottlenecks move to requirements, verification, and delivery. The development process should involve AI throughout, connect stages through traceable work products, and keep people responsible for decisions.
+> The original article is by Louis Claxton, and its page lists a publication date of August 21, 2026. The website, people, times, and numbers below are all hypothetical. The prompts and documents are illustrative too.
+{: .prompt-info }
 
-This post is my interpretation of that idea, followed by a worked example. The website, people, times, and numbers below are all hypothetical. The prompts and documents are illustrative too.
+The article argues that as AI accelerates code production, bottlenecks move to requirements, verification, and delivery. The development process should involve AI at every stage, connect stages through traceable work products, and keep people responsible for decisions. This post is my reading of that idea, followed by the waitlist feature from start to finish.
 
-## How I Think About the SDLC: From an Idea to Something People Can Use
+## I Break the SDLC Into Six Questions
 
-SDLC stands for Software Development Lifecycle. I find it helpful to think of it as six questions:
+SDLC stands for Software Development Lifecycle: how a feature goes from an idea to something people use. I break it into six questions:
 
 | Stage | The question I want to answer | In the waitlist example |
 | --- | --- | --- |
@@ -35,9 +37,9 @@ SDLC stands for Software Development Lifecycle. I find it helpful to think of it
 
 Deployment means putting a new version into the environment that serves real users. Maintenance includes investigating errors, fixing problems, and making improvements. On a small project, one person might do all six jobs, but it is still useful to consider them separately.
 
-To me, an AI-native process accounts for what AI can do, what information it needs, and how its work will be checked from the start. If someone has to retell an entire conversation, reorganize files, and chase down results before the next step can begin, there is still room to improve the process.
+To me, an AI-native process considers three things from the start: what AI can do, what information it needs, and how its work will be checked. If someone has to retell an entire conversation, reorganize files, and chase down results before the next step can begin, the process still has room to improve.
 
-## I Look at the Full Delivery Timeline, Not Just Coding Speed
+## I Look at the Whole Wait, Not Just Coding Speed
 
 A restaurant is a useful analogy. Cooking faster doesn't help much if the order is unclear, the ingredients aren't ready, or finished dishes are waiting to be served. The customer still waits.
 
@@ -46,13 +48,17 @@ The same applies to waitlist notifications. AI might build the email feature qui
 ![Two sequences of work: clarify requirements, build, and verify and deliver. In the second sequence, only the build stage is shorter.](bottleneck.en.webp){: width="1600" height="800" }
 _I use this diagram to show how waiting adds up. The block lengths are illustrative._
 
-What I want to observe is the time from proposing a feature to making it usable. Where do discussions keep repeating? Does the release create more support work? If more code is being produced but the review queue keeps growing, that tells me where to focus next.
+So I watch the whole process:
 
-With that in mind, here is how I would work with AI on the waitlist feature from start to finish.
+- How long does a feature take from proposal to usable?
+- Where do discussions keep repeating?
+- Does the release create more support work?
+
+If more code is being produced but review is stuck, that tells me where to focus next.
 
 ## Step 1: I Clarify the Problem Before Building the Feature
 
-“When someone cancels, notify the next person on the waitlist” sounds like a straightforward requirement. It still leaves plenty of questions unanswered. I would start by asking AI to find those gaps:
+“When someone cancels, notify the next person on the waitlist” sounds straightforward, but it leaves plenty of gaps before anyone can build it. I would start by asking AI to find the decisions I need to make:
 
 ```text
 I want to add waitlist notifications to an event registration website.
@@ -69,7 +75,7 @@ List the decisions I need to make, grouped into:
 Don't invent business rules that I haven't confirmed.
 ```
 
-I would expect it to flag decisions such as the response deadline and queue order, while leaving “Can we use the existing email service?” as something to investigate. If it simply writes “Hold the place for 24 hours,” I would ask it to label that as an assumption. That number affects how quickly an organizer can fill the event.
+I would expect it to flag decisions such as the response deadline and queue order, and to leave “Can we use the existing email service?” as something to investigate. If it simply writes “Hold the place for 24 hours,” I would ask it to label that as an assumption, because that number decides how quickly an organizer can fill the event.
 
 After discussing those questions, I would keep a short requirements draft:
 
@@ -93,24 +99,22 @@ Should we keep offering places when the event starts in less than 2 hours?
 If the email service is down, when should the response window begin?
 ```
 
-Two hours is simply the choice made for this example. I deliberately keep the open questions visible: a document that looks complete can easily make unsettled decisions look final.
+Two hours is simply the choice made for this example. I deliberately keep the open questions visible, because a document that looks complete can easily make unsettled decisions look final.
 
-My check at this stage is simple. Could someone who wasn't in the discussion read the draft and explain both the problem and what this version will leave out? If not, I would keep clarifying it.
+My check at this stage: could someone who wasn't in the discussion read the draft and explain what the feature solves and what this version leaves out? If not, I would keep clarifying.
 
-## Step 2: I Use a Concrete Scenario to Clarify the Design
+## Step 2: I Use a Concrete Scenario to Force the Design Into the Open
 
-Once the direction is clear, I would turn the abstract rules into a sequence of events.
+Once the direction is clear, I would turn the abstract rules into a sequence of real use.
 
 Suppose a cancellation frees up a place at 9:00 a.m. Alex, first on the waitlist, receives an offer, and the system holds the place until 11:00. Alex doesn't confirm, so after 11:00 the place is held for Ben, who is next in line. At 11:05, Alex opens the original email.
 
-What should the page do?
-
-I would have it display “This offer has expired” and prevent Alex from taking the place now held for Ben. The page also shouldn't promise “You've automatically rejoined the queue” unless I have actually decided how rejoining works.
+What should the page do? I would have it display “This offer has expired” and prevent Alex from taking the place now held for Ben. Unless I have actually decided how rejoining works, the page also shouldn't promise “You've automatically rejoined the queue.”
 
 ![A hypothetical timeline: Alex gets an offer at 9:00. After it expires at 11:00, Ben gets the next offer. At 11:05, Alex cannot use the old link to claim the place held for Ben.](invitation-timeline.en.webp){: width="1600" height="900" }
 _These times are part of my example. Putting events on one timeline makes it easier to see what an expired link can do and who the place is now reserved for._
 
-I would then ask AI to work through the design against that scenario:
+Next, I would ask AI to work through the design against that scenario:
 
 ```text
 Using the requirements draft, map the flow from waiting to receiving an offer,
@@ -128,13 +132,11 @@ Don't make that decision yourself.
 
 I would pay particular attention to what happens after a failed action. The path from receiving an email to clicking Confirm is usually easy to draw. The complications tend to appear when delivery fails, links expire, or people repeat an action.
 
-That is where I want AI's help: exposing overlooked branches so I can decide on acceptable behavior before the code changes.
+That is exactly where I want AI's help: exposing overlooked branches so I can decide which behavior to accept before the code changes.
 
 ## Step 3: I Review the Scope Before Letting AI Edit Code
 
-Once the design makes sense, I would ask for an implementation plan I can review. It can be a simple document, but it needs to make the scope of the change clear.
-
-For this hypothetical project, the work might cover:
+Once the design makes sense, I would ask for an implementation plan I can review. It can be a simple document, but it needs to show the boundaries of the change. For this hypothetical project, the work might cover:
 
 | Area | What I would ask the plan to explain |
 | --- | --- |
@@ -144,7 +146,7 @@ For this hypothetical project, the work might cover:
 | Confirmation page | What appears for successful, expired, and already confirmed offers |
 | Admin interface | How organizers find delivery failures and other items needing attention |
 
-Those are discussion areas. The actual files, data structures, and order of work can only be decided after reading the existing code. I wouldn't invent a list of filenames and tell AI to follow it.
+This table only lists areas for discussion. The actual files, data structures, and order of work can only be decided after reading the existing code. So I wouldn't invent a list of filenames and tell AI to follow it.
 
 My prompt would look like this:
 
@@ -160,7 +162,7 @@ possible alternatives.
 For this pass, only read and prepare the plan. Don't change code.
 ```
 
-I want to catch changes that look small but affect important rules. Adding an expiry time, for example, may require handling existing waitlist data that has no deadline. Changing how places are held may also affect the normal registration flow.
+I want to catch changes that look small but touch important rules. Adding an expiry time, for example, may require handling existing waitlist data that has no deadline. Changing how places are held may also affect the normal registration flow.
 
 If the design turns out to be unworkable during development, I would update the plan and acceptance criteria together. Otherwise, I would end up reviewing one implementation against an outdated description of another.
 
@@ -168,7 +170,7 @@ If the design turns out to be unworkable during development, I would update the 
 
 “All tests pass” is reassuring, but I still want to know what was tested.
 
-I would list the important scenarios first, then ask AI or an engineer to automate the checks where appropriate. Here is an acceptance table for the example:
+I would list the important scenarios first, then ask AI or an engineer to automate the checks where appropriate. Here is the acceptance table for the example:
 
 | Scenario | Expected result |
 | --- | --- |
@@ -179,13 +181,16 @@ I would list the important scenarios first, then ask AI or an engineer to automa
 | The email service temporarily fails | The failure is not recorded as successful delivery, and its status remains traceable |
 | The event has been canceled | An old offer cannot complete registration, and the page explains why |
 
-Repeated requests bring up a concept called *idempotency*: repeating an operation should have the same effect as performing it once. The waitlist example makes this tangible. People really do click twice, and systems really do resend requests after network problems.
+The repeated-request row is about *idempotency*: repeating an operation should have the same effect as performing it once. The waitlist example makes this tangible, because people really do click twice, and systems really do resend requests after network problems.
 
-I would also distinguish between two kinds of checks.
+There are two kinds of checks. Both matter, and neither replaces the other:
 
-One checks internal outcomes, such as ensuring that a place cannot be allocated twice. That is well suited to automated tests. The other checks whether people can understand the interface, such as whether an expired-offer message is clear. That calls for using the page and reviewing screenshots. Both matter, and neither replaces the other.
+| What it checks | Example | Suitable method |
+| --- | --- | --- |
+| Internal outcomes | A place cannot be allocated twice | Automated tests |
+| Whether people understand the page | The expired-offer message is clear | Using the page and reviewing screenshots |
 
-When asking AI to fix a bug, I would also insist on preserving the acceptance criteria:
+When asking AI to fix a bug, I would also insist on keeping the acceptance criteria:
 
 ```text
 First reproduce the bug where an expired offer can still be confirmed,
@@ -198,13 +203,13 @@ If you think the acceptance criteria contradict each other, flag that for me
 to decide before proceeding.
 ```
 
-What matters to me is whether the evidence supports the conclusion. Green checks that don't cover expired links or duplicate confirmations are not enough to establish that the waitlist flow works correctly.
+What matters to me is whether the evidence supports the conclusion. Green checks that don't cover expired links or duplicate confirmations are not enough to show that the waitlist flow works correctly.
 
 ## Step 5: I Review Behavior in the PR and Rehearse How to Stop the Change
 
-A PR, or pull request, brings changes together for review before they are merged. I want it to tell me quickly what changed, how it was verified, and what remains unresolved.
+A PR, or pull request, brings changes together for review before they are merged. I want it to tell me three things quickly: what changed, how it was verified, and what remains unresolved.
 
-I would ask for a summary like the one below. This is a template to fill in, not evidence that any checks have already passed:
+I would ask for a summary like the one below. It is a template to fill in, not evidence that any checks have already passed:
 
 ```markdown
 ## What Changes for Users
@@ -226,17 +231,35 @@ Expired offers cannot claim a place.
 List unsettled rules and known limitations. Don't leave them at "probably fine."
 ```
 
-Before launch, I would walk through the entire flow using test inboxes. Alongside rehearsing a release, I would rehearse how to stop it if something goes wrong.
+Before launch, I would walk through the entire flow using test inboxes. Alongside confirming that the new version can ship, I would rehearse how to stop it if something goes wrong.
 
-Suppose the invitation email contains incorrect information. Turning off the creation of new offers won't recall emails already sent. I would still need to decide whether their confirmation links remain valid, whether a correction email is needed, and how organizers can identify affected people.
+Suppose the invitation email contains incorrect information. I would handle it in this order:
 
-That is why I wouldn't settle for “Roll back if there is a problem.” If the new version has already changed capacity or offer data, restoring the old code may leave records that still need attention. For this feature, I would first work out how to stop new offers, protect existing reservations, and identify the impact. Only then would I consider rolling back the code.
+```mermaid
+flowchart TD
+  A[Email content is wrong] --> B[Stop creating offers]
+  B --> C[Protect existing reservations]
+  C --> D[Identify the impact]
+  D --> E[Handle sent offers]
+  E --> F[Old links stay valid?]
+  E --> G[Send a correction?]
+  E --> H[Find affected people?]
+  F & G & H --> I[Then consider rollback]
+```
+
+Stopping new offers won't recall emails already sent, so the offers already out need their own decisions.
+
+I wouldn't settle for “Roll back if there is a problem.” If the new version has already changed capacity or offer data, restoring the old code still leaves those records to deal with. That is why rollback comes last.
 
 ## Step 6: I Feed User Reports Back Into the Next Round of Requirements
 
 Suppose someone reports after launch: “By the time I received the email, the link was about to expire.”
 
-I wouldn't immediately ask AI to change the response window from two hours to four. That could hide the real problem. First, I would establish when the clock started, when the email entered the sending queue, when the email service accepted it, and whether there were retries or delays.
+I wouldn't immediately ask AI to change the response window from two hours to four, because that could hide the real problem. First, I would pin down a few points in time:
+
+- When did the clock start?
+- When did the email enter the sending queue, and when did the email service accept it?
+- Were there retries or delays?
 
 I would ask AI to separate the investigation into three parts:
 
@@ -246,26 +269,35 @@ I would ask AI to separate the investigation into three parts:
 | Hypotheses to verify | Delayed email delivery or an incorrect time displayed on the page |
 | Next steps | Check time zones, investigate email jobs, and confirm how deadlines are calculated |
 
-There is another distinction worth making here: an email service accepting a request doesn't mean the recipient received or read the message. An investigation needs to state exactly what was observed, so assumptions don't become facts.
+One point is easy to get wrong: an email service accepting a request doesn't mean the recipient received or read the message. An investigation needs to state exactly which step was observed, so assumptions don't become facts.
 
-If the investigation shows that the countdown starts when the offer is created but the email is delayed, I would bring the start of the response window back into the requirements discussion. After changing it, I would add the delayed-delivery scenario to the checks so the same problem doesn't recur.
+If the investigation shows that the countdown starts when the offer is created but the email is delayed, I would bring the start of the response window back into the requirements discussion:
 
-That closes the loop: evidence from maintenance informs planning, and the six stages become a cycle of improvement.
+```mermaid
+flowchart TD
+  A[User reports short window] --> B[Pin down the timestamps]
+  B --> C[Facts, hypotheses, next steps]
+  C --> D[Confirm the cause]
+  D -->|Early clock, late email| E[Revisit the start rule]
+  E --> F[Test the delay case]
+```
+
+Adding the delayed-delivery scenario to the checks keeps the same problem from recurring. That is how evidence from maintenance returns to planning, and the six stages become a cycle of improvement.
 
 ![Evidence passed between stages of the waitlist feature: requirements decisions, implementation scope, verification scenarios, release records, and user feedback.](handoff.en.webp){: width="1600" height="1000" }
 _I want each handoff to record what was decided, how it was checked, and who takes over. This is my hypothetical waitlist example._
 
-## Why I Want the Information to Exist Outside the Chat
+## I Want the Information to Exist Outside the Chat
 
 Working through this example makes it clear that requirements, design, implementation, and verification are a series of connected decisions.
 
 If those decisions live only in chat, someone taking over a few days later has to reconstruct them. How long is a place held? Does the clock start if sending fails? Which version of the discussion contains the final decision?
 
-The original article connects work through files such as `intent.md`, `spec.md`, and `plan.md`, with version history. It also allows existing requirements systems to remain in use, provided the authoritative source is clear. [See the original article](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). The `.md` extension denotes a Markdown text file that can be read in an ordinary text editor.
+The original article connects work through files such as `intent.md`, `spec.md`, and `plan.md`, with version history. It also allows existing requirements systems to remain in use, provided the authoritative source is clear. [See the original article](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). A `.md` file is Markdown text that an ordinary text editor can read.
 
 For me, maintaining one useful issue or work ticket is a good start. At a minimum, it should link to the requirements decisions, relevant PRs, and verification results. If I change the hold time from two hours to four, I would update the acceptance scenarios and support guidance at the same time, so they stay consistent.
 
-I would also watch the amount of documentation. A change to a few lines of text doesn't need three nearly identical documents just to satisfy a naming convention. Helping the next person and the AI find the right information matters more than the number of files.
+I would also keep the amount of documentation in check. A change to a few lines of text doesn't need three nearly identical documents just to satisfy a naming convention. Helping the next person and the AI find the right information matters more than the number of files.
 
 ## I Distinguish Between Reminding AI and Enforcing a Rule
 
@@ -283,11 +315,11 @@ For the waitlist feature, I would divide the work like this:
 
 I wouldn't expect a single hook to enforce everything. Development tool checks, email service permissions, and the registration system's own rules protect different parts of the process. Any of them can also be configured incorrectly.
 
-The question I would ask is: if this rule is broken, will someone get a warning, will the action be blocked, or will we only find out when a user reports a problem? The answer tells me whether the current protection is enough.
+So the question I would ask is: if this rule is broken, will someone get a warning, will the action be blocked, or will we only find out when a user reports a problem? The answer tells me whether the current protection is enough.
 
-## How I Would Scale This Down for My Own Blog
+## A Personal Blog Can Use a Smaller Version
 
-Waitlist notifications involve capacity and contact details, so I would spell out the workflow in more detail. I also want to apply the same thinking to a personal website at a scale that is easy to start with.
+Waitlist notifications involve capacity and contact details, so the workflow needs more detail. The same thinking also works for a personal website, at a scale small enough to actually start.
 
 Suppose I want to add an article reading progress bar to my blog. I would approach it like this:
 
@@ -313,14 +345,25 @@ I would look at four things:
 - **User problems:** Do situations we hadn't considered appear after launch?
 - **Total cost:** AI usage fees, execution time, and my time reading documents, reviewing PRs, and handling errors.
 
-If AI writes faster but I spend more time working out why it made each change, I would reduce the size of changes and ask for clearer summaries. If requirements keep shifting, I would improve the initial clarification. One smooth release doesn't prove that the same approach suits every job, so I would keep observing different kinds of changes.
+What I observe decides what to adjust next:
 
-What I most want to improve after reading this playbook is the completeness of each handoff. Have I explained the problem clearly? Has AI provided enough verification? Does the next person know which decisions are settled and which still need judgment?
+| What I observe | What I would adjust |
+| --- | --- |
+| AI writes faster, but I spend more time working out why it made each change | Make changes smaller and ask for clearer summaries |
+| Requirements keep shifting | Improve the initial clarification |
+
+One smooth release doesn't prove that the same approach suits every job, so I would keep observing different kinds of changes.
+
+What I most want to improve after reading this playbook is the completeness of each handoff:
+
+- Have I explained the problem clearly?
+- Has AI provided enough verification?
+- Does the next person know which decisions are settled and which still need judgment?
 
 Those answers give me a better chance of turning faster coding into software I can ship with confidence, with improvements my readers or users can actually experience.
 
 ## Further Reading
 
-- Louis Claxton, Anthropic: [The AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook). The original covers detailed practices and governance across the six stages. This post contains my reading notes and illustrative examples; its diagrams are original, not reproductions of the source's figures.
+- Louis Claxton, Anthropic: [The AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook): detailed practices and governance across the six stages. This post contains my reading notes and illustrative examples; its diagrams are original, not reproductions of the source's figures.
 - [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): how the PR review in Step 5 is split on this site among automated checks, AI review, and human approval.
-- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): keeping project rules out of chat, in a file a coding agent can read.
+- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): keeping project rules in a file a coding agent can read.

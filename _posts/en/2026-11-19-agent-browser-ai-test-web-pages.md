@@ -8,15 +8,18 @@ media_subpath: /assets/img/posts/agent-browser-ai-test-web-pages/
 image:
   path: cover.en.webp
   alt: "After an AI edits a web page, it uses agent-browser to try the page and check for JavaScript errors before it reports the job done."
+mermaid: true
 ---
 
 When a coding agent changes a web page and only reads the code, it can't see whether the page reacts when someone clicks the button. The code can look fine while the page is still broken.
 
-[agent-browser](https://github.com/vercel-labs/agent-browser) is a command-line tool from Vercel Labs, written in Rust. An AI uses it to drive a browser one command at a time: open a page, list the buttons and fields on it, click one, and read the result. Coding agents can already run terminal commands, so an agent can use these commands to click through the page before it reports "done."
+[agent-browser](https://github.com/vercel-labs/agent-browser) is a command-line tool from Vercel Labs, written in Rust. An AI uses it to drive a browser one command at a time: open a page, list the buttons and fields on it, click one, and read the result. Coding agents can already run terminal commands, so an agent can click through the page before it reports "done."
 
-In this post I start from installation and walk through the whole flow on a small local newsletter form. I also made a broken copy of the form with a typo, to see whether agent-browser's output points to the error. Then I hand the same check to an AI, and finally I test how to limit which domains it can visit and which actions it can take. The source of both demo pages is in the post, so you can repeat every step.
+This post tests it on a small local newsletter form and on a copy I broke on purpose. Then it hands the check to an AI and limits which domains the AI can visit and which actions it can take. The source of both demo pages is in the post, so you can repeat every step.
 
-> The official material I checked is the agent-browser v0.43.0 tag: the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) plus four docs pages, [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version. On 2026-11-19 (Taipei time) I ran this test on a Debian 13 (x86_64) machine with agent-browser 0.43.0 and the Chrome for Testing 158.0.8127.36 build it downloaded. That day, 0.43.0 was the release GitHub marked as Latest, published on 2026-11-13 Taipei time. GitHub lists 10 releases from v0.39.1 (2026-10-14 Taipei time) through 0.43.0, so check your version before you follow along:
+> The official material I checked is the [README](https://github.com/vercel-labs/agent-browser/tree/v0.43.0) at the agent-browser v0.43.0 tag, plus four official docs pages: [Installation](https://agent-browser.dev/installation), [Quick Start](https://agent-browser.dev/quick-start), [Snapshots](https://agent-browser.dev/snapshots), and [Security](https://agent-browser.dev/security). The docs website may already describe a newer version.
+>
+> I ran the test on 2026-11-19 (Taipei time) on a Debian 13 (x86_64) machine. I used agent-browser 0.43.0 and the Chrome for Testing 158.0.8127.36 build it downloaded. That day, 0.43.0 was the release GitHub marked as Latest, published on 2026-11-13 Taipei time. GitHub lists 10 releases from v0.39.1 (2026-10-14 Taipei time) through 0.43.0, so check your version before you follow along:
 >
 > ```bash
 > agent-browser --version
@@ -38,13 +41,15 @@ In this post I start from installation and walk through the whole flow on a smal
 
 ## Step 1: Install
 
-The official docs recommend a global npm install, followed by `agent-browser install` to download the Chrome it uses. That Chrome is [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), the build Google provides for automated testing. According to the docs, you can also install it with brew on macOS:
+The official recommendation is a global npm install, then `agent-browser install` to download the Chrome it uses. That Chrome is [Chrome for Testing](https://googlechromelabs.github.io/chrome-for-testing/), the build Google makes for automated testing.
+
+According to the docs, you can also install with brew on macOS:
 
 ```bash
 brew install agent-browser
 ```
 
-Installing with cargo compiles from source and needs the Rust toolchain:
+Installing with cargo builds from source and needs the Rust toolchain:
 
 ```bash
 cargo install agent-browser
@@ -61,27 +66,31 @@ agent-browser install
 ![Real terminal output: npm installs agent-browser and prints an install-scripts warning; agent-browser --version prints agent-browser 0.43.0; agent-browser install downloads and installs Chrome 158.0.8127.36](term-install.webp){: w="1102" h="636" }
 _My install on Debian Linux (real output)_
 
-npm printed an `install-scripts` warning during the install. It said the postinstall script of `agent-browser@0.43.0` wasn't covered by allowScripts yet, and suggested `--allow-scripts=agent-browser` to allow it. I covered how npm blocks install scripts in [npm 12 Blocks Install Scripts by Default](/posts/npm-12-install-scripts-allowscripts/). According to the Installation docs, when a package manager such as npm 12 blocks install scripts by default, agent-browser links itself on the first run, with no extra setup. I ignored the warning and ran `agent-browser --version`. It printed `agent-browser 0.43.0` without any extra step.
+npm printed an `install-scripts` warning during the install. It said the postinstall script of `agent-browser@0.43.0` wasn't covered by allowScripts yet. It suggested `--allow-scripts=agent-browser` to let that script run.
 
-On Linux, `agent-browser install` printed the same hint twice. It said to run this if the browser fails to launch or you see "shared library" errors:
+According to the Installation docs, you don't need to act on this warning. When a package manager such as npm 12 blocks install scripts by default, agent-browser links itself on the first run. I covered how npm blocks install scripts in [npm 12 Blocks Install Scripts by Default](/posts/npm-12-install-scripts-allowscripts/).
+
+I ignored the warning and ran `agent-browser --version`. It printed `agent-browser 0.43.0` right away.
+
+On Linux, `agent-browser install` printed a hint twice: if the browser fails to start or you see a shared library error, run this instead:
 
 ```bash
 agent-browser install --with-deps
 ```
 
-According to the docs, that command uses your system package manager to add the libraries Chrome needs, and it goes through `sudo` when you aren't root. On my machine, plain `agent-browser install` was enough, and the browser launched fine in every later step.
+According to the docs, this command uses your system package manager to install the libraries Chrome needs, and runs through `sudo` when you aren't root. On my machine, plain `agent-browser install` was enough, and the browser started fine in every later step.
 
-After installing, you can run a health check:
+After the install, you can run a health check:
 
 ```bash
 agent-browser doctor --offline --quick
 ```
 
-My result was `Summary: 8 pass, 0 warn, 0 fail`. According to the docs, `--offline --quick` only checks the local machine, doesn't go online, and skips the browser launch test. The output also had the line `AI_GATEWAY_API_KEY not set (chat command disabled)`. Step 5 uses that environment variable.
+My result was `Summary: 8 pass, 0 warn, 0 fail`. According to the docs, `--offline --quick` checks only the local machine, skips the network, and skips the test that actually launches a browser. The output also had a line `AI_GATEWAY_API_KEY not set (chat command disabled)`. Step 5 uses that environment variable.
 
-## Step 2: Run the basic loop once
+## Step 2: Walk through the basic loop
 
-Using agent-browser comes down to four steps: open the page, take a snapshot, act on refs, and check the result. Whenever the page changes, take a new snapshot.
+Using agent-browser takes four steps: open the page, take a snapshot, act by ref, and check the result. Whenever the page changes, take a new snapshot.
 
 ![The basic agent-browser loop: open the page, use snapshot -i to list interactive elements with refs, fill fields and click by ref, then confirm the result with wait, get, and errors; take a new snapshot when the page changes](core-loop.en.webp){: w="1600" h="900" }
 
@@ -102,17 +111,19 @@ _The snapshot gives `@e1`, and clicking it changes the URL (real output)_
 
 Line by line:
 
-- `open` starts the browser in the background. The first time, it prints `[agent-browser] launched browser`. Then it opens the page and prints the title and URL.
-- `snapshot -i` lists only the elements you can interact with. This page has one link, with the ref `e1`. The real 0.43.0 output format is `- link "Learn more" [ref=e1]`, which differs from the sample format in the Quick Start docs. Go by the output you see.
+- `open` starts the browser in the background and prints `[agent-browser] launched browser` the first time. Then it opens the page and prints the page title and URL.
+- `snapshot -i` lists only the interactive elements. This page has a single link, with ref `e1`. Version 0.43.0 actually prints `- link "Learn more" [ref=e1]`, which differs from the example format in Quick Start. Trust the output you see.
 - `screenshot` saves the current view as a PNG file.
-- `click @e1` clicks that link. `get url` returns `https://www.iana.org/help/example-domains`, so the page changed.
+- `click @e1` clicks that link. `get url` returns `https://www.iana.org/help/example-domains`, so the page has changed.
 - After the page change, `snapshot -i` prints `(no interactive elements)`.
 
-`-i` stands for interactive. Without it, the snapshot lists the structure of the whole page, including paragraph text. When you only need buttons and fields, `-i` keeps the output short.
+`-i` is short for interactive. Without it, a snapshot lists the structure of the whole page, paragraph text included. When you only want buttons and fields, `-i` keeps the output short.
 
 ## Step 3: Test a local form
 
-In practice you'll usually check a page you're building. I wrote a newsletter form with one Email field and one Subscribe button. After you submit it, the text "Thanks! We sent a confirmation to" plus your email should appear below the button. This demo only updates the page text; it doesn't send a confirmation email. Here's the complete `site/index.html`. Save it exactly as is, without reformatting, so the error line number in Step 4 matches mine:
+The real use is usually checking the page you're building. I wrote a newsletter form with one Email field and one Subscribe button. After you submit, the area below the button should show "Thanks! We sent a confirmation to" followed by the email you entered.
+
+The demo only updates text on the page and never sends a confirmation email. Below is the full `site/index.html`. Save it exactly as shown, without reformatting, so the error line numbers in Step 4 match mine:
 
 ```html
 <!doctype html>
@@ -135,11 +146,13 @@ document.getElementById('f').addEventListener('submit', e => {
 ```
 {: file="site/index.html" }
 
-From the folder that contains `site`, run the line below to serve it on port 8765 with Python's built-in HTTP server. Leave that terminal running and open another terminal for agent-browser commands. Any static file server works, as long as the URL is `http://localhost:8765/`:
+From the folder above `site`, run this line to serve the page on port 8765 with Python's built-in HTTP server:
 
 ```bash
 python3 -m http.server 8765 --bind 127.0.0.1 --directory site
 ```
+
+Leave that terminal running and open a second terminal for agent-browser. Any server that serves static files works, as long as the URL is `http://localhost:8765/`.
 
 If you just finished Step 2, close the browser first:
 
@@ -147,16 +160,18 @@ If you just finished Step 2, close the browser first:
 agent-browser close
 ```
 
-In my main run of this step, the browser was closed, so `open` printed `launched browser` and the refs started at `e1`. If you don't close it first, the refs keep counting up. The warning at the end of this section explains why. Next, open the page and take a snapshot:
+When I ran this step for real, the browser was closed, so `open` printed `launched browser` and the refs started at `e1`. If you don't close it first, the refs keep counting up. The warning at the end of this section explains why.
+
+Next, open the page and take a snapshot:
 
 ```bash
 agent-browser open http://localhost:8765/
 agent-browser snapshot -i
 ```
 
-The snapshot lists three elements. The heading is `e1`, the Email field is `e2`, and the Subscribe button is `e3`.
+The snapshot listed three elements: the heading is `e1`, the Email field is `e2`, and the Subscribe button is `e3`.
 
-Next, I filled in the email, clicked Subscribe, then checked for the thank-you message and JavaScript errors:
+Then fill in the email, click Subscribe, confirm the thank-you message appears, and check for JavaScript errors:
 
 ```bash
 agent-browser fill @e2 "reader@example.com"
@@ -172,18 +187,39 @@ agent-browser screenshot shots/good.png
 ![Screenshot taken by agent-browser: the Email field contains reader@example.com, and a green thank-you message appears below the button](page-good.webp){: w="1280" h="577" }
 _In the working version, the message appears and `errors` prints nothing_
 
-Each of these commands checks one thing:
+Each command checks one thing:
 
-- `wait --text "Thanks"` waits until that text appears on the page and fails if it never does. According to `wait --help`, `--text` is a substring match. The core skill also recommends this kind of wait over a fixed wait such as `wait 2000`.
-- `get text "#msg"` reads the full text of the `#msg` element, so you can confirm the email you typed made it in. Always quote `"#msg"`. On my first attempt, the wrapper script lost the quotes, so the command that ran was `agent-browser get text #msg`. The shell treated everything after `#` as a comment, and agent-browser replied `Missing arguments for: get text`.
-- `errors` lists JavaScript errors and uncaught exceptions on the page. It printed nothing here, so the tool recorded no JavaScript errors during this run. You still need to check the page's result to tell whether the feature works.
+- `wait --text "Thanks"` waits until this text appears on the page and fails if it never does. According to `wait --help`, `--text` matches a substring. The official core skill also recommends this kind of wait over a fixed delay such as `wait 2000`.
+- `get text "#msg"` reads the full content of the `#msg` element, to confirm the email I typed is in it.
+- `errors` lists JavaScript errors and uncaught exceptions on the page. It printed nothing this time, which means the tool recorded no JavaScript errors during this run. You still need the page result to judge whether the feature works.
 
-> Don't copy refs from the docs examples. On my first attempt I wrote `fill @e1` straight from a docs example and got `✗ Unknown ref: e1`. The next command, `click @e2`, reported `✓ Done`, but in that run `e2` was the heading, not the button, so the `wait` after it timed out after 25000ms. The cause was that I hadn't run `close` first. The same session had already opened example.com, whose link used up `e1`, so the form's heading, Email field, and button were numbered `e2`, `e3`, and `e4`. According to the Snapshots docs, navigating to another page invalidates the old refs, but their IDs aren't recycled. So within one session, the numbers keep counting up after each navigation. Before every action, use the refs from the latest snapshot.
+`"#msg"` must be quoted, because the shell treats everything after `#` as a comment. On my first attempt, the script wrapping the commands lost the quotes, so it actually ran `agent-browser get text #msg`. agent-browser replied `Missing arguments for: get text`.
+
+Ref numbers have a trap too. On my first attempt I didn't `close` first, so the form's numbering continued after example.com:
+
+```mermaid
+flowchart LR
+  A["example.com: link e1"] --> B{Closed first?}
+  B -->|Yes| C["Form: e1, e2, e3"]
+  B -->|No| D["Form: e2, e3, e4"]
+  D --> E["fill @e1: Unknown ref"]
+  D --> F["click @e2: hits heading"]
+  F --> G["wait: 25s timeout"]
+```
+
+> Don't copy refs from the docs examples. Before every action, use the refs from your latest snapshot. The diagram shows the run where I copied `fill @e1` from the docs: it got `✗ Unknown ref: e1`. The next `click @e2` reported `✓ Done`, but `e2` was the heading that time, so `wait` timed out after 25000ms.
+>
+> According to the Snapshots docs, a page change invalidates old refs, but the numbers aren't reused. So after a page change in the same session, the numbering keeps going up.
 {: .prompt-warning }
 
-## Step 4: Break it on purpose and see if it notices
+## Step 4: Break it on purpose and see if it catches the bug
 
-I copied `index.html` to `broken.html` and changed two lines. Line 2 adds ` (broken)` to the `<title>`. Line 15 misspells the ID of the message element, `msg`, as `mesage`. Leave every other line alone, including `#msg` in the CSS on line 7 and `id="msg"` on line 10. If you replace every `msg`, the typo cancels out and the page works again. You can make your own copy from the diff below and put it in the same `site` folder:
+I copied `index.html` to `broken.html` and changed only two lines:
+
+- Line 2: I added ` (broken)` to the `<title>`.
+- Line 15: I misspelled the ID of the message element, from `msg` to `mesage`.
+
+Leave every other line alone, including `#msg` in the CSS on line 7 and `id="msg"` on line 10. If you replace every `msg`, the typo cancels out and the page works again. You can make your own copy from this diff and put it in the same `site` folder:
 
 ```diff
 --- site/index.html
@@ -196,9 +232,11 @@ I copied `index.html` to `broken.html` and changed two lines. Line 2 adds ` (bro
 +  document.getElementById("mesage").textContent = 'Thanks! We sent a confirmation to ' + email + '.';
 ```
 
-The typo doesn't change how the page looks. After you click the button, the message never appears.
+The typo doesn't change how the page looks. After you click the button, the message just never appears.
 
-I ran the same flow again in the same session. This time the snapshot gave the heading `e4`, the Email field `e5`, and the button `e6`, because it was still the same session and the numbers kept counting up. I added `--timeout 5000` to `wait` so it only waits 5 seconds. Without it, `wait` uses the default of 25 seconds. `--help` lists `AGENT_BROWSER_DEFAULT_TIMEOUT` with a default of 25000 ms.
+I ran the same flow again in the same session. Because it was still the same session, the refs kept counting up: heading `e4`, Email field `e5`, and button `e6`.
+
+I added `--timeout 5000` to `wait`, so it waits only 5 seconds. Without it, `wait` uses the default of 25 seconds, the 25000-millisecond default of `AGENT_BROWSER_DEFAULT_TIMEOUT` listed in `--help`.
 
 ```bash
 agent-browser open http://localhost:8765/broken.html
@@ -216,18 +254,29 @@ agent-browser screenshot shots/broken.png
 ![Screenshot taken by agent-browser: the Email field is filled in, but after clicking Subscribe the area below the button is empty, with no thank-you message](page-broken.webp){: w="1280" h="577" }
 _In the broken version, nothing on screen shows an error, and the message never appears_
 
-`fill` and `click` both reported `✓ Done`. According to the README, `click` fails when the target is covered, hidden, or disabled, so `Done` only means the action happened. It doesn't mean the page reacted correctly. Those two lines alone don't show the problem. The next two commands do:
+`fill` and `click` both reported `✓ Done`, so those two lines show no problem. According to the README, `click` fails when the target is covered, hidden, or disabled. So `Done` only means the action happened, not that the page responded correctly.
 
-1. `wait --text "Thanks" --timeout 5000` printed `✗ Wait timed out after 5000ms`, so the expected message never appeared.
-2. `errors` printed `TypeError: Cannot set properties of null (setting 'textContent')` at `broken.html:15:49`, which is line 15, where I put the typo. `getElementById("mesage")` finds no element and returns `null`, and setting `textContent` on `null` throws this error.
+The next two commands caught the problem:
 
-`console` printed nothing this time, and the last `screenshot` captured the page shown above, with the thank-you message missing.
+1. `wait --text "Thanks" --timeout 5000` printed `✗ Wait timed out after 5000ms`. The expected message never appeared.
+2. `errors` printed `TypeError: Cannot set properties of null (setting 'textContent')`. The location was `broken.html:15:49`, the line 15 where I made the typo.
 
-So when you test a page, confirm that the expected result appeared and that `errors` prints nothing. `✓ Done` on an action doesn't mean the page passed.
+`getElementById("mesage")` finds no element and returns `null`, and setting `textContent` on `null` throws this error. `console` printed nothing this time, and the final `screenshot` saved the view above, with no thank-you message.
 
-### Extra: Label refs on a screenshot
+So judge the test by the result, not by what the actions report:
 
-To see which ref matches which part of the screen, use `screenshot --annotate`. The next two images come from a separate run. I used a new session, set the window size, then opened the form and took an annotated screenshot. To try this, first close the session from Step 4:
+```mermaid
+flowchart TD
+  A["fill, click report ✓ Done"] --> B{"wait --text succeeds?"}
+  B -->|Times out| F[Test fails]
+  B -->|Text appears| C{"errors prints anything?"}
+  C -->|Yes| F
+  C -->|No| P[Test passes]
+```
+
+### Extra: label refs on a screenshot
+
+To see where each ref sits on screen, use `screenshot --annotate`. The next two images come from a separate run: a new session where I set the viewport size first, then opened the form and took an annotated screenshot. To try it, close the Step 4 session first:
 
 ```bash
 agent-browser close
@@ -243,25 +292,27 @@ agent-browser close
 ![Screenshot taken by agent-browser with --annotate: the heading, the Email field, and the Subscribe button are boxed in red and labeled 1, 2, and 3](page-annotated.webp){: w="1280" h="800" }
 _Labels [2] and [3] on the screenshot are `@e2` and `@e3` from the snapshot_
 
-## Step 5: Hand it to the AI
+## Step 5: Let the AI run it
 
-I ran the commands above from a few shell scripts I wrote, with no AI involved. Below are three ways to hand the check to an AI. The first two give the workflow to your existing coding agent; the third uses the built-in `chat` command to check a local site that's already running. The test run below uses the third.
+I ran the commands above from a few shell scripts, with no AI involved. There are three ways to hand the check to an AI. The first two give the flow to your existing coding agent. The third uses the built-in `chat` to check a local site that's already running, and it's the one I tested below.
 
 ### Option 1: Install the official skill
 
-A skill is a usage guide written for a coding agent to read. According to the docs, the command below installs the agent-browser skill into your coding agent. Supported agents are Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Goose, OpenCode, and Windsurf:
+A skill is a usage guide for a coding agent to read. According to the docs, this line installs the agent-browser skill into your coding agent:
 
 ```bash
 npx skills add vercel-labs/agent-browser
 ```
 
-According to the v0.43.0 README, the skill it installs is a short stub that tells the agent to run `agent-browser skills get core` first, so the guide the agent reads matches the CLI version you installed. `skills get core` prints agent-browser's bundled core skill, and it was the first command the AI ran in Option 3.
+Supported coding agents are Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot, Goose, OpenCode, and Windsurf.
 
-The core skill warns that the default session is one browser shared by everything on the machine. Working in it can take over another agent's page, so give each task its own `--session <name>`. All my test runs used the default session.
+According to the v0.43.0 README, the skill it installs is a short stub that tells the agent to run `agent-browser skills get core` first. That command prints agent-browser's bundled core skill, so the guide the agent reads matches the CLI version you installed. It's also the first command the AI runs in Option 3.
 
-### Option 2: Put it in AGENTS.md
+The core skill says each task should use its own `--session <name>`. The default session is one browser shared by the whole machine, so working in it can take over another agent's page. All my tests ran in the default session.
 
-If your project has an `AGENTS.md` or `CLAUDE.md`, you can write the flow into it. See [How to Write AGENTS.md](/posts/agents-md-project-rules-for-coding-agents/) for how. The Installation docs provide a short section on the basic loop. Below is my template based on that section, with a few testing rules added. Change the URL and the expected text to fit your project:
+### Option 2: Write it into AGENTS.md
+
+If your project has an `AGENTS.md` or `CLAUDE.md`, you can write the flow into it. See [How to Write AGENTS.md](/posts/agents-md-project-rules-for-coding-agents/) for how. The template below is based on the basic loop in the Installation docs, with a few testing rules added. Change the URL and the expected text to fit your project:
 
 ```markdown
 ## Test web changes before you report them done
@@ -283,15 +334,41 @@ Take a new snapshot whenever the page or its content changes.
 
 ### Option 3: Use the built-in chat command
 
-agent-browser also has a `chat` command. According to `chat --help`, it sends your plain-language instruction to an AI model, which turns it into agent-browser commands and runs them in the session you select. It can't create or switch sessions. `chat` needs `AI_GATEWAY_API_KEY`. According to `--help`, `AI_GATEWAY_URL` is the Vercel AI Gateway base URL, with a default of `https://ai-gateway.vercel.sh`. The default model is `anthropic/claude-sonnet-4.6`, and `--model` picks a different one.
+agent-browser's `chat` command lets an AI model drive the browser for you. According to `chat --help`, it works like this:
 
-I have access to an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and the URL stayed in environment variables and never went into any file. With the local HTTP server still running, first close the previous browser:
+```mermaid
+sequenceDiagram
+  participant U as Me
+  participant C as agent-browser chat
+  participant M as AI model
+  participant S as Session browser
+  U->>C: Plain-language instructions
+  C->>M: Pass to model
+  loop Each command
+    M->>C: agent-browser command
+    C->>S: Run
+    S->>C: Output
+    C->>M: Output
+  end
+  M->>C: Conclusion
+  C->>U: Conclusion
+```
+
+It runs in the session you choose and can't create or switch sessions on its own. Running `chat` needs these settings:
+
+- You must set `AI_GATEWAY_API_KEY`.
+- According to `--help`, `AI_GATEWAY_URL` is the base URL of the Vercel AI Gateway. Its default is `https://ai-gateway.vercel.sh`.
+- The default model is `anthropic/claude-sonnet-4.6`, and `--model` changes it.
+
+I have an OpenAI-compatible LiteLLM service, so I pointed `AI_GATEWAY_URL` and `AI_GATEWAY_API_KEY` at it. The key and URL lived only in environment variables and were never written to a file.
+
+After confirming the local HTTP server was still running, I closed the previous browser first:
 
 ```bash
 agent-browser close
 ```
 
-Then ask the `gpt-6.1-sol` model to check the broken page:
+Then I asked the `gpt-6.1-sol` model to check the broken page:
 
 ```bash
 agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, type reader@example.com into the email field, click Subscribe, and check that a thank-you message appears. Also check the page for JavaScript errors. Tell me in two sentences whether the form works."
@@ -300,25 +377,48 @@ agent-browser chat --model gpt-6.1-sol "Open http://localhost:8765/broken.html, 
 ![Real terminal output: the chat command runs skills get core, open, snapshot, fill @e2, click @e3, wait --text "Thank", snapshot, skills get core --ref commands, errors, and console, then answers that the form doesn't work, quoting the TypeError and broken.html:15:49](term-chat.webp){: w="1102" h="411" }
 _The AI ran 10 commands on its own and reached the same conclusion I did by hand (real output)_
 
-From start to the final `close`, the run took 36 seconds. The AI's first command was `skills get core`, which loads the core skill. Then it ran `open`, a `snapshot` without `-i`, `fill @e2`, `click @e3`, and `wait --text "Thank" --timeout 3000`. After that it took another `snapshot`, looked up `skills get core --ref commands`, and finally checked `errors` and `console`. Its refs were `e2` and `e3` because I had run `close` at the end of the previous run, so this was a new session. In the end it answered that the form doesn't work, quoting the same `TypeError` and `broken.html:15:49`.
+The AI reached the same conclusion I did by hand: it answered that the form doesn't work, and cited the same `TypeError` and `broken.html:15:49`. The run took 36 seconds from start to the final `close`, and it ran these commands in order:
 
-I also ran the same instruction once with `-v`, which prints the full output of every command. The command order and the conclusion were the same, and `wait` printed `✗ Wait timed out after 3000ms`. Both runs used `gpt-6.1-sol`.
+1. `skills get core`, to read the core skill first
+2. `open`
+3. `snapshot` without `-i`
+4. `fill @e2` and `click @e3`
+5. `wait --text "Thank" --timeout 3000`
+6. `snapshot` again
+7. `skills get core --ref commands`
+8. `errors` and `console`
+
+Its refs were `e2` and `e3` because I had already run `close` at the end of the previous run, so this was a new session.
+
+I ran the same instructions once more with `-v`, which prints the full output of each command. The command order and the conclusion were the same, and `wait` printed `✗ Wait timed out after 3000ms`. Both runs used `gpt-6.1-sol`.
 
 ## Step 6: Limit where it can go and what it can do
 
-According to the Security docs, agent-browser puts no limits on navigation, actions, or output by default. You have to turn those controls on yourself. The AI can open any site, and it can use `eval` to run any JavaScript on the page, such as reading `document.cookie`. If you're worried about the AI being misled by page content, for example a page with hidden text telling it to open some URL, you need to narrow the scope yourself. For more on this kind of risk, see the tool misuse section of my [OWASP Agentic Top 10 Checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
+According to the Security docs, agent-browser puts no limits on navigation, actions, or output by default. You have to turn those controls on yourself. Without them, the AI can open any site, and it can use `eval` to run any JavaScript on the page, such as reading `document.cookie`.
+
+If you're worried about the AI being misled by page content, for example a page with hidden text telling it to open some URL, you need to narrow the scope yourself. For more on this kind of risk, see the tool misuse section of my [OWASP Agentic Top 10 Checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/).
 
 I tested two settings:
 
-- `--allowed-domains` allows only the listed domains. According to the docs, it blocks page navigation as well as sub-resource requests such as images, scripts, and fetch calls.
-- `--action-policy` points to a policy file in JSON that lists which actions to block.
+- `--allowed-domains` allows only the listed domains. According to the docs, it blocks page navigation and also subresource requests such as images, scripts, and fetch.
+- `--action-policy` points to a JSON policy file that lists which actions to block.
 
 ![Real terminal output: with --allowed-domains "localhost", the local page opens, and open https://example.com is blocked with Domain 'example.com' is not in the allowed domains list; with the docs' example policy.json, eval still runs and returns the title; with policy-0.43.json, which adds evaluate, eval is blocked](term-security.webp){: w="1102" h="883" }
 _The domain limit works; the docs' `"eval"` doesn't block anything in 0.43.0, so add `"evaluate"` (real output)_
 
-The domain limit matched the docs. After I opened a session with `--allowed-domains "localhost"`, `open https://example.com` was blocked with `✗ Domain 'example.com' is not in the allowed domains list`. According to the docs, the domain limit and the action policy are saved with the session until a successful `close`.
+### Domain limit: matches the docs
 
-The action policy didn't match the docs. I started with the example from the Security docs, `"deny": ["eval", "download", "upload"]`, and `eval "document.title"` still ran and returned `"Newsletter demo"`. I checked the v0.43.0 source. `cli/src/native/policy.rs` compares the command's internal action name exactly. The internal action name of the `eval` command is `evaluate`, so the `eval` category from the docs has no effect. Someone has already reported this in [issue #1612](https://github.com/vercel-labs/agent-browser/issues/1612), and the fix is in [PR #2506](https://github.com/vercel-labs/agent-browser/pull/2506). Both were still open when I wrote this post. After I added `"evaluate"`, `eval` was blocked with `✗ Action 'evaluate' denied by policy: Action 'evaluate' is denied by policy`:
+I opened the session with `--allowed-domains "localhost"`, then ran `open https://example.com`. It was blocked with `✗ Domain 'example.com' is not in the allowed domains list`.
+
+According to the docs, both the domain limit and the action policy stay with the session until `close` succeeds.
+
+### Action policy: use the internal action name
+
+The action policy didn't behave as documented. I first used the example from the Security docs, `"deny": ["eval", "download", "upload"]`. Even so, `eval "document.title"` still ran and returned `"Newsletter demo"`.
+
+I checked the v0.43.0 source. `cli/src/native/policy.rs` matches the command's internal action name exactly. The internal action name of the `eval` command is `evaluate`, so the `eval` category in the docs has no effect.
+
+Someone has already reported this in [issue #1612](https://github.com/vercel-labs/agent-browser/issues/1612), and the fix is in [PR #2506](https://github.com/vercel-labs/agent-browser/pull/2506). Both were still open when I wrote this. Once I added `"evaluate"`, `eval` was blocked with `✗ Action 'evaluate' denied by policy: Action 'evaluate' is denied by policy`:
 
 ```json
 {
@@ -328,44 +428,48 @@ The action policy didn't match the docs. I started with the example from the Sec
 ```
 {: file="policy-0.43.json" }
 
-The file keeps `"eval"`. According to the description of PR #2506, the fix makes category names match the actions under them, and then the `"eval"` entry will take effect.
+I kept `"eval"` in the file. According to PR #2506, the fix makes category names match the actions under them, and then the `"eval"` entry will take effect.
 
-I also tried two more setups by hand. The first was the strict example from the Security docs, changed to `"default": "deny"` with an `allow` list of `navigate`, `snapshot`, `click`, `fill`, `wait`, `get`, and `close`. `open`, `snapshot -i`, `fill`, `click`, and `wait --text` all ran, but `get text "#msg"` was blocked with `Action 'gettext' denied by policy`. `get title`, `get url`, `screenshot`, and `errors` were blocked too, because their internal action names are `title`, `url`, `screenshot`, and `errors`, which aren't in the list. The second was `--confirm-actions eval`, which had no effect either. `eval "1+1"` returned `2` without asking for confirmation.
+I also tried two other setups by hand. The first was the strict example from the Security docs, changed to `"default": "deny"`. Its `allow` list was `navigate`, `snapshot`, `click`, `fill`, `wait`, `get`, and `close`.
 
-So after you set an action policy, run an action it should block, like I did, and confirm it gets stopped. Also confirm that the commands you need aren't blocked along with it. Don't trust the contents of the policy file alone.
+`open`, `snapshot -i`, `fill`, `click`, and `wait --text` all ran, but the commands below were blocked. `get` was on the list, but the check still uses the internal action name:
 
-The next few measures come from the official docs:
+| Command | Internal action name |
+| --- | --- |
+| `get text "#msg"` | `gettext`, with the message `Action 'gettext' denied by policy` |
+| `get title` | `title` |
+| `get url` | `url` |
+| `screenshot` | `screenshot` |
+| `errors` | `errors` |
 
-- According to `--help`, `--profile` reuses the sign-in state of a Chrome profile. If you use the profile you normally sign in with, the AI can use the state of every account signed in to that profile. According to the Security docs, `--allowed-domains` can't be combined with `--profile` either. When you need to sign in, the Security docs offer the auth vault. `agent-browser auth save` stores the credentials locally, you then sign in by name, and the password stays out of what the AI reads.
-- `--content-boundaries` wraps page content in markers with a random nonce, so the AI can tell tool output apart from text on the web page.
-- `--max-output` caps the length of output from snapshot, `get text`, `get html`, `eval`, and `console`, so one huge page doesn't flood the AI's context.
+The second was `--confirm-actions eval`, and it had no effect either: `eval "1+1"` returned `2` without asking for confirmation.
+
+So after you set an action policy, don't trust the policy file alone. Run a blocked action yourself, as I did, to confirm it's really blocked. Also confirm the commands you need aren't blocked along with it.
+
+### Other measures from the docs
+
+- According to `--help`, `--profile` reuses the login state of a Chrome profile. If you use the profile you normally sign in with, the AI gets the login state of every account in that profile. According to the Security docs, `--allowed-domains` also can't be combined with `--profile`.
+- When a login is needed, the Security docs offer the auth vault instead. `agent-browser auth save` stores credentials locally, and later you log in by name, so the password never shows up in what the AI reads.
+- `--content-boundaries` wraps page content in markers with a random nonce, so the AI can tell tool output from text on the page.
+- `--max-output` caps the output length, so one very long page can't flood the AI's context. It applies to snapshot, `get text`, `get html`, `eval`, and `console`.
 
 According to the Security docs, the domain limit isn't an operating system firewall. If you use Claude Code, you can add a second layer at the operating system level with [Claude Code Sandbox Setup](/posts/claude-code-sandbox-setup/).
 
-## Next: build it into your workflow
+## Next: put it in your workflow
 
-To make testing part of your workflow, add the steps to your project instructions or set up an automatic check:
+To make testing part of your routine, write the rules into your project instructions or set up automatic checks:
 
-- Put the template from Step 5 in `AGENTS.md`, so coding agents that support it can read the steps when they start.
+- Put the Step 5 template in `AGENTS.md`, so coding agents that support it read it when they start work.
 - Use a hook to run a check automatically before the AI reports it's done. See [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 - Prove it works before you merge. I described that flow in [pstack, Part 3](/posts/pstack-build-verify-merge/).
 
-## Conclusion
-
-The key result of my run is in Step 4. On the broken form, `fill` and `click` both reported `✓ Done`. What caught the problem was `wait --text` timing out and the `TypeError` at `broken.html:15:49` that `errors` printed. When the AI checked the same page with `chat`, it reached the same conclusion. Also, in 0.43.0 an action policy that denies `"eval"` as the docs show doesn't block `eval`. You need `"evaluate"`.
-
-I suggest starting in this order:
-
-1. Install with `npm install -g agent-browser` and `agent-browser install`, then check the version with `agent-browser --version`.
-2. Against your own local page, run `open`, `snapshot -i`, `fill` or `click`, `wait --text`, and `errors`, in that order.
-3. Put the testing rules in `AGENTS.md`, and require the AI to always use refs from the latest snapshot.
-4. Add `--allowed-domains`. When you set an action policy, try a blocked action yourself to confirm it gets stopped.
+Whichever you pick, the bar is the same: `✓ Done` from an action doesn't count. The expected text has to appear, and `errors` has to print nothing.
 
 ## Further reading
 
-- The [agent-browser docs](https://agent-browser.dev/) cover every command, setting, and advanced feature.
-- [Security](https://agent-browser.dev/security) is the full guide to domain limits, the action policy, the auth vault, and other safety settings.
-- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/) shows how to put your testing rules in the project.
-- [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/) shows how to run checks automatically.
-- [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/) explains why you should limit an agent's tools.
-- [Modern Web Guidance Hands-On: Agents Fix Legacy Web Code](/posts/modern-web-guidance-coding-agent/) has an agent fix legacy web code from a guide, then verifies the result in Chrome.
+- The [agent-browser docs](https://agent-browser.dev/): every command, setting, and advanced feature.
+- [Security](https://agent-browser.dev/security): domain limits, the action policy, the auth vault, and other safety settings.
+- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): put your testing rules in the project.
+- [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): run checks automatically.
+- [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): why you should limit an agent's tools.
+- [Modern Web Guidance Hands-On: Agents Fix Legacy Web Code](/posts/modern-web-guidance-coding-agent/): an agent fixes legacy web code from a guide, then verifies the result in Chrome.

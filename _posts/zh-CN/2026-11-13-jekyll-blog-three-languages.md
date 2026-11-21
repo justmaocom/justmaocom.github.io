@@ -8,15 +8,16 @@ media_subpath: /assets/img/posts/jekyll-blog-three-languages/
 image:
   path: cover.zh-CN.webp
   alt: "同一篇文章输出成繁中、简中、英文三个网址，三个版本用 hreflang 互相指向。"
+mermaid: true
 ---
 
-这个网站从 2026 年 9 月底开始，每篇文章都同时有繁体中文、简体中文、英文三个版本。我写这篇的时候，三个语言各有 28 篇（不算这篇），一篇不缺。
+这个网站从 2026 年 9 月底开始，每篇文章都同时有繁体中文、简体中文、英文三个版本。我写这篇的时候，三个语言各有 28 篇（不算这篇），一篇不缺。我想做三语，是因为读者不只在台湾。
 
-我想做三语，是因为读者不只在台湾。可是真的动手后才发现，“把文章翻成三份”只是最容易的一段。比较麻烦的是那些看不到的地方：分享出去的链接指向哪个语言、搜索引擎知不知道这三页是同一篇、读者从 Google 点进来会不会被带走。这些地方做错了，网站照样能打开，只是悄悄出错。
+动手后才发现，“把文章翻成三份”只是最容易的一段。麻烦的是那些看不到的地方：分享出去的链接指向哪个语言、搜索引擎知不知道这三页是同一篇、读者从 Google 点进来会不会被带走。这些地方做错了，网站照样能打开，只是悄悄出错。
 
-这篇用本站实际的配置，说明我怎么处理这些事。想给自己的个人网站加上多语言的人，可以拿它当一份实际运行中的参考。本站用 Jekyll 和 Chirpy 主题；换成别的工具，做法会不同，但要处理的问题大多一样。
+这篇用本站实际的配置，说明我怎么处理这些事，想给自己的个人网站加上多语言的人可以拿它当参考。本站用 Jekyll 和 Chirpy 主题；换成别的工具，做法会不同，但要处理的问题大多一样。
 
-> **版本说明**：我写这篇时，参考的是 2026-11-13（台北时间）当天本站 repo 的配置，使用 Jekyll 4.4.1、Chirpy 主题 7.6.0、jekyll-polyglot 1.14.0。Google 与 polyglot 的说法，参考的是同一天的官方文档。我把整个站的配置都公开在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，除了 `CLAUDE.md`，文中提到的文件都可以在那里看到完整内容。
+> **版本说明**：本文依据 2026-11-13（台北时间）当天本站 repo 的配置。当时使用的是 Jekyll 4.4.1、Chirpy 主题 7.6.0、jekyll-polyglot 1.14.0。Google 与 polyglot 的说法，参考的是同一天的官方文档。整个站的配置都公开在 [GitHub repo](https://github.com/justmaocom/justmaocom.github.io)，除了 `CLAUDE.md`，文中提到的文件都能在那里看到完整内容。
 {: .prompt-info }
 
 ## 开始前：先认识几个词
@@ -25,7 +26,7 @@ image:
 - **主题（theme）**：决定网站外观和布局的一整套文件。本站用 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy)。
 - **front matter**：每篇文章最上面、夹在两行 `---` 之间的配置，写标题、日期、分类等信息。
 - **permalink**：一篇文章固定的网址路径，例如 `/posts/jekyll-blog-three-languages/`。
-- **插件（plugin）与 hook**：插件是给 Jekyll 增加功能的程序；hook 是 Jekyll 在构建的某个时间点（例如“网页都生成完之后”）自动调用的一段代码。
+- **插件（plugin）与 hook**：插件是给 Jekyll 增加功能的程序。hook 是 Jekyll 在构建的某个时间点（例如“网页都生成完之后”）自动调用的一段代码。
 - **GitHub Actions**：GitHub 提供的自动化服务。本站每次合并新的修改，它就会自动构建网站并发布到 GitHub Pages。
 - **sitemap**：列出网站所有网址的文件，给搜索引擎看。
 - **hreflang**：写在网页里、告诉搜索引擎“这一页还有哪些语言版本、网址在哪”的标记。
@@ -40,7 +41,7 @@ image:
 | 简体中文 | `/zh-CN/` | `/zh-CN/posts/jekyll-blog-three-languages/` |
 | 英文 | `/en/` | `/en/posts/jekyll-blog-three-languages/` |
 
-繁中是我写作的语言，所以放在根目录，其他语言在网址前面加上语言代码。这是 [jekyll-polyglot](https://github.com/untra/polyglot)（以下简称 polyglot）这个插件的做法，配置只有几行，写在 `_config.yml`（以下是节选，`exclude_from_localization` 实际列了更多文件）：
+繁中是我写作的语言，所以放在根目录，其他语言在网址前面加上语言代码。这是 [jekyll-polyglot](https://github.com/untra/polyglot)（以下简称 polyglot）这个插件的做法，配置只有几行，写在 `_config.yml`。以下是节选，`exclude_from_localization` 实际列了更多文件：
 
 ```yaml
 languages: ["zh-TW", "zh-CN", "en"]
@@ -57,7 +58,9 @@ exclude_from_localization:
 ```
 {: file="_config.yml" }
 
-polyglot 的原理是每个语言各构建一次完整的网站。它的 README 写道，它会“为每个要处理的语言各开一个独立的进程”。默认语言输出到根目录，其他语言输出到 `/zh-CN/`、`/en/` 下面，而每次构建时，网站的语言变量会换成那个语言。Chirpy 主题本来就有繁中、简中、英文的界面文字，所以“上一篇”、“分类”、“搜索”这些按钮文字会自动换成对应语言，我不必自己翻。
+polyglot 的原理是每个语言各构建一次完整的网站，它的 README 写道，它会“为每个要处理的语言各开一个独立的进程”。默认语言输出到根目录，其他语言输出到 `/zh-CN/`、`/en/` 下面。每次构建时，网站的语言变量会换成那个语言。
+
+Chirpy 主题本来就有繁中、简中、英文的界面文字。语言变量一换，“上一篇”、“分类”、“搜索”这些按钮文字就自动换成对应语言，我不必自己翻。
 
 `exclude_from_localization` 列的是三个语言共用、只需要一份的文件，例如图片和 JavaScript。不列进去的话，每张图片都会被复制三份。
 
@@ -89,7 +92,9 @@ defaults:
 ```
 {: file="_config.yml" }
 
-polyglot 看到三份文件的 permalink 相同，就把它们当成同一篇的不同语言版本。某个语言缺了译文时，它会拿繁中原文顶替；README 的说法是，缺少对应版本的页面会“退回 `default_lang`”，内容不会消失。这个机制让我可以先发繁中、晚点再补译文，但本站的规则是三个版本一起发布，所以实际上没用到。
+polyglot 看到三份文件的 permalink 相同，就把它们当成同一篇的不同语言版本。
+
+某个语言缺了译文时，polyglot 会拿繁中原文顶替；README 的说法是，缺少对应版本的页面会“退回 `default_lang`”，内容不会消失。这个机制让我可以先发繁中、晚点再补译文，不过本站的规则是三个版本一起发布，所以实际上没用到。
 
 ![repo 里同名的三份文件，构建后变成 /posts/、/zh-CN/posts/、/en/posts/ 三个网址；共用文件只输出一份](url-structure.zh-CN.webp){: w="1600" h="900" }
 
@@ -97,7 +102,9 @@ polyglot 看到三份文件的 permalink 相同，就把它们当成同一篇的
 
 ### 翻译规则写在 repo 里
 
-三个版本要一致，靠的不是记性，而是写下来的规则。我把规则写在 repo 的 [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md)。这份文档整理自 `CLAUDE.md`，也就是给 AI 助手读的项目说明；`CLAUDE.md` 本身列在 `.gitignore` 里，没有放到 GitHub 上。不论是我自己翻，还是请 AI 起草，都照同一份规则（给 AI 看的规则文件怎么写，可以参考[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)）：
+三个版本要一致，靠的不是记性，而是写下来的规则。我把规则写在 repo 的 [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md)。
+
+这份文档整理自 `CLAUDE.md`，也就是给 AI 助手读的项目说明；`CLAUDE.md` 本身列在 `.gitignore` 里，没有放到 GitHub 上。不论是我自己翻，还是请 AI 起草，都照同一份规则（给 AI 看的规则文件怎么写，可以参考[AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)）：
 
 - 简中不是转换字形就好，用词要换成大陆惯用的说法，例如“軟體”改成“软件”、“程式碼”改成“代码”，引号「」改成“”。同一个词要看上下文，例如“指令”只有在指命令行时才改成“命令”。
 - 三个版本的 `tags` 必须完全相同，因为各语言共用同名的标签页。
@@ -116,7 +123,7 @@ polyglot 会把 HTML 里 `href="..."` 形式的站内链接补上语言前缀，
 - 站内搜索读取的 `search.json`：路径和里面每篇文章的网址。
 - RSS feed 和 sitemap 里的完整网址。
 
-这些不修的话，会发生的事情是：读者在英文文章点“分享”，朋友打开却看到繁中版；搜索引擎读英文页的结构化数据，看到的本页网址却是繁中那一页。网站看起来一切正常，所以很难发现。
+这些不修的话，读者在英文文章点“分享”，朋友打开却看到繁中版；搜索引擎读英文页的结构化数据，看到的本页网址却是繁中那一页。网站看起来一切正常，所以很难发现。
 
 ![英文页上的网址分三层处理：polyglot 补 href 链接，i18n-hook.rb 补 og:url、JSON-LD、分享按钮、search.json 与 feed、sitemap、llms.txt，check-i18n.rb 检查成品](url-fix.zh-CN.webp){: w="1600" h="900" }
 
@@ -178,7 +185,9 @@ Sitemap: https://justmao.com/zh-CN/sitemap.xml
 Sitemap: https://justmao.com/en/sitemap.xml
 ```
 
-这里有一个小陷阱。生成 sitemap 的插件 jekyll-sitemap 发现某个语言没有 `robots.txt` 时，会自动补一份，结果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出来了。这两份没有作用，只会让人困惑，所以我让 `i18n-hook.rb` 等 sitemap 生成完，再把它们从输出列表里去掉，不写成文件。
+这里有一个小陷阱。生成 sitemap 的插件 jekyll-sitemap 发现某个语言没有 `robots.txt` 时，会自动补一份。结果 `/zh-CN/robots.txt`、`/en/robots.txt` 又冒出来了。
+
+这两份没有作用，只会让人困惑，所以我让 `i18n-hook.rb` 等 sitemap 生成完，再把它们从输出列表里去掉，不写成文件。
 
 ![三个语言的页面都输出相同的四行 hreflang，x-default 指向英文版；根目录只有一份 robots.txt，列出三份 sitemap；分类页不输出 hreflang](hreflang.zh-CN.webp){: w="1600" h="900" }
 
@@ -196,7 +205,9 @@ Sitemap: https://justmao.com/en/sitemap.xml
 
 上面的跳转规则只在从站外进来时才会用到。在站内换页一律不跳转，所以读者点了其他语言的链接，就会留在那个语言。
 
-第 5 条的爬虫名单有一个容易漏掉的项目：Google Search Console 检查网址用的 `Google-InspectionTool`。它的 User-Agent（浏览器或爬虫发出的自我介绍字符串）里没有 `bot` 这个词，我一开始只用 `bot`、`crawl` 这类字眼识别爬虫，所以程序没认出它。漏掉的话，它检查英文页时可能被当成普通读者跳转到别的语言，检查的就不是你想看的那一页。
+第 5 条的爬虫名单有一个容易漏掉的项目：Google Search Console 检查网址用的 `Google-InspectionTool`。它的 User-Agent（浏览器或爬虫发出的自我介绍字符串）里没有 `bot` 这个词。
+
+我一开始只用 `bot`、`crawl` 这类字眼识别爬虫，所以程序没认出它。漏掉的话，它检查英文页时可能被当成普通读者跳转到别的语言，检查的就不是你想看的那一页。
 
 ![读者进站时的判断顺序：爬虫不跳转、站内换页不跳转、选过语言就带到该语言、直接打开首页才按浏览器语言跳转，其他情况留在原版本](entry-flow.zh-CN.webp){: w="1600" h="900" }
 
@@ -208,7 +219,9 @@ Sitemap: https://justmao.com/en/sitemap.xml
 
 `i18n-hook.rb` 靠精确字符串匹配改写网址。这个做法简单，但很脆弱：哪天 Chirpy 主题或 jekyll-seo-tag 改了输出格式，例如在 `"url":` 后面多加一个空格，匹配就对不上，网址也就没被替换。构建不会报错，网站也照样能打开。
 
-所以我另外写了一个检查程序 `tools/check-i18n.rb`。它不管 hook 怎么写，只看构建出来的成品：简中和英文的每一页，上面提到的每一类网址都要带正确的语言前缀，而且每一类都至少要找到一个网址。最后这条是防止“格式变了，所以一个都没抓到，所以零个错误”这种假的通过。它也会检查 `/zh-CN/robots.txt`、`/en/robots.txt` 不存在。
+所以我另外写了一个检查程序 `tools/check-i18n.rb`。它不管 hook 怎么写，只看构建出来的成品：在简中和英文的成品里，上面提到的每一类网址都要带正确的语言前缀，而且每一类都至少要找到一个网址。
+
+“至少找到一个”这条，是防止“格式变了，所以一个都没抓到，所以零个错误”这种假的通过。它也会检查 `/zh-CN/robots.txt`、`/en/robots.txt` 不存在。
 
 检查项目写成一张表，新增一类需要带前缀的网址时，我在表上加一行就好。下面的 `head[s]` 只取网页的 `<head>` 那一段，因为像这篇文章的代码块里，也会出现同样的字符串：
 
@@ -221,15 +234,31 @@ checks = [
 ```
 {: file="tools/check-i18n.rb" }
 
-这个检查放在 GitHub Actions 的发布流程里，顺序是：构建网站，跑 `check-i18n.rb`，跑 SEO 检查，用 html-proofer（检查网页链接和图片有没有失效的工具）检查站内链接，全部通过才发布。提交 pull request 时也会跑同样的检查，只是不发布。在本地执行下面这行，就能跑完整套：
+这个检查放在 GitHub Actions 的发布流程里。提交 pull request 时也会跑同样的检查，只是不发布：
+
+```mermaid
+flowchart TD
+  M[合并新的修改] --> B[构建网站]
+  R[提交 pull request] --> B
+  B --> C[check-i18n.rb]
+  C --> S[SEO 检查]
+  S --> H[html-proofer 查站内链接]
+  H --> Q{全部通过？}
+  Q -- 否 --> N[不发布]
+  Q -- 是 --> T{由 pull request 触发？}
+  T -- 是 --> N
+  T -- 否 --> D[发布到 GitHub Pages]
+```
+
+html-proofer 是检查网页链接和图片有没有失效的工具。在本地执行下面这行，就能跑完整套：
 
 ```bash
 bash tools/test.sh
 ```
 
-## 代价
+## 代价：每篇写三次，构建与维护也变多
 
-三语不是免费的，实际的代价是这些：
+三语实际的代价有这三项：
 
 - **每篇文章要写三次。** 就算请 AI 起草，简中的用词和英文的语气我还是要看过。原文修改后，两份译文也要跟着改。
 - **构建要做的事变多。** polyglot 每个语言各构建一次完整的网站（默认会同时运行），语言越多，每次构建要做的事就越多。

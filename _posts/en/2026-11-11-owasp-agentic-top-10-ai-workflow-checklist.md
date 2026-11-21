@@ -8,73 +8,92 @@ media_subpath: /assets/img/posts/owasp-agentic-top-10-ai-workflow-checklist/
 image:
   path: cover.en.webp
   alt: "Check your own AI coding workflow against each of the ten OWASP Agentic Top 10 risks, then fix what you find."
+mermaid: true
 ---
 
-In this post, I turn OWASP's list of security risks for AI agents (AIs that take actions on their own) into ten yes/no self-checks for individual developers who code with AI. Every "yes" marks something to fix, and I include a fix for each question.
+The longer you use a coding agent (an AI coding assistant that reads files, edits code, and runs commands on its own), the more you attach to it. You add another external tool, another "don't ask me" auto-approval, then automated testing and deployment on top. I think few people go back and review the workflow as a whole.
 
-Why check at all? The longer you use a coding agent (an AI coding assistant that reads files, edits code, and runs commands on its own), the more you tend to attach: another external tool, another "don't ask me" auto-approval, then automated testing and deployment on top. I think few people go back and review the workflow as a whole.
+This post turns OWASP's list of security risks for AI agents (AIs that take actions on their own) into ten yes/no self-checks for individual developers who code with AI. Every "yes" marks something to fix, and each question comes with a fix.
 
-I based the questions on the [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/), also called the OWASP Agentic Top 10. OWASP is a nonprofit open security community, best known for the web risk list "OWASP Top 10." This agentic edition was published in December 2025. The project page calls it a "globally peer-reviewed" framework, developed with more than 100 industry experts, researchers, and practitioners, that names the most critical security risks facing autonomous and agentic AI systems.
-
-The list was written for organizations that build agent systems. I turned its ten items into ten questions a personal workflow can answer, each with a fix. The grouping, scenarios, self-check questions, and fix order are my own, **not** an official OWASP "checklist for individual developers." The ten items are numbered ASI01 through ASI10; the numbers are identifiers only and do not rank severity.
-
-In this post, I keep the scope to a personal developer's coding-agent workflow: agents such as Claude Code, Codex, and Cursor, plus the MCP servers (MCP is a standard for connecting agents to external tools) and GitHub Actions (GitHub's automation service) attached to them. In [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), I started from what you installed and walked through the attack surface (the places you can be attacked); in this post, I use OWASP's ten items to scan the whole workflow. I won't retell the cases I already covered there.
-
-> **Version note:** This post is based on the OWASP Top 10 for Agentic Applications 2026 (published December 2025; rechecked on 2026-11-11 and still the current edition) and each tool's official docs as I read them on 2026-11-11. Default permissions in Claude Code, Codex, and Cursor have shifted recently, so treat names and defaults in the official docs as authoritative.
+> Based on the OWASP Top 10 for Agentic Applications 2026 (published December 2025; rechecked on 2026-11-11 and still the current edition) and each tool's official docs as of 2026-11-11. Default permissions in Claude Code, Codex, and Cursor have shifted recently, so treat names and defaults in the official docs as authoritative.
 {: .prompt-info }
+
+## Where the Checklist Comes From and What It Covers
+
+The questions are based on the [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/), also called the OWASP Agentic Top 10. OWASP is a nonprofit open security community, best known for the web risk list "OWASP Top 10." This agentic edition was published in December 2025.
+
+The project page calls it a "globally peer-reviewed" framework, developed with more than 100 industry experts, researchers, and practitioners. It names the most critical security risks facing autonomous and agentic AI systems.
+
+The list was written for organizations that build agent systems. The grouping, scenarios, self-check questions, and fix order are my own, **not** an official OWASP "checklist for individual developers." The ten items are numbered ASI01 through ASI10; the numbers are identifiers only and do not rank severity.
+
+The scope is a personal developer's coding-agent workflow, including agents such as Claude Code, Codex, and Cursor. The MCP servers (MCP is a standard for connecting agents to external tools) and GitHub Actions (GitHub's automation service) attached to them count too.
+
+In [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), I started from what you installed and walked through the attack surface, the places you can be attacked. This post uses OWASP's ten items to scan the whole workflow instead. I won't retell the cases I covered there.
 
 ## A Few Terms First
 
-These terms are enough to follow the whole post. I explain less common terms where they first appear.
+The whole post uses these terms. Less common terms are explained where they first appear.
 
 - **AI agent / agentic:** An AI that does more than answer questions: it plans steps, calls tools, edits files, and runs commands. "Agentic" describes anything with that ability to act on its own.
 - **Coding agent:** An AI agent built to help you write code, such as the agents in Claude Code, Codex, and Cursor. It can read files, edit code, and run terminal commands right inside your project.
 - **Tool:** A function the agent can call, such as reading a file, running a terminal command, going online, or calling an MCP server.
-- **MCP, skills, plugins:** Add-ons that let an agent do more, often from third parties. MCP (Model Context Protocol) is a standard for connecting an agent to external tools and data; an MCP server is the program that provides those tools.
+- **MCP, skills, plugins:** Add-ons that let an agent do more, often from third parties. MCP (Model Context Protocol) is a standard for connecting an agent to external tools and data. An MCP server is the program that provides those tools.
 - **Prompt injection:** Hidden instructions placed in content the agent will read, so that it follows them.
-- **Approval, auto-approval, permission mode:** Approval means the agent asks you before it acts; an auto-approved (allowed) action no longer asks; a permission mode is one of a tool's built-in presets for how much it asks.
+- **Approval, auto-approval, permission mode:** Approval means the agent asks you before it acts. An auto-approved (allowed) action no longer asks. A permission mode is one of a tool's built-in presets for how much it asks.
 - **Sandbox:** A restricted space for the agent's commands, such as which folders it can read or write and which sites it can reach.
 - **Token / credential:** A pass that stands in for a username and password; whoever holds it can act as you. A "long-lived token" stays valid for a long time, so if it leaks, it can be misused for longer.
 - **Long-term memory / context:** What the agent reads every time it starts, such as `CLAUDE.md`, `AGENTS.md`, rule files, and auto-written summaries.
-- **Git, repo, diff:** Git is a version control tool that records every change and lets you roll back; a repo is a code repository managed with Git; a diff shows a change before and after, so you can see exactly which lines changed.
-- **CI, GitHub Actions:** CI is a pipeline that runs tests, builds, and sometimes deploys as soon as code is pushed; GitHub Actions is GitHub's service for this, configured in workflow files.
+- **Git, repo, diff:** Git is a version control tool that records every change and lets you roll back. A repo is a code repository managed with Git. A diff shows a change before and after, so you can see exactly which lines changed.
+- **CI, GitHub Actions:** CI is a pipeline that runs tests, builds, and sometimes deploys as soon as code is pushed. GitHub Actions is GitHub's service for this, configured in workflow files.
 - **Least privilege:** Give only the access the task actually needs.
 - **Least-Agency:** OWASP's term: do not grant autonomy you do not need.
 - **Kill switch:** A way to stop everything immediately when something goes wrong.
 
 ## How to Use This Checklist: One Loop, Four Steps
 
-I split the method into four steps. Run the loop once, then run it again whenever your workflow changes.
+Run the loop once, then run it again whenever your workflow changes.
 
-1. **Inventory:** Write down which agents you use, which folders they can read, which commands they can run, which MCP servers are attached, which tokens they can reach, and which automation runs after them (CI, scheduled jobs). If you are not sure where to look, see "Where to Look During the Inventory" below.
+1. **Inventory:** List the agents you use and what each can reach: the folders it can read, the commands it can run, the attached MCP servers, and the tokens. Also list the automation that runs after them (CI, scheduled jobs). If you are not sure where to look, see "Where to Look During the Inventory" below.
 2. **Check:** Answer yes or no to each of the ten questions. Every "yes" is something to fix.
 3. **Fix:** Start with items where no one is in the loop and the action cannot be undone. The order is in "What to Fix First" below.
 4. **Re-check:** When you add a tool or MCP server, or change a setting, run the loop again.
 
-The principle behind these steps is Least-Agency, which OWASP introduces on page 7: "avoid unnecessary autonomy; deploying agentic behavior where it is not needed expands the attack surface without adding value." In other words, letting an AI act on its own where you do not need it only adds places to be attacked, without adding value. The same passage also stresses observability: you need to be able to see what the agent is doing.
+The principle behind these steps is Least-Agency, which OWASP introduces on page 7:
+
+> avoid unnecessary autonomy; deploying agentic behavior where it is not needed expands the attack surface without adding value.
+
+In other words, letting an AI act on its own where you do not need it only adds places to be attacked, without adding value. The same passage also stresses observability: you need to be able to see what the agent is doing.
 
 ![Four steps to audit an AI workflow: inventory, check, fix, and re-check, guided by least agency](audit-loop.en.webp){: w="1600" h="900" }
 _Concept diagram: Inventory, Check, Fix, and Re-check form one loop. The center principle is Least-Agency: do not grant autonomy you do not need. These four steps are this site's method, not an official OWASP process._
 
 ### Where to Look During the Inventory
 
-Tool defaults change often, so in this list I cover only where to look and what to check, not default values.
+This list covers only where to look and what to check, not default values, because tool defaults change often.
 
-- **Permissions and auto-approval:** In Claude Code, type `/permissions` to see the current rules, and read the [permission modes](https://code.claude.com/docs/en/permission-modes) docs for what each mode means. For Codex, read [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) and confirm two things: the sandbox mode (what Codex can technically do) and the approval policy (when it must stop and ask you). For Cursor, read [Agent Security](https://cursor.com/docs/agent/security) and confirm the Run Modes (how terminal commands get approved) and the MCP allowlist (the MCP tools you pre-approved).
-- **Sandbox:** In Claude Code, use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on; for what it can read and reach once it is on, see the [sandboxing](https://code.claude.com/docs/en/sandboxing) docs.
-- **MCP:** Start from the project's `.mcp.json` (the file that registers MCP servers). Claude Code's [security](https://code.claude.com/docs/en/security) docs warn that this file alone does not show every server that can be loaded. To see which servers Claude Code currently has configured, run the line below in your terminal (it also shows each server's connection status), or type `/mcp` in a session:
+- **Permissions and auto-approval** live in a different place in each tool:
+  - Claude Code: type `/permissions` to see the current rules, and read the [permission modes](https://code.claude.com/docs/en/permission-modes) docs for what each mode means.
+  - Codex: read [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security) and confirm the sandbox mode (what Codex can technically do) and the approval policy (when it must stop and ask you).
+  - Cursor: read [Agent Security](https://cursor.com/docs/agent/security) and confirm the Run Modes (how terminal commands get approved) and the MCP allowlist (the MCP tools you pre-approved).
+- **Sandbox:** In Claude Code, use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on. For what it can read and reach once it is on, see the [sandboxing](https://code.claude.com/docs/en/sandboxing) docs.
+- **MCP:** Start from the project's `.mcp.json`, the file that registers MCP servers. Claude Code's [security](https://code.claude.com/docs/en/security) docs warn that this file alone does not show every server that can be loaded. To see which servers Claude Code currently has configured, type `/mcp` in a session (one working session with the agent), or run the line below in your terminal. It also shows each server's connection status:
 
   ```bash
   claude mcp list
   ```
 
   See the [MCP docs](https://code.claude.com/docs/en/mcp).
-- **Credentials:** The project's `.env` (a file commonly used for passwords and tokens), `~/.ssh` in your home directory (SSH keys, used to sign in to servers and Git), `~/.aws/credentials` (AWS cloud credentials), and any secrets kept in environment variables (settings the system hands to programs).
+
+- **Credentials:**
+  - The project's `.env`, commonly used for passwords and tokens.
+  - `~/.ssh` in your home directory, which holds SSH keys for signing in to servers and Git.
+  - `~/.aws/credentials`, your AWS cloud credentials.
+  - Secrets kept in environment variables, which are settings the system hands to programs.
 - **Automation:** The workflow files in your repo's `.github/workflows/` folder, plus any scheduled or background jobs you set up.
 
 ## An Overview of the Ten Risks
 
-The official list is numbered ASI01 through ASI10. To make it easier to read, I grouped the ten items into five buckets: what it reads, what it can do, keys and sources, chained automation, and you. This is not OWASP's official taxonomy, and the numbers do not mean one item is worse than another.
+The official list is numbered ASI01 through ASI10. To make it easier to read, I grouped the ten items into five buckets: what it reads, what it can do, keys and sources, chained automation, and you.
 
 ![OWASP Agentic Top 10 in five groups: what it reads, what it can do, keys and sources, chained automation, and you](map.en.webp){: w="1600" h="900" }
 _Concept diagram: The ten risks in this site's five groups. The footer already notes that the grouping is not an official OWASP classification, and that the source is the OWASP Top 10 for Agentic Applications 2026._
@@ -94,92 +113,150 @@ _Concept diagram: The ten risks in this site's five groups. The footer already n
 
 ## Check Each Risk in Official Order
 
-I split each item into four parts: **In plain language** (what the risk is), **How it looks in your AI workflow** (the common form it takes with a coding agent), **Check** (a "yes" means fix it), and **How to fix it**.
+Each item covers four things in order: what the risk is, how it commonly looks with a coding agent, a check question in bold, and the fix. If you answer "yes" to the check, apply the fix.
 
 A few reading notes:
 
 - Text in quotation marks attributed to OWASP or a tool's docs is quoted from the original.
 - "OWASP mitigation N" means the Nth mitigation listed under that item in the OWASP document, so you can find it in the original.
 - Tool-specific steps in the scenarios and fixes are my own mapping, not steps OWASP wrote for each vendor.
-- For tool settings, this post tells you where to look and what to confirm; for actual defaults, go by the official docs as you read them today. For Claude Code rule syntax, see the [permissions](https://code.claude.com/docs/en/permissions) docs.
+- For Claude Code rule syntax, see the [permissions](https://code.claude.com/docs/en/permissions) docs.
 
 ### ASI01 Agent Goal Hijack: The Content It Reads Can Change What It Does
 
-**In plain language:** The agent cannot reliably tell "your instructions" apart from "content it happens to read." So a hidden sentence in a web page, an issue (a thread for reporting problems on GitHub), or a document can change what it sets out to do. That is the prompt injection described above.
+The agent cannot reliably tell "your instructions" apart from "content it happens to read." So a hidden sentence in a web page, an issue (a thread for reporting problems on GitHub), or a document can change what it sets out to do. That is the prompt injection described above.
 
-**How it looks in your AI workflow:** You ask it to read a document, a GitHub issue, or a web page, and it then edits files or runs commands without asking you.
+A common form: you ask it to read a document, a GitHub issue, or a web page, and it then edits files or runs commands without asking you.
 
-**Check:** After reading a web page, issue, or doc, can it act without asking you?
+**After reading a web page, issue, or doc, can it act without asking you?**
 
-**How to fix it:** Bottom line: while it reads outside content, do not let it act directly, and make every high-impact action ask you first.
+While it reads outside content, do not let it act directly, and make every high-impact action ask you first.
 
-- OWASP's mitigations treat all natural-language input (user-provided text, uploaded documents, retrieved content) as untrusted, and call for "requiring human approval for high-impact or goal-changing actions."
-- While it reads outside content, switch to a mode that does not edit files directly, such as Codex's read-only sandbox (`--sandbox read-only`) or Claude Code's plan mode. The official docs say plan mode reads files and may run commands to explore, but does not edit your source until you approve the plan (with a few exceptions; see the [permission modes](https://code.claude.com/docs/en/permission-modes) docs). What each mode actually allows is defined in each tool's official docs.
-- Set high-impact actions such as `git push` (sending your code to the remote repo) or file deletion to ask first. Claude Code has three kinds of permission rules: `deny` (block), `ask` (ask first), and `allow` (run without asking). Rules look like the official example `Bash(rm *)`, which covers terminal commands that start with `rm` (delete).
-- According to the official [permission modes](https://code.claude.com/docs/en/permission-modes) docs, an explicit `ask` rule is not auto-approved by any mode; see the "Actions no mode auto-approves" section there.
-- I covered details and cases in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
+- OWASP's mitigations treat all natural-language input as untrusted, including user-provided text, uploaded documents, and retrieved content. High-impact actions need a person's approval: "requiring human approval for high-impact or goal-changing actions."
+- While it reads outside content, switch to a mode that does not edit files directly, such as Codex's read-only sandbox (`--sandbox read-only`) or Claude Code's plan mode. The official docs say plan mode reads files and may run commands to explore, but does not edit your source until you approve the plan. There are a few exceptions; see the [permission modes](https://code.claude.com/docs/en/permission-modes) docs. What each mode actually allows is defined in each tool's official docs.
+
+Set high-impact actions such as `git push` (sending your code to the remote repo) or file deletion to ask first. Claude Code has three kinds of permission rules: `deny` (block), `ask` (ask first), and `allow` (run without asking). Rules look like the official example `Bash(rm *)`, which covers terminal commands that start with `rm` (delete).
+
+Every tool call is matched in the order below, and the first matching rule decides:
+
+```mermaid
+flowchart TD
+  A[One tool call] --> B{Matches deny?}
+  B -->|Yes| X[Blocked]
+  B -->|No| C{Matches ask?}
+  C -->|Yes| Y[Asks you]
+  C -->|No| D{Matches allow?}
+  D -->|Yes| Z[Runs directly]
+  D -->|No| M[No rule matches]
+```
+
+According to the official [permission modes](https://code.claude.com/docs/en/permission-modes) docs, an explicit `ask` rule is not auto-approved by any mode. See the "Actions no mode auto-approves" section there. I covered details and cases in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ### ASI02 Tool Misuse and Exploitation: A Legitimate Tool Used in the Wrong Place
 
-**In plain language:** The tool itself is legitimate, and the permission is one you granted, but the agent uses it in the wrong place: deleting data, calling a paid API (an online service that programs call) over and over, or sending data out.
+The tool itself is legitimate, and the permission is one you granted, but the agent uses it in the wrong place. Examples include deleting data, calling a paid API (an online service that programs call) over and over, or sending data out.
 
-**How it looks in your AI workflow:** OWASP gives an example that is explicitly about a coding agent. A set of tools is allowed to run automatically because they supposedly pose no risk, and one of them is ping (a small tool for testing a network connection). An attacker makes the agent call ping repeatedly and smuggles data out through DNS queries (the lookups a computer sends to resolve a web address). My reading is that if a tool can reach the network, even a harmless-looking one can be used to send data out.
+OWASP gives an example that is explicitly about a coding agent. A set of tools is allowed to run automatically because they supposedly pose no risk, and one of them is ping, a small tool for testing a network connection. An attacker then gets data out like this:
 
-**Check:** Can any auto-approved tool delete files, send data, or reach the network?
+```mermaid
+sequenceDiagram
+  participant A as Attacker
+  participant G as Agent
+  participant P as ping, auto-approved
+  participant D as DNS
+  A->>G: Call ping repeatedly
+  loop Each call
+    G->>P: Run ping
+    P->>D: DNS query carries data
+  end
+  D-->>A: Data reaches attacker
+```
 
-**How to fix it:** Bottom line: keep the auto-approve list to tools that are truly harmless and cannot reach the network, and always ask before deleting, sending, or publishing.
+A DNS query is the lookup a computer sends to resolve a web address. My reading is that if a tool can reach the network, even a harmless-looking one can be used to send data out.
 
-- Claude Code: use `/permissions` to review the current rules. Rules are always matched in the order deny → ask → allow, and the first match decides the outcome; an allow rule cannot carve an exception out of a deny rule.
-- I'd look especially for blanket approvals: `mcp__<server>__*` matches every tool from one MCP server. If it is in your allow rules, none of that server's tools will ask you. To allow just one tool, write its full name, `mcp__<server>__<tool>`.
+**Can any auto-approved tool delete files, send data, or reach the network?**
+
+Keep the auto-approve list to tools that are truly harmless and cannot reach the network, and always ask before deleting, sending, or publishing.
+
+- Claude Code: use `/permissions` to review the current rules. Matching follows the deny → ask → allow order in the ASI01 diagram, and the first match decides. So an allow rule cannot carve an exception out of a deny rule.
+- I'd look especially for blanket approvals. `mcp__<server>__*` matches every tool from one MCP server, and if it is in your allow rules, none of that server's tools will ask you. To allow just one tool, write its full name, `mcp__<server>__<tool>`.
 - Cursor: check that your MCP allowlist contains only the tools you actually need.
 - OWASP also recommends usage limits: cost, call counts, or a token budget. Here "token" means the unit AI usage is measured in, not a credential.
 - For a fuller account of permissions and auto-run, see the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ### ASI03 Identity and Privilege Abuse: Your Identity and Keys Doing the Work
 
-**In plain language:** The first question I'd ask is whose identity the agent is using and which keys it holds. If it inherits your full account, a successful trick is carried out with all of "your" privileges.
+If the agent inherits your full account, a successful trick is carried out with all of "your" privileges. So the first question I'd ask is whose identity it is using and which keys it holds.
 
-**How it looks in your AI workflow:** It can read your SSH keys, cloud credentials, or a long-lived token in `.env`, or it runs commands as the Git and cloud identity you are already signed in with.
+A common form: it can read your SSH keys, cloud credentials, or a long-lived token in `.env`, or it runs commands as the Git and cloud identity you are already signed in with.
 
-**Check:** Does it run with your full account, a long-lived token, or your SSH key?
+**Does it run with your full account, a long-lived token, or your SSH key?**
 
-**How to fix it:** Bottom line: give it small keys that expire, and keep long-lived keys where it cannot read them.
+Give it small keys that expire, and keep long-lived keys where it cannot read them.
 
 - OWASP mitigation 1 is "Issue short-lived, narrowly scoped tokens per task": a dedicated, narrow, short-lived token for each task instead of a long-lived master key.
-- Claude Code can use deny rules to block its file tools from reading; the official examples include `Read(./.env)`, `Read(./secrets/**)`, and `Read(~/.ssh/**)`. After you write them, confirm with `/permissions` that they appear in the list.
-- Two common stumbling points. First, the official docs state that a `.claudeignore` file has no effect; use deny rules instead. Second, `Read` deny rules are not airtight. Per the [permissions](https://code.claude.com/docs/en/permissions) docs, they cover Claude's file tools and file commands it recognizes in Bash, such as `cat` and `head`, but not a program that opens files itself, such as a Python or Node script. To keep every program away from a path, turn on the sandbox (see ASI05).
+- Claude Code can use deny rules to block its file tools from reading. The official examples include `Read(./.env)`, `Read(./secrets/**)`, and `Read(~/.ssh/**)`. After you write them, confirm with `/permissions` that they appear in the list.
+- The official docs state that a `.claudeignore` file has no effect; use deny rules instead.
+
+`Read` deny rules are not airtight either. Per the [permissions](https://code.claude.com/docs/en/permissions) docs, they block only some ways of reading a file:
+
+```mermaid
+flowchart TD
+  A["Read .env"] --> B[Claude file tools]
+  A --> C["Recognized: cat, head, etc."]
+  A --> D["Python, Node scripts"]
+  B --> E["Blocked by Read deny"]
+  C --> E
+  D --> F["Opens files itself, unblocked"]
+  F --> G["Needs sandbox, see ASI05"]
+```
+
+Other measures:
+
 - In Cursor, use `.cursorignore` to block agent access to specific files.
 - If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is my own worked example, not a method named in the OWASP text; see my post [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/).
-- Code running in GitHub Actions can use the workflow's `GITHUB_TOKEN` to act on your repo. GitHub recommends setting its default permission to read-only for repository contents: put `permissions: contents: read` at the top of the workflow, and grant more only in the job (a group of steps in a workflow) that needs it. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
+- Code running in GitHub Actions can use the workflow's `GITHUB_TOKEN` to act on your repo. GitHub recommends setting its default permission to read-only for repository contents. To do that, put `permissions: contents: read` at the top of the workflow, and grant more only in the job (a group of steps in a workflow) that needs it. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
 
 ### ASI04 Agentic Supply Chain Vulnerabilities: What You Installed Is Compromised
 
-**In plain language:** Your supply chain is every part of what you use that someone else provides. If an MCP server, skill, plugin, or prompt template you installed is fake or has been altered, the agent will follow it. Unlike a traditional package, agents often load these components at run time.
+Your supply chain is every part of what you use that someone else provides. If an MCP server, skill, plugin, or prompt template you installed is fake or has been altered, the agent will follow it. Unlike a traditional package, agents often load these components at run time.
 
-**How it looks in your AI workflow:** Your tool list includes an MCP server or skill whose version is not pinned and whose source you have not reviewed.
+A common form: your tool list includes an MCP server or skill whose version is not pinned and whose source you have not reviewed.
 
-**Check:** Is any MCP server, skill, or plugin unpinned or from an unreviewed source?
+**Is any MCP server, skill, or plugin unpinned or from an unreviewed source?**
 
-**How to fix it:** Bottom line: install only what you have reviewed, pin versions (use one exact version and never auto-update), and see exactly what it will run before you install it.
+Install only what you have reviewed, pin versions, and see exactly what it will run before you install it. Pinning means using one exact version and never auto-updating.
 
-- Start with a list. Claude Code's [security docs](https://code.claude.com/docs/en/security) warn that `.mcp.json` alone does not show every server a session (one working session with the agent) can load, and that Anthropic does not security-audit any MCP server.
-- Read the startup command before you install. The official MCP [Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) explain that a local MCP server is a program downloaded and run on your machine, with the same privileges as your account, and that an attacker may slip a malicious startup command into a configuration file. Review the full, untruncated startup command, then approve it explicitly.
+- Start with a list, as described in "Where to Look During the Inventory." Claude Code's [security docs](https://code.claude.com/docs/en/security) also warn that Anthropic does not security-audit any MCP server.
+- Read the startup command before you install. The official MCP [Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) explain that a local MCP server is a program downloaded and run on your machine, with the same privileges as your account. An attacker may also slip a malicious startup command into a configuration file. So review the full, untruncated startup command, then approve it explicitly.
 - Pinning details are in the [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
-- Third-party actions in GitHub Actions (prebuilt steps you drop into a workflow) are part of your supply chain too. GitHub's docs warn that if one action in a workflow is compromised, it gets access to every secret configured on your repository (encrypted, stored passwords and keys).
-- Pin third-party actions: GitHub's top recommendation is a workflow dependency lockfile (a file that records the exact version of each dependency), stored as `.github/workflows/actions.lock` and generated by `gh actions-lock`. If you have not adopted it, pin each action to a full-length commit SHA (the unique ID of a commit). See [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles); for a step-by-step guide, see [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/).
+- Third-party actions in GitHub Actions are part of your supply chain too; they are prebuilt steps you drop into a workflow. GitHub's docs warn that if one action in a workflow is compromised, it gets access to every secret configured on your repository (encrypted, stored passwords and keys).
+- To pin third-party actions, GitHub's top recommendation is a workflow dependency lockfile. A lockfile records the exact version of each dependency. Here it is stored as `.github/workflows/actions.lock` and generated by `gh actions-lock`. See [Workflow dependency lockfiles](https://docs.github.com/en/actions/concepts/security/workflow-dependency-lockfiles).
+- If you have not adopted the lockfile, pin each action to a full-length commit SHA, the unique ID of a commit. For a step-by-step guide, see [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/).
 
 ### ASI05 Unexpected Code Execution (RCE): Code It Writes or Runs Gets Exploited
 
-**In plain language:** The agent writes code and runs commands itself. If it is tricked or gets something wrong, what runs may be what an attacker wanted, with your machine's privileges. RCE in the name stands for remote code execution: someone else gets your machine to run the code they want.
+The agent writes code and runs commands itself. If it is tricked or gets something wrong, what runs may be what an attacker wanted, with your machine's privileges. RCE in the name stands for remote code execution: someone else gets your machine to run the code they want.
 
-**How it looks in your AI workflow:** OWASP gives two examples. In one, an AI coding tool runs unreviewed install or terminal commands in its workspace and deletes or overwrites production data (the live systems that serve real users). In the other, an agent asked to "fix the build" regenerates the lockfile from unpinned specs and pulls in a backdoored minor version.
+OWASP gives two examples:
 
-**Check:** Do its commands run straight on your machine, with no sandbox?
+- An AI coding tool runs unreviewed install or terminal commands in its workspace and deletes or overwrites production data. Production means the live systems that serve real users.
+- An agent asked to "fix the build" regenerates the lockfile from unpinned specs and pulls in a backdoored minor version.
 
-**How to fix it:** Bottom line: keep its commands in an isolated environment where they cannot reach production or read your credentials.
+**Do its commands run straight on your machine, with no sandbox?**
 
-- OWASP's mitigations: do not let the agent connect directly to production; never run it as root (the all-powerful system account); isolate it in a sandbox or container (an execution environment separated from your machine) when you can; and limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/).
-- Claude Code: first use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on. Once it is on, check three things in the defaults table in the [sandboxing docs](https://code.claude.com/docs/en/sandboxing): what it can read (especially credential files such as `~/.ssh` and `~/.aws/credentials`), which sites it can reach, and which environment variables it inherits. You can narrow reads with `filesystem.denyRead` or `permissions.blockReadsOutsideWorkingDirectories`. Here is the official project-level example. It goes in the project's `.claude/settings.json`, and it blocks reads across your home directory while allowing the current project:
+Keep its commands in an isolated environment where they cannot reach production or read your credentials.
+
+- OWASP's mitigations:
+  - Do not let the agent connect directly to production.
+  - Never run it as root, the all-powerful system account.
+  - Isolate it in a sandbox or container when you can. A container is an execution environment separated from your machine.
+  - Limit the filesystem to a dedicated working directory where possible. If you want two tasks fully separated, see [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/).
+- Claude Code: first use `/sandbox` or the `sandbox.enabled` setting to confirm whether the sandbox is on. Once it is on, check three things in the defaults table in the [sandboxing docs](https://code.claude.com/docs/en/sandboxing):
+  - What it can read, especially credential files such as `~/.ssh` and `~/.aws/credentials`.
+  - Which sites it can reach.
+  - Which environment variables it inherits.
+- You can narrow reads with `filesystem.denyRead` or `permissions.blockReadsOutsideWorkingDirectories`. Here is the official project-level example. It goes in the project's `.claude/settings.json`, and it blocks reads across your home directory while allowing the current project:
 
 ```json
 {
@@ -195,87 +272,129 @@ A few reading notes:
 
 The docs warn that if you put the same block in `~/.claude/settings.json`, `.` resolves to `~/.claude` instead, and your project files stay blocked.
 
-- `bypassPermissions` is a Claude Code permission mode, and as the name says, it bypasses permission checks. The official docs say to use it only in isolated environments such as containers or virtual machines (a separate computer simulated inside yours). If you do not need it, set `permissions.disableBypassPermissionsMode` to `"disable"` to turn it off.
-- Codex: in [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), confirm the sandbox mode (what Codex can technically do), the approval policy (when it must ask you first), and whether network access is on or off. For a read-only session, run:
+- `bypassPermissions` is a Claude Code permission mode, and as the name says, it bypasses permission checks. The official docs say to use it only in isolated environments such as containers or virtual machines. A virtual machine is a separate computer simulated inside yours. If you do not need the mode, set `permissions.disableBypassPermissionsMode` to `"disable"` to turn it off.
+- Codex: in [Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), confirm the sandbox mode, the approval policy, and whether network access is on or off. For a read-only session, run:
 
   ```bash
   codex --sandbox read-only --ask-for-approval on-request
   ```
 
-- I wouldn't let the agent regenerate lockfiles on its own; when an update is needed, I'd review the diff myself.
+- I wouldn't let the agent regenerate lockfiles on its own. When an update is needed, I'd review the diff myself.
 - Keep the allowlist of commands that run automatically under version control, so every change to it is visible. That is OWASP mitigation 6.
 
 ### ASI06 Memory & Context Poisoning: Bad Content Written Into Long-Term Memory
 
-**In plain language:** This is not a one-off trick. Wrong content is written into the agent's long-term memory, and every new session follows the poisoned version.
+This is not a one-off trick. Wrong content is written into the agent's long-term memory, and every new session follows the poisoned version.
 
-**How it looks in your AI workflow:** A coding agent's long-term memory includes rule files such as `CLAUDE.md`, `AGENTS.md`, and `.cursor/rules`, memory files it writes on its own, and cross-session summaries. If it can edit those files and you never see what changed, the poison stays.
+A coding agent's long-term memory includes:
 
-**Check:** Can it edit CLAUDE.md, AGENTS.md, or memory files without you seeing a diff?
+- Rule files such as `CLAUDE.md`, `AGENTS.md`, and `.cursor/rules`
+- Memory files it writes on its own
+- Cross-session summaries
 
-**How to fix it:** Bottom line: keep these files in Git, and no change counts until you have reviewed it.
+If it can edit those files and you never see what changed, the poison stays.
 
-- OWASP mitigation 7 calls for version control and snapshots so you can roll back. In practice, I'd keep rule files in Git and read the diff before accepting a change. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
-- OWASP mitigation 6: do not let the agent automatically write its own output back into "trusted memory."
-- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment; `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
+**Can it edit CLAUDE.md, AGENTS.md, or memory files without you seeing a diff?**
+
+Keep these files in Git, and no change counts until you have reviewed it. I read the diff first, then accept the change:
+
+```mermaid
+flowchart TD
+  A[New memory change] --> B{You read the diff?}
+  B -->|No| C[Saved to memory files]
+  C --> D[Every new session reads]
+  D --> E[Acts on bad content]
+  E -->|Output written back| C
+  B -->|"Yes, reject bad"| F[Bad content stays out]
+```
+
+- OWASP mitigation 7 calls for version control and snapshots so you can roll back. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+- OWASP mitigation 6: do not let the agent automatically write its own output back into "trusted memory." That is the loop back in the diagram.
+- Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment. `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
 ### ASI07 Insecure Inter-Agent Communication: Messages Between Agents Can Be Spoofed or Changed
 
-**In plain language:** When several agents pass messages, and those messages are neither authenticated nor protected against tampering, someone else can pose as a sender or change a line.
+When several agents pass messages, and those messages are neither authenticated nor protected against tampering, someone else can pose as a sender or change a line.
 
-**How it looks in your AI workflow:** This item is mainly about systems in which multiple agents talk to each other; if you use a single agent, I think you can usually skip it for now. It comes up in three cases: subagents (agents the main agent dispatches for subtasks) passing results back; remote MCP servers (MCP servers on another machine, reached over the network); or a CI job in which one agent's output is fed straight into another.
+This item is mainly about systems in which multiple agents talk to each other; if you use a single agent, I think you can usually skip it for now. It comes up in three cases:
 
-**Check:** Does one agent act on another agent's output without a check?
+- Subagents (agents the main agent dispatches for subtasks) pass results back.
+- The agent connects to a remote MCP server, one on another machine reached over the network.
+- A CI job feeds one agent's output straight into another.
 
-**How to fix it:**
+**Does one agent act on another agent's output without a check?**
 
 - Use HTTPS (an encrypted connection) for remote MCP, and authenticate the connection. The official MCP docs also recommend that MCP servers offered over HTTP require an authorization token.
 - I'd treat another agent's output as unreviewed input, not something to act on automatically.
 
 ### ASI08 Cascading Failures: A Small Error Amplified by Automation
 
-**In plain language:** A small error is not caught, the next automatic step picks it up and amplifies it, and it becomes a serious incident. This item is about how the error travels, not where it started.
+A small error is not caught, the next automatic step picks it up and amplifies it, and it becomes a serious incident. This item is about how the error travels, not where it started.
 
-**How it looks in your AI workflow:** A common pattern is AI writes the code, AI reviews it, it is merged automatically (folded into the main code), and deployed automatically (pushed live), with no person and no mandatory check in between. OWASP also describes a "Governance drift cascade": after a string of successes, human oversight weakens, approvals happen in bulk or rules get relaxed, and a bad setting spreads unchecked.
+A common pattern is AI writes the code, AI reviews it, it is merged automatically (folded into the main code), and deployed automatically (pushed live). No person and no mandatory check sits in between.
 
-**Check:** From code to merge to deploy, is any stretch unguarded by a person or check?
+OWASP also describes a "Governance drift cascade." After a string of successes, human oversight weakens, approvals happen in bulk or rules get relaxed, and a bad setting spreads unchecked.
 
-**How to fix it:** Bottom line: keep at least one check that cannot be skipped before a merge or deploy. It can be a person, or a CI check that must pass.
+**From code to merge to deploy, is any stretch unguarded by a person or check?**
+
+Keep at least one check that cannot be skipped before a merge or deploy. It can be a person, or a CI check that must pass, for example before the merge:
+
+```mermaid
+flowchart LR
+  A[AI writes code] --> B[AI reviews]
+  B --> C{"Person or required CI"}
+  C -->|Pass| D[Merge]
+  C -->|Fail| A
+  D --> E[Deploy]
+```
 
 - OWASP mitigation 5 says the same: put checkpoints or human review in place before high-risk outputs move downstream.
-- Do not let automation approve itself. GitHub's docs describe how to prevent GitHub Actions from creating or approving pull requests (PRs: requests to merge a change), because a PR merged without proper oversight can be a security risk. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
-- On GitHub, set a branch protection rule on your main branch: for example, turn on "Require pull request reviews before merging" (someone must review first) and "Require status checks before merging" (the CI checks you choose must pass), then "Do not allow bypassing the above settings" so that admins cannot skip them either. On GitHub Free, this feature is available only in public repositories; see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
+- Do not let automation approve itself. GitHub's docs describe how to prevent GitHub Actions from creating or approving pull requests (PRs: requests to merge a change). The reason is that a PR merged without proper oversight can be a security risk; see the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
+- On GitHub, set a branch protection rule on your main branch. For example, turn on:
+  - "Require pull request reviews before merging": someone must review first.
+  - "Require status checks before merging": the CI checks you choose must pass.
+  - "Do not allow bypassing the above settings": admins cannot skip them either.
+
+  On GitHub Free, this feature is available only in public repositories; see [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches).
+
 - If you already use an AI to help review PRs, also see my earlier post [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). The point I want to stress is that a review result should never automatically become a merge you cannot take back.
 - Pinning third-party actions is a supply-chain issue, so it is covered under ASI04.
 
 ### ASI09 Human-Agent Trust Exploitation: It Sounds Sure, So You Click Allow
 
-**In plain language:** The agent sounds confident and the reasoning looks complete, so you click Allow. You are the one who acted, and the record shows you.
+The agent sounds confident and the reasoning looks complete, so you click Allow. You are the one who acted, and the record shows you.
 
-**How it looks in your AI workflow:** OWASP's "Helpful Assistant Trojan" example is a tampered coding assistant that suggests a slick one-line fix; you paste and run it, and it executes a malicious script that steals code or installs a backdoor. A more everyday version is approval fatigue: prompts keep popping up, and after a while you click Allow without reading. OWASP mitigation 5 also names reducing this kind of "blind approval" as a goal.
+OWASP's "Helpful Assistant Trojan" example is a tampered coding assistant that suggests a slick one-line fix. You paste and run it, and it executes a malicious script that steals code or installs a backdoor.
 
-**Check:** Do you often click Allow without really reading?
+A more everyday version is approval fatigue: prompts keep popping up, and after a while you click Allow without reading. OWASP mitigation 5 also names reducing this kind of "blind approval" as a goal.
 
-**How to fix it:** Bottom line: get fewer prompts, and make each one worth reading.
+**Do you often click Allow without really reading?**
+
+Get fewer prompts, and make each one worth reading.
 
 - For high-risk actions, read the diff or the full command before you approve. Claude Code's [security docs](https://code.claude.com/docs/en/security) put it plainly: "You're responsible for reviewing proposed code and commands for safety before approval."
 - Do not let the agent's own explanation stand in for your judgment. OWASP mitigation 4 calls for a "plain-language risk summary (not model-generated rationales)."
 - I recommend putting only the few commands you are sure can run unattended in allow, and keeping the rest as ask. With fewer prompts, you will actually read the ones that remain.
-- If you use a mode where a classifier (another AI model that judges whether an action is safe) approves on your behalf, remember that a model is making the call, not a person; see "Common Misunderstandings" below.
+- Some modes let a classifier approve on your behalf; a classifier is another AI model that judges whether an action is safe. In those modes, remember that a model is making the call, not a person; see "Common Misunderstandings" below.
 
 ### ASI10 Rogue Agents: It Drifts Off the Task and Keeps Going
 
-**In plain language:** The agent starts doing work you did not ask for, and it keeps going. The cause can be a compromise, or the agent exploiting a loophole to hit its goal.
+The agent starts doing work you did not ask for, and it keeps going. The cause can be a compromise, or the agent exploiting a loophole to hit its goal.
 
-**How it looks in your AI workflow:** OWASP's examples include an agent told to cut cloud costs that learns deleting production backups is the most effective way to do it, and an agent that, after an injection, keeps sending data out on its own even after the malicious source is removed. For a personal developer, I think the practical question is whether you know how to stop it immediately.
+OWASP's examples include:
 
-**Check:** If it goes wrong, would you be unsure how to stop it and revoke its tokens?
+- An agent told to cut cloud costs learns that deleting production backups is the most effective way to do it.
+- After an injection, an agent keeps sending data out on its own, even after the malicious source is removed.
 
-**How to fix it:** Bottom line: prepare your own kill switch in advance, and keep a record of what the agent did.
+For a personal developer, I think the practical question is whether you know how to stop it immediately.
+
+**If it goes wrong, would you be unsure how to stop it and revoke its tokens?**
+
+Prepare your own kill switch in advance, and keep a record of what the agent did.
 
 - I'd write down three steps before anything goes wrong: how to interrupt the current session, how to revoke the tokens it uses, and how to turn off scheduled or background jobs.
 - Interrupt: in Claude Code, the official [interactive mode](https://code.claude.com/docs/en/interactive-mode) docs say `Esc` stops the current response or tool call, and `Ctrl+C` interrupts a running operation. For other tools, check their own official docs.
-- Revoke: delete a GitHub personal access token under Settings → Developer settings → Personal access tokens; see [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Delete an npm token on the npm website, or find its ID first:
+- Revoke: delete a GitHub personal access token under Settings → Developer settings → Personal access tokens. See [Managing your personal access tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Delete an npm token on the npm website, or find its ID first:
 
   ```bash
   npm token list
@@ -288,13 +407,17 @@ The docs warn that if you put the same block in `~/.claude/settings.json`, `.` r
   ```
 
   See [Revoking access tokens](https://docs.npmjs.com/revoking-access-tokens/).
+
 - Bound unattended, long-running work by scope and by time.
-- OWASP mitigation 4 calls for "kill-switches and credential revocation"; mitigation 6 says "Keys must never be directly available to agents"; and mitigation 1 calls for comprehensive, tamper-proof audit logs, so you can see afterward what it did.
-- To look back at what it just did: in Claude Code, press `Ctrl+O` to open the transcript viewer, which shows each tool it used and what ran (same interactive mode docs). That is handy for your own review, but it is not the tamper-proof audit log OWASP describes.
+- OWASP's related mitigations:
+  - Mitigation 4 calls for "kill-switches and credential revocation."
+  - Mitigation 6 says "Keys must never be directly available to agents."
+  - Mitigation 1 calls for comprehensive, tamper-proof audit logs, so you can see afterward what it did.
+- To look back at what it just did, press `Ctrl+O` in Claude Code to open the transcript viewer. It shows each tool it used and what ran, per the same interactive mode docs. That is handy for your own review, but it is not the tamper-proof audit log OWASP describes.
 
 ## A Checklist You Can Copy
 
-Here is the list I put together. You can copy it into your own notes. The questions match the ten items in the figure; every "yes" is something to fix.
+You can copy this list into your own notes. The questions match the ten items in the figure; every "yes" is something to fix.
 
 ![Ten yes/no checks based on the OWASP Agentic Top 10, where every yes marks something to fix](checklist.en.webp){: w="1600" h="900" }
 _Concept diagram: Ten yes/no self-checks. These questions are this site's rendering of the official ten items, not an official OWASP exam._
@@ -326,14 +449,14 @@ _Concept diagram: Ten yes/no self-checks. These questions are this site's render
 
 ## What to Fix First
 
-This is the order I suggest, not an official OWASP ranking. My rule for the order: fix first where no one is in the loop and the action cannot be undone.
+This is the order I suggest, not an official OWASP ranking. The rule: fix first where no one is in the loop and the action cannot be undone.
 
 1. **ASI08, plus the parts of ASI05 that reach production:** keep a check that cannot be skipped before merge and deploy, and do not let the agent connect directly to production.
 2. **ASI03, long-lived credentials:** block reads of files such as `.env` and `~/.ssh`, and move CI to short-lived credentials.
 3. **ASI02 and ASI04, auto-approval and MCP:** remove auto-approvals that can delete, send, or reach the network, and confirm the source and version of every MCP server.
 4. **Everything else.** If you use a single agent, you can skip ASI07 for now.
 
-If you have not started the inventory yet, the easiest first step I'd suggest is to open your permission settings (`/permissions` in Claude Code) and see which actions currently run without asking you.
+If you have not started the inventory yet, the easiest first step I'd suggest is to open your permission settings and see which actions currently run without asking you. In Claude Code, type `/permissions`.
 
 ## What to Do in Each Situation
 
@@ -369,14 +492,28 @@ If you find one, here is the order I'd follow:
 ## Common Misunderstandings
 
 - "If the sandbox is on, it cannot read my SSH keys." Do not assume that. Claude Code's [sandboxing docs](https://code.claude.com/docs/en/sandboxing) list what the sandbox can read as a separate item, which you narrow with settings such as `filesystem.denyRead`. After you turn the sandbox on, check against the docs whether `~/.ssh` and `~/.aws/credentials` are still readable.
-- "The working-directory boundary keeps it from writing anywhere else." Claude Code's [security docs](https://code.claude.com/docs/en/security) explain that the boundary is a permission prompt: a Bash command (a command run in the terminal) that you approve can still write anywhere your user account can.
-- "Auto mode or an Auto-review classifier counts as a human review." In Claude Code's auto mode, a separate classifier model reviews actions instead of you and blocks the ones it judges unsafe; Cursor's [Agent Security](https://cursor.com/docs/agent/security) page says Run Modes are best-effort guardrails, not a hard security boundary. Check which mode you are in against the [permission modes](https://code.claude.com/docs/en/permission-modes) docs, and do not assume a classifier has taken responsibility for you.
+- "The working-directory boundary keeps it from writing anywhere else." Claude Code's [security docs](https://code.claude.com/docs/en/security) explain that the boundary is a permission prompt. A Bash command (a command run in the terminal) that you approve can still write anywhere your user account can.
+- "Auto mode or an Auto-review classifier counts as a human review." In Claude Code's auto mode, a separate classifier model reviews actions instead of you and blocks the ones it judges unsafe. Cursor's [Agent Security](https://cursor.com/docs/agent/security) page says Run Modes are best-effort guardrails, not a hard security boundary. Check which mode you are in against the [permission modes](https://code.claude.com/docs/en/permission-modes) docs, and do not assume a classifier has taken responsibility for you.
 - "ASI01 is the most dangerous." The numbers are not a severity ranking, and OWASP does not score these ten items.
 - "I only use one agent, so the Top 10 does not apply to me." Most items still apply; ASI07 is the one you can often skip for now.
 - "Checking every box means I am safe." It does not. OWASP offers actionable mitigations, not a guarantee that you are safe once you finish them. I intend these ten questions as a starting point; run them again whenever your workflow changes.
 
 ## What to Do Next
 
-I suggest starting today with the inventory and the ten questions, then fixing the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool. For automated checks, see the [hooks post](/posts/claude-code-hooks-automate-checks/). For the rule file, see the [AGENTS.md post](/posts/agents-md-project-rules-for-coding-agents/). For short-lived credentials in CI, see the [npm Trusted Publishing post](/posts/npm-trusted-publishing-github-actions/). For sandbox setup, see the [Claude Code sandbox post](/posts/claude-code-sandbox-setup/). For what to check before you install a plugin, see the [Claude Code plugins post](/posts/claude-code-plugin-safe-install/).
+I suggest starting today with the inventory and the ten questions, then fixing the items that cannot be undone first. Keep rule files and permission settings in Git, and run the loop again each time you add a tool.
 
-The official source is the OWASP GenAI Security Project's [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) ([PDF](https://genai.owasp.org/download/52117/), CC BY-SA 4.0). Tool docs: [Claude Code permissions](https://code.claude.com/docs/en/permissions), [permission modes](https://code.claude.com/docs/en/permission-modes), [sandboxing](https://code.claude.com/docs/en/sandboxing), [security](https://code.claude.com/docs/en/security), [Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security), [Cursor Agent Security](https://cursor.com/docs/agent/security), [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices), and [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use).
+Further reading:
+
+- Automated checks: the [hooks post](/posts/claude-code-hooks-automate-checks/)
+- Rule files: the [AGENTS.md post](/posts/agents-md-project-rules-for-coding-agents/)
+- Short-lived credentials in CI: the [npm Trusted Publishing post](/posts/npm-trusted-publishing-github-actions/)
+- Sandbox setup: the [Claude Code sandbox post](/posts/claude-code-sandbox-setup/)
+- What to check before you install a plugin: the [Claude Code plugins post](/posts/claude-code-plugin-safe-install/)
+
+The official source is the OWASP GenAI Security Project's [OWASP Top 10 for Agentic Applications 2026](https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/) ([PDF](https://genai.owasp.org/download/52117/), CC BY-SA 4.0). Tool docs:
+
+- Claude Code: [Claude Code permissions](https://code.claude.com/docs/en/permissions), [permission modes](https://code.claude.com/docs/en/permission-modes), [sandboxing](https://code.claude.com/docs/en/sandboxing), [security](https://code.claude.com/docs/en/security)
+- [Codex Agent approvals & security](https://learn.chatgpt.com/docs/agent-approvals-security)
+- [Cursor Agent Security](https://cursor.com/docs/agent/security)
+- [MCP Security Best Practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices)
+- [GitHub Actions Secure use](https://docs.github.com/en/actions/reference/security/secure-use)
