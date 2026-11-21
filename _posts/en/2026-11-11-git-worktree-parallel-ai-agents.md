@@ -4,15 +4,18 @@ description: "How to give two AI agents their own git worktree, how to list and 
 date: 2026-11-11 09:00:00 +0800
 categories: [AI, Software Development]
 tags: [git, coding-agent, workflow]
+mermaid: true
 media_subpath: /assets/img/posts/git-worktree-parallel-ai-agents/
 image:
   path: cover.en.webp
   alt: "Give two AI agents separate git worktrees so each can work on its own branch, then clean up when done."
 ---
 
-If I let two coding agents (AI assistants that can read files, edit them, and run commands) work on different tasks in the same folder, it is like two people sharing one desk and one computer. When one agent switches to another branch (a separate line of work), the files in the folder are replaced with that branch's version, and the files the other agent is halfway through change as well. I think a better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory, each checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
+Suppose I let two coding agents (AI assistants that can read files, edit them, and run commands) work on different tasks in the same folder. That is like two people sharing one desk and one computer. When one agent switches to another branch (a separate line of work), the files in the folder are replaced with that branch's version, and the files the other agent is halfway through change as well.
 
-In this post I only cover isolating those working directories, merging the work back, and cleaning up afterward. I do not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, I covered that in [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/).
+A better approach is to let the same repo (the place that holds the project files and the full history of changes) grow a second or third working directory. Each one is checked out on its own branch. That is what [git worktree](https://git-scm.com/docs/git-worktree) is for.
+
+This post only covers isolating those working directories, merging the work back, and cleaning up afterward. It does not compare AI tools. If you are thinking about what it means, in a process sense, to let several AI agents work in parallel, I covered that in [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/).
 
 > **Version note:** This post is based on the git-scm.com [git-worktree manual](https://git-scm.com/docs/git-worktree) (the Git 2.56.0 edition), as I read it on 2026-11-11. Multiple checkout with git worktree is still marked experimental, and later behavior may change; treat the manual as the source of truth.
 {: .prompt-info }
@@ -21,19 +24,25 @@ In this post I only cover isolating those working directories, merging the work 
 
 The first sentence the Git manual uses to introduce worktrees says that one repository can have several working trees, so you can check out more than one branch at a time. To check out means to place the files of a branch or a commit (one saved snapshot in the history) into a folder so you can edit them.
 
-A working directory (also called a working tree) is the folder whose files you actually open and edit. Git calls that folder, together with its own HEAD (the pointer that says which branch or commit this folder is on) and related metadata, a worktree. The first one, created by `git clone` or `git init`, is the main worktree. Any extra one you add with `git worktree add` is a linked worktree. The [manual's description](https://git-scm.com/docs/git-worktree#_description) defines it this way: a repository has one main worktree and zero or more linked worktrees. The manual excludes bare repositories from that rule; I do not use them in this post.
+A working directory (also called a working tree) is the folder whose files you actually open and edit. Git calls that folder, together with its own HEAD (the pointer that says which branch or commit this folder is on) and related metadata, a worktree.
 
-These worktrees [share almost everything](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish). Only a few pieces of data belong to each worktree on its own, such as HEAD and the index (the staging area, where changes sit after `git add` and before you commit). In short:
+The [manual's description](https://git-scm.com/docs/git-worktree#_description) defines it this way: a repository has one main worktree and zero or more linked worktrees. The first one, created by `git clone` or `git init`, is the main worktree. Any extra one you add with `git worktree add` is a linked worktree.
+
+The manual excludes bare repositories from that rule; this post does not use them.
+
+These worktrees [share almost everything](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish). Only a few pieces of data belong to each worktree on its own:
 
 - Shared: the commit history, branches, tags, the stash (a way to set unfinished changes aside), and, by default, the repository configuration.
-- Separate: the files in each folder, which branch that folder is on (HEAD), and each folder's own index.
+- Separate: the files in each folder, which branch that folder is on (HEAD), and each folder's own index (the staging area, where changes sit after `git add` and before you commit).
 
 "Shared branches" means every worktree sees the same set of branches, while each folder decides for itself which one it is on right now. So a new commit made in one worktree is immediately visible in the others, but the files on each desk do not automatically become the same copy.
 
 ![Each worktree has its own files and its own HEAD, while all of them share one history and one set of branches](shared-core.en.webp){: w="1600" h="900" }
 _A concept illustration, not the real UI. At the top is what every worktree shares: history, branches, stashes, and config. Below, each worktree has its own files, HEAD, and staging area (index)._
 
-One implementation detail matters in practice: the `.git` at the top of a linked worktree [is a small file, not a full directory](https://git-scm.com/docs/git-worktree#_details). It points back at the administrative files that the main repository keeps for this worktree. In other words, a linked worktree folder is not a complete repository on its own. Do not copy it elsewhere as if it were a standalone repo, and do not delete the `.git` file.
+The `.git` at the top of a linked worktree [is a small file, not a full directory](https://git-scm.com/docs/git-worktree#_details). It points back at the administrative files that the main repository keeps for this worktree.
+
+In other words, a linked worktree folder is not a complete repository on its own. Do not copy it elsewhere as if it were a standalone repo, and do not delete the `.git` file.
 
 > **Advanced:** If you want one worktree to have its own settings, such as a different `user.email`, first run:
 >
@@ -41,12 +50,12 @@ One implementation detail matters in practice: the `.git` at the top of a linked
 > git config extensions.worktreeConfig true
 > ```
 >
-> Then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, I think shared configuration is enough.
+> Then write values with `git config --worktree`. The [manual notes](https://git-scm.com/docs/git-worktree#_configuration_file) that older Git versions will refuse to open a repository with this extension enabled. In most cases, shared configuration is enough.
 {: .prompt-tip }
 
 ## When to Use It, and When Not To
 
-In my view, worktrees are a good fit in three situations:
+Worktrees are a good fit in three situations:
 
 - You want two AI agents (or you and one agent) to work on separate tasks without editing the same files.
 - You are halfway through a change, you do not want to stash that work, and you still need to fix something urgent. That is the [official example in the manual](https://git-scm.com/docs/git-worktree#_examples).
@@ -54,26 +63,39 @@ In my view, worktrees are a good fit in three situations:
 
 You do not need a worktree when you are doing only one thing, or when the change is small enough that switching branches is enough. Those are my practical suggestions, not hard rules from the manual.
 
-One case is clearly a poor fit. A submodule is another repository nested as a subdirectory; the outer repository that holds it is what the manual calls a superproject.
+A repository with submodules is clearly a poor fit. A submodule is another repository nested as a subdirectory; the outer repository that holds it is what the manual calls a superproject.
 
 > **Do not use this method for parallel work in a repository that has submodules.** The [BUGS section of the official manual](https://git-scm.com/docs/git-worktree#_bugs) says:
 >
 > Multiple checkout in general is still experimental, and the support for submodules is incomplete. It is NOT recommended to make multiple checkouts of a superproject.
 {: .prompt-warning }
 
-If you are not sure whether your repository uses submodules, here is how to check. A repository with submodules has a settings file called `.gitmodules` at its top level, and the [manual explains](https://git-scm.com/docs/gitmodules) that it holds one section per submodule. The file name starts with a dot, so your file manager may hide it by default. I suggest a command instead, since it gives a more reliable answer:
+If you are not sure whether your repository uses submodules, a command gives the most reliable answer:
 
 ```bash
 git submodule status
 ```
 
-[This command](https://git-scm.com/docs/git-submodule#Documentation/git-submodule.txt-status--cached--recursive--path) prints one line for each submodule, with the commit it is on and its path. If it prints nothing, the repository has no submodules, and you can follow the steps below.
+[This command](https://git-scm.com/docs/git-submodule#Documentation/git-submodule.txt-status--cached--recursive--path) prints one line for each submodule, with the commit it is on and its path.
+
+```mermaid
+flowchart LR
+  A[Run agents in parallel] --> B["git submodule status"]
+  B -->|Prints any line| C[Skip parallel worktrees]
+  B -->|Prints nothing| D[Start at Step 1]
+```
+
+A repository with submodules also has a settings file called `.gitmodules` at its top level, and the [manual explains](https://git-scm.com/docs/gitmodules) that it holds one section per submodule. But the file name starts with a dot, so your file manager may hide it by default. That is why I suggest the command above.
 
 ## Step 1: Add a New Working Directory
 
+`git worktree add` creates a separate folder, on its own branch, that does not interfere with the original working directory. The commands in this section show the different forms; you do not need to type all of them. The worked example later in this post goes through the whole flow from start to finish.
+
 Run the commands below in a terminal, from inside the original repository folder. I use a folder called `myapp` as the example; the new worktree is linked to the repository you run the command from.
 
-I suggest putting the new worktree **beside** the repository folder, for example `../myapp-login`. `../` means the parent folder, so `myapp-login` sits next to `myapp`. Do not put it inside the repository, where it can get mixed up with ordinary project files. This is my suggestion; the manual does not require any particular path.
+I suggest putting the new worktree **beside** the repository folder, for example `../myapp-login`. `../` means the parent folder, so `myapp-login` sits next to `myapp`.
+
+Do not put it inside the repository, where it can get mixed up with ordinary project files. This is my suggestion; the manual does not require any particular path.
 
 The most common form creates a new branch and a new folder at the same time. After `-b` comes the name of the new branch, then the path of the new folder:
 
@@ -84,7 +106,9 @@ git worktree add -b fix-typo ../myapp-typo main
 
 These are two separate examples. The first line gives no starting point, so the new branch starts at the current HEAD, which is the commit you are on in `myapp`. The second line ends with `main`, so the new branch starts from `main`.
 
-`-b` refuses to create a branch whose name already exists. The other option, `-B`, overrides that safeguard and **resets** the branch to the starting point you give it, which moves the branch away from wherever it pointed before. Use that option with care.
+`-b` refuses to create a branch whose name already exists. In that case, pick a new name; if you meant to pick up that branch, use the form for an existing branch below.
+
+The other option, `-B`, overrides that safeguard and **resets** the branch to the starting point you give it. That moves the branch away from wherever it pointed before, so use it with care.
 
 If you pass only a path, Git [automatically names the new branch after the last path component](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish). For example, `git worktree add ../hotfix` creates a branch called `hotfix`.
 
@@ -106,17 +130,19 @@ Once it is created, go into the new folder to work:
 cd ../myapp-login
 ```
 
-Open any coding agent there and commit as usual. Note that the new folder contains only files that Git tracks (files you have already handed over to Git). Untracked things such as `node_modules` (installed dependencies) or `.env` (a settings file often used for passwords or keys) do not come along. Install them again, or copy them over yourself.
+Open any coding agent there and commit as usual. Note that the new folder contains only files that Git tracks (files you have already handed over to Git). If the project rules live in an AGENTS.md that Git tracks, every worktree gets the same copy; see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
 
-The commands in this section show the different forms; you do not need to type all of them. The worked example later in this post goes through the whole flow from start to finish.
-
-**What you get:** a separate folder, on its own branch, that does not interfere with the original working directory.
+Untracked things such as `node_modules` (installed dependencies) or `.env` (a settings file often used for passwords or keys) do not come along. Install them again, or copy them over yourself.
 
 ## One Branch Can Live in Only One Place
 
-The [manual states](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish) that if a branch is already checked out in another worktree, `add` will refuse to use it, unless you pass `--force`. That safeguard stops two folders from editing the same branch at once. **I do not recommend bypassing it with `--force`.**
+The [manual states](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-addpathcommit-ish) that if a branch is already checked out in another worktree, `add` will refuse to use it, unless you pass `--force`. That safeguard stops two folders from editing the same branch at once.
 
-Switching branches has the same safeguard. [`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) and `git checkout` refuse to switch to a branch that another worktree already holds. So the main folder cannot switch to the branch an agent is working on. To see what that branch changed, you do not need to switch to it; I show how to compare with `git diff` in Step 3.
+**I do not recommend bypassing it with `--force`**, and the same goes for other commands that refuse. Adding `--force` as soon as a command refuses can discard uncommitted work, or bypass the rule that a branch may be checked out in only one place.
+
+Switching branches has the same safeguard. [`git switch`](https://git-scm.com/docs/git-switch#Documentation/git-switch.txt---ignore-other-worktrees) and `git checkout` refuse to switch to a branch that another worktree already holds.
+
+So the main folder cannot switch to the branch an agent is working on. To see what that branch changed, you do not need to switch to it; I show how to compare with `git diff` in Step 3.
 
 ![Once a branch is checked out in one worktree, another worktree can't check it out too](one-branch-one-place.en.webp){: w="1600" h="900" }
 _A concept illustration, not the real UI. The worktree on the left already holds the branch, so the one on the right is blocked from using it._
@@ -145,11 +171,23 @@ git worktree list --porcelain
 
 The manual says this format stays stable across Git versions, and it recommends combining it with `-z`, so the output can still be split correctly even when a path contains a newline.
 
-**What you get:** a list of every working directory, and where each one is checked out.
-
 ## Step 3: Merge the Work Back Into main
 
-Once the work in a worktree is done and everything you want to keep is committed, the next step is to bring that branch's work back into `main`. There are two ways to do it; pick one.
+Once the work in a worktree is done and everything you want to keep is committed, you can bring that branch's work back into `main`. There are two ways to do it, and the difference is whether someone reviews it before the merge:
+
+```mermaid
+flowchart TD
+  A[All work committed] --> B{Review first?}
+  B -->|No| C[Switch myapp to main]
+  C --> D[Check with git diff]
+  D --> E[git merge]
+  B -->|Yes| F[git push -u]
+  F --> G[Merge the PR online]
+  G --> H[Update main in myapp]
+  E --> I[main has the work]
+  H --> I
+  I --> J["Step 4: Clean up"]
+```
 
 **Option 1: merge it yourself on your computer.** Go back to the main folder `myapp`, for example from `myapp-login`:
 
@@ -169,15 +207,17 @@ git merge feature-login
 - `git diff main...feature-login` lists what `feature-login` changed since it split off from `main`. As the [manual explains](https://git-scm.com/docs/git-diff), the three-dot form compares from the point where the two branches share a common ancestor. Read it first, and merge once it looks right.
 - `git merge feature-login` [brings the commits from that branch into the branch you are on](https://git-scm.com/docs/git-merge), which is `main`.
 
-You do not need to switch to `feature-login` to merge it, so it is fine that the branch is still checked out in its worktree. If both sides changed the same part of the same file, Git cannot pick one side on its own and [stops to ask you to resolve it](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented). This is called a conflict. I covered one way to handle conflicts in [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
+You do not need to switch to `feature-login` to merge it, so it is fine that the branch is still checked out in its worktree.
 
-**Option 2: push it and open a PR.** If you want someone else, or an automated review, to look first, push the branch to the remote repository (the copy hosted on a site such as GitHub) and open a PR there (a pull request, asking to merge the branch into the main line):
+If both sides changed the same part of the same file, Git cannot pick one side on its own and [stops to ask you to resolve it](https://git-scm.com/docs/git-merge#_how_conflicts_are_presented). This is called a conflict. I covered one way to handle conflicts in [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
+
+**Option 2: push it and open a PR.** If you want someone else, or an automated review, to look first, push the branch to the remote repository (the copy hosted on a site such as GitHub). Then open a PR there (a pull request, asking to merge the branch into the main line):
 
 ```bash
 git push -u origin feature-login
 ```
 
-`origin` is the name Git gives the remote repository by default when you run `git clone`. [`-u`](https://git-scm.com/docs/git-push#Documentation/git-push.txt--u) makes your local branch remember its matching remote branch, called its upstream, so a later `git pull` with no arguments knows where to update from.
+`origin` is the name Git gives the remote repository by default when you run `git clone`. [`-u`](https://git-scm.com/docs/git-push#Documentation/git-push.txt--u) makes your local branch remember its matching remote branch, called its upstream. A later `git pull` with no arguments then knows where to update from.
 
 After the PR is merged on the site, the `main` on your computer does not update by itself. Go back to `myapp` and run:
 
@@ -188,9 +228,23 @@ git pull
 
 [`git pull`](https://git-scm.com/docs/git-pull) fetches the new changes from the remote and then merges them into the branch you are on.
 
-**What you get:** `main` now contains that branch's work, and you can clean up the worktree.
-
 ## Step 4: Clean Up With remove and prune
+
+Cleaning up takes two steps: remove the linked worktree, then delete the branch you no longer need. Both commands refuse when something is still outstanding. When that happens, follow this chart:
+
+```mermaid
+flowchart TD
+  A[git worktree remove] -->|Refused| B{Need those changes?}
+  B -->|Yes| C[Commit in that folder]
+  C --> A
+  B -->|No| D["Retry with --force"]
+  A -->|Succeeds| E[git branch -d]
+  D --> E
+  E -->|Refused| F{Need those commits?}
+  F -->|Yes| G[Merge or push first]
+  G --> E
+  F -->|No| H[git branch -D]
+```
 
 When the work is done, go back to the main folder `myapp` and remove the linked worktree. The path can be relative or absolute:
 
@@ -198,7 +252,7 @@ When the work is done, go back to the main folder `myapp` and remove the linked 
 git worktree remove ../myapp-login
 ```
 
-The [manual requires](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-remove) that only a clean worktree can be removed: there must be no untracked files, and no modifications in tracked files. If something is still outstanding, the command refuses. In that case, go back into that folder and commit what you want to keep. Add `--force` only when you are sure you do not need anything left there, because uncommitted changes go away with the folder. The main worktree cannot be removed.
+The [manual requires](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-remove) that only a clean worktree can be removed: there must be no untracked files, and no modifications in tracked files. The main worktree cannot be removed. With `--force`, uncommitted changes go away with the folder.
 
 `remove` deletes the folder and the worktree record. **The branch remains**, so delete it separately. The order is: remove the worktree that uses the branch first, then delete the branch:
 
@@ -206,7 +260,9 @@ The [manual requires](https://git-scm.com/docs/git-worktree#Documentation/git-wo
 git branch -d feature-login
 ```
 
-[`-d` only deletes a branch that has been merged](https://git-scm.com/docs/git-branch#Documentation/git-branch.txt--d). The manual's condition is that the branch must be fully merged into its upstream branch (for example, the remote branch you set with `push -u`), or into the branch you are on if no upstream was set. If that is not the case, Git refuses, which tells you the branch still has commits that were not merged. Check whether the work still needs to be merged into `main` or pushed. Only when you are sure you do not need those commits, use:
+[`-d` only deletes a branch that has been merged](https://git-scm.com/docs/git-branch#Documentation/git-branch.txt--d). The manual's condition is that the branch must be fully merged into its upstream branch, for example the remote branch you set with `push -u`. If no upstream was set, it must be merged into the branch you are on.
+
+If that is not the case, Git refuses, which tells you the branch still has commits that were not merged. Only when you are sure you do not need those commits, use:
 
 ```bash
 git branch -D feature-login
@@ -221,9 +277,11 @@ git worktree prune -n -v
 git worktree prune
 ```
 
-The [prune description](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-prune) says this removes administrative data left behind by missing working trees. The manual also asks you to use `git worktree remove` next time. prune does not delete branches either.
+The [prune description](https://git-scm.com/docs/git-worktree#Documentation/git-worktree.txt-prune) says this removes administrative data left behind by missing working trees. prune does not delete branches either. The manual also asks you to use `git worktree remove` next time.
 
-If you do nothing, a later `git gc` will run `git worktree prune --expire 3.months.ago`, which only cleans up records of missing working trees that are older than three months. You can change that grace period with [`gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire): `now` removes the grace period and cleans up immediately, and `never` turns automatic cleanup off.
+If you do nothing, a later `git gc` will run `git worktree prune --expire 3.months.ago`. That only cleans up records of missing working trees that are older than three months.
+
+You can change that grace period with [`gc.worktreePruneExpire`](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire): `now` removes the grace period and cleans up immediately, and `never` turns automatic cleanup off.
 
 ![Remove finished worktrees, prune records left by deleted folders, and locked worktrees stay put](cleanup.en.webp){: w="1600" h="900" }
 _A concept illustration, not the real UI. Finished worktrees can be removed; leftover records from a manual delete are pruned; a locked worktree is left alone._
@@ -246,7 +304,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
    git worktree add -b fix-typo ../myapp-typo main
    ```
 
-   **What this step gives you:** two new folders, checked out on `feature-login` and `fix-typo`.
+   You now have two new folders, checked out on `feature-login` and `fix-typo`.
 
 3. Open two terminals, enter `../myapp-login` and `../myapp-typo`, and start one coding agent in each. Commit in each folder as usual. The files do not affect each other. Run:
 
@@ -262,7 +320,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
    git diff main...feature-login
    ```
 
-   To have someone else review it, push each branch and open a PR (a pull request, asking to merge the branch into the main line):
+   To have someone else review it, push each branch and open a PR:
 
    ```bash
    git push -u origin feature-login
@@ -302,11 +360,9 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
 
    Only the main folder should remain.
 
-A small note: if the project rules live in an AGENTS.md that Git tracks, every worktree will have the same copy. See [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). If you also want automatic checks at fixed moments in a working directory, see [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
-
 ## Protect a Worktree With lock and unlock
 
-If a worktree lives on a portable drive or a network share that is not always connected, lock it so its administrative files are not pruned automatically. A locked worktree also cannot be moved or removed.
+If a worktree lives on a portable drive or a network share, you can lock it. Such a drive is not always connected, and the lock keeps its administrative files from being pruned automatically. A locked worktree also cannot be moved or removed.
 
 To lock a worktree that already exists:
 
@@ -381,23 +437,16 @@ git worktree repair
 | Work in a repo that has submodules | Do not use worktrees for parallel development |
 | Do only one thing | You do not need a worktree; switch branches |
 
-## Common Mistakes
+## Conclusion
 
-- Trying to use the same branch in two worktrees, then hitting a refusal. Create one branch for each.
-- Using `-b` with a name that already belongs to an existing branch, then hitting a refusal. Pick a new name; if you meant to pick up that branch, use `git worktree add <path> <branch>` instead.
-- `git worktree remove` refuses. Usually the folder still has uncommitted changes or untracked files. Commit what you want to keep, and add `--force` only when you are sure you do not need the rest.
-- Deleting the folder with `rm -rf` instead of `git worktree remove`. Clean the leftover record with `git worktree prune`.
-- Trying to switch the main folder to a branch an agent is using, then hitting a refusal. You do not need to switch; use `git diff main...<branch>` to see the changes, or run `git merge <branch>` directly.
-- Forgetting to delete the branch after `remove`, so it stays in the repository.
-- `git branch -d` refuses. The branch still has commits that were not merged. Make sure the work was merged or pushed, and use `-D` only when you are sure you do not need it.
-- Expecting `node_modules` or `.env` to appear automatically in the new folder. Copy or reinstall untracked files yourself.
-- Creating the worktree inside the repository folder, where it can get mixed up with project files.
-- Moving the folder in a file manager, after which Git cannot find it. Run `git worktree repair` at the new path.
-- Pushing ahead in a repository that has submodules. See the limitation above.
-- Adding `--force` as soon as a command refuses. That can discard uncommitted work, or bypass the rule that a branch may be checked out in only one place.
+The next time two AI agents need to work at once, start with `git worktree add -b` so each gets its own folder, merge the work back into `main`, then remove the folders and branches. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
 
-## What to Do Next
+## Further Reading
 
-The next time two AI agents need to work at once, I suggest starting with `git worktree add -b` so each gets its own folder. When the work is done, merge it back into `main` (or push it and open a PR), then run `git worktree remove`, and delete the branches you no longer need. If the repository has submodules (look for `.gitmodules` at the top level), I would not use this approach.
-
-From there, you can write project rules for the agent in each working directory; I covered how in [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). To automate review, see my post [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). Once you have several worktrees and want to watch several agents at once, see [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/) or [Herdr Desktop App: Manage AI Agents With Spaces and Tabs](/posts/herdr-app-desktop-manage-ai-agents/). For command details, use the [git-worktree manual](https://git-scm.com/docs/git-worktree). The grace period for automatic cleanup is documented under [`gc.worktreePruneExpire` in git-config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire).
+- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): project rules for the agent in each working directory.
+- [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): automatic checks at fixed moments in a working directory.
+- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): automate the review.
+- [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/): watch several agents at once in a terminal.
+- [Herdr Desktop App: Manage AI Agents With Spaces and Tabs](/posts/herdr-app-desktop-manage-ai-agents/): the same job in a desktop app.
+- [git-worktree manual](https://git-scm.com/docs/git-worktree): the source of truth for command details.
+- [`gc.worktreePruneExpire` in git-config](https://git-scm.com/docs/git-config#Documentation/git-config.txt-gcworktreePruneExpire): the grace period for automatic cleanup.
