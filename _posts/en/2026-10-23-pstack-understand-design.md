@@ -329,7 +329,7 @@ flowchart TD
   B -->|Slices| D[Spawn all workers]
   B -->|Race or mix| C[Declare selection rule]
   C --> D
-  D --> E{SHAs and method recorded?}
+  D --> E{Required SHAs and method recorded?}
   E -->|Yes| G[Merge into one report]
   E -->|No| F[Respawn once]
   F -->|Now included| G

@@ -232,11 +232,11 @@ flowchart TD
   C -->|No| D[Read subdirectory AGENTS.md]
 ```
 
-The Read tool is the built-in Claude Code feature for opening a file's contents. If the repository root already has a CLAUDE.md, this default path does not apply. See the next section for what to do when you still need those subdirectory rules.
+The Read tool is the built-in Claude Code feature for opening a file's contents. If the repository root already has a CLAUDE.md, this default path does not apply. See "Share One File With Both Tools: Import AGENTS.md" below for what to do when you still need those subdirectory rules.
 
 ### Version Requirements and the Load Message
 
-Direct AGENTS.md support requires Claude Code v2.1.277 or later. In these cases Claude may not load it, so use the import in the next section instead:
+Direct AGENTS.md support requires Claude Code v2.1.277 or later. In these cases Claude may not load it, so use the import from "Share One File With Both Tools" below instead:
 
 - Older versions
 - Sessions where the built-in plugin (add-on feature) that reads AGENTS.md is disabled

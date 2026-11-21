@@ -234,11 +234,11 @@ flowchart TD
   C -->|没有| D[读子目录的 AGENTS.md]
 ```
 
-Read 工具是 Claude Code 内置、用来打开文件内容的功能。若根目录已经有 CLAUDE.md，默认就不会走这条路径；需要子目录规则时，请看下一节的做法。
+Read 工具是 Claude Code 内置、用来打开文件内容的功能。若根目录已经有 CLAUDE.md，默认就不会走这条路径；需要子目录规则时，请看后面〈一份文件两边共用：用 import 引用 AGENTS.md〉的做法。
 
 ### 版本要求与加载提示
 
-直接读取 AGENTS.md 需要 Claude Code v2.1.277 或更新的版本。下面这些情况有可能读不到，这时改用下一节的 import：
+直接读取 AGENTS.md 需要 Claude Code v2.1.277 或更新的版本。下面这些情况有可能读不到，这时改用后面〈一份文件两边共用〉那一节的 import：
 
 - 较旧的版本
 - 停用了负责读取的内置 plugin（插件）

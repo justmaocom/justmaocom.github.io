@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-Claude Code 的 plugin 是一整套扩展功能。装一次，就可能同时带进 skill、斜线命令、hook 和 MCP server，各自的意思见下一节。
+Claude Code（在终端里使用的 AI 编程助手）的 plugin 是一整套扩展功能。装一次，就可能同时带进 skill、斜线命令、hook 和 MCP server，各自的意思见下一节。
 
 方便的地方，正好也是要小心的地方。其中几样会在你没下任何命令时自己运行程序，用的还是你的账号权限。官方在安装前会显示这段提醒（我的中文翻译）：
 

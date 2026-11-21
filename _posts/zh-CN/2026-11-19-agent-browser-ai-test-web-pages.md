@@ -416,7 +416,7 @@ _域名限制有效；官方示例里的 `"eval"` 在 0.43.0 拦不住，要写 
 
 action policy 的结果和文档不同。我先用 Security 文档里的示例 `"deny": ["eval", "download", "upload"]`。结果 `eval "document.title"` 照样运行，返回 `"Newsletter demo"`。
 
-原因在 v0.43.0 的源代码里。`cli/src/native/policy.rs` 拿命令内部的操作名称做完全匹配。`eval` 命令内部的操作名称是 `evaluate`，所以文档里写的 `eval` 分类不起作用。
+我查了 v0.43.0 的源代码，原因在 `cli/src/native/policy.rs`：它拿命令内部的操作名称做完全匹配。`eval` 命令内部的操作名称是 `evaluate`，所以文档里写的 `eval` 分类不起作用。
 
 这个问题已经有人在 [issue #1612](https://github.com/vercel-labs/agent-browser/issues/1612) 里报告，修复放在 [PR #2506](https://github.com/vercel-labs/agent-browser/pull/2506)，我写这篇时两者都还是 open。我把 `"evaluate"` 也加进去之后，`eval` 就被拦截了，打印 `✗ Action 'evaluate' denied by policy: Action 'evaluate' is denied by policy`：
 

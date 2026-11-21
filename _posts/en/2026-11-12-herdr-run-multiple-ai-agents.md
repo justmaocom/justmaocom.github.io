@@ -197,7 +197,7 @@ flowchart LR
   B["Option B: git worktree add"] --> N["prefix+shift+n, then cd"]
   N --> W
   W -->|"Close: prefix+shift+d"| K[Folder and branch stay]
-  W -->|"Delete worktree checkout..."| F["Folder gone, branch stays"]
+  W -->|"Delete worktree checkout... or git worktree remove"| F["Folder gone, branch stays"]
 ```
 
 **Option A: Let herdr create it.**

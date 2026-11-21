@@ -416,7 +416,7 @@ _網域限制有效；官方範例的 `"eval"` 在 0.43.0 擋不住，要寫 `"e
 
 action policy 的結果和文件不同。我先用 Security 文件裡的範例 `"deny": ["eval", "download", "upload"]`。結果 `eval "document.title"` 照樣執行，回傳 `"Newsletter demo"`。
 
-原因在 v0.43.0 的原始碼。`cli/src/native/policy.rs` 拿指令內部的動作名稱做完全比對。`eval` 指令內部的動作名稱是 `evaluate`，所以文件寫的 `eval` 分類沒有作用。
+我查了 v0.43.0 的原始碼，原因在 `cli/src/native/policy.rs`：它拿指令內部的動作名稱做完全比對。`eval` 指令內部的動作名稱是 `evaluate`，所以文件寫的 `eval` 分類沒有作用。
 
 這個問題已經有人回報在 [issue #1612](https://github.com/vercel-labs/agent-browser/issues/1612)，修正放在 [PR #2506](https://github.com/vercel-labs/agent-browser/pull/2506)，我寫這篇時兩者都還是 open。我把 `"evaluate"` 也加進去之後，`eval` 就被擋下了，印出 `✗ Action 'evaluate' denied by policy: Action 'evaluate' is denied by policy`：
 

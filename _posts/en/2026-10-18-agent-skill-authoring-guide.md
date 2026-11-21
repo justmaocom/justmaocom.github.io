@@ -782,7 +782,7 @@ These are my opinions, not conclusions from any doc.
 
 **Put rules that a script can check into a script, and leave judgment to text.** A skill like B, where the whole job means understanding sentences, gets less reliable with forced scripts. A template is enough.
 
-**For cross-agent use, give up some convenient fields.** `when_to_use` and `disable-model-invocation` are handy in Claude Code. If the skill is only for you in Claude Code, using them is fine; for a team or across tools, I stick to the six fields.
+**For cross-agent use, give up some convenient fields.** `when_to_use` and `disable-model-invocation` are handy in Claude Code, but put them in `SKILL.md` and the skill fails skills-ref and claude.ai uploads. If the skill is only for you in Claude Code, using them is fine; for a team or across tools, I stick to the six fields.
 
 **A description without trigger tests is just a guess.** Only after you run the queries in a real agent will you know whether A gets picked when someone asks how to describe their change.
 

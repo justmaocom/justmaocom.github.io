@@ -416,7 +416,7 @@ According to the docs, both the domain limit and the action policy stay with the
 
 The action policy didn't behave as documented. I first used the example from the Security docs, `"deny": ["eval", "download", "upload"]`. Even so, `eval "document.title"` still ran and returned `"Newsletter demo"`.
 
-The reason is in the v0.43.0 source. `cli/src/native/policy.rs` matches the command's internal action name exactly. The internal action name of the `eval` command is `evaluate`, so the `eval` category in the docs has no effect.
+I checked the v0.43.0 source. `cli/src/native/policy.rs` matches the command's internal action name exactly. The internal action name of the `eval` command is `evaluate`, so the `eval` category in the docs has no effect.
 
 Someone has already reported this in [issue #1612](https://github.com/vercel-labs/agent-browser/issues/1612), and the fix is in [PR #2506](https://github.com/vercel-labs/agent-browser/pull/2506). Both were still open when I wrote this. Once I added `"evaluate"`, `eval` was blocked with `✗ Action 'evaluate' denied by policy: Action 'evaluate' is denied by policy`:
 

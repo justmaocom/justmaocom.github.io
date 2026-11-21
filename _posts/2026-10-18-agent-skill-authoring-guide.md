@@ -770,7 +770,7 @@ flowchart TD
 
 **能寫成腳本的規則就寫成腳本，要判斷的事就留給文字。** B 這種整件事都要讀懂句子的 skill，硬寫腳本只會更不可靠，給它一份範本就夠了。
 
-**為了跨 agent，寧可放棄一些方便的欄位。** `when_to_use`、`disable-model-invocation` 在 Claude Code 裡都很好用。如果這個 skill 只給自己在 Claude Code 裡用，寫了也沒關係；要給團隊、跨工具用，我會只用六個欄位。
+**為了跨 agent，寧可放棄一些方便的欄位。** `when_to_use`、`disable-model-invocation` 在 Claude Code 裡都很好用，但一寫進 `SKILL.md`，就過不了 skills-ref 和 claude.ai 上傳。如果這個 skill 只給自己在 Claude Code 裡用，寫了也沒關係；要給團隊、跨工具用，我會只用六個欄位。
 
 **沒跑過觸發測試的 description，只是一個猜測。** 寫好題目之後，要在真的 agent 裡跑過，才知道有人問「這次改動要怎麼描述」的時候，A 會不會被叫出來。
 

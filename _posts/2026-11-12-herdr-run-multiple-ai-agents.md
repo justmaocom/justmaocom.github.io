@@ -197,7 +197,7 @@ flowchart LR
   B["做法 B：git worktree add"] --> N["prefix+shift+n，再 cd"]
   N --> W
   W -->|"關掉：prefix+shift+d"| K[資料夾、分支都留著]
-  W -->|"Delete worktree checkout..."| F[資料夾刪掉，分支留著]
+  W -->|"Delete worktree checkout... 或 git worktree remove"| F[資料夾刪掉，分支留著]
 ```
 
 **做法 A：用 herdr 開。**

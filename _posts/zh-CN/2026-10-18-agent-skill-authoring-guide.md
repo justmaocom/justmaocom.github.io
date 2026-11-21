@@ -770,7 +770,7 @@ flowchart TD
 
 **能写成脚本的规则就写成脚本，要判断的事就留给文字。** B 这种整件事都要读懂句子的 skill，硬写脚本只会更不可靠，给它一份模板就够了。
 
-**为了跨 agent，宁可放弃一些方便的字段。** `when_to_use`、`disable-model-invocation` 在 Claude Code 里都很好用。如果这个 skill 只给自己在 Claude Code 里用，写了也没关系；要给团队、跨工具用，我会只用六个字段。
+**为了跨 agent，宁可放弃一些方便的字段。** `when_to_use`、`disable-model-invocation` 在 Claude Code 里都很好用，但一写进 `SKILL.md`，就过不了 skills-ref 和 claude.ai 上传。如果这个 skill 只给自己在 Claude Code 里用，写了也没关系；要给团队、跨工具用，我会只用六个字段。
 
 **没跑过触发测试的 description，只是一个猜测。** 写好题目之后，要在真正的 agent 里跑过，才知道有人问“这次改动要怎么描述”的时候，A 会不会被调出来。
 
