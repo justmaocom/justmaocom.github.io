@@ -2,6 +2,6 @@
 
 每次變更一行：日期、狀態、改了什麼、網址。狀態是「待合併」的還沒上線，下次執行先看 PR 有沒有合併，再把狀態改成「已上線」。
 
-- 2026-11-21 待合併（https://github.com/justmaocom/justmaocom.github.io/pull/119）：`ai-native-sdlc-playbook` 英文標題改成主詞在前的 58 字元（原 86 字元，主詞在第 72 字元之後），並同步三篇英文文章裡的連結文字；繁中與簡中的描述由寬度 267 縮到 161。https://justmao.com/en/posts/ai-native-sdlc-playbook/
-- 2026-11-21 待合併（https://github.com/justmaocom/justmaocom.github.io/pull/119）：三篇供應鏈文章的英文描述縮到 160 字元內（原 302、215、208）。https://justmao.com/en/posts/npm-12-install-scripts-allowscripts/ 、https://justmao.com/en/posts/gh-actions-lock-workflow-lockfile/ 、https://justmao.com/en/posts/npm-release-pipeline-lockdown/
-- 2026-11-21 待合併（https://github.com/justmaocom/justmaocom.github.io/pull/119）：「彙整」與「分類」頁有自己的描述，不再與首頁重複（三個語系共 6 頁）。https://justmao.com/archives/ 、https://justmao.com/categories/
+- 2026-11-21 已上線（PR #119，2026-11-21 部署後在線上確認）：`ai-native-sdlc-playbook` 英文標題改成主詞在前的 58 字元（原 86 字元，主詞在第 72 字元之後），並同步三篇英文文章裡的連結文字；繁中與簡中的描述由寬度 267 縮到 161。https://justmao.com/en/posts/ai-native-sdlc-playbook/
+- 2026-11-21 已上線（PR #119，2026-11-21 部署後在線上確認）：三篇供應鏈文章的英文描述縮到 160 字元內（原 302、215、208）。https://justmao.com/en/posts/npm-12-install-scripts-allowscripts/ 、https://justmao.com/en/posts/gh-actions-lock-workflow-lockfile/ 、https://justmao.com/en/posts/npm-release-pipeline-lockdown/
+- 2026-11-21 已上線（PR #119，2026-11-21 部署後在線上確認）：「彙整」與「分類」頁有自己的描述，不再與首頁重複（三個語系共 6 頁）。https://justmao.com/archives/ 、https://justmao.com/categories/
