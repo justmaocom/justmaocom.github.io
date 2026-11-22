@@ -1,6 +1,6 @@
 # SEO Roast 路線圖：justmao.com（2026-11-22）
 
-判決：從站外檢查不到 FATAL。唯一沒有證據的是索引狀態，所以它排第 1 列。
+判決：沒有 FATAL。站外檢查都通過，GSC「網頁索引」顯示 Google 已收錄 278 頁，沒有整站性的阻擋。還沒確認的是 Bing，以及 10 個「已檢索但未建立索引」的網址是哪幾頁，所以它們排第 1 列。
 
 這份文件由 `/seo-roast` 產生，只做排序。每一列的細節與數字在 [`backlog.md`](backlog.md)，策略以 [`docs/seo-execution-plan.md`](../docs/seo-execution-plan.md) 為準，兩者衝突時以方案為準。
 
@@ -20,6 +20,7 @@
 | hreflang | 三個語系加 `x-default`，每頁都列出自己，互指的網址都在 sitemap 裡。分類頁依設計不輸出 |
 | 語系數 | 3 個，各 37 篇，檔名一一對應。英文文章頁沒有殘留的中文介面字串 |
 | 數字一致 | `llms.txt` 列 37 篇文章，sitemap 也是 37 篇 |
+| Google 索引（GSC 匯出，資料到 2026-11-16） | 已建立索引 278 頁。沒有「遭到 robots.txt 封鎖」，沒有 canonical 被 Google 改選的類別，「已找到 - 目前尚未建立索引」是 0 |
 | Markdown for Agents | 帶 `Accept: text/markdown` 抓首頁與文章頁，回 `text/markdown` |
 | 重點文章的內文連入 | pstack 與 mattpocock/skills 兩個系列的每一篇都有 3 篇以上 |
 
@@ -29,7 +30,7 @@
 
 | # | 等級 | 問題 | 影響的點擊 | 做法 | 負責 | 狀態 |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 待驗證，沒過就是 FATAL | 174 個網址有多少被 Google 與 Bing 收錄，沒有資料。Bing Webmaster Tools 未驗證 | 沒收錄的頁面曝光是 0。Bing 的索引還供應 Copilot 與 DuckDuckGo | 匯出 GSC「網頁索引」，依三份 sitemap 篩選，各與 58 比較。Bing Webmaster Tools 從 GSC 匯入（方案階段 0 第 5、6 步，backlog 17） | 站長 | 下一步 |
+| 1 | 待驗證 | Bing 的索引狀態沒有資料，Bing Webmaster Tools 未驗證。Google 有 10 頁「已檢索 - 目前尚未建立索引」、1 頁轉址式 404、1 頁其他 4xx、2 頁 404，匯出檔沒有網址清單，也沒有依 sitemap 篩選 | Bing 的索引還供應 Copilot 與 DuckDuckGo。那 10 頁如果是文章，曝光就是 0 | Bing Webmaster Tools 從 GSC 匯入。在 GSC「網頁索引」點進這四個原因各匯出網址清單，再依三份 sitemap 篩選，各與 58 比較（方案階段 0 第 5、6 步，backlog 17） | 站長匯出，agent 判讀 | Google 整站已驗證，其餘下一步 |
 | 2 | REVENUE | `/en/posts/pstack-install-routing/` 排名 10.3，點閱率 1.08% | 923 次曝光 | 標題與開頭已在 PR #122 改完。2026-12-06 以後匯出 GSC 驗收（backlog 1） | 站長匯出，agent 判讀 | 已上線，待驗收 |
 | 3 | REVENUE | `/posts/mattpocock-skills-series-guide/` 排名 7.9，點閱率 3%，帶曝光的多是英文查詢 | 592 次曝光 | 先匯出這頁的查詢，再決定改繁中標題還是讓英文版排上來（backlog 8） | 站長匯出，agent 改 | 等資料 |
 | 4 | REVENUE | 三個語系的首頁都沒有連到兩篇系列導讀，它們排在首頁第 2、3 頁，沒有任何文章置頂。方案把這兩篇列為必做型頁面 | 兩篇導讀承接系列主詞，mattpocock 那篇有 592 次曝光 | 兩篇導讀加 `pin: true`，三個語系共 6 個檔案。這會改變首頁的排列，要站長先同意。合併後把 SHA 加進 `.lastmod-ignore-revs` | 站長決定，agent 改 | 待決定 |
