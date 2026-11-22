@@ -11,6 +11,8 @@ image:
 mermaid: true
 ---
 
+要在 Claude Code 安裝 pstack，先加入 Cursor 官方的外掛目錄 `cursor/plugins`，再從裡面安裝；在 Cursor 只要一行指令。兩種做法的指令都在下面的第 1 步。
+
 pstack 能讓 AI 程式助理做事更有條理，但打開一看，光是 skill 就有好幾十個。這篇教你第一次怎麼開始：裝好 pstack、確認裝到哪個版本、選好模型，之後每個任務都交給 `/poteto-mode`，不用先背下所有名字。文中的範例提示都是通用寫法，你可以直接複製，再換成自己專案的內容。
 
 > pstack 系列｜第 1 篇
@@ -65,7 +67,7 @@ _第一次使用的流程：安裝、核對版本、選模型，再從 /poteto-m
 > 上面的指令都沒有指定版本，裝到的是當下 `cursor/plugins` 預設分支（branch，repo 裡平常開發用的主線，通常叫 main）上的內容。裝別人的外掛之前該檢查什麼，我在[這篇供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)談過。
 {: .prompt-tip }
 
-網路上也有第三方整理的 pstack 鏡像（例如 `backnotprop/pstack`），它不是 `cursor/plugins` 官方維護的版本。要用的話，我建議先看完內容、鎖定版本，理由同樣見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
+網路上也有第三方整理的 pstack 移植版和鏡像，例如 `michael-denyer/pstack-claude` 與 `backnotprop/pstack`。它們不是 `cursor/plugins` 官方維護的版本。要用的話，我建議先看完內容、鎖定版本，理由同樣見[供應鏈與權限風險的文章](/posts/coding-agent-supply-chain-permission-risks/)。
 
 ## 第 2 步：檢查版本、更新，或固定版本
 
