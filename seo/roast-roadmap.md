@@ -36,8 +36,8 @@
 | 4 | REVENUE | 三個語系的首頁都沒有連到兩篇系列導讀，它們排在首頁第 2、3 頁，沒有任何文章置頂。方案把這兩篇列為必做型頁面 | 兩篇導讀承接系列主詞，mattpocock 那篇有 592 次曝光 | 兩篇導讀加 `pin: true`，三個語系共 6 個檔案。這會改變首頁的排列，要站長先同意。合併後把 SHA 加進 `.lastmod-ignore-revs` | 站長決定，agent 改 | 待決定 |
 | 5 | REVENUE | `/en/posts/pstack-understand-design/` 排名 6.2，點閱率 2%，標題 69 字元會被截斷 | 500 次曝光。同系列第 3 篇的同類查詢點閱率是 12% 到 29% | 先匯出這頁的查詢，並查證 `the complete guide to pstack` 是不是別人的文章標題（backlog 3、4） | 站長匯出，agent 改 | 等資料 |
 | 6 | REVENUE | `/en/projects/` 排名 4.5，0 次點擊，標題只有 `Projects \| JustMao` | 410 次曝光 | 匯出這頁的查詢，看讀者在找什麼（backlog 5） | 站長匯出，agent 改 | 等資料 |
-| 7 | REVENUE | `/en/posts/mattpocock-skills-setup-routing-guide/` 排名 9.3，點閱率 2.4%，英文標題沒有 install 與 ask-matt | 205 次曝光 | 改英文標題與描述，同步其他英文文章的連結文字（backlog 2） | agent | 可以直接做 |
-| 8 | REVENUE | `/en/posts/mattpocock-skills-research-handoff/` 排名 10.1，0 次點擊 | 104 次曝光 | 把 handoff 放進英文標題前段（backlog 6） | agent | 排在第 7 列之後 |
+| 7 | REVENUE | `/en/posts/mattpocock-skills-setup-routing-guide/` 排名 9.3，點閱率 2.4%，原本的英文標題沒有 install 與 ask-matt | 205 次曝光 | 英文標題與描述已在 PR #126 改完。2026-12-06 以後匯出 GSC 驗收（backlog 2） | 站長匯出，agent 判讀 | PR #126 待合併 |
+| 8 | REVENUE | `/en/posts/mattpocock-skills-research-handoff/` 排名 10.1，0 次點擊 | 104 次曝光 | 把 handoff 放進英文標題前段（backlog 6） | agent | 未開始 |
 | 9 | REVENUE | 英文的 AGENTS.md 與 skill 撰寫兩篇排在第 3 頁（22.4 與 20.5） | 52 與 28 次曝光 | 讀搜尋結果前五名，找出本站缺什麼（backlog 9） | agent | 工時較長 |
 | 10 | REVENUE | `pstack statechart` 有人搜尋，全站沒有一篇提到 | 21 次曝光 | 確認這個 skill 是哪一版加入的，再決定補在第 2 篇或另寫（backlog 7） | agent | 未開始 |
 | 11 | REVENUE | `shadcn-improve-advisor-executor` 沒有任何文章在內文連入它，沒過方案的發布前清單（至少 1 篇同叢集舊文連入） | 未量測，2026-11-22 才發布 | 從同叢集的舊文補一個上下文連結，三個語系一起改 | agent | 未開始 |
