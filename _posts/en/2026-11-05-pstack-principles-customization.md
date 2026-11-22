@@ -657,4 +657,4 @@ When you let it run alone, enforce the limits with permission settings and isola
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.
 - [mattpocock/skills Series Guide: What It Is and How to Read It](/posts/mattpocock-skills-series-guide/): the series guide for a different skill set.
-- [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/): Part 1 of the series on a different skill set.
+- [mattpocock/skills, Part 1: Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/): Part 1 of the series on a different skill set.

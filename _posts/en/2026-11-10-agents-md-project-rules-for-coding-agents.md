@@ -21,7 +21,7 @@ You write it in Markdown, a plain-text format where `#` marks a heading and `-` 
 
 This post covers only how to write the file, and what the official docs for [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [Claude Code](https://code.claude.com/docs/en/memory#agents-md) say each tool will actually read. I will not claim that every tool behaves the same way, and I will not list products I have not checked.
 
-A skill pack is a set of packaged workflows that an assistant loads when it needs them. If you want one to help generate project rules, see my post [mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. This one is about the file format itself, and how these two tools load it.
+A skill pack is a set of packaged workflows that an assistant loads when it needs them. If you want one to help generate project rules, see my post [mattpocock/skills, Part 1: Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/). That post is about that skill workflow. This one is about the file format itself, and how these two tools load it.
 
 > This post is based on the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) (including the [AGENTS.md section](https://code.claude.com/docs/en/memory#agents-md)), and the [AGENTS.md site](https://agents.md/), as I read them on 2026-11-10 (Taipei time). That day, the latest Codex CLI on npm was 0.167.0, and Claude Code was 2.1.322. Later versions or docs may change how files are loaded.
 {: .prompt-info }

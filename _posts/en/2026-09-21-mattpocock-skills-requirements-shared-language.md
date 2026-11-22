@@ -17,7 +17,7 @@ I think of a skill, as used in this post, as a set of instructions that tells an
 
 > mattpocock/skills Series | Part 2
 >
-> - Previous (Part 1): [Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
+> - Previous (Part 1): [Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/)
 > - Next (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 > - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
 >
