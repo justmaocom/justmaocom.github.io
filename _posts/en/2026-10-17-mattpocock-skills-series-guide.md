@@ -15,7 +15,7 @@ Maybe someone mentioned `mattpocock/skills`, and when you opened the repo, you f
 
 > mattpocock/skills Series | Guide
 >
-> - Start here (Part 1): [Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
+> - Start here (Part 1): [Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/)
 >
 > I based this series on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). Each part also notes changes in later versions at the top.
 {: .prompt-info }
@@ -90,7 +90,7 @@ I use the same example in all six parts: adding per-seat billing to a subscripti
 
 ## What Each Part Covers
 
-### Part 1: Get Started Without Memorizing 25 Skills
+### Part 1: Install, Set Up, Then /ask-matt
 
 Faced with 25 skills, where do you begin? This part's answer: you can start without understanding every skill first. It explains three things:
 
@@ -98,7 +98,7 @@ Faced with 25 skills, where do you begin? This part's answer: you can start with
 - What `setup-matt-pocock-skills` adds to your project.
 - How to use `ask-matt` to find your next step.
 
-→ [Part 1: Get Started Without Memorizing 25 Skills](/posts/mattpocock-skills-setup-routing-guide/)
+→ [Part 1: Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/)
 
 ### Part 2: From Vague Requirements to Shared Terms
 

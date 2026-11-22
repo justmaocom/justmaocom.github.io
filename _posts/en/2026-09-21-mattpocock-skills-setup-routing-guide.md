@@ -1,13 +1,13 @@
 ---
-title: "mattpocock/skills, Part 1: Get Started Without Memorizing 25 Skills"
-description: "No need to memorize 25 skills: how to install mattpocock/skills, what setup-matt-pocock-skills adds to your project, and how ask-matt suggests your next step."
+title: "mattpocock/skills, Part 1: Install, Set Up, Then /ask-matt"
+description: "Install Matt Pocock's skills in Claude Code or Codex, run setup-matt-pocock-skills once, then let ask-matt suggest which skill to start with."
 date: 2026-09-21 11:16:29 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
 media_subpath: /assets/img/posts/mattpocock-skills-setup-routing-guide/
 image:
   path: cover.en.webp
-  alt: "Skip memorizing 25 skills: set up your project once, then let ask-matt suggest the next step, though you still start it yourself."
+  alt: "Getting started with mattpocock/skills in three steps: install, set up your project once, then let ask-matt suggest the next step."
 mermaid: true
 ---
 
