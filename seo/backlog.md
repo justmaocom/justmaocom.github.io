@@ -3,7 +3,7 @@
 依預期效益除以工時排序。本站沒有註冊流程，效益指非品牌自然點擊。數字來自 2026-11-22 匯入的 GSC 基線（資料期間 2026-10-23 到 11-19，見 `context.md`）。匯出檔沒有查詢與網頁的對照，標「推定」的是依查詢文字推斷的。
 
 1. **驗收英文 pstack 第 1 篇的改動**。2026-12-06 以後再匯出一次 GSC，比較 `/en/posts/pstack-install-routing/` 的排名（基線 10.3）與點閱率（基線 1.08%），以及 `how to install pstack`（7.4）、`pstack install`（7.1）、`pstack claude code`（77.2）的排名。也看 `poteto mode`（9.3）與 `poteto-mode`（8.3），新標題保留了 `/poteto-mode`。不要用整頁點閱率判斷，這頁的曝光混了很多導覽類查詢。安裝類查詢的排名如果沒有前進，把第 1 步的安裝指令區塊移到「A Few Terms First」之前（三個語系一起改，寫作規則允許移動程式碼區塊）。
-2. **英文 mattpocock/skills 第 1 篇的標題**。`/en/posts/mattpocock-skills-setup-routing-guide/`：205 次曝光、排名 9.3、點閱率 2.4%。相關查詢有 `ask matt`（9）、`ask-matt`（7）、`/ask-matt`（4）與 `how to add matt pocock skills`（推定）。英文標題 `Get Started Without Memorizing 25 Skills` 沒有 install 也沒有 ask-matt，繁中標題有。改英文標題與描述，並同步其他英文文章裡的連結文字。
+2. **驗收英文 mattpocock/skills 第 1 篇的標題**。2026-12-06 以後再匯出一次 GSC，比較 `/en/posts/mattpocock-skills-setup-routing-guide/` 的排名（基線 9.3）與點閱率（基線 2.4%，205 次曝光），以及 `ask matt`（基線期間 9 次曝光）、`ask-matt`（7）、`/ask-matt`（4）與 `how to add matt pocock skills` 的排名。新標題是 `mattpocock/skills, Part 1: Install, Set Up, Then /ask-matt`。安裝類查詢沒有前進的話，比照第 1 項把安裝指令區塊往前移。
 3. **英文 pstack 第 2 篇的標題與描述**。`/en/posts/pstack-understand-design/`：500 次曝光、排名 6.2、點閱率 2%。`pstack part 2`（76 次曝光、排名 4.4、1.3%）與 `the complete guide to pstack pt. 2`（107、4.9、1.9%）推定是這頁。第 3 篇的同類查詢點閱率是 12% 到 29%。標題 69 字元會被截斷。先請站長匯出這頁的查詢，確認是哪些查詢的點閱率低再改。
 4. **查證 `the complete guide to pstack` 是不是別人的文章標題**。pt. 2 與 pt. 3 共約 210 次曝光。2026-11-22 用 WebSearch（美國）查不到這個標題，可能是 X 上的文章。如果是，這類查詢的讀者要找的是那篇，不要為它改標題。
 5. **`/en/projects/` 有 410 次曝光、排名 4.5、0 次點擊**。匯出檔看不出是哪些查詢，要站長匯出這頁的查詢。標題只有 `Projects | JustMao`。
