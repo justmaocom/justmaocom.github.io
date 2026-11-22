@@ -15,7 +15,7 @@ Maybe you've heard of pstack, opened the repo, and found nothing but a long list
 
 > pstack series | Guide
 >
-> - Start from the beginning (Part 1): [Install, Pick Models, Start With /poteto-mode](/posts/pstack-install-routing/)
+> - Start from the beginning (Part 1): [Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/)
 >
 > All five posts in this series are pinned to pstack [`0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), with Claude Code 2.1.326. That version is commit `2f87c85` in `cursor/plugins` (2026-11-17 05:47, Taipei time). All five posts were rechecked against it on 2026-11-17, and when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The counts and behavior may change in later versions.
 {: .prompt-info }
@@ -72,7 +72,7 @@ The four parts follow a single piece of work: install the tools, understand the 
 ![Series map: install and playbooks, understand then design, prove then review, principles and run alone](series-map.en.webp){: w="800" h="450" }
 _The four parts are ordered by workflow; each covers one stretch, and the details live in that post._
 
-### Part 1: Install, Pick Models, Start With /poteto-mode
+### Part 1: Install in Claude Code, Then /poteto-mode
 
 Using it for the first time, where do you begin? This part covers four things:
 
@@ -83,7 +83,7 @@ Using it for the first time, where do you begin? This part covers four things:
 
 By the end, you'll see that you can get going without memorizing every skill name.
 
-→ [Part 1: Install, Pick Models, Start With /poteto-mode](/posts/pstack-install-routing/)
+→ [Part 1: Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/)
 
 ### Part 2: Understand the Code, Then Design, Before You Change It
 

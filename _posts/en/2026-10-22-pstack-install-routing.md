@@ -1,6 +1,6 @@
 ---
-title: "pstack, Part 1: Install, Pick Models, Start With /poteto-mode"
-description: "A step-by-step guide to pstack in Claude Code or Cursor: install it, check or pin the version, pick models with /setup-pstack, and write tasks for /poteto-mode."
+title: "pstack, Part 1: Install in Claude Code, Then /poteto-mode"
+description: "Install pstack in Claude Code from the official cursor/plugins marketplace or in Cursor, pin the version, pick models with /setup-pstack, and use /poteto-mode."
 date: 2026-10-22 15:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
@@ -10,6 +10,8 @@ image:
   alt: "How to install pstack, check its version, pick models with /setup-pstack, and then hand every task to /poteto-mode."
 mermaid: true
 ---
+
+To install pstack in Claude Code, add Cursor's official plugin catalog, `cursor/plugins`, then install pstack from it. In Cursor, it takes one command. Step 1 below has the commands for both.
 
 pstack helps an AI coding assistant work in a more orderly way, but open it up and there are dozens of skills. This post shows you how to start: install pstack, confirm which version you got, pick your models, and then hand every task to `/poteto-mode`, without learning every name first. The example prompts are generic, so copy them and swap in details from your own project.
 
@@ -65,7 +67,7 @@ According to the [Claude Code docs](https://code.claude.com/docs/en/plugins/inst
 > None of the commands above name a version. You get whatever is on the default branch of `cursor/plugins` at that moment (the default branch is the main line of work in a repo, usually called main). I covered what to check before installing someone else's plugin in [this post on supply-chain and permission risks](/posts/coding-agent-supply-chain-permission-risks/).
 {: .prompt-tip }
 
-There are also third-party mirrors of pstack online, such as `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, I suggest reading through it and pinning a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
+There are also third-party ports and mirrors of pstack online, such as `michael-denyer/pstack-claude` and `backnotprop/pstack`. They are not the version that `cursor/plugins` maintains. If you use one, I suggest reading through it and pinning a version first, for the reasons in the same [supply-chain post](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Step 2: Check the Version, Update, or Pin It
 
