@@ -26,3 +26,7 @@ footer:
 search:
   clear: 清除
   results: "找到 :count 篇符合“:query”的文章"
+
+# _includes/topbar.html 深淺色按鈕的 aria-label
+theme:
+  toggle: 切换深浅色模式
