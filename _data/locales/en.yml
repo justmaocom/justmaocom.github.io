@@ -26,3 +26,7 @@ footer:
 search:
   clear: Clear
   results: "Results for “:query”: :count"
+
+# _includes/topbar.html 深淺色按鈕的 aria-label
+theme:
+  toggle: Switch color mode
