@@ -8,66 +8,77 @@
   "
 >
   <div class="footer-links">
-    <nav aria-label="{{ site.data.locales[include.lang].footer.nav }}">
-      {% for tab in site.tabs %}
-        {% unless tab.footer %}{% continue %}{% endunless %}
-        {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
-        <a href="{{ tab.url | relative_url }}">
-          {{- site.data.locales[include.lang].tabs.[tab_name] | default: tab.title -}}
-        </a>
-      {% endfor %}
+    <nav aria-labelledby="footer-explore">
+      <h2 class="footer-heading" id="footer-explore">{{ site.data.locales[include.lang].footer.explore }}</h2>
+      <ul>
+        {% for tab in site.tabs %}
+          {% unless tab.footer %}{% continue %}{% endunless %}
+          {% capture tab_name %}{{ tab.url | split: '/' }}{% endcapture %}
+          <li>
+            <a href="{{ tab.url | relative_url }}">
+              <i class="fa-fw {{ tab.icon }}" aria-hidden="true"></i>
+              {{- site.data.locales[include.lang].tabs.[tab_name] | default: tab.title -}}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
     </nav>
 
-    <div class="footer-social">
-      {% for entry in site.data.contact %}
-        {%- assign url = null -%}
+    <section aria-labelledby="footer-connect">
+      <h2 class="footer-heading" id="footer-connect">{{ site.data.locales[include.lang].footer.connect }}</h2>
+      <ul>
+        {% for entry in site.data.contact %}
+          {%- assign url = null -%}
 
-        {% case entry.type %}
-          {% when 'github', 'twitter' %}
-            {%- unless site[entry.type].username -%}
-              {%- continue -%}
-            {%- endunless -%}
-            {%- capture url -%}
-              https://{{ entry.type }}.com/{{ site[entry.type].username }}
-            {%- endcapture -%}
-          {% when 'email' %}
-            {%- unless site.social.email -%}
-              {%- continue -%}
-            {%- endunless -%}
-            {%- assign email = site.social.email | split: '@' -%}
-            {%- capture url -%}
-              javascript:void(location.href = 'mailto:' + ['{{ email[0] }}','{{ email[1] }}'].join('@'))
-            {%- endcapture -%}
-          {% when 'rss' %}
-            {% assign url = '/feed.xml' | relative_url %}
-          {% else %}
-            {% assign url = entry.url %}
-        {% endcase %}
+          {% case entry.type %}
+            {% when 'github', 'twitter' %}
+              {%- unless site[entry.type].username -%}
+                {%- continue -%}
+              {%- endunless -%}
+              {%- capture url -%}
+                https://{{ entry.type }}.com/{{ site[entry.type].username }}
+              {%- endcapture -%}
+            {% when 'email' %}
+              {%- unless site.social.email -%}
+                {%- continue -%}
+              {%- endunless -%}
+              {%- assign email = site.social.email | split: '@' -%}
+              {%- capture url -%}
+                javascript:void(location.href = 'mailto:' + ['{{ email[0] }}','{{ email[1] }}'].join('@'))
+              {%- endcapture -%}
+            {% when 'rss' %}
+              {% assign url = '/feed.xml' | relative_url %}
+            {% else %}
+              {% assign url = entry.url %}
+          {% endcase %}
 
-        {% if url %}
-          <a
-            href="{{ url }}"
-            aria-label="{{ entry.type }}"
-            {% assign link_types = '' %}
+          {% if url %}
+            <li>
+              <a
+                href="{{ url }}"
+                {% assign link_types = '' %}
 
-            {% unless entry.noblank %}
-              target="_blank"
-              {% assign link_types = 'noopener noreferrer' %}
-            {% endunless %}
+                {% unless entry.noblank %}
+                  target="_blank"
+                  {% assign link_types = 'noopener noreferrer' %}
+                {% endunless %}
 
-            {% if entry.type == 'mastodon' %}
-              {% assign link_types = link_types | append: ' me' | strip %}
-            {% endif %}
+                {% if entry.type == 'mastodon' %}
+                  {% assign link_types = link_types | append: ' me' | strip %}
+                {% endif %}
 
-            {% unless link_types == empty %}
-              rel="{{ link_types }}"
-            {% endunless %}
-          >
-            <i class="{{ entry.icon }}"></i>
-          </a>
-        {% endif %}
-      {% endfor %}
-    </div>
+                {% unless link_types == empty %}
+                  rel="{{ link_types }}"
+                {% endunless %}
+              >
+                <i class="fa-fw {{ entry.icon }}" aria-hidden="true"></i>
+                {{- entry.name | default: entry.type -}}
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </section>
   </div>
 
   <p>

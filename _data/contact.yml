@@ -1,16 +1,21 @@
 #  The contact options.
+#  name 是頁尾顯示的文字（_includes/footer.html），沒填就顯示 type；品牌名稱三個語系共用
 
 - type: github
+  name: GitHub
   icon: "fab fa-github"
 
 - type: twitter
+  name: X
   icon: "fa-brands fa-x-twitter"
 
 - type: email
+  name: Email
   icon: "fas fa-envelope"
   noblank: true # open link in current tab
 
 - type: rss
+  name: RSS
   icon: "fas fa-rss"
   noblank: true
 # Uncomment and complete the url below to enable more contact options
