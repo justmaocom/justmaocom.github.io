@@ -17,9 +17,9 @@ This post shows how pstack makes "prove it works" part of the process: you repro
 
 > pstack Series | Part 3
 >
-> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
-> - Previous (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
-> - Next (Part 4): [Steer with principles, build your own mode, and let it run unattended](/posts/pstack-principles-customization/)
+> - Series guide: [What It Is and Where to Start](/posts/pstack-series-guide/)
+> - Previous (Part 2): [Understand Code and Compare Designs First](/posts/pstack-understand-design/)
+> - Next (Part 4): [Steer With Principles, Build Your Own Mode, and Let It Run Unattended](/posts/pstack-principles-customization/)
 {: .prompt-info }
 
 > I based this post on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json) with Claude Code 2.1.326. That version is `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time). I rechecked all five posts in the series against this version on 2026-11-17, and at that time `main` had no pstack changes after `2f87c85`. Later versions may behave differently.

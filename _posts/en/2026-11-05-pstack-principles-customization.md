@@ -13,9 +13,9 @@ mermaid: true
 
 When an AI coding assistant got something wrong, I used to type out a long paragraph explaining what I actually wanted. pstack gives you a much easier way: just name a principle to tell it which way to adjust, then check that it really follows through. This post also shows how to turn your habits into a mode, how to set the prompt, permissions, and spending cap before it runs alone overnight, and how to check its work in the morning.
 
-> pstack series | Part 4 (final part)
+> pstack Series | Part 4 (final part)
 >
-> - Series guide: [What this skill set is and how to read the four parts](/posts/pstack-series-guide/)
+> - Series guide: [What It Is and Where to Start](/posts/pstack-series-guide/)
 > - Previous (Part 3): [After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/)
 > - Next: this is the last part of the series
 {: .prompt-info }

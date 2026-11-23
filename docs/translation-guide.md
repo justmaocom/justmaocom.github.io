@@ -61,6 +61,8 @@
 
 系列文章在引言後加入 `.prompt-info` 導覽。新增一篇時，讓新文章連回上一篇，並替上一篇補上通往新文章的連結。只連結已建立的文章，網址同樣使用 `/posts/<slug>/`。
 
+系列的標題格式、三語導覽範本與導讀結構，見[系列教學規則](series-playbook.md)。
+
 ## 文章以外需要三語的地方
 
 - **側邊欄頁面**：有內文的 tab（如 `_tabs/about.md`）要另備 `_tabs/zh-CN/`、`_tabs/en/` 的同名譯文。只有 layout 的 tab 由主題 locale 翻譯標題，不需要譯文。主題 locale 沒有的 tab（如 `projects`）不寫 `title`，改在 `_data/locales/<lang>.yml` 補 `tabs.<檔名>`；這些檔案會與 gem 內同名 locale 深度合併，只需放新增的字串。否則 `<title>` 會是空的。

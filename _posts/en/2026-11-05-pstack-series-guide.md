@@ -13,7 +13,7 @@ mermaid: true
 
 Maybe you've heard of pstack, opened the repo, and found nothing but a long list of skill names. Or maybe you landed on one of the posts from a search and want to know what comes before and after it. The series has four parts, each covering one stretch of coding with AI. This guide skips the details: it explains what pstack is and suggests which part to start with.
 
-> pstack series | Guide
+> pstack Series | Guide
 >
 > - Start from the beginning (Part 1): [Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/)
 >
