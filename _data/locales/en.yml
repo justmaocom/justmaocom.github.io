@@ -21,3 +21,8 @@ seo:
 footer:
   explore: Explore
   connect: Connect
+
+# _includes/post-search.html 首頁搜尋欄的字串；:count 是結果篇數，:query 是搜尋字詞
+search:
+  clear: Clear
+  results: "Results for “:query”: :count"

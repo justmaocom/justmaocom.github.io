@@ -1,0 +1,75 @@
+<!-- The Top Bar -->
+{% comment %}
+  覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案：拿掉搜尋按鈕、搜尋框與「取消」按鈕（搜尋改放在首頁，
+  見 _includes/post-search.html），右側改放 .topbar-actions，由 assets/js/i18n.js 插入語系選單。
+  升級主題後與 gem 內的檔案比對。
+{% endcomment %}
+
+<header id="topbar-wrapper" class="flex-shrink-0" aria-label="Top Bar">
+  <div
+    id="topbar"
+    class="d-flex align-items-center justify-content-between px-lg-3 h-100"
+  >
+    <nav id="breadcrumb" aria-label="Breadcrumb">
+      {% assign paths = page.url | split: '/' %}
+
+      {% if paths.size == 0 or page.layout == 'home' %}
+        <!-- index page -->
+        <span>{{ site.data.locales[include.lang].tabs.home | capitalize }}</span>
+
+      {% else %}
+        {% for item in paths %}
+          {% if forloop.first %}
+            <span>
+              <a href="{{ '/' | relative_url }}">
+                {{- site.data.locales[include.lang].tabs.home | capitalize -}}
+              </a>
+            </span>
+
+          {% elsif forloop.last %}
+            {% if page.collection == 'tabs' %}
+              <span>{{ site.data.locales[include.lang].tabs[item] | default: page.title }}</span>
+            {% else %}
+              <span>{{ page.title }}</span>
+            {% endif %}
+
+          {% elsif page.layout == 'category' or page.layout == 'tag' %}
+            <span>
+              <a href="{{ item | append: '/' | relative_url }}">
+                {{- site.data.locales[include.lang].tabs[item] | default: page.title -}}
+              </a>
+            </span>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    </nav>
+    <!-- endof #breadcrumb -->
+
+    <button type="button" id="sidebar-trigger" class="btn btn-link" aria-label="Sidebar">
+      <i class="fas fa-bars fa-fw"></i>
+    </button>
+
+    <div id="topbar-title">
+      {% if page.layout == 'home' %}
+        {{- site.data.locales[include.lang].title | default: site.title -}}
+      {% elsif page.collection == 'tabs' or page.layout == 'page' %}
+        {%- capture tab_key -%}{{ page.url | split: '/' }}{%- endcapture -%}
+        {{- site.data.locales[include.lang].tabs[tab_key] | default: page.title -}}
+      {% else %}
+        {{- site.data.locales[include.lang].layout[page.layout] | default: page.layout | capitalize -}}
+      {% endif %}
+    </div>
+
+    {% comment %}
+      主題每一頁的腳本在初始化時直接替這三個 id 綁事件、不檢查元素存不存在，少了任一個，
+      後面的初始化（深淺色切換、回到頂端、tooltip）會一起中斷。搜尋已移到首頁，這裡只留藏起來的空殼。
+    {% endcomment %}
+    <div hidden>
+      <span id="search-trigger"></span>
+      <span id="search-cancel"></span>
+      <input type="hidden" id="search-input">
+    </div>
+
+    <div class="topbar-actions d-flex align-items-center"></div>
+  </div>
+</header>

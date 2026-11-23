@@ -1,0 +1,37 @@
+{% comment %}
+  首頁文章列表上方的搜尋欄，由 _layouts/home.html 引入，行為寫在 assets/js/post-search.js。
+
+  不用 include_cached：data-index 依建置中的語系而不同，快取會讓各語系拿到同一份。
+  不沿用主題的 #search-input 等 id：主題的腳本在輸入時會把整個主欄位藏起來，文章卡片也跟著消失。
+  status 與清單之間不留空白，CSS 靠 :empty 在沒有結果時隱藏它們。
+{% endcomment %}
+{%- assign search_index = site.baseurl -%}
+{%- unless site.active_lang == site.default_lang -%}
+  {%- assign search_index = search_index | append: '/' | append: site.active_lang -%}
+{%- endunless -%}
+{%- assign search_hint = site.data.locales[include.lang].search.hint | capitalize -%}
+<div
+  id="post-search"
+  class="px-xl-1"
+  role="search"
+  data-index="{{ search_index }}/assets/js/data/search.json"
+  data-results="{{ site.data.locales[include.lang].search.results | escape }}"
+  data-empty="{{ site.data.locales[include.lang].search.no_results | escape }}"
+>
+  <div class="post-search-box">
+    <i class="fas fa-search fa-fw" aria-hidden="true"></i>
+    <input
+      id="post-search-input"
+      type="search"
+      autocomplete="off"
+      aria-label="{{ search_hint }}"
+      placeholder="{{ search_hint }}..."
+    >
+    <button type="button" class="post-search-clear" hidden>
+      {{- site.data.locales[include.lang].search.clear -}}
+    </button>
+  </div>
+  <p class="post-search-status" role="status"></p>
+  <ul class="post-search-results"></ul>
+</div>
+<script defer src="{{ site.baseurl }}/assets/js/post-search.js"></script>
