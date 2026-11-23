@@ -620,7 +620,7 @@ body:has(.consent-banner) .lang-hint {
   }
 }
 
-/* --- 頁尾的 tab 連結列（搭配 _includes/footer.html） --- */
+/* --- 頁尾的 tab 連結與聯絡圖示列（搭配 _includes/footer.html） --- */
 
 /* 主題把頁尾高度寫死，多一列會溢出；改由內容撐開，最小高度維持主題原本的大小 */
 footer {
@@ -635,17 +635,49 @@ footer {
     padding-top: 1rem;
   }
 
+  /* 窄螢幕 tab 在上、圖示在下，都置中；寬螢幕 tab 靠左、圖示靠右，對齊下面的版權列 */
+  .footer-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 0.5rem;
+
+    @media (min-width: 992px) {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
   nav {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.25rem 1.25rem;
-    width: 100%;
-    margin-bottom: 0.5rem;
+  }
 
-    /* 與版權列一樣靠左 */
+  .footer-social {
+    display: flex;
+    gap: 0.5rem;
+
+    /* 圖示框比圖示寬，靠右時抵掉框內留白，圖示右緣才與版權列切齊 */
     @media (min-width: 992px) {
-      justify-content: flex-start;
+      margin-right: -0.375rem;
+    }
+
+    /* 點擊範圍沿用側欄按鈕的 1.75rem；頁尾字級只有 0.8rem，圖示另外放大 */
+    a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.75rem;
+      height: 1.75rem;
+      font-size: 1rem;
+
+      /* 主題的連結 hover 會加底線，畫在圖示框下方很突兀 */
+      &:hover {
+        border-bottom: 0;
+      }
     }
   }
 }
