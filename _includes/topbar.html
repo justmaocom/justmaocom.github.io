@@ -1,7 +1,8 @@
 <!-- The Top Bar -->
 {% comment %}
   覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案：拿掉搜尋按鈕、搜尋框與「取消」按鈕（搜尋改放在首頁，
-  見 _includes/post-search.html），右側改放 .topbar-actions，由 assets/js/i18n.js 插入語系選單。
+  見 _includes/post-search.html），右側改放 .topbar-actions：深淺色切換從側欄底部移過來，
+  assets/js/i18n.js 再把語系選單插在它左邊。
   升級主題後與 gem 內的檔案比對。
 {% endcomment %}
 
@@ -70,6 +71,55 @@
       <input type="hidden" id="search-input">
     </div>
 
-    <div class="topbar-actions d-flex align-items-center"></div>
+    <div class="topbar-actions d-flex align-items-center">
+      {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
+        {%- capture icon_system -%}
+          <i class="fa-solid fa-display" data-theme-mode="system"></i>
+        {%- endcapture -%}
+
+        {%- capture icon_light -%}
+          <i class="fa-regular fa-sun" data-theme-mode="light"></i>
+        {%- endcapture -%}
+
+        {%- capture icon_dark -%}
+          <i class="fa-regular fa-moon" data-theme-mode="dark"></i>
+        {%- endcapture -%}
+
+        <div class="dropdown">
+          <button
+            type="button"
+            class="btn btn-link"
+            aria-label="Switch Mode"
+            aria-expanded="false"
+            id="mode-toggle"
+            data-bs-toggle="dropdown"
+          >
+            {{- icon_light -}}
+            {{- icon_dark -}}
+            {{- icon_system -}}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end rounded-3 mt-1 p-1">
+            <li>
+              <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="light">
+                {{- icon_light -}}
+                {{- site.data.locales[include.lang].theme.light -}}
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="dark">
+                {{- icon_dark -}}
+                {{- site.data.locales[include.lang].theme.dark -}}
+              </button>
+            </li>
+            <li>
+              <button class="dropdown-item d-flex align-items-center" type="button" data-theme-mode="system">
+                {{- icon_system -}}
+                {{- site.data.locales[include.lang].theme.system -}}
+              </button>
+            </li>
+          </ul>
+        </div>
+      {% endunless %}
+    </div>
   </div>
 </header>

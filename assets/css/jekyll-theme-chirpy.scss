@@ -156,28 +156,27 @@ html.mermaid-zoom-open {
   }
 }
 
-/* --- 語系切換（搭配 assets/js/i18n.js），位於頂欄右側的 .topbar-actions，選單外觀比照主題的 #mode-toggle --- */
+/* --- 頂欄右側的語系選單（assets/js/i18n.js）與深淺色切換（_includes/topbar.html），選單外觀比照主題原本在側欄的 #mode-toggle --- */
 
 #topbar .topbar-actions {
   gap: 0.5rem;
+
+  /* 手機版頂欄沒有左右內距，比照左側選單按鈕的 .btn 內距留白 */
+  @media (max-width: 991.98px) {
+    padding-right: 0.75rem;
+  }
 }
 
-/* 膠囊外框加深框線與文字，讓按鈕在頂欄中看得出來 */
-#topbar #lang-toggle {
+/* 外框加深框線與文字，讓按鈕在頂欄中看得出來 */
+#topbar :is(#lang-toggle, #mode-toggle) {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
   height: 2rem;
-  padding: 0 0.75rem;
   border: 1px solid color-mix(in srgb, var(--text-muted-color) 45%, transparent);
-  border-radius: 1rem;
   background: var(--main-bg);
   color: var(--text-color);
-  font-size: 0.875rem;
-  font-weight: 600;
   line-height: 1;
   text-decoration: none;
-  white-space: nowrap;
   transition: color 0.2s, border-color 0.2s;
 
   i {
@@ -185,16 +184,25 @@ html.mermaid-zoom-open {
     font-size: 0.875rem;
   }
 
-  .lang-caret {
-    font-size: 0.625rem;
-    opacity: 0.7;
-    transition: transform 0.2s;
-  }
-
   &:hover,
   &[aria-expanded='true'] {
     color: var(--link-color);
     border-color: var(--link-color);
+  }
+}
+
+#topbar #lang-toggle {
+  gap: 0.4rem;
+  padding: 0 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  .lang-caret {
+    font-size: 0.625rem;
+    opacity: 0.7;
+    transition: transform 0.2s;
   }
 
   &[aria-expanded='true'] .lang-caret {
@@ -212,7 +220,25 @@ html.mermaid-zoom-open {
   }
 }
 
-#lang-toggle {
+#topbar #mode-toggle {
+  justify-content: center;
+  width: 2rem;
+  padding: 0;
+  border-radius: 50%;
+
+  /* 主題只替側欄裡的 #mode-toggle 寫了這組規則：三個圖示只顯示目前模式那一個 */
+  > i {
+    display: none;
+  }
+}
+
+:root[data-bs-theme='light'][data-theme-persisted] #topbar #mode-toggle > i[data-theme-mode='light'],
+:root[data-bs-theme='dark'][data-theme-persisted] #topbar #mode-toggle > i[data-theme-mode='dark'],
+:root:not([data-theme-persisted]) #topbar #mode-toggle > i[data-theme-mode='system'] {
+  display: block;
+}
+
+:is(#lang-toggle, #mode-toggle) {
 
   + .dropdown-menu {
     min-width: 9rem;
@@ -250,6 +276,11 @@ html.mermaid-zoom-open {
       &:hover,
       &.active {
         background-color: var(--menu-highlight-bg);
+      }
+
+      > i {
+        color: var(--sidebar-btn-color);
+        margin-right: 0.5rem;
       }
     }
   }
