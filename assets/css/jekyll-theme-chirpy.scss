@@ -619,3 +619,31 @@ body:has(.consent-banner) .lang-hint {
     }
   }
 }
+
+/* --- 頁尾的 tab 連結列（搭配 _includes/footer.html） --- */
+
+/* 主題把頁尾高度寫死，多一列會溢出；改由內容撐開，最小高度維持主題原本的大小 */
+footer {
+  flex-wrap: wrap;
+  height: auto;
+  min-height: variables.$footer-height;
+
+  /* 寬螢幕時主題只留下方空白（pb-lg-3），上方補上相同距離 */
+  @media (min-width: 992px) {
+    padding-top: 1rem;
+  }
+
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.25rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+
+    /* 與版權列一樣靠左 */
+    @media (min-width: 992px) {
+      justify-content: flex-start;
+    }
+  }
+}

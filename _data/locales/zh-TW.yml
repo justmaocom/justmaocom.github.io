@@ -16,3 +16,7 @@ seo:
   page_title: "文章列表（第 :num 頁）"
   archives_description: "JustMao 的全部 :count 篇文章，依發布日期由新到舊排列。"
   categories_description: "JustMao 的文章分類總覽：:count 個分類，各自列出底下的文章。"
+
+# _includes/footer.html 頁尾 tab 連結列的 aria-label
+footer:
+  nav: 瀏覽文章
