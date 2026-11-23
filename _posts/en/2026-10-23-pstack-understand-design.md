@@ -15,9 +15,9 @@ Ask an AI coding assistant to "change this feature," and it often starts editing
 
 > pstack Series | Part 2
 >
-> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
-> - Previous (Part 1): [Install in Claude Code, then /poteto-mode](/posts/pstack-install-routing/)
-> - Next (Part 3): [After the code is written, prove it works before merging](/posts/pstack-build-verify-merge/)
+> - Series guide: [What It Is and Where to Start](/posts/pstack-series-guide/)
+> - Previous (Part 1): [Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/)
+> - Next (Part 3): [After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/)
 {: .prompt-info }
 
 > This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), at `cursor/plugins` commit `2f87c85` (05:47 on 2026-11-17, Taipei time), with Claude Code 2.1.326. I rechecked all five posts in the series against this version on 2026-11-17, and at that time `main` had no pstack changes after `2f87c85`; later versions may behave differently.

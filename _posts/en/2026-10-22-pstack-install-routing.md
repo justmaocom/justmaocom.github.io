@@ -17,8 +17,8 @@ pstack helps an AI coding assistant work in a more orderly way, but open it up a
 
 > pstack Series | Part 1
 >
-> - Series guide: [What pstack is and how to read the four parts](/posts/pstack-series-guide/)
-> - Next (Part 2): [Understand the code, then design, before you change it](/posts/pstack-understand-design/)
+> - Series guide: [What It Is and Where to Start](/posts/pstack-series-guide/)
+> - Next (Part 2): [Understand Code and Compare Designs First](/posts/pstack-understand-design/)
 >
 > **Version note**: This post is based on pstack [version `0.15.43`](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/.cursor-plugin/plugin.json), with Claude Code 2.1.326. That version is `cursor/plugins` commit `2f87c85` (2026-11-17 05:47 Taipei time). All five posts in the series were rechecked against this version on 2026-11-17, and when I checked, `cursor/plugins` main had no pstack changes after `2f87c85`. The Claude Code commands and menus follow the [official docs](https://code.claude.com/docs/en/plugins/install) as read on 2026-10-24. Later versions may change commands and behavior.
 {: .prompt-info }
