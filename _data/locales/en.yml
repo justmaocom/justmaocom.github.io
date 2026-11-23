@@ -16,3 +16,7 @@ seo:
   page_title: "All Posts (Page :num)"
   archives_description: "All :count posts on JustMao, newest first."
   categories_description: "Browse JustMao posts by topic: :count categories, each listing its posts."
+
+# _includes/footer.html 頁尾 tab 連結列的 aria-label
+footer:
+  nav: Browse posts
