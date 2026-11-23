@@ -22,8 +22,8 @@ Passing tests only mean the code behaves the way the tests say. In my view, thre
 > mattpocock/skills Series | Part 5
 >
 > - Previous (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
-> - Next (Part 6): [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
-> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+> - Next (Part 6): [Handoff and Research Skills](/posts/mattpocock-skills-research-handoff/)
+> - Series guide: [What It Is, How to Start](/posts/mattpocock-skills-series-guide/)
 {: .prompt-info }
 
 > Since this series started, `mattpocock/skills` has moved on to `1.3.x`. Two changes there affect this post:

@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning"
-description: "Not everything that slows a project down is code. Five skills (research, handoff, wizard, teach, and writing-for-agents), shown with a per-seat billing example."
+title: "mattpocock/skills, Part 6: Handoff and Research Skills"
+description: "How Matt Pocock's handoff skill works, plus research, wizard, teach, and writing-for-agents from mattpocock/skills, with a per-seat billing walkthrough."
 date: 2026-10-14 14:30:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, research, handoff, documentation, mattpocock]
@@ -24,7 +24,7 @@ This post covers the five skills `mattpocock/skills` uses for these: `research`,
 > mattpocock/skills Series | Part 6
 >
 > - Previous (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
-> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+> - Series guide: [What It Is, How to Start](/posts/mattpocock-skills-series-guide/)
 >
 > This post is based on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10), and all five skills are still there in the latest release, `1.3.1`. I inferred the skill invocations in the per-seat billing example from the original instructions. Only the syntax check on the wizard script is one I actually ran.
 {: .prompt-info }

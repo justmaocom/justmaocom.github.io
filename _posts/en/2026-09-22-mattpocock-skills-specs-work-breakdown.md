@@ -19,7 +19,7 @@ In the previous post, I walked you through settling the per-seat billing require
 >
 > - Previous (Part 2): [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/)
 > - Next (Part 4): [Trusting Code When the AI Writes the Tests](/posts/mattpocock-skills-implementation-feedback-loops/)
-> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+> - Series guide: [What It Is, How to Start](/posts/mattpocock-skills-series-guide/)
 >
 > I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10). I inferred the per-seat billing walkthrough from the original instructions.
 {: .prompt-info }

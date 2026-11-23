@@ -1,6 +1,6 @@
 ---
-title: "pstack Series Guide: What It Is and How to Read the Four Parts"
-description: "pstack is a set of agent skills from Cursor's plugin repo for Claude Code or Cursor. This guide covers what it is, how the four parts connect, and which to read first."
+title: "pstack Series Guide: What It Is and Where to Start"
+description: "What is pstack? A set of agent skills from Cursor's plugin repo for Claude Code and Cursor. See how the four parts connect and which one to read first."
 date: 2026-11-05 18:00:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
@@ -85,7 +85,7 @@ By the end, you'll see that you can get going without memorizing every skill nam
 
 → [Part 1: Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/)
 
-### Part 2: Understand the Code, Then Design, Before You Change It
+### Part 2: Understand Code and Compare Designs First
 
 When you're facing unfamiliar code, how do you get the AI to understand it before it starts editing? This part covers two groups of tools:
 
@@ -94,7 +94,7 @@ When you're facing unfamiliar code, how do you get the AI to understand it befor
 
 Most small changes don't need them. When you do need them, the order is understand first, compare designs, and only then change the code.
 
-→ [Part 2: Understand the Code, Then Design, Before You Change It](/posts/pstack-understand-design/)
+→ [Part 2: Understand Code and Compare Designs First](/posts/pstack-understand-design/)
 
 ### Part 3: After the Code Is Written, Prove It Works Before Merging
 
