@@ -1,6 +1,6 @@
 ---
-title: "mattpocock/skills Series Guide: What It Is and How to Read It"
-description: "Wondering whether mattpocock/skills is worth it, or stuck on one problem? A map of the six-part series: what each part answers and where to start."
+title: "mattpocock/skills Series Guide: What It Is, How to Start"
+description: "Matt Pocock's skills explained: what mattpocock/skills is, whether it's worth installing, what each part of the six-part series answers, and where to start."
 date: 2026-10-17 20:20:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, mattpocock, workflow]
@@ -138,11 +138,11 @@ The merge conflict in the post is one I actually created.
 
 → [Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
 
-### Part 6: Skills for Research, Handoffs, and Learning
+### Part 6: Handoff and Research Skills
 
 Work outside coding can stall a project too: looking up official docs, handing work to the next person, setup steps that need your own login, and learning a new topic. This part covers `research`, `handoff`, `wizard`, `teach`, and `writing-for-agents`, each with its own repeatable process.
 
-→ [Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/)
+→ [Part 6: Handoff and Research Skills](/posts/mattpocock-skills-research-handoff/)
 
 ## Start Where You're Stuck
 
@@ -169,4 +169,4 @@ If you already have the skills installed, you can also just ask `ask-matt`. Desc
 - [`README.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/README.md): the author's overview and installation instructions (version `1.2.3`).
 - [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47): the list of 25 skills in the official plugin.
 - [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90): the full route map `ask-matt` uses to suggest your next step.
-- [pstack Series Guide: What It Is and How to Read the Four Parts](/posts/pstack-series-guide/): my guide to another skill pack, pstack.
+- [pstack Series Guide: What It Is and Where to Start](/posts/pstack-series-guide/): my guide to another skill pack, pstack.

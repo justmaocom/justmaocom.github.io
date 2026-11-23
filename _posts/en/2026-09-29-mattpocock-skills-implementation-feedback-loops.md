@@ -21,7 +21,7 @@ But the AI wrote those tests too, so they might just vouch for the code it wrote
 >
 > - Previous (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
 > - Next (Part 5): [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/)
-> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+> - Series guide: [What It Is, How to Start](/posts/mattpocock-skills-series-guide/)
 >
 > I inferred the skill invocations in the per-seat billing example from the original instructions; the red and green test outputs shown in the post are real results from my own runs.
 {: .prompt-info }

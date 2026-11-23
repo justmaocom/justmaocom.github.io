@@ -19,7 +19,7 @@ I think of a skill, as used in this post, as a set of instructions that tells an
 >
 > - Previous (Part 1): [Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/)
 > - Next (Part 3): [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/)
-> - Series guide: [What It Is and How to Read It](/posts/mattpocock-skills-series-guide/)
+> - Series guide: [What It Is, How to Start](/posts/mattpocock-skills-series-guide/)
 >
 > I based this post on [version `1.2.3`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/package.json#L2-L10).
 {: .prompt-info }

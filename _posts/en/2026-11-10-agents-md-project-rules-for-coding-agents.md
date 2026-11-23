@@ -426,7 +426,7 @@ I suggest following "Hands-On: Create Your First AGENTS.md" and adding an AGENTS
 
 If you want to keep reading:
 
-- Why every line written for an assistant has a cost: see [mattpocock/skills, Part 6: Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/).
+- Why every line written for an assistant has a cost: see [mattpocock/skills, Part 6: Handoff and Research Skills](/posts/mattpocock-skills-research-handoff/).
 - Turning a rule into a check that runs at a fixed point: see the [hooks post](/posts/claude-code-hooks-automate-checks/).
 - I think long material such as a full architecture write-up doesn't belong in AGENTS.md. I discuss keeping it in a wiki inside the repo and pointing to it from AGENTS.md in [OpenWiki Can Track Code Changes, but It Can't Prove the Docs Are Correct](/posts/openwiki-agent-docs-maintenance/).
 - Official references: the [Codex AGENTS.md guide](https://learn.chatgpt.com/docs/agent-configuration/agents-md), the [Claude Code memory docs](https://code.claude.com/docs/en/memory#agents-md), and the [AGENTS.md site](https://agents.md/).

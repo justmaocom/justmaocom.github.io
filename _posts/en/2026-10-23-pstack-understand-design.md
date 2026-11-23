@@ -1,6 +1,6 @@
 ---
-title: "pstack, Part 2: Understand the Code, Then Design, Before You Change It"
-description: "Get AI to understand code and compare designs before changing it: when to use pstack's /how, /why, /architect, /interrogate, and /arena, plus /teach, /recall, /swarm, prototypes, and plans."
+title: "pstack, Part 2: Understand Code and Compare Designs First"
+description: "pstack Part 2 shows how to get the AI to understand code and compare designs before you change it: /how, /why, /architect, /interrogate, /arena, and /teach."
 date: 2026-10-23 21:45:00 +0800
 categories: [AI, skills]
 tags: [agent-skills, coding-agent, workflow, claude-code, cursor, pstack]
@@ -511,4 +511,4 @@ You don't need all of these every time. For a small change, just make it, and re
 - [pstack, Part 1: Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/): how to install, and how `/poteto-mode` sequences a task.
 - [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): SKILL.md structure and testing from the skill author's side.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what files an agent can read, and how to tighten permissions.
-- Another skill set's approach: [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/), [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/), [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/), [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/), and [Skills for Research, Handoffs, and Learning](/posts/mattpocock-skills-research-handoff/).
+- Another skill set's approach: [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/), [From Vague Requirements to Shared Terms](/posts/mattpocock-skills-requirements-shared-language/), [Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/), [Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/), and [Handoff and Research Skills](/posts/mattpocock-skills-research-handoff/).
