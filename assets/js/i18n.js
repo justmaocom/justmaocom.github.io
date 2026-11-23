@@ -8,7 +8,7 @@
  *    沒有手動選過的訪客，只在直接開啟首頁時依瀏覽器語系導向；從搜尋結果或別處的連結
  *    進來的，留在他點的那個語系版本（Google 不建議自動把使用者帶到另一個語系）。
  *    站內換頁不會再導向，所以使用者點進其他語系的連結後就留在那裡。
- * 2. 在頂欄搜尋框旁加上語系選單，選了之後記住該選擇。
+ * 2. 在頂欄右側加上語系選單，選了之後記住該選擇。
  * 3. 上面沒導向、但瀏覽器語系和頁面不同的站外訪客，在視窗底部顯示提示列，
  *    由使用者自己決定要不要切換。點連結等同在選單選了該語系；關閉後不再顯示。
  */
@@ -122,9 +122,8 @@
   }
 
   function buildSwitcher() {
-    // 放在 #search-trigger 前面：桌面版落在搜尋框左側，手機版落在放大鏡左側
-    const trigger = document.getElementById('search-trigger');
-    if (!trigger) return;
+    const actions = document.querySelector('#topbar .topbar-actions');
+    if (!actions) return;
 
     const paths = alternates();
     const group = document.createElement('div');
@@ -165,7 +164,7 @@
     });
 
     group.append(toggle, menu);
-    trigger.before(group);
+    actions.prepend(group);
   }
 
   // 條件與 redirect() 互補：站外進來、沒手動選過語系，只是不自動導向

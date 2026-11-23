@@ -8,7 +8,7 @@
 #
 # - og:url、JSON-LD 的 url 與 @id（jekyll-seo-tag 寫在 content 或 JSON 裡），以及分享按鈕的網址
 # - JSON-LD 裡作者的網址（_config.yml 的 author.url，指向「關於」頁）
-# - 搜尋框讀取的 search.json 路徑，以及 search.json 內各篇文章的 url
+# - search.json 內各篇文章的 url
 # - feed.xml、sitemap.xml 等非 HTML 輸出中的絕對網址
 #
 # 非預設語系不輸出 robots.txt：爬蟲只讀網域根目錄那一份。_config.yml 的 exclude_from_localization
@@ -52,8 +52,6 @@ module I18nHook
         .gsub(%("url":"#{ page_url }"), %("url":"#{ local_url }"))
         .gsub(%("@id":"#{ page_url }"), %("@id":"#{ local_url }"))
         .gsub(CGI.escape(page_url), CGI.escape(local_url)) # 分享按鈕的 query string
-        .gsub("'#{ site.baseurl }/assets/js/data/search.json'",
-              "'#{ site.baseurl }/#{ lang }/assets/js/data/search.json'")
 
       author_url = site.config.dig('author', 'url').to_s
       if author_url.start_with?("#{ origin }/")

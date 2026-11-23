@@ -56,6 +56,7 @@ _posts/          正式文章，簡體中文與英文譯文在 zh-CN/ 與 en/ �
 _drafts/         草稿，需要時再建立
 _tabs/           側邊欄頁面
 _includes/       覆寫或新增的主題片段
+_layouts/        覆寫的主題 layout
 _plugins/        自訂 Jekyll plugin，例如多語系網址改寫與 SEO 修正
 _data/           聯絡方式、分享選單、專案頁資料與各語系介面文字
 assets/img/      網站與文章圖片

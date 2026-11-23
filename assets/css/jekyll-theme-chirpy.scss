@@ -156,37 +156,27 @@ html.mermaid-zoom-open {
   }
 }
 
-/* --- 語系切換（搭配 assets/js/i18n.js），位於頂欄搜尋框旁，選單外觀比照主題的 #mode-toggle --- */
+/* --- 頂欄右側的語系選單（assets/js/i18n.js）與深淺色切換（_includes/topbar.html），選單外觀比照主題原本在側欄的 #mode-toggle --- */
 
-#topbar .lang-switcher {
-  /* 頂欄是 justify-content-between；桌面版吃掉左側空間，讓按鈕貼著搜尋框 */
-  @media (min-width: 992px) {
-    margin-left: auto;
-    margin-right: 0.75rem;
+#topbar .topbar-actions {
+  gap: 0.5rem;
+
+  /* 手機版頂欄沒有左右內距，比照左側選單按鈕的 .btn 內距留白 */
+  @media (max-width: 991.98px) {
+    padding-right: 0.75rem;
   }
 }
 
-/* 手機版展開搜尋時，主題會隱藏頂欄其他按鈕並顯示「取消」，語系按鈕跟著收起 */
-#topbar:has(#search-cancel.d-block) .lang-switcher {
-  display: none;
-}
-
-/* 膠囊外框比照搜尋框，並加深框線與文字，讓按鈕在頂欄中看得出來 */
-#topbar #lang-toggle {
+/* 外框加深框線與文字，讓按鈕在頂欄中看得出來 */
+#topbar :is(#lang-toggle, #mode-toggle) {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
   height: 2rem;
-  padding: 0 0.75rem;
   border: 1px solid color-mix(in srgb, var(--text-muted-color) 45%, transparent);
-  border-radius: 1rem;
   background: var(--main-bg);
   color: var(--text-color);
-  font-size: 0.875rem;
-  font-weight: 600;
   line-height: 1;
   text-decoration: none;
-  white-space: nowrap;
   transition: color 0.2s, border-color 0.2s;
 
   i {
@@ -194,16 +184,25 @@ html.mermaid-zoom-open {
     font-size: 0.875rem;
   }
 
-  .lang-caret {
-    font-size: 0.625rem;
-    opacity: 0.7;
-    transition: transform 0.2s;
-  }
-
   &:hover,
   &[aria-expanded='true'] {
     color: var(--link-color);
     border-color: var(--link-color);
+  }
+}
+
+#topbar #lang-toggle {
+  gap: 0.4rem;
+  padding: 0 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  .lang-caret {
+    font-size: 0.625rem;
+    opacity: 0.7;
+    transition: transform 0.2s;
   }
 
   &[aria-expanded='true'] .lang-caret {
@@ -221,7 +220,25 @@ html.mermaid-zoom-open {
   }
 }
 
-#lang-toggle {
+#topbar #mode-toggle {
+  justify-content: center;
+  width: 2rem;
+  padding: 0;
+  border-radius: 50%;
+
+  /* 主題只替側欄裡的 #mode-toggle 寫了這組規則：三個圖示只顯示目前模式那一個 */
+  > i {
+    display: none;
+  }
+}
+
+:root[data-bs-theme='light'][data-theme-persisted] #topbar #mode-toggle > i[data-theme-mode='light'],
+:root[data-bs-theme='dark'][data-theme-persisted] #topbar #mode-toggle > i[data-theme-mode='dark'],
+:root:not([data-theme-persisted]) #topbar #mode-toggle > i[data-theme-mode='system'] {
+  display: block;
+}
+
+:is(#lang-toggle, #mode-toggle) {
 
   + .dropdown-menu {
     min-width: 9rem;
@@ -259,6 +276,11 @@ html.mermaid-zoom-open {
       &:hover,
       &.active {
         background-color: var(--menu-highlight-bg);
+      }
+
+      > i {
+        color: var(--sidebar-btn-color);
+        margin-right: 0.5rem;
       }
     }
   }
@@ -683,5 +705,103 @@ footer {
   /* 比照側欄 tab 的圖示 */
   li i {
     opacity: 0.8;
+  }
+}
+
+/* --- 首頁搜尋（搭配 _includes/post-search.html 與 assets/js/post-search.js） --- */
+
+/* 上方間距比照主題的 #post-list，由搜尋欄佔用；卡片改成緊接在搜尋欄下方 */
+#post-search {
+  margin-top: 2rem;
+
+  @media (min-width: 992px) {
+    margin-top: 2.5rem;
+  }
+}
+
+#post-list {
+  margin-top: 1.5rem;
+}
+
+.post-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.5rem 0 1rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+  color: var(--text-muted-color);
+  transition: border-color 0.2s;
+
+  &:focus-within {
+    border-color: var(--link-color);
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    height: 3rem;
+    border: 0;
+    background: transparent;
+    color: var(--text-color);
+    /* 至少 16px，iOS 聚焦時才不會自動放大頁面 */
+    font-size: 1rem;
+    outline: none;
+
+    /* 已有自己的「清除」按鈕 */
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
+  }
+}
+
+.post-search-clear {
+  flex-shrink: 0;
+  padding: 0.25rem 0.5rem;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  color: var(--text-muted-color);
+  font-size: 0.875rem;
+
+  &:hover,
+  &:focus-visible {
+    color: var(--link-color);
+  }
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.post-search-status {
+  margin: 1.25rem 0 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--main-border-color);
+  color: var(--text-muted-color);
+  font-size: 0.875rem;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.post-search-results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  &:empty {
+    display: none;
+  }
+
+  li {
+    border-bottom: 1px solid var(--main-border-color);
+  }
+
+  a {
+    display: block;
+    padding: 0.75rem 0;
   }
 }

@@ -23,6 +23,7 @@ exclude_from_localization:
   - assets/js/mermaid-zoom.js
   - assets/js/i18n.js
   - assets/js/consent.js
+  - assets/js/post-search.js
   - assets/robots.txt
   - CNAME
   - google5762b861fb04640c.html

@@ -56,6 +56,7 @@ _posts/          Posts, with Simplified Chinese and English translations in zh-C
 _drafts/         Drafts, created when needed
 _tabs/           Sidebar pages
 _includes/       Theme partials that this site overrides or adds
+_layouts/        Theme layouts that this site overrides
 _plugins/        Custom Jekyll plugins, such as localized URL rewriting and SEO fixes
 _data/           Contact links, the share menu, project page data, and UI strings per language
 assets/img/      Site and post images
