@@ -20,3 +20,5 @@ bde76fa15403549d41a73e6d644c563ad28ffac2 # docs(posts): 補上同主題文章之
 81c8bccc33c7830c1e2a4dd63b848feb65ccc691 # docs(posts): 英文文章引用 mattpocock/skills 第 1 篇的連結文字改成新標題
 1134dd0c6d04e4b0e79b5c6ef2c22b264d467c83 # fix(seo): mattpocock/skills 第 1 篇英文標題加上 Install 與 /ask-matt
 d33a8df53931e04a8098fc055e187f6a09a715bd # fix(posts): mattpocock/skills 第 1 篇英文封面配合新標題重畫文字
+e5f45f19812bd4a1e605da2be35a311626bdb061 # fix(seo): 英文 pstack 與 mattpocock/skills 四篇的標題與描述改成貼近搜尋查詢
+4059dc69580af818bb5c799b89ce493c0d239ebf # fix(posts): mattpocock/skills 第 6 篇英文封面配合新標題重畫文字
