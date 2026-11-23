@@ -627,6 +627,8 @@ footer {
   flex-wrap: wrap;
   height: auto;
   min-height: variables.$footer-height;
+  /* 主題在 850px 以下才有上下留白，850–991px 直排三列時會貼著框線 */
+  padding-block: 1.5rem;
 
   /* 寬螢幕時主題只留下方空白（pb-lg-3），上方補上相同距離 */
   @media (min-width: 992px) {
