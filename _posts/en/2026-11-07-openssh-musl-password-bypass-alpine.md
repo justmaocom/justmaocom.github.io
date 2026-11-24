@@ -289,6 +289,8 @@ The useful habit from this is to check "how I normally log in" separately from "
 
 To verify a fix, I would check the distribution's advisory, the package version, and whether the service has been restarted. Checking all three helps avoid an updated package leaving an old service running and accepting connections.
 
+PHP has the same gap: after a package upgrade, running PHP processes may still use the old files. To find them, see [PHP CVE-2026-109618: How to Fix Exploited php2shell Flaws](/posts/php2shell-cve-2026-109618/).
+
 Version numbers alone can mislead in the other direction too. In [From a Forum Image Upload to Codex: The HEIF and SSO Attack on OpenAI](/posts/openai-libheif-sso-attack-chain/), the distribution had backported the security fix while the upstream version number stayed the same.
 
 ## Main sources

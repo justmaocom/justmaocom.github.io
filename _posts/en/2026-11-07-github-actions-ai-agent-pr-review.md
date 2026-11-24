@@ -140,6 +140,8 @@ Ask the agent for the file, passage, evidence, and impact of each finding. A fin
 
 No findings means only that the review reported no issues. It does not replace editing, fact-checking, or approval to merge.
 
+Codex Security, a dedicated vulnerability scanner, is no different: per the official docs, a report with no findings doesn't rule out vulnerabilities. For how to run a scan, see [Codex Security Tutorial: Scan Your Own Repo With cs scan](/posts/codex-security-cs-scan-repo/).
+
 ![Automated checks enforce fixed rules, AI flags possible problems, and a person verifies sources and decides whether to merge.](review-roles.webp){: w="800" h="450" }
 _Keep the three apart: fixed rules, questions that take reasoning, and the decision to merge._
 

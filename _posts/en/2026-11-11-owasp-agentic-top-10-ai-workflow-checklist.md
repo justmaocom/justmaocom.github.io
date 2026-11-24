@@ -215,6 +215,7 @@ Other measures:
 
 - In Cursor, use `.cursorignore` to block agent access to specific files.
 - If CI still publishes packages with a long-lived npm token, you can switch to short-lived credentials. That is my own worked example, not a method named in the OWASP text; see my post [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/).
+- The Codex Security CLI inherits environment variables when it scans, including unrelated API tokens and cloud credentials. In [Codex Security Tutorial: Scan Your Own Repo With cs scan](/posts/codex-security-cs-scan-repo/), I clear those variables before scanning. That is also my own worked example, not a method named in the OWASP text.
 - Code running in GitHub Actions can use the workflow's `GITHUB_TOKEN` to act on your repo. GitHub recommends setting its default permission to read-only for repository contents. To do that, put `permissions: contents: read` at the top of the workflow, and grant more only in the job (a group of steps in a workflow) that needs it. See the [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use).
 
 ### ASI04 Agentic Supply Chain Vulnerabilities: What You Installed Is Compromised

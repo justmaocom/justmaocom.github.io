@@ -215,6 +215,7 @@ flowchart TD
 
 - Cursor 可以用 `.cursorignore` 擋住 agent 存取特定檔案。
 - CI 發布套件若還在用長期 npm token，可以改用短期憑證。這是我自己的對照例子，不是 OWASP 原文提到的做法，說明見我寫的[npm Trusted Publishing 設定教學：發套件不再放長期 token](/posts/npm-trusted-publishing-github-actions/)。
+- Codex Security CLI 掃描時會繼承環境變數，包括和掃描無關的 API token 與雲端憑證。我在[Codex Security 教學：用 cs scan 掃描自己的 repo](/posts/codex-security-cs-scan-repo/)裡先清掉這些變數再掃描。這也是我自己的對照例子，不是 OWASP 原文提到的做法。
 - 在 GitHub Actions 裡跑的程式，可以用 workflow 的 `GITHUB_TOKEN` 操作你的 repo。GitHub 建議把它的預設權限設成只能讀 repo 內容。做法是在 workflow 頂層寫 `permissions: contents: read`，個別 job（workflow 裡的一組工作）真正需要時再打開。說明見 [Secure use reference](https://docs.github.com/en/actions/reference/security/secure-use)。
 
 ### ASI04 Agentic Supply Chain Vulnerabilities：供應鏈
