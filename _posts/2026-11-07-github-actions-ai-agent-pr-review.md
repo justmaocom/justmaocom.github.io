@@ -23,9 +23,11 @@ image:
 - **commit**：一次存檔的版本紀錄。PR 送出後再補的修改，也會成為新的 commit。
 - **AI Agent**：能自己讀檔案、比對內容並提出意見的 AI 助手。本站公開 PR 上看到的審查，來自 OpenAI 的 Codex。
 
-其他術語會在第一次出現時說明。我想解決的問題很具體：**每次送審，都能說清楚檢查了什麼、檢查的是哪一版，以及還有哪些事必須由人決定。**
+其他術語會在第一次出現時說明。
 
-> **查證範圍**：我在 2026-11-07 查閱了本站原始碼與公開 PR。站台設定以 commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995) 為準，案例是已合併的 [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29)。文末的自訂 Codex Action 只是擴充範例。
+我想解決的問題很具體：**每次送審，都能說清楚檢查了什麼、檢查的是哪一版，以及還有哪些事必須由人決定。**
+
+> **查證範圍**：我在 2026-11-07 查閱了本站原始碼與公開 PR，2026-11-24 重新核對 Codex 與 GitHub 文件。站台設定以 commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995) 為準，案例是已合併的 [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29)。文末的自訂 Codex Action 只是擴充範例。
 {: .prompt-info }
 
 ## 審查後還會改內容，就要記清楚審了哪一版
@@ -46,7 +48,7 @@ image:
 
 - **workflow**：一份自動化設定。
 - **job**：workflow 裡各自執行的工作段落。
-- **CI**（Continuous Integration，持續整合）：每次修改都自動重跑同一套檢查。同一個 workflow 也可以負責部署，那一步就不是檢查。
+- **CI**（Continuous Integration，持續整合）：每次修改都自動重跑同一套檢查。CI 用的 workflow 也可以負責部署，但部署不算檢查。
 
 本站的 [Build and Deploy workflow](https://github.com/justmaocom/justmaocom.github.io/blob/15a6041c0974248f91f3dd678a35ace5d1bec995/.github/workflows/pages-deploy.yml) 有三個 job：
 
@@ -66,9 +68,9 @@ flowchart LR
   D -->|否| DP[deploy 到 GitHub Pages]
 ```
 
-`deploy` 的執行條件是 `github.event_name != 'pull_request'`，所以 PR 的檢查不會直接發布網站。但推送到 `main`／`master` 或手動觸發也會部署，因此不能說「只有合併 PR 才可能部署」。
+`deploy` 的執行條件是 `github.event_name != 'pull_request'`，所以 PR 的檢查不會直接發布網站。直接推送到 `main`／`master` 或手動觸發也會部署，不一定要經過合併 PR。
 
-兩種事件的路徑過濾也不同。push 有 `paths-ignore`，但只排除 `.gitignore`、`README.md` 與 `LICENSE`。`pull_request` 沒有路徑過濾，所以只新增文章的 PR 仍會跑 `build` 和 `lib`。
+push 和 `pull_request` 的路徑過濾也不一樣。push 有 `paths-ignore`，但只排除 `.gitignore`、`README.md` 與 `LICENSE`。`pull_request` 沒有路徑過濾，所以只新增文章的 PR 仍會跑 `build` 和 `lib`。
 
 固定規則有明確的邊界，通過不代表內容沒有問題：
 
@@ -77,15 +79,15 @@ flowchart LR
 
 ### Codex：在 PR 裡做 AI 審查
 
-另一種檢查出現在 PR 的討論區。[PR #29 的 Codex 摘要](https://github.com/justmaocom/justmaocom.github.io/pull/29#issuecomment-6655342679) 顯示，開 PR 時已經有一次完成的 Codex Code Review，那一列的觸發欄寫的是 PR opened。
+另一種檢查出現在 PR 的討論區。[PR #29 的 Codex 摘要](https://github.com/justmaocom/justmaocom.github.io/pull/29#issuecomment-6655342679) 顯示開 PR 時已經跑完一次 Codex Code Review，摘要表格的觸發欄寫著 PR opened。
 
-這則留言來自 Codex 的 GitHub 整合（帳號 `chatgpt-codex-connector`），不寫在上面那份 workflow 裡。所以 workflow 中找不到 `openai/codex-action`，不代表本站沒有 AI 審查；也不能說這次審查是由 Actions 啟動的。
+這則留言來自 Codex 的 GitHub 整合（帳號 `chatgpt-codex-connector`），這個整合不在上面那份 workflow 裡。所以 workflow 中找不到 `openai/codex-action`（文末介紹的 Codex Action），不代表本站沒有 AI 審查。這次審查也不是由 Actions 啟動的。
 
-在我看來，AI 審查的長處是能讀懂文字、比對前後說法，找出需要推理才看得出的疑點。
+在我看來，和固定規則相比，AI 審查的長處是能讀懂文字、比對前後說法，找出需要推理才看得出的疑點。
 
 ## 案例：PR #29 審完之後，內容又改了
 
-這個 PR 是我送審的。它新增三語版本的 [pstack 系列導讀](/posts/pstack-series-guide/)，同時修改四篇文章的導覽連結，涵蓋正體中文、英文與簡體中文。本站三個語系怎麼維護，我寫在[Jekyll 多語系部落格：用 polyglot 維護繁簡英三版](/posts/jekyll-blog-three-languages/)。
+這個 PR 是我送審的。它新增 [pstack 系列導讀](/posts/pstack-series-guide/) 的三語版本，並修改四篇舊文在三個語系的導覽連結。本站三個語系怎麼維護，我寫在[Jekyll 多語系部落格：用 polyglot 維護繁簡英三版](/posts/jekyll-blog-three-languages/)。
 
 要判斷「審的是哪一版」，得先認得版本編號。每個 commit 都有一組由英文字母和數字組成的唯一編號，稱為 **SHA**，文中只列出前七碼。PR 當下最新的那個 commit，稱為 **head**。
 
@@ -94,18 +96,18 @@ flowchart LR
 - [`6857f1f`](https://github.com/justmaocom/justmaocom.github.io/commit/6857f1fc9eae761b018d8c48ad6b77c017d991ab)：初版。Codex 摘要記載的受審 commit 就是這一版，狀態為完成，沒有 findings（審查提出的問題）。
 - [`ff4455b`](https://github.com/justmaocom/justmaocom.github.io/commit/ff4455b570ad97936f0cce3083fdf8c4ccfecee3)：合併前的 head。初版之後，先有一個 commit 修改三語文字。最後這個 commit 再把指向 GitHub 目錄的連結從 `blob` 改成 `tree`，並把簡體中文的「关光」改成「关掉」。
 
-由此我只能得出有限的結論：**摘要裡那次 Codex 審查對應的是初版 `6857f1f`，不能拿來證明最後的 `ff4455b` 也經過同一次審查。** 公開摘要沒有列出的檢查，我不推測它做過，也不據此斷言後來的修改完全沒人看過。
+由此我只能得出有限的結論：**摘要裡那次 Codex 審查對應的是初版 `6857f1f`，不能拿來證明最後的 `ff4455b` 也經過同一次審查。** 公開摘要沒有列出的檢查，我不推測 Codex 做過。我也不據此斷言後來的修改完全沒人看過。
 
-在我看來，最後這兩項修正正好說明為什麼需要分工：
+在我看來，最後這個 commit 裡的兩項修正正好說明為什麼需要分工：
 
 - GitHub 連結的路徑對不對，要查原始資料，或另外做外部連結檢查。
 - 「关光」這類用詞，要靠語言審稿。
 
-網站建置成功、AI 沒提出問題，都無法單獨涵蓋這兩件事。這也不表示 Codex 漏看了最後的修正，因為我手上的摘要，本來就只對應更早的版本。
+網站建置成功、AI 沒提出問題，都無法單獨涵蓋這兩件事。
 
 ## 分工：固定規則、AI 推理、人工核准
 
-我會先沿用本站既有的 Actions 與 Codex 整合，讓三方在同一個 PR 裡各自提供證據：
+我會先沿用本站既有的 Actions 與 Codex 整合，讓 Actions、Codex 和人在同一個 PR 裡各自提供證據：
 
 ```mermaid
 flowchart TD
@@ -125,7 +127,7 @@ flowchart TD
 bash tools/test.sh
 ```
 
-它會重建正式版網站，再檢查各語系網址與站內連結，但不包含 `lib` job 的 npm 資源比對。CI 失敗時，就算 AI 沒提出問題，我也不會算它通過。
+它會重建正式版網站，再檢查各語系網址、SEO 輸出與站內連結，但不包含 `lib` job 的 npm 資源比對。CI 失敗時，就算 AI 沒提出問題，我也不會把這次修改算成通過。
 
 **需要推理的疑點交給 AI Agent。** 例如：
 
@@ -141,11 +143,11 @@ bash tools/test.sh
 ![自動檢查確認固定規則，AI 找出內容疑點，人核對來源並決定是否合併。](review-roles.webp){: w="800" h="450" }
 _三件事分開做：固定規則、需要推理的疑點，以及能不能合併。_
 
-## 實作步驟
+## 沿用現有的 Codex 整合，補交後再核對新版
 
 ### 步驟一：用現有的 Codex 整合觸發審查
 
-我不會急著多裝一個 bot（自動執行任務的機器人帳號）。[Codex 官方文件](https://developers.openai.com/codex/cloud/code-review) 說明了兩種啟動方式：在 Codex 設定中為儲存庫開啟自動審查，或在 PR 留言：
+我不會急著多裝一個 bot（自動執行任務的機器人帳號）。[Codex 官方文件](https://learn.chatgpt.com/docs/third-party/github) 說明了兩種啟動方式：在 Codex 設定中為儲存庫開啟自動審查，或在 PR 留言：
 
 ```text
 @codex review
@@ -157,15 +159,15 @@ _三件事分開做：固定規則、需要推理的疑點，以及能不能合�
 @codex review for issues in the database migration
 ```
 
-下一節的審查要求也可以這樣交；要每次都沿用，做法見下一節。
-
 PR #29 那則公開留言列出的觸發方式有三種：
 
 - 開啟 PR
 - 把草稿標成可審查
 - 留言 `@codex review`
 
-它沒有把補交 commit 列進去。設定頁還可以另外選擇 Review trigger，所以我不會從這一次紀錄推論以後每次補交都會重審。到 Codex 設定頁確認自動審查在哪些事件觸發，再決定補交 commit 後由誰、在什麼時候要求重審。
+它沒有把補交 commit 列進去。但設定頁還能另外選擇 Review trigger，所以單憑這一則留言，我無法推論補交後會不會自動重審。到 Codex 設定頁確認自動審查在哪些事件觸發，再決定補交 commit 後由誰、在什麼時候要求重審。
+
+步驟二的審查要求也可以接在 `@codex review` 後面一起送出。每次都要沿用的話，做法也在步驟二。
 
 ### 步驟二：附上審查要求（可複製）
 
@@ -180,15 +182,17 @@ PR #29 那則公開留言列出的觸發方式有三種：
 無法取得來源或只看過部分變更時，明說限制，不宣稱全數通過。
 ```
 
-這份要求表達的是我希望審查關注的方向，不保證逐項回覆。我查閱時，官方文件寫明 GitHub 上的 Code Review 只標出 P0、P1 這類高優先級問題（最嚴重、最該先處理的問題）。若要逐段校對文字，或一定要拿到固定欄位的完整報告，需要另外設計流程。
+這份要求表達的是我希望審查關注的方向，不保證逐項回覆。原因之一是，我查閱時官方文件寫明 GitHub 上的 Code Review 只標出 P0、P1 這類高優先級問題（最嚴重、最該先處理的問題）。若要逐段校對文字，或一定要拿到固定欄位的完整報告，需要另外設計流程。
 
-要長期沿用，官方文件的做法是把規則寫進儲存庫裡的 `AGENTS.md`（寫給 Agent 讀的專案規則檔），並用 `## Code Review Rules` 當標題。Codex 在 GitHub 上讀的是儲存庫裡的檔案。
+要長期沿用，官方文件的做法是把規則寫進儲存庫裡的 `AGENTS.md`（寫給 Agent 讀的專案規則檔），並用 `## Code Review Rules` 當標題。
 
-我目前把 `AGENTS.md` 列在 `.gitignore`（不納入版本控制的檔案清單），未提交的檔案不會出現在公開 PR 裡。要讓團隊和 GitHub 上的審查共用這份規則，必須另外決定怎麼追蹤這個檔案。寫法見我寫的 [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
+Codex 在 GitHub 上讀的是儲存庫裡的檔案。但我目前把 `AGENTS.md` 列在 `.gitignore`（不納入版本控制的檔案清單），所以這份規則不會出現在公開 PR 裡。
+
+要讓團隊和 GitHub 上的審查共用這份規則，必須另外決定怎麼追蹤這個檔案。`AGENTS.md` 的寫法見我寫的 [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
 
 ### 步驟三：補交 commit 後，確認審到的是新版
 
-以 PR #29 為例，我希望合併前看到的不是一句「審完了」。文章改過之後，舊的審查仍屬於舊版，新版要重新核對。
+合併前，我想看到的不是一句「審完了」。以 PR #29 來說，文章在審查後又改過，舊的審查只屬於舊版，新版要重新核對。
 
 ![文章更新後，舊版的審查紀錄仍屬於舊版，新版需要重新確認檢查範圍。](review-latest-revision.webp){: w="800" h="450" }
 _舊版上的審查便條不能直接拿來證明新版；改過的段落要重新看過。_
@@ -213,7 +217,7 @@ AI：列出受審 head、報告連結、未涵蓋範圍
 
 第 3 項核對 CI 版本時有個細節：CI 實際取出的不是 PR head。
 
-本站這份 workflow 取出程式碼時沒有另外指定版本，取出的是 `GITHUB_SHA`，也就是這次執行實際取出的版本編號。依 [GitHub 文件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)，`pull_request` 的 `GITHUB_SHA` 是 PR 與目標分支合成的 merge commit（暫時合併後的版本）。
+本站這份 workflow 取出程式碼時沒有另外指定版本，取出的是 `GITHUB_SHA` 指向的版本。依 [GitHub 文件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)，`pull_request` 的 `GITHUB_SHA` 是 PR 與目標分支合成的 merge commit（暫時合併後的版本）。
 
 ```mermaid
 flowchart LR
@@ -223,7 +227,9 @@ flowchart LR
   C -->|檢查結果標在| H
 ```
 
-GitHub 仍把檢查結果標在 PR head 上。PR #29 最後一次 `build`／`lib` 的 head 就是 `ff4455b`，所以比對時要同時記下這個 head。PR 有合併衝突時，這次 `pull_request` workflow 不會跑，要先解衝突。
+GitHub 仍把檢查結果標在 PR head 上，所以和 AI 受審的版本比對時，看的是 head。PR #29 最後一次 `build`／`lib` 標在 `ff4455b`，就是合併前的 head。
+
+另外，PR 有合併衝突時，`pull_request` workflow 不會跑，要先解衝突。
 
 ## 進階：何時才需要自訂 Codex Action
 
@@ -261,16 +267,16 @@ GitHub 仍把檢查結果標在 PR head 上。PR #29 最後一次 `build`／`lib
 
 `openai-api-key` 從 GitHub 的 secrets（加密保存的機密設定）讀取金鑰，`prompt-file` 指向事先準備好的審查提示詞。另外兩項用來限制 Codex 的權限。
 
-這個範例依據的是固定在特定版本的 [README](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md)。它說明 permission profiles 需要 Codex CLI `0.138.0` 以上，我查閱時仍是 beta（測試階段）。
+`:read-only` 限制 Codex 執行的命令能存取哪些檔案與網路。`drop-sudo` 限制的是 Codex 程序本身的權限。設定時有兩種組合不能用：
 
-`:read-only` 限制命令能存取的檔案與網路；`drop-sudo` 處理程序的權限，兩者分工不同。有兩種組合不能用：
-
-- 同時填 `permission-profile` 和舊的 `sandbox` input：action 會在啟動前拒絕。
+- 同時填 `permission-profile` 和舊的 `sandbox` input：action 會在 Codex 啟動前就失敗。
 - `safety-strategy: read-only` 搭配 permission profile：它會改走舊的唯讀 sandbox，所以不能一起用。它也不是 `:read-only` 的另一種寫法。
+
+這個範例依據的是固定在特定版本的 [README](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md)。它說明 permission profiles 需要 Codex CLI `0.138.0` 以上，我查閱時仍是 beta（測試階段）。
 
 `uses` 那一行最後的長編號就是 SHA，用來固定 action 的版本。但它只固定 action 本身，不會自動固定它安裝的 Codex CLI 或使用的模型。正式導入時，還要選定測過的 `codex-version`、模型與報告格式，記錄這些版本，並確認 runner 支援所需的隔離機制。
 
-依照[官方安全建議](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md)，審查和發文要拆成兩個 job：
+[官方安全文件](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md)建議把 Codex 放在 job 的最後一步，並說明可以把輸出交給新的 job。README 的範例就把審查和發文拆成兩個 job：
 
 ```mermaid
 flowchart LR
@@ -283,19 +289,21 @@ flowchart LR
   R -->|"job output、needs"| N
 ```
 
-留言的內容來自 `steps.review.outputs.final-message`。先把它映射成審查 job 的 output，再由新的發文 job 透過 `needs` 讀取。官方的另外兩項建議：
+留言的內容來自 `steps.review.outputs.final-message`。先把它映射成審查 job 的 output，再由新的發文 job 透過 `needs` 讀取。
 
-- 報告是資料，不要插進 shell 或 JavaScript 原始碼裡執行。
+README 的範例用 `env` 把報告交給發文步驟，安全文件也要求不受信任的值經 `env` 傳進 shell。依此，我建議把報告當成資料，不要插進 shell 或 JavaScript 原始碼裡執行。
+
+另外兩項是我自己的建議：
+
 - 先採建議模式，讓人讀完再決定要不要修。「action 執行成功」不等於「內容獲得核准」。
+- 自訂的回報程式在發出結果前，重新讀一次 PR 的 head。若 head 已經改變，就把舊報告標示為過期，並安排審查最新版本。
 
-自訂的回報程式在發出結果前，還要重新讀一次 PR 的 head。若 head 已經改變，就把舊報告標示為過期，並安排審查最新版本。
+`concurrency` 可以讓同一個群組不要同時跑。它的行為是：
 
-`concurrency` 用來限制同一個群組不要同時跑，但它不能取代版本核對：
-
-- 只寫群組時，新的 run 會等待，並取消還在排隊的舊 run。
+- 只寫群組時，新的 run 預設會等待，並取消還在排隊的舊 run。
 - 要連進行中的也停掉，必須另外設 `cancel-in-progress: true`。
 
-本站的 Build and Deploy workflow 有這組設定，取消的是同一 ref 上尚未完成的建置或部署。用在自訂審查時，它也只能停掉還沒跑完的 run，不能撤回已經發出的報告。
+本站的 Build and Deploy workflow 兩項都設了，會取消同一 ref 上尚未完成的建置或部署。用在自訂審查時，它也只能停掉還沒跑完的 run，不能撤回已經發出的報告，所以取代不了上面的 head 核對。
 
 ### 觸發條件與權限也要一起設計
 
@@ -315,33 +323,31 @@ flowchart LR
 - 它預設只接受對儲存庫有寫入權限的觸發者。
 - 來自 fork（別人複製出去的儲存庫副本）的 PR，通常拿不到 Actions secrets，也就沒有 API key 可跑。
 
-能不能把結果留在 PR 上，是另一件事。`GITHUB_TOKEN` 是 workflow 執行時自動取得的權杖：
+能不能把結果留在 PR 上，是另一件事。`GITHUB_TOKEN` 是 workflow 執行時自動取得的權杖，權限要看 PR 從哪裡來：
 
 - fork 來的 PR：這個權杖是唯讀。
 - 同一個儲存庫的 PR：看 workflow 或儲存庫怎麼設權限。
 
-本站現有 workflow 在頂層把 `contents` 設成 `read`，也沒有給 `pull-requests: write`。所以那份 workflow 不能拿它發審查留言，自訂審查若要留言，得在另一個 job 明確給發文權限。
+本站現有 workflow 在頂層把 `contents` 設成 `read`，也沒有給 `pull-requests: write`。所以那份 workflow 不能用 `GITHUB_TOKEN` 發審查留言。自訂審查若要留言，得在另一個 job 明確給發文權限。
 
 遇到 fork PR 沒有 secret，或觸發者沒有權限時，應明確跳過或等維護者處理，不要為了讓它跑起來而放寬所有人的權限。我建議第一版只處理同一儲存庫內、可信任協作者的 PR；有外部投稿需求時，再把信任、隔離與回報方式設計完整。
 
 **不要為了取得 secret，就改用 `pull_request_target`，再 checkout（取出）並執行外部 PR 的程式。** PR 的文字、diff 和新增的 `AGENTS.md`，都可能夾帶不可信任的指令。提示詞裡的提醒有幫助，但真正的權限仍要靠 runner、token 與隔離設定約束。
 
-也不要為了方便，用 `allow-users: "*"` 對所有人開放 API 用量。這些限制在 [GitHub 安全指南](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) 與上述 Codex Action 安全文件中都有說明。
+也不要為了方便，用 `allow-users: "*"` 對所有人開放 API 用量。這些限制在 [GitHub 安全指南](https://docs.github.com/en/actions/reference/security/secure-use) 與上述 Codex Action 安全文件中都有說明。
 
 ## 下一步：回頭看實際紀錄
 
-照這套流程，每個 PR 合併前都會留下一份可追查的紀錄。下一次打開 PR，你會知道自己正在核准什麼。
-
-導入之後，回頭看實際紀錄：哪些建議被採用、哪些只是噪音、每次審查花了多少時間與用量。
+這套審查流程跑一段時間後，統計三件事：哪些建議被採用、哪些只是噪音、每次審查花了多少時間與用量。
 
 本站的案例給我的提醒是：先把現有證據串好，往往就能改善審查。Actions 負責可重現的檢查，Agent 提出有依據的疑點，人核對引用、文字與發布範圍。三者都對應到同一份變更，核准才有意義。
 
 ## 參考資料與延伸閱讀
 
 - [本站 workflow：`15a6041` 版本](https://github.com/justmaocom/justmaocom.github.io/blob/15a6041c0974248f91f3dd678a35ace5d1bec995/.github/workflows/pages-deploy.yml)與 [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29)：現況與案例的依據。
-- [Codex Code Review 官方文件](https://developers.openai.com/codex/cloud/code-review)：GitHub 整合、自動審查、審查規則與手動觸發。
+- [Codex Code Review 官方文件](https://learn.chatgpt.com/docs/third-party/github)：GitHub 整合、自動審查、審查規則與手動觸發。
 - [Codex Action 固定版本 README](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md)與[安全文件](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md)：input、輸出、權限與 job 分工。
-- [GitHub：workflow 觸發事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)、[安全指南](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions)、[受保護分支](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)：事件、token 與合併門檻。
+- [GitHub：workflow 觸發事件](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request)、[安全指南](https://docs.github.com/en/actions/reference/security/secure-use)、[受保護分支](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)：事件、token 與合併門檻。
 - [pstack 系列（3）：寫完程式之後，先證明它能用再合併](/posts/pstack-build-verify-merge/)：把驗證和送審排進 Agent 的工作流程。
 - [裝了第三方 skill 和 MCP 之後，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：為什麼讀檔、執行命令與持有憑證要分開考慮。
 - [Claude Code hooks 教學：自動排版、跑測試與敏感檔提醒](/posts/claude-code-hooks-automate-checks/)：送出 PR 之前，先在 Claude Code 的工作階段裡自動排版、跑測試。
