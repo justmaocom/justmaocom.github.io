@@ -140,6 +140,8 @@ bash tools/test.sh
 
 没有 findings 只表示这次审查没有提出问题，不能取代编辑校对、事实核查或合并批准。
 
+专门扫描漏洞的 Codex Security 也是如此：据官方文档，报告没有发现不代表没有漏洞。扫描的做法见[Codex Security 教程：用 cs scan 扫描自己的 repo](/posts/codex-security-cs-scan-repo/)。
+
 ![自动检查确认固定规则，AI 找出内容疑点，人核对来源并决定是否合并。](review-roles.webp){: w="800" h="450" }
 _三件事分开做：固定规则、需要推理的疑点，以及能不能合并。_
 
