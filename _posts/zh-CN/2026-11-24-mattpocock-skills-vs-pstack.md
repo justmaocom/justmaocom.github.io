@@ -18,12 +18,14 @@ mermaid: true
 
 ## 最大的差别在谁决定下一步
 
-mattpocock/skills 让你一步一步点名 skill，pstack 让你交出目标后由它排步骤。两套的入口命令都是你调用了才会动，差在调用之后做多少事。
+从 `/ask-matt` 开始时，由你决定接下来调用哪个 skill。从 `/poteto-mode` 开始时，pstack 会按目标安排并执行步骤。两个入口都要手动调用。
 
 - mattpocock/skills 的入口是 `/ask-matt`。按它的 [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9)，它是架在其他 skill 上面的路由：你描述现在的情况，它建议下一个该调用的 skill，再由你去调用。
 - pstack 的入口是 `/poteto-mode`。它会把任务对应到一份 playbook（针对某种任务写好的固定步骤），把步骤抄进待办清单后[开始照做](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108)。
 
-所以两套停下来等你的时机不同。`/ask-matt` 给完建议就结束，下一个 skill 要你自己调用。`/poteto-mode` 会自己读 playbook 用到的其他 skill 并照着做。按它的[自主规则](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)，可以撤回的工作直接做，force push、部署、删数据这类无法撤回的操作才停下来。
+`/poteto-mode` 会自行读取 playbook 用到的其他 skill。可以撤回的工作会直接做，向共享分支 force push、部署或删除数据前会先停下来。 [pstack 自主规则](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)
+
+无人值守时，如果遇到需要你决定的产品取舍，或工作确实无法继续，pstack 也会把问题交还给你。 [自主运行 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)
 
 ## 一张表看两套的差异
 
@@ -39,6 +41,8 @@ mattpocock/skills 让你一步一步点名 skill，pstack 让你交出目标后�
 | 工作记在哪里 | issue、词汇表 `GLOSSARY.md`、决策记录 | 计划文件、分支与 PR |
 | 用哪个模型 | 不指定，README 说任何模型都能用 | 按角色指定，评审默认开三个席位 |
 
+在 Claude Code 中，pstack 会跳过需要 Cursor Automations 或启动 Bugbot 的步骤。原本分配给 Gemini 的评审席位会沿用当前会话的模型。 [pstack 的 Claude Code 兼容性说明](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/docs/harness/claude-code.md)
+
 表上的数字是我数两个 repo 在上述版本的文件得出的，和两个系列写的不同。
 
 mattpocock/skills 系列写的是 25 个。新版多了 `implement-spec`、`pr`、`retro`，去掉了 `resolving-merge-conflicts`。pstack 系列写的是 58 个，`0.15.47` 多了一个 `/reframe`。
@@ -52,7 +56,9 @@ mattpocock/skills 的产出多半是 repo 里的文件，下一次对话或下�
 
 之后的 skill 也沿着这个方向走。`grill-with-docs` 访谈时确认的词汇会写进 `GLOSSARY.md`，重要决定写成 ADR（架构决策记录）。`to-tickets` 把规格切成一张张工作单（issue），每张写明被哪几张挡住。详细流程见 mattpocock/skills 系列的[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)与[第 3 篇](/posts/mattpocock-skills-specs-work-breakdown/)。
 
-我认为这套最适合多人维护，或一项功能要分好几次对话才做得完的项目。它的价值在于把共识写下来，不在于让 AI 做得更快。
+工作单拆好后，你也可以用 `/implement-spec` 一次实现整份规格。它会根据工作单的依赖关系安排哪些可以并行实现，再把成果合并到同一个集成分支。 [implement-spec 的步骤](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)
+
+我认为这套最适合多人维护，或一项功能要分好几次对话才做得完的项目。这些文档能让接手的人查到当初做了哪些决定。
 
 ## pstack 把力气花在动手前后的检查
 
@@ -94,13 +100,17 @@ pstack 要先加入 Cursor 的插件库，在 Claude Code 里输入：
 
 同名不代表做法相同。mattpocock/skills 的 [`tdd`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/tdd/SKILL.md#L3) 是先写测试的红绿重构流程；pstack 的 [`tdd`](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/tdd/SKILL.md#L3) 只在你明确要求、或有成本很低的测试可写时才用。
 
-我建议同一项工作只用一套的入口。`/ask-matt` 与 `/poteto-mode` 都会安排下一步，同时开着，两边的建议可能互相打架。
+我建议每个阶段都选定一套流程，让接手的人清楚下一步该用哪套工具。
 
 更新的默认行为也不同。mattpocock/skills 的插件默认[会自动更新](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38)；pstack 来自第三方插件库，Claude Code [默认不自动更新](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28)。要固定 pstack 的版本，做法见 [pstack 系列第 1 篇](/posts/pstack-install-routing/)。
 
 ## 按你手上的工作选
 
-先看这项工作卡在哪里，再决定交给哪一套：
+例如要给后台新增订单 CSV 导出功能，团队得先确定要导出哪些字段、谁可以下载。可以用 mattpocock/skills 讨论这些问题，再把共识写成规格，交给下一个人接手。 [规格 skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)
+
+等规格和验收条件确认后，同一项工作可以交给 pstack 的功能 playbook。它会完成设计和实现，验证导出结果，再创建 PR。 [功能 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md)
+
+如果你只想先装一套，可以从手头的工作卡在哪里开始判断。
 
 ```mermaid
 flowchart TD

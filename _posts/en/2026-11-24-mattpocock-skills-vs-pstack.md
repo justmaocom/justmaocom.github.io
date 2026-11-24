@@ -18,12 +18,14 @@ If you want an AI coding assistant to follow a fixed workflow, you'll likely run
 
 ## The Biggest Difference Is Who Picks the Next Step
 
-With mattpocock/skills, you call skills one step at a time. With pstack, you hand over a goal and it plans the steps. Both entry commands only run when you call them; the difference is how much they do after that.
+When you start with `/ask-matt`, you decide which skill to call next. When you start with `/poteto-mode`, pstack plans and runs the steps for your goal. You call both entry points manually.
 
 - The mattpocock/skills entry point is `/ask-matt`. Its [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9) describes it as a router over the other skills. You describe where you are, it suggests the next skill to call, and you call it.
 - The pstack entry point is `/poteto-mode`. It matches the task to a playbook (a fixed set of steps written for one kind of task), copies the steps into a to-do list, and [starts working through them](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108).
 
-So the two stop and wait for you at different points. `/ask-matt` is done once it gives its suggestion, and you call the next skill yourself. `/poteto-mode` reads the other skills its playbook uses and follows them. Under its [autonomy rules](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78), it goes ahead with work that can be undone and only stops for actions that can't, like a force push, a deploy, or deleting data.
+`/poteto-mode` reads the skills its playbook needs. It proceeds with reversible work and pauses before force-pushing a shared branch, deploying, or deleting data. [pstack autonomy rules](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)
+
+During an unattended run, pstack also hands back product decisions that need your judgment and blockers it can't resolve. [Autonomous run playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)
 
 ## The Differences in One Table
 
@@ -39,6 +41,8 @@ So the two stop and wait for you at different points. `/ask-matt` is done once i
 | Where work is recorded | Issues, a `GLOSSARY.md` glossary, decision records | Plan files, branches, and PRs |
 | Which model it uses | Doesn't specify; the README says any model works | Set per role; reviews default to three panel seats |
 
+In Claude Code, pstack skips steps that need Cursor Automations or need to start Bugbot. The review seat assigned to Gemini uses the current session model. [pstack's Claude Code compatibility notes](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/docs/harness/claude-code.md)
+
 I got the numbers in the table by counting files in each repo at the versions above, so they differ from the two series.
 
 The mattpocock/skills series says 25 skills. The newer version adds `implement-spec`, `pr`, and `retro`, and drops `resolving-merge-conflicts`. The pstack series says 58; `0.15.47` added `/reframe`.
@@ -52,7 +56,9 @@ Most of what mattpocock/skills produces is files in your repo, so the next conve
 
 The later skills keep going in the same direction. Terms settled during a `grill-with-docs` interview go into `GLOSSARY.md`, and key decisions become ADRs (architecture decision records). `to-tickets` splits a spec into tickets (issues), each noting which others block it. For the full workflow, see [Part 2](/posts/mattpocock-skills-requirements-shared-language/) and [Part 3](/posts/mattpocock-skills-specs-work-breakdown/) of the mattpocock/skills series.
 
-I think this pack fits best on projects with several maintainers, or where one feature takes several conversations to finish. Its value is in writing down what everyone agreed on, not in making the AI faster.
+Once you have tickets, you can use `/implement-spec` to build the whole spec in one run. It uses ticket dependencies to decide which work can run in parallel and merges the results into one integration branch. [implement-spec steps](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)
+
+I think this pack fits best on projects with several maintainers, or where one feature takes several conversations to finish. The documents give whoever takes over a record of what the team decided.
 
 ## pstack Puts Its Effort Into Checks Before and After the Change
 
@@ -94,13 +100,17 @@ Both packs have a `tdd` and a `teach`, but they don't overwrite each other. Clau
 
 The same name doesn't mean the same approach. The mattpocock/skills [`tdd`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/tdd/SKILL.md#L3) is a test-first red-green-refactor loop. The pstack [`tdd`](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/tdd/SKILL.md#L3) only applies when you ask for it or when a cheap test is available.
 
-I suggest using one pack's entry point per task. `/ask-matt` and `/poteto-mode` both plan the next step, and with both running, their suggestions can conflict.
+I suggest choosing one workflow for each stage so whoever takes over knows which tool to use next.
 
 Their update defaults differ too. The mattpocock/skills plugin [updates itself by default](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38). pstack comes from a third-party marketplace, so Claude Code [doesn't auto-update it by default](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28). To pin a pstack version, see [Part 1 of the pstack series](/posts/pstack-install-routing/).
 
 ## Choose Based on the Work in Front of You
 
-Start with where the task is stuck, then decide which pack gets it:
+Say you're adding an order CSV export to an admin dashboard. The team first needs to agree on which fields to export and who can download the file. You can use mattpocock/skills to discuss those questions and save the decisions in a spec for the next person. [Spec skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)
+
+Once the spec and acceptance criteria are settled, you can hand the same task to pstack's feature playbook. It guides the design and implementation, verifies the export, and opens a PR. [Feature playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md)
+
+If you want to install just one pack first, start with where your work is stuck.
 
 ```mermaid
 flowchart TD

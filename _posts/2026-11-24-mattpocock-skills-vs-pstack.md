@@ -18,12 +18,14 @@ mermaid: true
 
 ## 最大的差別在誰決定下一步
 
-mattpocock/skills 讓你一步一步點名 skill，pstack 讓你交出目標後由它排步驟。兩套的入口指令都是你叫了才會動，差在叫了之後做多少事。
+從 `/ask-matt` 開始時，由你決定接著叫哪個 skill。從 `/poteto-mode` 開始時，pstack 會依目標安排並執行步驟。兩個入口都要手動呼叫。
 
 - mattpocock/skills 的入口是 `/ask-matt`。依它的 [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9)，它是架在其他 skill 上面的路由：你描述現在的情況，它建議下一個該叫的 skill，再由你去叫。
 - pstack 的入口是 `/poteto-mode`。它會把任務對到一份 playbook（針對某種任務寫好的固定步驟），把步驟抄進待辦清單後[開始照做](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108)。
 
-所以兩套停下來等你的時機不同。`/ask-matt` 給完建議就結束，下一個 skill 要你自己叫。`/poteto-mode` 會自己讀 playbook 用到的其他 skill 並照著做。依它的[自主規則](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)，可以復原的工作直接做，force push、部署、刪資料這類無法復原的動作才停下來。
+`/poteto-mode` 會自己讀 playbook 用到的其他 skill。可以復原的工作會直接做，對共用分支 force push、部署或刪除資料前會先停下來。 [pstack 自主規則](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)
+
+無人值守時，如果遇到需要你決定的產品取捨，或工作真的走不下去，pstack 也會把問題交回來。 [自主執行 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)
 
 ## 一張表看兩套的差異
 
@@ -39,6 +41,8 @@ mattpocock/skills 讓你一步一步點名 skill，pstack 讓你交出目標後�
 | 工作記在哪裡 | issue、詞彙表 `GLOSSARY.md`、決策紀錄 | 計畫檔、分支與 PR |
 | 用哪個模型 | 不指定，README 說任何模型都能用 | 依角色指定，評審預設開三個席位 |
 
+在 Claude Code 裡，pstack 會跳過需要 Cursor Automations 或啟動 Bugbot 的步驟。原本分給 Gemini 的評審席會沿用目前對話的模型。 [pstack 的 Claude Code 相容說明](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/docs/harness/claude-code.md)
+
 表上的數字是我數兩個 repo 在上述版本的檔案得出的，和兩個系列寫的不同。
 
 mattpocock/skills 系列寫的是 25 個。新版多了 `implement-spec`、`pr`、`retro`，拿掉了 `resolving-merge-conflicts`。pstack 系列寫的是 58 個，`0.15.47` 多了一個 `/reframe`。
@@ -52,7 +56,9 @@ mattpocock/skills 的產出多半是 repo 裡的檔案，下一次對話或下�
 
 之後的 skill 也照這個方向走。`grill-with-docs` 訪談時確認的詞彙會寫進 `GLOSSARY.md`，重要決定寫成 ADR（架構決策紀錄）。`to-tickets` 把規格切成一張張工作單（issue），每張寫明被哪幾張擋住。詳細流程見 mattpocock/skills 系列的[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)與[第 3 篇](/posts/mattpocock-skills-specs-work-breakdown/)。
 
-我認為這套最適合多人維護，或一項功能要分好幾次對話才做得完的專案。它的價值在於把共識寫下來，不在於讓 AI 做得更快。
+工作單拆好後，你也可以用 `/implement-spec` 一次實作整份規格。它會依工作單的相依關係安排哪些能並行實作，再把成果合進同一個整合分支。 [implement-spec 的步驟](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)
+
+我認為這套最適合多人維護，或一項功能要分好幾次對話才做得完的專案。這些文件能讓接手的人查到當初做了哪些決定。
 
 ## pstack 把力氣花在動手前後的檢查
 
@@ -94,13 +100,17 @@ pstack 要先加入 Cursor 的外掛庫，在 Claude Code 裡輸入：
 
 同名不代表做法相同。mattpocock/skills 的 [`tdd`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/tdd/SKILL.md#L3) 是先寫測試的紅綠重構流程；pstack 的 [`tdd`](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/tdd/SKILL.md#L3) 只在你明確要求、或有便宜的測試可寫時才用。
 
-我建議同一項工作只用一套的入口。`/ask-matt` 與 `/poteto-mode` 都會安排下一步，同時開著，兩邊的建議可能互相打架。
+我建議每個階段都選定一套流程，讓接手的人清楚下一步該用哪套工具。
 
 更新的預設也不同。mattpocock/skills 的外掛預設[會自動更新](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38)；pstack 來自第三方外掛庫，Claude Code [預設不自動更新](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28)。要固定 pstack 的版本，做法見 [pstack 系列第 1 篇](/posts/pstack-install-routing/)。
 
 ## 依你手上的工作選
 
-先看這項工作卡在哪裡，再決定交給哪一套：
+例如要替後台新增訂單 CSV 匯出，團隊得先定好要匯出哪些欄位、誰可以下載。可以用 mattpocock/skills 討論這些問題，再把共識寫成規格，交給下一個人接手。 [規格 skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)
+
+等規格和驗收條件確認後，同一項工作可以交給 pstack 的功能 playbook。它會走過設計和實作，驗證匯出結果，再開 PR。 [功能 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md)
+
+如果你只想先裝一套，可以從手上的工作卡在哪裡開始判斷。
 
 ```mermaid
 flowchart TD
