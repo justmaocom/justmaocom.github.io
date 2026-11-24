@@ -1,6 +1,6 @@
 ---
-title: "How to Write AGENTS.md: Give Coding Agents Your Project Rules"
-description: "How to write AGENTS.md, how Codex and Claude Code each load it, and how to share one file between both tools."
+title: "What Is AGENTS.md? Write One for Codex and Claude Code"
+description: "AGENTS.md is a Markdown file of project rules for coding agents. How to write it, how Codex loads it, and why a CLAUDE.md stops Claude Code from reading it."
 date: 2026-11-10 18:00:00 +0800
 categories: [AI, Software Development]
 tags: [coding-agent, codex, claude-code, workflow, documentation, agents-md]
@@ -11,13 +11,15 @@ image:
 mermaid: true
 ---
 
-When I have both Codex and Claude Code open on the same project, what I worry about most is writing the rules twice and letting one copy drift.
+AGENTS.md is a project notes file for coding agents, usually kept at the top level of a project. It tells a coding agent how to run tests, which files to leave alone, and what to do before it submits a change.
 
-A coding agent is an AI assistant for software work: you describe the job in ordinary sentences, and it opens files in your project, edits them, and runs commands on its own. Codex (from OpenAI) and Claude Code (from Anthropic), the two tools in this post, are both coding agents. They need project notes to know how to run tests, which files to leave alone, and what to do before they submit a change.
+A coding agent is an AI assistant for software work: you describe the job in ordinary sentences, and it opens files in your project, edits them, and runs commands on its own. Codex (from OpenAI) and Claude Code (from Anthropic), the two tools in this post, are both coding agents.
 
-AGENTS.md is a README for those assistants. A README is the file many projects keep at the top level to tell newcomers what the project is and how to get started. AGENTS.md tells an AI assistant the same kind of thing.
+Think of AGENTS.md as a README for those assistants. A README is the file many projects keep at the top level to tell newcomers what the project is and how to get started.
 
 You write it in Markdown, a plain-text format where `#` marks a heading and `-` starts a list item, saved with a `.md` extension. There are no required fields, and you can choose your own headings. The format is stewarded by the [Agentic AI Foundation](https://agents.md/) under the Linux Foundation.
+
+Codex reads AGENTS.md directly. Claude Code reads it too, but by default it reads only CLAUDE.md once the project has one. When I have both tools open on the same project, what I worry about most is writing the rules twice and letting one copy drift.
 
 This post covers only how to write the file, and what the official docs for [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) and [Claude Code](https://code.claude.com/docs/en/memory#agents-md) say each tool will actually read. I will not claim that every tool behaves the same way, and I will not list products I have not checked.
 

@@ -11,13 +11,15 @@ image:
 mermaid: true
 ---
 
-我同时打开 Codex 和 Claude Code 两个工具时，最怕同一套项目规则写了两份，改了一边、另一边却还是旧的。
+AGENTS.md 是写给 coding agent 看的项目说明文件，通常放在项目最上层。它告诉 coding agent 测试怎么跑、哪些文件不能碰、提交变更前要做什么。
 
-coding agent 是一种 AI 编程助手：你用平常的句子交代工作，它会自己打开项目里的文件、修改内容、运行命令。本文谈的 Codex（OpenAI 的工具）和 Claude Code（Anthropic 的工具）都属于这一类。它们要靠项目里的说明，才知道测试怎么跑、哪些文件不能碰、提交变更前要做什么。
+coding agent 是一种 AI 编程助手：你用平常的句子交代工作，它会自己打开项目里的文件、修改内容、运行命令。本文谈的 Codex（OpenAI 的工具）和 Claude Code（Anthropic 的工具）都属于这一类。
 
-AGENTS.md 就是写给这些助手看的 README。README 是很多项目最上层都会放的说明文件，告诉第一次来的人“这是什么、怎么开始”；AGENTS.md 则是把类似的事写给 AI 助手看。
+你可以把 AGENTS.md 想成写给这些助手看的 README。README 是很多项目最上层都会放的说明文件，告诉第一次来的人“这是什么、怎么开始”。
 
 它用 Markdown 来写（一种纯文本格式，用 `#` 标出标题、用 `-` 列出清单，扩展名是 `.md`），没有必填字段，标题也可以自己取。这个格式由 Linux Foundation 旗下的 [Agentic AI Foundation](https://agents.md/) 维护。
+
+Codex 会直接读 AGENTS.md。Claude Code 也会读，但项目里已有 CLAUDE.md 时，默认只读 CLAUDE.md。我同时打开这两个工具时，最怕同一套项目规则写了两份，改了一边、另一边却还是旧的。
 
 这篇文章只谈怎么写这份文件，以及 [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) 和 [Claude Code](https://code.claude.com/docs/en/memory#agents-md) 的官方文档分别怎么说它们会读哪些文件。我不会写成“所有工具都一样”，也不会列出其他还没查证的产品。
 
