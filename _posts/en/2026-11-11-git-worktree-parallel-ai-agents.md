@@ -130,7 +130,7 @@ Once it is created, go into the new folder to work:
 cd ../myapp-login
 ```
 
-Open any coding agent there and commit as usual. Note that the new folder contains only files that Git tracks (files you have already handed over to Git). If the project rules live in an AGENTS.md that Git tracks, every worktree gets the same copy; see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+Open any coding agent there and commit as usual. Note that the new folder contains only files that Git tracks (files you have already handed over to Git). If the project rules live in an AGENTS.md that Git tracks, every worktree gets the same copy; see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 Untracked things such as `node_modules` (installed dependencies) or `.env` (a settings file often used for passwords or keys) do not come along. Install them again, or copy them over yourself.
 
@@ -443,7 +443,7 @@ The next time two AI agents need to work at once, I suggest starting with `git w
 
 ## Further Reading
 
-- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): project rules for the agent in each working directory.
+- [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): project rules for the agent in each working directory.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): automatic checks at fixed moments in a working directory.
 - [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): automate the review.
 - [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/): watch several agents at once in a terminal.

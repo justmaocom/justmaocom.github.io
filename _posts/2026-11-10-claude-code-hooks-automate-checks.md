@@ -215,7 +215,9 @@ exit 0
 ]
 ```
 
-依官方說明，壓縮後 Claude 會再看到這段提醒。把提醒換成你的專案規則。`compact` 涵蓋自動與手動壓縮，SessionStart 擋不住壓縮本身。不常變的規則也可以改放在 `CLAUDE.md`。
+依官方說明，壓縮後 Claude 會再看到這段提醒。把提醒換成你的專案規則。`compact` 涵蓋自動與手動壓縮，SessionStart 擋不住壓縮本身。
+
+不常變的規則也可以改放在 `CLAUDE.md`。Claude Code 怎麼讀 `CLAUDE.md` 和 `AGENTS.md`，見 [AGENTS.md 怎麼寫：讓 Coding Agent 讀懂你的專案規則](/posts/agents-md-project-rules-for-coding-agents/)。
 
 ## 用 /hooks 檢查設定
 

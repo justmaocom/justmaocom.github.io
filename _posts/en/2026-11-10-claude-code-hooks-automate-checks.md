@@ -213,7 +213,9 @@ When the context (what is still in front of the model) gets too long, Claude Cod
 ]
 ```
 
-Per the docs, Claude sees this reminder again after compaction. Replace the reminder with your project rules. `compact` covers both automatic and manual compaction, and SessionStart cannot block compaction itself. Rules that rarely change can live in `CLAUDE.md` instead.
+Per the docs, Claude sees this reminder again after compaction. Replace the reminder with your project rules. `compact` covers both automatic and manual compaction, and SessionStart cannot block compaction itself.
+
+Rules that rarely change can live in `CLAUDE.md` instead. For how Claude Code loads `CLAUDE.md` and `AGENTS.md`, see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 ## Check your setup with /hooks
 
@@ -280,5 +282,5 @@ Start with one hook in the project's `.claude/settings.json`, confirm it in `/ho
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permission and supply-chain risks.
 - [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/): how skills differ from hooks.
 - [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): rule checks, AI review, and human approval after a PR opens.
-- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): rules the AI only needs to know, not enforce.
+- [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): rules the AI only needs to know, not enforce.
 - [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): a plugin can bring in hooks someone else wrote.

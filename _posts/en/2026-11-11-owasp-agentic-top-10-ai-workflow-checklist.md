@@ -308,7 +308,7 @@ flowchart TD
   B -->|"Yes, reject bad"| F[Bad content stays out]
 ```
 
-- OWASP mitigation 7 calls for version control and snapshots so you can roll back. For how to write the rule file, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+- OWASP mitigation 7 calls for version control and snapshots so you can roll back. For how to write the rule file, see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 - OWASP mitigation 6: do not let the agent automatically write its own output back into "trusted memory." That is the loop back in the diagram.
 - Claude Code can use a `ConfigChange` hook to audit or block configuration changes during a session. A hook is a check script that runs automatically at a set moment. `ConfigChange` fires when a configuration file changes. Details are in [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/).
 
