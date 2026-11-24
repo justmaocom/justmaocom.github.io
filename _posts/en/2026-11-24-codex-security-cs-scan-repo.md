@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-If you want to find vulnerabilities in your own code without setting up a whole security platform, try OpenAI's Codex Security. You run its command-line tool, `cs`, inside your repository. This post covers installing it and running a first scan, then uses an official sample report to show how to check the scope and findings.
+If you want to find vulnerabilities in your own code without setting up a whole security platform, try OpenAI's Codex Security. You run its command-line tool, `cs`, inside your repository. This post covers installing it and running a first scan, then uses a sample report to show how to check the scope and findings.
 
 > The steps follow the npm-v0.10.1 [README](https://github.com/openai/codex-security/blob/npm-v0.10.1/README.md) and [CLI reference](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md) of [openai/codex-security](https://github.com/openai/codex-security), plus the official [CLI quickstart](https://learn.chatgpt.com/docs/security/cli), checked on 2026-11-24. The tool changes quickly, so trust `cs scan --help` from your installed version for options.
 {: .prompt-info }
@@ -96,7 +96,7 @@ To upgrade later, read the notes on [GitHub Releases](https://github.com/openai/
 
 ## Step 3: Sign in to your ChatGPT account with cs login
 
-Before your first scan, sign in with `cs login`. It opens a browser, where you sign in with your ChatGPT account. Then check the status:
+Before your first scan, run `cs login` and sign in with your ChatGPT account in the browser it opens. Then check the status:
 
 ```bash
 cs login
@@ -187,7 +187,7 @@ cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-That amount is an estimate at the model's standard rates, and the scan stops once the estimate passes it. Requests already in flight still finish, so the final figure can go slightly over. ChatGPT subscription allowance isn't part of the estimate.
+The CLI estimates cost at the model's standard rates and stops the scan once the estimate passes the amount you set. Requests already in flight still finish, so the final cost can go over the limit. ChatGPT subscription allowance isn't part of the estimate.
 
 When the scan finishes, the terminal prints a summary. Here is the example from the official docs:
 
@@ -260,7 +260,7 @@ Each finding's write-up has sections such as Summary, Root Cause, and Remediatio
 
 These findings come from reading the source, and they don't necessarily include a runtime reproduction. The docs advise fixing a finding only after the evidence shows the issue is real.
 
-After you read the scope and findings, pick the next step:
+Then pick the next step based on how the scan went:
 
 | Situation | Next step |
 | --- | --- |

@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-想替自己的程式找漏洞，又不想先架一整套資安平台，可以試試 OpenAI 的 Codex Security。它提供命令列工具 `cs`，在程式碼儲存庫（repo）的目錄裡就能掃描。這篇從安裝講到第一次掃描，再用官方的範例報告說明怎麼核對掃描範圍和結果。
+想替自己的程式找漏洞，又不想先架一整套資安平台，可以試試 OpenAI 的 Codex Security。它提供命令列工具 `cs`，在程式碼儲存庫（repo）的目錄裡就能掃描。這篇從安裝講到第一次掃描，再用範例報告說明怎麼核對掃描範圍和結果。
 
 > 步驟依 [openai/codex-security](https://github.com/openai/codex-security) 的 npm-v0.10.1 版 [README](https://github.com/openai/codex-security/blob/npm-v0.10.1/README.md)、[CLI 參考](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md)，以及官方的 [CLI 快速入門](https://learn.chatgpt.com/docs/security/cli)整理，查證日期是 2026-11-24。工具更新很快，選項以已安裝版本的 `cs scan --help` 為準。
 {: .prompt-info }
@@ -96,7 +96,7 @@ npx @openai/codex-security@0.10.1 --version
 
 ## 步驟 3：用 cs login 登入 ChatGPT 帳號
 
-第一次掃描之前，先用 `cs login` 登入。登入會打開瀏覽器，用 ChatGPT 帳號完成，接著確認狀態：
+第一次掃描之前，先執行 `cs login`，在打開的瀏覽器裡用 ChatGPT 帳號登入。接著確認狀態：
 
 ```bash
 cs login
@@ -187,7 +187,7 @@ cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-這個金額是 CLI 照模型標準費率算出的估計值，估計值超過上限就停止掃描。停止時已送出的請求仍會跑完，所以最後可能略超過上限。ChatGPT 訂閱的額度不在這個估計裡。
+CLI 會照模型的標準費率估算費用，估計值超過你指定的金額就停止掃描。停止時已送出的請求仍會跑完，所以最後可能超過上限。ChatGPT 訂閱的額度不在這個估計裡。
 
 掃描結束時，終端機會印出一段摘要。下面是官方文件的範例：
 
@@ -260,7 +260,7 @@ cs scan . --codex daybreak=true
 
 這些發現來自閱讀原始碼，不一定附有實際執行的重現結果。官方的建議是，等證據足以證明問題成立，再挑出來修。
 
-讀完範圍和發現，依情況決定下一步：
+最後依掃描的結果決定下一步：
 
 | 情況 | 下一步 |
 | --- | --- |

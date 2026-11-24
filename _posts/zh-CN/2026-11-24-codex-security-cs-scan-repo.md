@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-想替自己的代码找漏洞，又不想先搭一整套信息安全平台，可以试试 OpenAI 的 Codex Security。它提供命令行工具 `cs`，在代码仓库（repo）的目录里就能扫描。这篇从安装讲到第一次扫描，再用官方的示例报告说明怎么核对扫描范围和结果。
+想替自己的代码找漏洞，又不想先搭一整套信息安全平台，可以试试 OpenAI 的 Codex Security。它提供命令行工具 `cs`，在代码仓库（repo）的目录里就能扫描。这篇从安装讲到第一次扫描，再用示例报告说明怎么核对扫描范围和结果。
 
 > 步骤根据 [openai/codex-security](https://github.com/openai/codex-security) 的 npm-v0.10.1 版 [README](https://github.com/openai/codex-security/blob/npm-v0.10.1/README.md)、[CLI 参考](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md)和官方的 [CLI 快速入门](https://learn.chatgpt.com/docs/security/cli)整理，查证日期是 2026-11-24。工具更新很快，选项以已安装版本的 `cs scan --help` 为准。
 {: .prompt-info }
@@ -96,7 +96,7 @@ npx @openai/codex-security@0.10.1 --version
 
 ## 步骤 3：用 cs login 登录 ChatGPT 账号
 
-第一次扫描之前，先用 `cs login` 登录。登录会打开浏览器，用 ChatGPT 账号完成，接着确认状态：
+第一次扫描之前，先运行 `cs login`，在打开的浏览器里用 ChatGPT 账号登录。接着确认状态：
 
 ```bash
 cs login
@@ -145,7 +145,7 @@ unset GITHUB_TOKEN AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
 
 `unset` 只影响当前这个终端，从这里启动的扫描就不会继承这些变量。shell 配置文件和其他已经打开的终端不受影响。
 
-切到 repo 的根目录，先做一次 dry-run：
+切到仓库的根目录，先做一次 dry-run：
 
 ```bash
 cd /path/to/your-repo
@@ -187,7 +187,7 @@ cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-这个金额是 CLI 按模型标准费率算出的估计值，估计值超过上限就停止扫描。停止时已经发出的请求仍会跑完，所以最后可能略超过上限。ChatGPT 订阅的额度不在这个估计里。
+CLI 会按模型的标准费率估算费用，估计值超过你指定的金额就停止扫描。停止时已经发出的请求仍会跑完，所以最后可能超过上限。ChatGPT 订阅的额度不在这个估计里。
 
 扫描结束时，终端会输出一段摘要。下面是官方文档的示例：
 
@@ -260,7 +260,7 @@ cs scan . --codex daybreak=true
 
 这些发现来自阅读源代码，不一定附有实际运行的复现结果。官方的建议是，等证据足以证明问题成立，再挑出来修。
 
-读完范围和发现，根据情况决定下一步：
+最后根据扫描的结果决定下一步：
 
 | 情况 | 下一步 |
 | --- | --- |
@@ -302,7 +302,7 @@ cs findings false-positive OCCURRENCE_ID --reason "这个输入在进入查询�
 ```
 {: .nolineno }
 
-之后扫描同一个 repo 时，会参考这个理由。根据官方 FAQ，扫描仍会重新检查当前的代码，不会因此跳过整类问题。
+之后扫描同一个仓库时，会参考这个理由。根据官方 FAQ，扫描仍会重新检查当前的代码，不会因此跳过整类问题。
 
 同一个仓库扫两次，结果可能不一样。要比较两次扫描，用 `cs scans compare`，它默认比较最近两次完成的扫描：
 
@@ -313,7 +313,7 @@ cs scans compare
 
 ## 缩小范围：只扫某些目录，或只扫这次的改动
 
-repo 很大，或者只想看某一块时，用下面这些选项：
+仓库很大，或者只想看某一块时，用下面这些选项：
 
 ```bash
 # 只扫描 src 和 tests
@@ -344,7 +344,7 @@ CI 里没有浏览器可以登录，所以要改用 API key，把 `OPENAI_API_KE
 
 示例里的 `REPLACE_WITH_REVIEWED_COMMIT`，要换成 Action release 说明里列出、你也审查过的 commit SHA。为什么要把 action 锁定在 commit SHA，可以参考 [gh actions-lock 教程](/posts/gh-actions-lock-workflow-lockfile/)。
 
-示例把单次扫描的估计费用上限设为 5 美元。默认情况下，有发现只会报告，不会让 job 失败。只有扫描本身出错，job 才会失败，像步骤 4 那样被安全策略拦下也算。
+示例把单次扫描的估计费用上限设为 5 美元。默认情况下，有发现只会报告，不会让 job 失败。只有扫描本身出错，job 才会失败，像步骤 4 那样被网络安全政策拦下也算。
 
 要让 CI 在有 high 或 critical 的发现时也失败，CLI 加上步骤 4 提过的 `--fail-on-severity high`，Action 则把 `fail-on-severity` 设成 `high`。
 
