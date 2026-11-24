@@ -2,7 +2,7 @@
 
 本站搜尋流量最多的是 pstack 與 mattpocock/skills 兩個系列：GSC 2026-10-23 到 11-22 的資料裡，兩個系列合計佔全站 67% 的曝光、79% 的點擊。這份文件把這兩個系列的做法寫成規則，之後新的 agent 工具都照這份規則寫成「分集加一篇系列導讀」。
 
-這份文件只寫系列特有的規則。三語翻譯、tags 與 categories 見[三語翻譯規則](translation-guide.md)；front matter 與排版語法見[文章撰寫指南](chirpy-post-authoring.md)；文風見[文章寫法](post-writing-style.md)；選題、查 SERP 與發布檢查見 [SEO 執行方案](seo-execution-plan.md)的階段 4。
+這份文件只寫系列特有的規則。三語翻譯、tags 與 categories 見[三語翻譯規則](translation-guide.md)；front matter 與排版語法見[文章撰寫指南](chirpy-post-authoring.md)；文風見[文章寫法](post-writing-style.md)；選題、查 SERP 與發布檢查見 Notion 上的 [SEO 執行方案](https://app.notion.com/p/422ee3d68c1881389566f37a4bf0bfda)階段 4。
 
 ## 什麼主題要寫成系列
 
@@ -33,9 +33,9 @@
 - 現有的例子：`pstack 系列（2）：改程式之前，先看懂再設計`、`pstack, Part 2: Understand Code and Compare Designs First`、`pstack Series Guide: What It Is and Where to Start`。
 - 英文標題用 title case。冒號後面的部分，就是系列導覽與導讀 H3 會用的連結文字，所以要能單獨讀懂。
 - 英文不必逐字翻譯繁中標題，改用英文讀者會搜的字，例如 install、handoff 這類 GSC 實際出現的查詢。
-- 別人文章的標題不要拿來當我們的標題。例如 `the complete guide to pstack` 是 poteto 在 X 上的文章標題，見 `seo/backlog.md`。
+- 別人文章的標題不要拿來當我們的標題。例如 `the complete guide to pstack` 是 poteto 在 X 上的文章標題，見 Notion 上的 [SEO 待辦](https://app.notion.com/p/422ee3d68c1881b2839ad25d119aa0dc)。
 - 標題發布後要改，另外開 PR，不跟內文修改放在一起。原因見[文章寫法](post-writing-style.md)與下面的「發布檢查」。
-- 現有兩個系列有幾篇超過 57 字寬，這份規則不追溯；要縮短時，照 `seo/backlog.md` 另外處理。
+- 現有兩個系列有幾篇超過 57 字寬，這份規則不追溯；要縮短時，照 Notion 上的 [SEO 待辦](https://app.notion.com/p/422ee3d68c1881b2839ad25d119aa0dc)另外處理。
 
 ## 系列標籤
 
