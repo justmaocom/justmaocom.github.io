@@ -171,7 +171,7 @@ cs scan .
 ```
 {: .nolineno }
 
-When `OPENAI_API_KEY` or `CODEX_API_KEY` is set, the CLI reference says non-interactive and JSON scans prefer that API key. Interactive scans let you choose between the API key and your ChatGPT sign-in. To always use your ChatGPT account, run this instead:
+The CLI reference says that when `OPENAI_API_KEY` or `CODEX_API_KEY` is set, non-interactive and JSON scans prefer that API key. Interactive scans let you choose between the API key and your ChatGPT sign-in. To always use your ChatGPT account, run this instead:
 
 ```bash
 cs scan . --auth chatgpt
@@ -213,7 +213,7 @@ That means OpenAI's cybersecurity policy blocked the request. Daybreak, named in
 
 Without that access, narrowing the scope doesn't help. My first run scanned the whole repo and the second only the code directories, and both were blocked. The scan log (`cs scans logs`) also said `Daybreak access: status=not_granted`.
 
-Per the README, apply for [Trusted Access for Cyber](https://chatgpt.com/cyber) first. If you scan with an API key, the GitHub Action docs say that after your organization is approved, you also enable the program for the API project and use a key from that project. Approval reduces refusals, but it doesn't guarantee that every scan completes.
+Per the README, apply for [Trusted Access for Cyber](https://chatgpt.com/cyber) first. The GitHub Action docs add that if you scan with an API key, you also enable the program for the API project once your organization is approved, and use a key from that project. Approval reduces refusals, but it doesn't guarantee that every scan completes.
 
 Per the CLI reference, once you have access, add `--codex daybreak=true` to your scans. The toggle is off by default, and turning it on doesn't grant access by itself:
 

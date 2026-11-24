@@ -171,7 +171,7 @@ cs scan .
 ```
 {: .nolineno }
 
-環境裡有 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 時，依 CLI 參考，非互動式和輸出 JSON 的掃描會優先用這把 API key。互動式掃描則會讓你在 ChatGPT 登入和 API key 之間選。想固定用 ChatGPT 帳號，改用這個指令：
+依 CLI 參考，環境裡有 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 時，非互動式和輸出 JSON 的掃描會優先用這把 API key。互動式掃描則會讓你在 ChatGPT 登入和 API key 之間選。想固定用 ChatGPT 帳號，改用這個指令：
 
 ```bash
 cs scan . --auth chatgpt
@@ -213,9 +213,9 @@ This content was flagged for possible cybersecurity risk. If this seems wrong, t
 
 帳號沒有這個資格時，縮小範圍也沒用。我第一次掃整個 repo，第二次只掃程式碼目錄，兩次都被擋下。掃描紀錄（`cs scans logs`）裡也寫著 `Daybreak access: status=not_granted`。
 
-依 README，要先申請 [Trusted Access for Cyber](https://chatgpt.com/cyber)。用 API key 掃描時，依 GitHub Action 的說明，組織核准後還要替 API 專案啟用對應的方案，並改用那個專案的 key。核准後被拒絕的情況會變少，但不保證每次掃描都能跑完。
+依 README，要先申請 [Trusted Access for Cyber](https://chatgpt.com/cyber)。GitHub Action 的說明還提到，用 API key 掃描時，組織核准後要替 API 專案啟用對應的方案，並改用那個專案的 key。核准後被拒絕的情況會變少，但不保證每次掃描都能跑完。
 
-資格核准後，依 CLI 參考，掃描時要加上 `--codex daybreak=true`。這個開關預設關閉，打開它也不會讓你取得資格：
+依 CLI 參考，資格核准後要在掃描時加上 `--codex daybreak=true`。這個開關預設關閉，打開它也不會讓你取得資格：
 
 ```bash
 cs scan . --codex daybreak=true
