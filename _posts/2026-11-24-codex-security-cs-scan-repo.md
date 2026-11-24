@@ -7,7 +7,7 @@ tags: [codex-security, codex, application-security, vulnerability-scanning]
 media_subpath: /assets/img/posts/codex-security-cs-scan-repo/
 image:
   path: cover.webp
-  alt: "在 repo 目錄執行 cs scan .，掃描完成後打開 report.md，先看範圍再看每個發現。"
+  alt: "用 AI 掃描 repo、找出資安漏洞。步驟依序是安裝、登入、掃描、讀報告，右側終端機執行 cs scan . 後列出兩個發現。"
 mermaid: true
 ---
 

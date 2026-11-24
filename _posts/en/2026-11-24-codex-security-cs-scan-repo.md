@@ -7,7 +7,7 @@ tags: [codex-security, codex, application-security, vulnerability-scanning]
 media_subpath: /assets/img/posts/codex-security-cs-scan-repo/
 image:
   path: cover.en.webp
-  alt: "Run cs scan . in your repo, then open report.md and check the scope before each finding."
+  alt: "Find vulnerabilities in your repo with AI. The steps are install, sign in, scan, and read the report, and a terminal on the right runs cs scan . and lists two findings."
 mermaid: true
 ---
 
