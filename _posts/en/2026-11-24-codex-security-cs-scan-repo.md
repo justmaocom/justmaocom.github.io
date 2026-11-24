@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-Want to know whether your code has vulnerabilities, without setting up a whole security platform first? OpenAI's Codex Security ships a command-line tool, `cs`. Run one command in your repo, and a model reads the code, validates suspected vulnerabilities, and saves a Markdown report. This post walks you through your first scan on your own machine and how to read that report.
+Want to check your code for vulnerabilities without setting up a security platform? OpenAI's Codex Security provides a command-line tool, `cs`, for scanning your own repository. Here's how to prepare your first local scan and use a sample report to check its scope and findings.
 
 > The steps follow the npm-v0.10.1 [README](https://github.com/openai/codex-security/blob/npm-v0.10.1/README.md) and [CLI reference](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md) of [openai/codex-security](https://github.com/openai/codex-security), plus the official [CLI quickstart](https://learn.chatgpt.com/docs/security/cli), checked on 2026-11-24. The tool changes quickly, so trust `cs scan --help` from your installed version for options.
 {: .prompt-info }
@@ -41,30 +41,14 @@ flowchart LR
 
 ## Before you scan: it runs with your permissions, and results contain source code
 
-Codex Security runs under your local account and can do whatever you can. Per the [official quickstart](https://learn.chatgpt.com/docs/security/cli), the CLI doesn't pause to ask for approval. That's why [SECURITY.md](https://github.com/openai/codex-security/blob/npm-v0.10.1/SECURITY.md) says to scan only repositories you trust and have permission to assess.
+The Codex Security CLI starts under your local account. Per the [official quickstart](https://learn.chatgpt.com/docs/security/cli), it runs without prompting for approval. [SECURITY.md](https://github.com/openai/codex-security/blob/npm-v0.10.1/SECURITY.md) recommends scanning only repositories you trust and have permission to assess.
 
 Check these before you start:
 
-- **Scan processes inherit your environment.** The docs warn this includes unrelated API tokens and cloud credentials, and say to remove them first.
-- **Your code goes to a model for analysis.** The default provider is OpenAI. You can switch to Amazon Bedrock and other providers.
-- **Results contain source code.** The report includes code excerpts and vulnerability details. Per the [official FAQ](https://learn.chatgpt.com/docs/security/cli/faq), logs from `cs scans logs` aren't redacted either. Review them before you share.
-- **Your account may need cyber access first.** Per the README, some cybersecurity requests and protected findings require [Trusted Access for Cyber](https://chatgpt.com/cyber). Without it, a scan may be refused right at the start. Step 4 covers what to do.
-
-To find environment variables in your current terminal that look like credentials, print only the names, not the values:
-
-```bash
-env | grep -iE 'token|secret|key|pass' | cut -d= -f1
-```
-{: .nolineno }
-
-Clear the ones the scan doesn't need in this terminal. The names below are examples; use the ones you found:
-
-```bash
-unset GITHUB_TOKEN AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-```
-{: .nolineno }
-
-`unset` affects only the current terminal, and closing the window undoes it. `OPENAI_API_KEY` and `CODEX_API_KEY` change how you sign in; Step 3 covers them.
+- **Scan processes inherit environment variables.** The docs warn that this includes unrelated API tokens and cloud credentials. Step 4 covers removing those variables before the scan.
+- **A model analyzes your code.** OpenAI is the default model provider. You can switch to a provider such as Amazon Bedrock.
+- **Reports and logs may contain sensitive information.** Reports include code excerpts and vulnerability details. Per the [official FAQ](https://learn.chatgpt.com/docs/security/cli/faq), `cs scans logs` displays unredacted logs that may contain source code or credentials. Review them before sharing.
+- **Sign-in and cyber access are separate checks.** Per the README, some cybersecurity requests and protected findings require [Trusted Access for Cyber](https://chatgpt.com/cyber). A scan can be refused after a successful sign-in, as described in Step 4.
 
 ## Step 1: Check your Node.js and Python versions
 
@@ -112,9 +96,9 @@ To upgrade later, read the notes on [GitHub Releases](https://github.com/openai/
 
 ## Step 3: Sign in to your ChatGPT account with cs login
 
-**If you also use the Codex CLI, run `cs login` before your first scan or status check.** Per the CLI reference, Codex Security imports Codex's file-based sign-in when it has none of its own. The two clients then share a single-use refresh token.
+**If the Codex CLI stores your ChatGPT sign-in in a file, give Codex Security its own sign-in session first.** Per the CLI reference, the first scan or status check may import the Codex sign-in. The two tools then share a single-use refresh token.
 
-The result: when one client renews the token, the other's next renewal can fail. Its status may still report that it's signed in.
+Once either tool uses that token, the other tool's next refresh can fail. Its status can still say you're signed in.
 
 Signing in opens a browser, where you use your ChatGPT account. Then check the status:
 
@@ -133,7 +117,7 @@ cs login --device-auth
 
 If your workspace disables device auth, follow the [SSH forwarding steps in the CLI reference](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md#remote-login-with-ssh-forwarding).
 
-If you see an error saying the refresh token was already used, sign out and back in:
+If Codex Security says the refresh token was already used, sign out and back in with this CLI.
 
 ```bash
 cs logout
@@ -141,14 +125,23 @@ cs login
 ```
 {: .nolineno }
 
-When `OPENAI_API_KEY` or `CODEX_API_KEY` is set, non-interactive scans and scans with JSON output use that key by default. Interactive scans ask you which to use. To always use your ChatGPT sign-in, add `--auth chatgpt`:
+## Step 4: Dry-run first, then scan for real
+
+Check for unrelated credentials in the terminal you'll use for the scan. If your environment values are single-line, this command flags names to review. Skip the filter if you have multiline credentials, such as a PEM private key, because it can print parts of their values.
 
 ```bash
-cs scan . --auth chatgpt
+env | grep -iE 'token|secret|key|pass' | cut -d= -f1
 ```
 {: .nolineno }
 
-## Step 4: Dry-run first, then scan for real
+The filter also matches variable values, so some names may have nothing to do with credentials. After you identify the credentials your scan doesn't need, substitute their names in this `unset` example.
+
+```bash
+unset GITHUB_TOKEN AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+```
+{: .nolineno }
+
+`unset` removes the variables from the current shell and from the environment of scans you start afterward. Your shell configuration and other open terminals are unaffected.
 
 Go to the root of your repo and do a dry run:
 
@@ -160,9 +153,11 @@ cs scan . --dry-run
 
 A dry run checks only local inputs: what to scan, which mode, and where results go. It doesn't start a scan, load credentials, or check Python. So a passing dry run doesn't prove that sign-in and the runtime will work.
 
-`stateDirectory` in the output is where results are saved, by default `~/.codex/state/plugins/codex-security`. It sits outside your repo, so you won't commit results by accident. To save them elsewhere, add `--output-dir` with an empty directory outside the repo.
+`stateDirectory` in the dry-run output is the root for scan history and default artifacts, usually `~/.codex/state/plugins/codex-security`. To save this scan's results elsewhere, pass the same `--output-dir` to both the dry run and the real scan. Pick an empty directory outside the repository.
 
-To see what a report looks like before spending any allowance, run a mock scan. It calls no model, analyzes no code, and needs no sign-in. It only creates made-up findings with `[Mock]` in their titles. Mock results go into scan history like real ones, so the docs suggest a separate, temporary state directory to keep them apart:
+Try a mock scan to preview the report layout. It requires no sign-in, model calls, or source analysis, and its `[Mock]` findings are synthetic.
+
+The docs recommend a separate, temporary state directory to keep mock results out of your real scan history.
 
 ```bash
 CODEX_SECURITY_STATE_DIR="$(mktemp -d)" cs scan . --mock
@@ -176,16 +171,23 @@ cs scan .
 ```
 {: .nolineno }
 
+When `OPENAI_API_KEY` or `CODEX_API_KEY` is set, the CLI reference says non-interactive and JSON scans prefer an API key. Interactive scans offer a choice when both an API key and a ChatGPT sign-in are available. To select ChatGPT explicitly, use this command in place of the previous one.
+
+```bash
+cs scan . --auth chatgpt
+```
+{: .nolineno }
+
 In an interactive terminal, the scan shows a live dashboard. Press `d` for details. For plain progress lines instead, add `--headless`.
 
-With a ChatGPT sign-in, progress shows the percentage of your account allowance used in each window. To limit what one scan spends, set a dollar amount with `--max-cost`:
+When allowance data is available for your ChatGPT account, progress shows the percentage used in each window. To set a stopping threshold based on estimated cost, give `--max-cost` a dollar amount.
 
 ```bash
 cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-The amount is estimated at standard API rates, and the scan stops once the estimate goes over. It isn't a hard cap: requests already in flight can push actual usage past it.
+The CLI estimates cost at the model's standard rates and stops after the estimate crosses the threshold. In-flight requests can push the estimate higher. ChatGPT account allowance is measured separately.
 
 When the scan finishes, the terminal prints a summary. Here is the example from the official docs:
 
@@ -198,9 +200,9 @@ When the scan finishes, the terminal prints a summary. Here is the example from 
 ```
 {: .nolineno }
 
-`REPORT` is the report path, and `RESULTS` is this scan's results directory. By default, the scan exits with 0 even when it reports findings. It exits with 2 only when the scan itself fails.
+`REPORT` points to the report file, and `RESULTS` points to this scan's results directory. A completed scan exits with 0 by default, even if it reports findings. A configured severity threshold can produce exit code 1, while input or execution errors can produce 2.
 
-A scan can also exit with 2 while it's still building the threat model, with this message:
+I tried this twice with a ChatGPT Team account. Both runs exited with code 2 after the cybersecurity policy blocked them while building the threat model, which outlines plausible attack scenarios. The CLI showed this message.
 
 ```text
 This content was flagged for possible cybersecurity risk. If this seems wrong, try rephrasing your request. If you’re doing authorized security work that requires more cyber permissive safeguards, apply for Daybreak access via https://platform.openai.com/settings/organization/status-and-access before retrying.
@@ -226,18 +228,18 @@ These three files in the results directory matter most:
 | `findings.json` | Location and evidence for each finding, for tools to process |
 | `scan-manifest.json` | Scan status, target, and scope; `scan.scope` records included and excluded paths |
 
-There's also `exports/results.sarif`. SARIF is the standard format for code scanning results, which platforms such as GitHub can read.
+A scan also attempts to write `exports/results.sarif`, a standard format that GitHub and other platforms can read. The scan can complete even if this optional export fails.
 
-Mock scans go through the normal reporting flow. From top to bottom, the `report.md` they produce has:
+My test runs didn't produce a real report. The section descriptions below come from the official docs and the mock scan's `report.md`.
 
-1. **Scope**: the target, the commit (Revision), included and excluded paths, and Limitations and exclusions.
-2. **Scan Summary**: the outcome, the finding count, and the mix of severity and confidence.
-3. **Threat Model**: a summary of the threat model the scan used. A threat model lays out who might attack what, and from where.
-4. **Findings**: a table of all findings, each row with its Severity and Confidence, followed by a write-up for each finding.
+1. **Scope** records the target, commit (Revision), included and excluded paths, and Limitations and exclusions.
+2. **Scan Summary** gives the outcome, finding count, and breakdown by severity and confidence.
+3. **Threat Model** summarizes the threat model the scan used.
+4. **Findings** lists each finding's severity and confidence, followed by a detailed write-up.
 
-I start with Scope. Only when the repo, commit, and excluded paths are right do the findings mean anything. Limitations and exclusions lists what this scan didn't look at.
+I start with Scope and check that the repo, commit, and excluded paths match what I intended to scan. Then I read Limitations and exclusions for coverage limits and work that still needs review.
 
-Confidence has three levels, defined in the report:
+Severity describes the potential impact of a vulnerability. Confidence describes how strongly the available evidence supports the finding. The report uses three confidence levels.
 
 | Confidence | Meaning |
 | --- | --- |
@@ -254,26 +256,26 @@ Each finding's write-up runs in sections, from Summary and Root Cause through to
 
 These findings come from source analysis, and they don't necessarily include a successful runtime reproduction. The docs advise picking a finding to fix only after its evidence supports the claimed issue.
 
-After reading the scope and findings, pick the next step:
+Use the scan status to decide whether to review the report, investigate gaps, or diagnose a failed run.
 
 | Situation | Next step |
 | --- | --- |
 | The scan finished and the scope is what you wanted | Check each finding, and note the limitations the report lists |
-| An important directory or question wasn't covered | Rescan that directory with `--path`; see the "narrow the scope" section below |
-| The scan failed or was canceled | Find the cause with `cs scans logs`, fix it, then run again |
+| An important directory or related question still needs review | Check whether the gap is scope, access, or context before deciding to rescan the relevant path |
+| The scan failed or was canceled | Use `cs scans logs` with that run's scan ID, then address the cause before retrying |
 
-Per the CLI reference, repeating the same scan doesn't guarantee it will cover what it missed. If missing access or context is the cause, fix that first.
+Per the CLI reference, repeating the same scan may leave the same gaps. If a path was left out, use `--path` as shown in the section on narrowing scope to target that directory.
 
 ## Step 6: Find past results with cs scans show
 
-Run this in the same repo to show its latest completed scan:
+Run this in the same repo with the same state directory to see the latest completed scan. Per the CLI reference, `cs scans logs` defaults to the latest run, which can include a failed or active scan. Pass the same scan ID to both commands to inspect one run.
 
 ```bash
 cs scans show
 ```
 {: .nolineno }
 
-The `artifacts` section of the output lists full paths to `report.md`, `findings.json`, `scan-manifest.json`, and the SARIF file. To see every scan of the repo, or the open findings across scans:
+The `artifacts` section gives paths to the report, result files, and available exports. Use `cs scans list` for this repo's scan history and `cs findings list` for open findings across scans.
 
 ```bash
 cs scans list
@@ -324,17 +326,19 @@ cs scan . --max-time 15
 
 ## Add it to CI: use an API key and the official GitHub Action
 
-CI has no browser to sign in with, so use an API key: set `OPENAI_API_KEY` or `CODEX_API_KEY` in the scan process's environment. Per the official CLI reference, give that key only to the scan step, and run it in a trusted workflow.
+For an unattended CI scan with the CLI, set `OPENAI_API_KEY` or `CODEX_API_KEY` in the scan step's environment. Per the official CLI reference, expose the key only to that step in a trusted workflow.
 
 There's also an official GitHub Action. Per the README, store an OpenAI API key as the repository secret `CODEX_SECURITY_API_KEY`, then copy the [weekly workflow example](https://github.com/openai/codex-security/blob/npm-v0.10.1/github-action/examples/repository.yml).
 
 Replace `REPLACE_WITH_REVIEWED_COMMIT` with the commit SHA from an Action release that you've reviewed. For why you'd pin actions to a commit SHA, see [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/).
 
-The example sets an estimated $5 limit per scan and only reports findings, without failing the job. To fail CI on high or critical findings, add `--fail-on-severity high` to the CLI, or set the Action's `fail-on-severity` input.
+The example sets an estimated cost threshold of $5 per scan. It reports findings by default, and execution errors can still fail the job.
+
+To make high or critical findings fail CI as well, use `--fail-on-severity high` with the CLI. In the Action, set `fail-on-severity` to `high`.
 
 ## Conclusion
 
-I suggest starting with a repo you know well and the default Standard mode. When you read the report, check Scope first, then the evidence for each finding. The report gives you leads: before you fix anything, confirm the issue really holds in your system.
+I suggest starting with a repo you know well and the default Standard mode. Pick one well-supported finding and check it against your code before deciding on a fix.
 
 ## Further Reading
 

@@ -11,7 +11,7 @@ image:
 mermaid: true
 ---
 
-想知道自己的程式有沒有漏洞，又不想先架一整套資安平台？OpenAI 的 Codex Security 提供命令列工具 `cs`，在 repo 目錄執行一行指令，就會讓模型讀過程式碼、驗證疑似漏洞，再存成一份 Markdown 報告。這篇帶你在自己的電腦完成第一次掃描，並讀懂那份報告。
+想知道自己的程式有沒有漏洞，又不想先架一整套資安平台？OpenAI 的 Codex Security 提供命令列工具 `cs`，可以掃描自己的程式碼儲存庫（repo）。這篇帶你在本機準備第一次掃描，並用範例報告說明怎麼核對掃描範圍和結果。
 
 > 步驟依 [openai/codex-security](https://github.com/openai/codex-security) 的 npm-v0.10.1 版 [README](https://github.com/openai/codex-security/blob/npm-v0.10.1/README.md)、[CLI 參考](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md)，以及官方的 [CLI 快速入門](https://learn.chatgpt.com/docs/security/cli)整理，查證日期是 2026-11-24。工具更新很快，選項以已安裝版本的 `cs scan --help` 為準。
 {: .prompt-info }
@@ -41,30 +41,14 @@ flowchart LR
 
 ## 掃描前先知道：它用你的權限執行，結果含原始碼
 
-Codex Security 以你的本機帳號執行，能做的事和你自己一樣多。依[官方快速入門](https://learn.chatgpt.com/docs/security/cli)，CLI 執行時不會停下來請你核准。[SECURITY.md](https://github.com/openai/codex-security/blob/npm-v0.10.1/SECURITY.md) 因此建議，只掃你信任、也有權評估的 repo。
+Codex Security CLI 用你的本機帳號啟動。依[官方快速入門](https://learn.chatgpt.com/docs/security/cli)，掃描時不會停下來請你核准。[SECURITY.md](https://github.com/openai/codex-security/blob/npm-v0.10.1/SECURITY.md) 建議只掃你信任、也有權評估的 repo。
 
 開始前先確認這幾件事：
 
-- **掃描程序會繼承環境變數。** 官方提醒，這包括和掃描無關的 API token 與雲端憑證，開始前要先移除。
+- **掃描程序會繼承環境變數。** 官方提醒，這包括和掃描無關的 API token 與雲端憑證。步驟 4 會在掃描前清掉這些變數。
 - **程式碼會交給模型分析。** 預設的模型供應商是 OpenAI，也可以改用 Amazon Bedrock 等其他供應商。
-- **結果裡有原始碼。** 報告會附上程式碼片段和漏洞細節。依[官方 FAQ](https://learn.chatgpt.com/docs/security/cli/faq)，`cs scans logs` 印出的紀錄也沒有遮蔽，分享前先看過內容。
-- **帳號可能要先申請資安存取資格。** 依 README，部分資安請求與受保護的發現需要 [Trusted Access for Cyber](https://chatgpt.com/cyber)。沒有資格時，掃描可能一開始就被拒絕，處理方式見步驟 4。
-
-要找出目前終端機裡疑似憑證的環境變數，可以只印名稱、不印值：
-
-```bash
-env | grep -iE 'token|secret|key|pass' | cut -d= -f1
-```
-{: .nolineno }
-
-把和掃描無關的變數在這個終端機裡清掉。下面的名稱只是範例，換成你列出來的那些：
-
-```bash
-unset GITHUB_TOKEN AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
-```
-{: .nolineno }
-
-`unset` 只影響目前這個終端機，關掉視窗就恢復原狀。`OPENAI_API_KEY` 和 `CODEX_API_KEY` 會影響登入方式，步驟 3 再說明。
+- **報告與紀錄可能含敏感資訊。** 報告會附上程式碼片段和漏洞細節。依[官方 FAQ](https://learn.chatgpt.com/docs/security/cli/faq)，`cs scans logs` 會印出未遮蔽的紀錄，可能含有原始碼或憑證。分享前先檢查內容。
+- **登入和資安存取資格要分開確認。** 依 README，部分資安請求與受保護的發現需要 [Trusted Access for Cyber](https://chatgpt.com/cyber)。帳號登入成功後，掃描仍可能被拒絕，見步驟 4。
 
 ## 步驟 1：確認 Node.js 與 Python 版本
 
@@ -112,9 +96,9 @@ npx @openai/codex-security@0.10.1 --version
 
 ## 步驟 3：用 cs login 登入 ChatGPT 帳號
 
-**平常也用 Codex CLI 的人，第一次掃描或查登入狀態之前，一定要先跑 `cs login`。** 依 CLI 參考，沒有自己的登入時，Codex Security 會匯入 Codex 存在檔案裡的登入資訊。兩邊因此共用一個只能用一次的更新權杖（refresh token）。
+**如果 Codex CLI 把 ChatGPT 登入資訊存在檔案裡，請先讓 Codex Security 建立自己的登入工作階段。** 依 CLI 參考，第一次掃描或查詢登入狀態時，CLI 可能會匯入 Codex 的登入資訊。這會讓兩個工具共用一枚只能用一次的更新權杖（refresh token）。
 
-共用的後果是，其中一邊更新權杖後，另一邊下次更新就可能失敗。這時狀態甚至仍顯示已登入。
+其中一個工具用掉權杖後，另一個下次更新登入資訊時就可能失敗。這時狀態仍可能顯示已登入。
 
 登入會打開瀏覽器，用 ChatGPT 帳號完成。登入後再確認狀態：
 
@@ -133,7 +117,7 @@ cs login --device-auth
 
 工作區不允許裝置驗證時，照 [CLI 參考的 SSH 轉發說明](https://github.com/openai/codex-security/blob/npm-v0.10.1/sdk/typescript/docs/cli.md#remote-login-with-ssh-forwarding)登入。
 
-遇到「refresh token 已被使用」這類錯誤，先登出再重新登入：
+如果 Codex Security 回報「refresh token 已被使用」，就在這個 CLI 登出後重新登入。
 
 ```bash
 cs logout
@@ -141,14 +125,23 @@ cs login
 ```
 {: .nolineno }
 
-環境裡有 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 時，非互動式與 JSON 輸出的掃描，預設會改用這把 key。互動式掃描則會問你要用哪一個。要固定用 ChatGPT 登入，掃描時加上 `--auth chatgpt`：
+## 步驟 4：先 dry-run，再正式掃描
+
+在準備執行掃描的終端機裡，先檢查有沒有掃描用不到的憑證。環境變數的值都是單行時，可以用下列指令找出可疑的名稱。如果有多行憑證，例如 PEM 私鑰，請略過這個篩選範例，以免印出值的片段。
 
 ```bash
-cs scan . --auth chatgpt
+env | grep -iE 'token|secret|key|pass' | cut -d= -f1
 ```
 {: .nolineno }
 
-## 步驟 4：先 dry-run，再正式掃描
+篩選也會比對變數的值，可能列出與憑證無關的名稱。確認哪些變數是掃描用不到的憑證後，再把它們填入下方的 `unset` 範例。
+
+```bash
+unset GITHUB_TOKEN AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY
+```
+{: .nolineno }
+
+`unset` 會從目前的 shell 移除這些變數，接下來從這裡啟動的掃描也不會繼承它們。Shell 設定檔和其他已開啟的終端機都不受影響。
 
 切到 repo 的根目錄，先做一次 dry-run：
 
@@ -160,9 +153,11 @@ cs scan . --dry-run
 
 dry-run 只檢查本機的輸入：要掃哪裡、用哪種模式、結果存到哪裡。它不會開始掃描、不載入憑證，也不檢查 Python。所以 dry-run 通過，不代表登入和執行環境都沒問題。
 
-輸出裡的 `stateDirectory` 是結果的存放位置，預設是 `~/.codex/state/plugins/codex-security`。它在 repo 之外，結果不會被你順手 commit 進去。想存到別處，加上 `--output-dir`，指定一個空的、在 repo 外的目錄。
+dry-run 顯示的 `stateDirectory` 是掃描歷史與預設結果的根目錄。通常位於 `~/.codex/state/plugins/codex-security`。若要將本次結果另存到 repo 外的空目錄，dry-run 和正式掃描都加上同一個 `--output-dir`。
 
-想在花額度之前先看報告長什麼樣子，可以跑 mock 掃描。它不呼叫模型、不分析程式碼，也不必登入，只產生標題帶 `[Mock]` 的虛構發現。mock 結果會照常記進掃描歷史，官方建議另外指定一個臨時的狀態目錄，不和真正的結果混在一起：
+想先看報告的版型，可以試 mock 掃描。這個模式不需登入，也不呼叫模型或分析程式碼。報告裡的 `[Mock]` 發現都是模擬資料。
+
+官方建議用獨立的暫存狀態目錄保存 mock 掃描，讓它的歷史紀錄和正式掃描分開。
 
 ```bash
 CODEX_SECURITY_STATE_DIR="$(mktemp -d)" cs scan . --mock
@@ -176,16 +171,23 @@ cs scan .
 ```
 {: .nolineno }
 
+偵測到 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 時，依 CLI 參考，非互動式或 JSON 輸出的掃描會優先用 API key。如果 ChatGPT 登入和 API key 都可用，互動式掃描會讓你選。要明確使用 ChatGPT 帳號，就用下面這個版本取代上一個指令。
+
+```bash
+cs scan . --auth chatgpt
+```
+{: .nolineno }
+
 在互動式終端機裡，掃描會顯示即時儀表板，按 `d` 可以看細節。想要一行一行的純文字進度，加上 `--headless`。
 
-用 ChatGPT 登入時，進度畫面會顯示帳號額度在各個時段用掉的百分比。想限制一次掃描的花費，用 `--max-cost` 指定美元金額：
+用 ChatGPT 登入且工具取得額度資訊時，進度畫面會顯示帳號各時段的已用百分比。若要按估算費用設定單次掃描的停止條件，用 `--max-cost` 指定美元金額。
 
 ```bash
 cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-這個金額依 API 的標準費率估算，估計值超過就停止。它不是硬性上限，已經送出的請求仍可能讓實際用量超過。
+CLI 按模型的標準費率估算，超過門檻才會停止掃描。已送出的請求仍可能使估算金額超標。ChatGPT 帳號額度另外計算。
 
 掃描結束時，終端機會印出一段摘要。下面是官方文件的範例：
 
@@ -198,9 +200,9 @@ cs scan . --max-cost 5
 ```
 {: .nolineno }
 
-`REPORT` 是報告的路徑，`RESULTS` 是這次掃描的結果目錄。預設情況下，有發現也會以 0 結束，只有掃描本身執行失敗才會以 2 結束。
+`REPORT` 指向報告檔，`RESULTS` 指向存放這次掃描結果的目錄。掃描完成預設回傳結束碼 0，即使有發現也一樣。設定嚴重度門檻後，達到門檻會回傳 1，輸入或執行錯誤則可能回傳 2。
 
-掃描也可能在建立威脅模型的階段就以 2 結束，並顯示這段訊息：
+我用 ChatGPT Team 帳號實測，兩次掃描都在建立威脅模型時被資安政策擋下，最後回傳結束碼 2。威脅模型是掃描用來整理可能攻擊情境的摘要。當時 CLI 顯示這段訊息。
 
 ```text
 This content was flagged for possible cybersecurity risk. If this seems wrong, try rephrasing your request. If you’re doing authorized security work that requires more cyber permissive safeguards, apply for Daybreak access via https://platform.openai.com/settings/organization/status-and-access before retrying.
@@ -226,18 +228,18 @@ cs scan . --codex daybreak=true
 | `findings.json` | 每個發現的位置與佐證，適合交給程式處理 |
 | `scan-manifest.json` | 掃描狀態、目標與範圍，`scan.scope` 記錄納入與排除的路徑 |
 
-另外還有 `exports/results.sarif`。SARIF 是程式碼掃描結果的標準格式，GitHub 等平台都讀得懂。
+掃描也會嘗試產生 `exports/results.sarif`。SARIF 是 GitHub 等平台可讀取的標準格式。即使這份選用的匯出檔沒產生，掃描仍可能完成。
 
-mock 掃描走的是正式的報告流程，產生的 `report.md` 由上到下依序是：
+上面的實測沒有產生正式報告。以下依官方文件與 mock 掃描的 `report.md` 說明各節的用途。
 
-1. **Scope**：掃描的目標、commit（Revision）、納入與排除的路徑，以及 Limitations and exclusions。
-2. **Scan Summary**：掃描結果、發現數量，以及嚴重度與可信度的分布。
-3. **Threat Model**：這次掃描採用的威脅模型摘要。威脅模型是「誰可能從哪裡攻擊什麼」的整理。
-4. **Findings**：所有發現的總表，每列有嚴重度（Severity）與可信度（Confidence），再往下是各個發現的詳細說明。
+1. **Scope** 記錄掃描目標、commit（Revision）、納入與排除的路徑，以及掃描限制（Limitations and exclusions）。
+2. **Scan Summary** 整理結果、發現數量，以及嚴重度和可信度的分布。
+3. **Threat Model** 摘要說明掃描採用的威脅模型。
+4. **Findings** 先列出每個發現的嚴重度（Severity）與可信度（Confidence），再逐項說明。
 
-讀的時候，我會先確認 Scope。repo、commit 和排除的路徑都對了，後面的發現才有意義。Limitations and exclusions 列出的，就是這次沒看到的地方。
+我會先在 Scope 核對 repo、commit 與排除的路徑，確認這份報告對應到我想掃的版本和範圍。接著看 Limitations and exclusions，弄清楚報告還有哪些範圍限制或待查事項。
 
-可信度分三級，報告裡附有定義：
+嚴重度描述漏洞可能造成的影響。可信度則反映現有證據能多有力地支持這項發現，報告裡分成三級。
 
 | 可信度 | 意思 |
 | --- | --- |
@@ -254,26 +256,26 @@ mock 掃描走的是正式的報告流程，產生的 `report.md` 由上到下�
 
 這些發現來自原始碼分析，不一定附有實際執行的重現結果。官方的建議是，證據足以支持問題成立之後，才挑出來修。
 
-讀完範圍和發現，依情況決定下一步：
+先看這次掃描的狀態，再決定該讀報告、補查範圍，還是先處理失敗的原因。
 
 | 情況 | 下一步 |
 | --- | --- |
 | 掃描完成，範圍也符合預期 | 逐項查證發現，記下報告列出的限制 |
-| 重要的目錄或問題沒被看到 | 用 `--path` 對那個目錄重掃，見後面「縮小範圍」一節 |
-| 掃描失敗或被取消 | 用 `cs scans logs` 查原因，修好後重跑 |
+| 重要目錄未納入，或相關問題仍待查 | 先確認缺少的是範圍、權限還是背景資料，再決定是否針對相關目錄重掃 |
+| 掃描失敗或被取消 | 用 `cs scans logs` 搭配那次掃描的 ID 查原因，處理後再重跑 |
 
-依 CLI 參考，同樣的掃描再跑一次，不保證會補上漏掉的地方。缺的是存取權限或背景資料時，要先補上。
+依 CLI 參考，重跑同一個掃描不一定會補到原先漏掉的地方。如果是路徑漏選，可以用後面「縮小範圍」一節的 `--path` 指定要補查的目錄。
 
 ## 步驟 6：之後用 cs scans show 找回結果
 
-在同一個 repo 裡執行下面這行，會顯示最近一次完成的掃描：
+在同一個 repo 裡，用原本的狀態目錄執行下方指令，會顯示最近一次完成的掃描。依 CLI 參考，`cs scans logs` 預設查的是最近一次執行，包含失敗或執行中的掃描。要確認兩個指令指向同一輪，就都指定掃描 ID。
 
 ```bash
 cs scans show
 ```
 {: .nolineno }
 
-輸出的 `artifacts` 列出 `report.md`、`findings.json`、`scan-manifest.json` 與 SARIF 檔的完整路徑。要看這個 repo 的所有掃描，或跨掃描仍未處理的發現：
+輸出的 `artifacts` 會列出報告、結果檔和可用的匯出檔路徑。要找這個 repo 的掃描紀錄，用 `cs scans list`。要查看跨掃描仍未處理的發現，用 `cs findings list`。
 
 ```bash
 cs scans list
@@ -324,17 +326,19 @@ cs scan . --max-time 15
 
 ## 放進 CI：改用 API key 與官方 GitHub Action
 
-CI 裡沒有瀏覽器可以登入，要改用 API key，也就是把 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 設在掃描程序的環境變數裡。依官方 CLI 參考，這把 key 應該只給掃描那一步，並在可信任的 workflow 裡執行。
+CI 要自動執行掃描，可以把 `OPENAI_API_KEY` 或 `CODEX_API_KEY` 設在掃描步驟的環境變數裡。依官方 CLI 參考，這把 key 只應提供給可信任 workflow 裡的掃描步驟。
 
 官方也提供 GitHub Action。依 README，先把 OpenAI API key 存成 repo secret `CODEX_SECURITY_API_KEY`，再複製[每週掃描的 workflow 範例](https://github.com/openai/codex-security/blob/npm-v0.10.1/github-action/examples/repository.yml)。
 
 範例裡的 `REPLACE_WITH_REVIEWED_COMMIT`，要換成 Action release 標示、你審查過的 commit SHA。把 action 釘在 commit SHA 的理由，可以參考[gh actions-lock 教學](/posts/gh-actions-lock-workflow-lockfile/)。
 
-範例每次掃描的估計上限是 5 美元，只回報發現，不會讓 job 失敗。要讓 CI 在有 high 或 critical 發現時失敗，CLI 加上 `--fail-on-severity high`。Action 則設定同名的 `fail-on-severity` 輸入。
+範例把單次掃描的估算費用門檻設為 5 美元。有發現時，預設只回報結果。掃描本身失敗時，job 仍會失敗。
+
+若要讓 high 或 critical 的發現也使 CI 失敗，CLI 可用 `--fail-on-severity high`。用 Action 時，將 `fail-on-severity` 設為 `high`。
 
 ## 結論
 
-我建議第一次先挑自己熟悉的 repo，用預設的 Standard 模式掃一次。讀報告時先看 Scope，再逐項看每個發現的證據。報告是線索，修之前要先確認問題在你的系統裡真的成立。
+我建議第一次先挑自己熟悉的 repo，用預設的 Standard 模式掃一次。可以從一項有充分證據的發現開始，對照自己的程式碼，確認問題成立再修。
 
 ## 延伸閱讀
 
