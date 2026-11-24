@@ -469,7 +469,7 @@ Whichever you pick, the bar is the same: `✓ Done` from an action doesn't count
 
 - The [agent-browser docs](https://agent-browser.dev/): every command, setting, and advanced feature.
 - [Security](https://agent-browser.dev/security): domain limits, the action policy, the auth vault, and other safety settings.
-- [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/): put your testing rules in the project.
+- [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): put your testing rules in the project.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): run checks automatically.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): why you should limit an agent's tools.
 - [Modern Web Guidance Hands-On: Agents Fix Legacy Web Code](/posts/modern-web-guidance-coding-agent/): an agent fixes legacy web code from a guide, then verifies the result in Chrome.

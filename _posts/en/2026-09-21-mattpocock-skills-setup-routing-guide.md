@@ -153,7 +153,7 @@ After you confirm, it modifies or creates the following files:
 | `docs/agents/domain.md`        | How the glossary and decision records are organized                    | Always created or updated                               |
 | `docs/agents/triage-labels.md` | The names of the triage labels                                        | Created or updated only if `triage` is installed        |
 
-If the project has neither instruction file, it asks which one you want to create rather than deciding on its own. If a file already contains an `## Agent skills` section, it updates that section in place instead of adding a duplicate.
+If the project has neither instruction file, it asks which one you want to create rather than deciding on its own. For how Codex and Claude Code each load these two files, see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/). If a file already contains an `## Agent skills` section, it updates that section in place instead of adding a duplicate.
 
 Setup only writes the label names into `docs/agents/triage-labels.md`; the process as written has no step that creates those labels on GitHub or GitLab. So before you start triaging, I'd first make sure the label names in your issue tracker match the configuration file.
 

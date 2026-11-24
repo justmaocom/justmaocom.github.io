@@ -104,7 +104,7 @@ Sidebar pages with their own text, such as "About" and "Projects," work the same
 
 Keeping the three versions consistent depends on written rules, not on memory. I keep the rules in the repo at [`docs/translation-guide.md`](https://github.com/justmaocom/justmaocom.github.io/blob/main/docs/translation-guide.md).
 
-That document is compiled from `CLAUDE.md`, the project notes the AI assistant reads; `CLAUDE.md` itself is listed in `.gitignore` and is not on GitHub. Whether I translate a post myself or have AI write the first draft, the same rules apply. For how to write a rules file for AI tools, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/). The rules:
+That document is compiled from `CLAUDE.md`, the project notes the AI assistant reads; `CLAUDE.md` itself is listed in `.gitignore` and is not on GitHub. Whether I translate a post myself or have AI write the first draft, the same rules apply. For how to write a rules file for AI tools, see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/). The rules:
 
 - Simplified Chinese takes more than converting the characters. The wording has to change to what readers in mainland China use. For example, 軟體 (software) becomes 软件, 程式碼 (code) becomes 代码, and the corner-bracket quotation marks 「」 become “”. The same word depends on context. For example, 指令 becomes 命令 only when it means a command-line command.
 - The `tags` must be exactly the same in all three versions, because the languages share tag pages with the same names.

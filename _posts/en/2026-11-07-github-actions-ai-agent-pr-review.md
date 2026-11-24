@@ -184,7 +184,7 @@ These instructions express the focus I want from the review; they do not guarant
 
 To keep using them, the official docs say to put the rules in the repository's `AGENTS.md` (a project rules file written for agents to read), under a `## Code Review Rules` heading. Codex on GitHub reads the file that is in the repository.
 
-I currently list `AGENTS.md` in this site's `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with that review means deciding how to track the file. For how to write it, see my post [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+I currently list `AGENTS.md` in this site's `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with that review means deciding how to track the file. For how to write it, see my post [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 ### Step 3: After New Commits, Confirm the Latest Version Was Reviewed
 

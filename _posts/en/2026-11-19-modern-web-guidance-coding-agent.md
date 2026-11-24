@@ -486,7 +486,7 @@ if (!('commandForElement' in HTMLButtonElement.prototype)) {
 }
 ```
 
-That URL has no version. If you copy it as-is, browsers without `command` support load whatever version of `invokers-polyfill` is latest at runtime. If your project doesn't allow loading code from a CDN at runtime, say so clearly in `CLAUDE.md` or `AGENTS.md`. For how, see [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+That URL has no version. If you copy it as-is, browsers without `command` support load whatever version of `invokers-polyfill` is latest at runtime. If your project doesn't allow loading code from a CDN at runtime, say so clearly in `CLAUDE.md` or `AGENTS.md`. For how, see [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 ### Without a slash command
 

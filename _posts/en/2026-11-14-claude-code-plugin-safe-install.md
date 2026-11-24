@@ -541,7 +541,7 @@ Anyone on the team might install a plugin, so being careful on my own isn't enou
 
 ### Write it into your project rules
 
-I'd put the checklist above into `CLAUDE.md`, `AGENTS.md`, or the PR template. Then the team agrees that "anyone who adds a plugin or marketplace attaches this checklist." I cover how to write a rules file in [How to Write AGENTS.md: Give Coding Agents Your Project Rules](/posts/agents-md-project-rules-for-coding-agents/).
+I'd put the checklist above into `CLAUDE.md`, `AGENTS.md`, or the PR template. Then the team agrees that "anyone who adds a plugin or marketplace attaches this checklist." I cover how to write a rules file in [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 ### Review the settings file like code
 

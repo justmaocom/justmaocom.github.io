@@ -153,7 +153,7 @@ flowchart TD
 | `docs/agents/domain.md`        | 词汇表与决策记录的存放方式                 | 一定会创建或更新                         |
 | `docs/agents/triage-labels.md` | 分类标签的名称                             | 只在安装了 `triage` 时创建或更新         |
 
-如果项目里两份说明文件都没有，它会先问你要创建哪一份，不会自行决定。如果文件里已经有 `## Agent skills` 段落，它会直接更新该段落，不会重复添加。
+如果项目里两份说明文件都没有，它会先问你要创建哪一份，不会自行决定。Codex 和 Claude Code 各自怎么读这两份文件，见 [AGENTS.md 怎么写：让 Coding Agent 读懂你的项目规则](/posts/agents-md-project-rules-for-coding-agents/)。如果文件里已经有 `## Agent skills` 段落，它会直接更新该段落，不会重复添加。
 
 setup 只把标签名称写进 `docs/agents/triage-labels.md`，原始流程里没有到 GitHub 或 GitLab 创建标签的步骤。所以开始分类之前，我会先确认工作跟踪工具里的标签名称与配置文件一致。
 
