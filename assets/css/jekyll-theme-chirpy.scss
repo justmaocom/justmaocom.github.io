@@ -651,12 +651,12 @@ footer {
   /* 主題在 850px 以下才有上下留白；992px 以上的下方由 pb-lg-3 決定 */
   padding-block: 2rem 1.5rem;
 
-  /* 主題在 992px 以下把兩行文字置中，改成靠左，與兩欄對齊 */
+  /* 主題在 992px 以下把版權列置中，改成靠左，與兩欄對齊 */
   p {
     text-align: start;
   }
 
-  /* 寬螢幕時兩欄獨佔一列，版權與 Powered by 兩行換到下一列 */
+  /* 寬螢幕時兩欄獨佔一列，版權列換到下一列 */
   .footer-links {
     display: flex;
     flex-wrap: wrap;
