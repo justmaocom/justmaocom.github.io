@@ -25,7 +25,7 @@ This post uses a real article review on this site to show how GitHub Actions and
 
 Other terms are explained where they first appear. The problem I want to solve is concrete: **for every review, be able to say what was checked, which version was checked, and what still needs a human decision.**
 
-> **Scope**: I checked this site's source and public PR records on 2026-11-07. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example.
+> **Scope**: I checked this site's source and public PR records on 2026-11-07 and rechecked the Codex and GitHub docs on 2026-11-24. The configuration is pinned to commit [`15a6041`](https://github.com/justmaocom/justmaocom.github.io/tree/15a6041c0974248f91f3dd678a35ace5d1bec995); the example is merged [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29). The custom Codex Action near the end is only an extension example.
 {: .prompt-info }
 
 ## If Content Changes After Review, Record Which Version Was Reviewed
@@ -79,7 +79,7 @@ These fixed rules have clear limits; passing them does not mean the content is r
 
 The second check appears in the PR discussion. [The Codex summary on PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29#issuecomment-6655342679) shows a completed Codex Code Review from when the PR was opened; that row's trigger column says PR opened.
 
-The comment comes from Codex's GitHub integration (the `chatgpt-codex-connector` account), which is not part of the workflow above. So the absence of `openai/codex-action` from the workflow does not mean the site has no AI review, and it does not mean Actions started this review.
+The comment comes from Codex's GitHub integration (the `chatgpt-codex-connector` account), which is not part of the workflow above. So the absence of `openai/codex-action` from the workflow does not mean the site has no AI review. Nor did Actions start this review.
 
 In my view, AI review is good at reading prose, comparing claims, and spotting issues that take reasoning to find.
 
@@ -101,7 +101,7 @@ To me, those last two fixes show why the work needs several kinds of review:
 - Whether a GitHub link path is correct calls for checking the source or running a separate external-link check.
 - A phrase such as “关光” calls for language editing.
 
-Neither a successful build nor the absence of AI findings covers both on its own. Nor does this show that Codex missed the final fix, because the summary I have refers to an earlier version.
+Neither a successful build nor the absence of AI findings covers both on its own.
 
 ## Dividing the Work: Fixed Rules, AI Reasoning, Human Approval
 
@@ -109,11 +109,11 @@ I would start with this site's existing Actions workflow and Codex integration, 
 
 ```mermaid
 flowchart TD
-  A[Open PR or push another commit] --> B[Actions: build and deterministic checks]
-  A --> C[Codex: review the changes]
+  A[Open PR or push another commit] --> B["Actions: build and deterministic checks"]
+  A --> C["Codex: review the changes"]
   B --> D[Match CI version and reviewed head SHA]
   C --> D
-  D --> E[Human: check sources, translations, and scope]
+  D --> E["Human: check sources, translations, and scope"]
   E --> F{Changes needed?}
   F -->|Yes| A
   F -->|Acceptable| G[Human approval and merge]
@@ -125,27 +125,27 @@ flowchart TD
 bash tools/test.sh
 ```
 
-It rebuilds the production site and checks localized URLs and internal links. It does not include the npm asset comparison in the `lib` job. If CI fails, I do not count the change as passed, even if the AI raised no issues.
+It rebuilds the production site and checks localized URLs, SEO output, and internal links. It does not include the npm asset comparison in the `lib` job. If CI fails, I do not count the change as passed, even if the AI raised no issues.
 
 **Give reasoning tasks to the AI agent.** For example:
 
 - An article says an action runs for PRs from anyone by default, while the cited version restricts who can trigger it.
-- The three translations describe the same option in contradictory ways.
+- The three language versions describe the same option in contradictory ways.
 
 Ask the agent for the file, passage, evidence, and impact of each finding. Those are easier to verify than an open-ended request to “review everything.”
 
-**Keep sources, voice, and publishing decisions with a human.** Statements such as “I tested this” or “this site already enables it” need execution records or configuration to support them. Check AI suggestions against their sources too.
+**Keep sources, voice, and publishing decisions with a human.** Statements such as “I tested this” or “this site has it enabled” need execution records or configuration to support them. Check AI suggestions against their sources too.
 
 No findings means only that the review reported no issues. It does not replace editing, fact-checking, or approval to merge.
 
 ![Automated checks enforce fixed rules, AI flags possible problems, and a person verifies sources and decides whether to merge.](review-roles.webp){: w="800" h="450" }
 _Keep the three apart: fixed rules, questions that take reasoning, and the decision to merge._
 
-## Steps
+## Use the Existing Codex Integration and Recheck After New Commits
 
 ### Step 1: Trigger Review With the Existing Codex Integration
 
-I would not rush into installing another bot (an automated account that performs tasks). [The official Codex documentation](https://developers.openai.com/codex/cloud/code-review) describes two entry points: enable automatic review for the repository in Codex settings, or leave this comment on a PR:
+I would not rush into installing another bot (an automated account that performs tasks). [The official Codex documentation](https://learn.chatgpt.com/docs/third-party/github) describes two entry points: enable automatic review for the repository in Codex settings, or leave this comment on a PR:
 
 ```text
 @codex review
@@ -177,21 +177,21 @@ Check tool-behavior claims against the source version named in the article.
 Compare commands, numbers, and limitations across all three languages.
 Flag claims such as "tested" or "enabled" that lack supporting records.
 For each finding, give the file, passage, evidence, impact, and suggested fix.
-State unavailable sources and partial coverage. Do not claim a full pass.
+If a source is unavailable or you saw only part of the changes, say so and do not claim a full pass.
 ```
 
-These instructions express the focus I want from the review; they do not guarantee a reply to every item. When I checked, the official documentation said GitHub Code Review flags only high-priority P0 and P1 issues (the most serious problems, to be fixed first). Paragraph-by-paragraph editing or a complete report with mandatory fields needs a separately designed process.
+These instructions express the focus I want from the review; they do not guarantee a reply to every item. When I checked, the official documentation said Codex code review on GitHub flags only high-priority P0 and P1 issues (the most serious problems, to be fixed first). Paragraph-by-paragraph editing or a complete report with mandatory fields needs a separately designed process.
 
 To keep using them, the official docs say to put the rules in the repository's `AGENTS.md` (a project rules file written for agents to read), under a `## Code Review Rules` heading. Codex on GitHub reads the file that is in the repository.
 
-I currently list `AGENTS.md` in this site's `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with that review means deciding how to track the file. For how to write it, see my post [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
+I currently list `AGENTS.md` in this site's `.gitignore` (the list of files kept out of version control), so an uncommitted copy does not appear on a public PR. Sharing the rules with the team and with Codex review on GitHub means deciding how to track the file. For how to write it, see my post [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/).
 
 ### Step 3: After New Commits, Confirm the Latest Version Was Reviewed
 
 For PR #29, I would want more than a bare “review complete” before merge. After the article changes, the earlier review still belongs to the old version, and the new version needs to be checked again.
 
 ![After an article changes, the earlier review still belongs to the old version; the updated version needs its checks confirmed again.](review-latest-revision.webp){: w="800" h="450" }
-_A note on the old version does not prove the new one was reviewed. Read the revised passages again._
+_A review note on the old version does not prove the new one was reviewed. Read the revised passages again._
 
 The record below is the format I suggest, not a record that exists in the example:
 
@@ -213,7 +213,7 @@ Keep the sequence simple:
 
 Matching the CI version in item 3 has one catch: CI does not actually check out the PR head.
 
-This site's workflow does not name a different version when it checks out the code, so it gets `GITHUB_SHA`, the version that run actually checks out. [GitHub's event docs](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request) say `GITHUB_SHA` for `pull_request` is the synthetic merge commit, a temporary merge of the PR into its target branch.
+This site's workflow does not set a ref for checkout, so it gets `GITHUB_SHA`, the version that run actually checks out. [GitHub's event docs](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request) say `GITHUB_SHA` for `pull_request` is the synthetic merge commit, a temporary merge of the PR into its target branch.
 
 ```mermaid
 flowchart LR
@@ -265,12 +265,12 @@ This example follows the [README fixed to this version](https://github.com/opena
 
 `:read-only` constrains filesystem and network access for commands; `drop-sudo` controls process privileges. They serve different purposes. Two combinations do not work:
 
-- Setting `permission-profile` and the legacy `sandbox` input together: the action rejects this before it starts.
+- Setting `permission-profile` and the legacy `sandbox` input together: the action fails before Codex starts.
 - `safety-strategy: read-only` with a permission profile: it switches to the legacy read-only sandbox, so the two cannot be combined. It is not another spelling of `:read-only`.
 
 The long string at the end of the `uses` line is a SHA that pins the action's version. It fixes only the action itself; it does not also pin the Codex CLI it installs or the model it uses. Before adoption, choose and record a tested `codex-version`, model, and report format, and check that the runner supports the required isolation.
 
-The [official security guidance](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md) splits reviewing and posting into two jobs:
+The [official security document](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md) recommends running Codex as the last step in a job and notes that its output can go to a new job. The README example splits reviewing and posting into two jobs:
 
 ```mermaid
 flowchart LR
@@ -283,16 +283,18 @@ flowchart LR
   R -->|"job output, needs"| N
 ```
 
-The comment text comes from `steps.review.outputs.final-message`. Map it to an output of the review job, then consume it through `needs` in the fresh posting job. The guidance adds two more points:
+The comment text comes from `steps.review.outputs.final-message`. Map it to an output of the review job, then consume it through `needs` in the fresh posting job.
 
-- Treat the report as data; do not splice it into executable shell or JavaScript source.
-- Start with advisory output for a person to read. An action executing successfully does not mean the content has been approved.
+The README example passes the report to the posting step through `env`, and the security document says to pass untrusted values to the shell the same way. Based on that, I suggest treating the report as data and never splicing it into executable shell or JavaScript source.
 
-A custom reporting program should read the PR head again before publishing a result. If the head changed, mark the old report as stale and arrange review of the latest version.
+Two more points are my own suggestions:
 
-`concurrency` keeps one group from running several workflows at once, but it does not replace the version check:
+- Start with advisory output that a person reads before deciding what to fix. An action executing successfully does not mean the content has been approved.
+- Before publishing a result, have the custom reporting program read the PR head again. If the head changed, mark the old report as stale and arrange review of the latest version.
 
-- With only a group, a new run waits and cancels an older run that is still queued.
+`concurrency` allows only one run per group at a time, but it does not replace the version check:
+
+- With only a group, a new run waits by default and cancels an older run that is still queued.
 - To stop the run already in progress, also set `cancel-in-progress: true`.
 
 This site's Build and Deploy workflow uses that pair to cancel an unfinished build or deploy on the same ref. Used on a custom review, it can only stop a run that has not finished. It cannot retract a report already posted.
@@ -306,7 +308,7 @@ This site's Build and Deploy workflow uses that pair to cancel an unfinished bui
 | `opened` | PR opened | Yes |
 | `synchronize` | New commits pushed | Yes |
 | `reopened` | PR reopened | Yes |
-| `ready_for_review` | Draft marked ready | No; list it only to review when a draft is marked ready |
+| `ready_for_review` | Draft marked ready | No; list it only if you want a review when a draft is marked ready |
 
 Add a separate draft condition if drafts should be skipped.
 
@@ -322,15 +324,13 @@ Posting the result on the PR is a separate question. `GITHUB_TOKEN` is the token
 
 This site's current workflow sets `contents: read` at the top level and does not grant `pull-requests: write`. So that workflow cannot use the token to post a review comment. A custom review that needs to comment has to grant posting permission in a separate job.
 
-When a fork PR lacks a secret or the actor lacks permission, skip explicitly or wait for a maintainer, rather than broadening everyone's permissions to make it run. I suggest limiting an initial rollout to trusted collaborators' PRs within the same repository. Design trust, isolation, and reporting separately before accepting external submissions.
+When a fork PR lacks a secret or the actor lacks permission, skip explicitly or wait for a maintainer, rather than broadening everyone's permissions to make it run. I suggest limiting an initial rollout to trusted collaborators' PRs within the same repository. Before accepting external contributions, design trust, isolation, and reporting in full.
 
 **Do not switch to `pull_request_target` just to obtain a secret and then check out and execute an external PR's code.** PR text, diffs, and added `AGENTS.md` files can all carry untrusted instructions. Prompt reminders help, but runners, tokens, and isolation must enforce the actual permissions.
 
-Avoid `allow-users: "*"` as a shortcut that opens API usage to everyone. These constraints are covered by [GitHub's security guide](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions) and the Codex Action security document above.
+Do not use `allow-users: "*"` as a shortcut that opens API usage to everyone. These constraints are covered by [GitHub's security guide](https://docs.github.com/en/actions/reference/security/secure-use) and the Codex Action security document above.
 
 ## Next: Review the Real Records
-
-Following this process, every PR leaves a traceable record before merge. The next time you open a PR, you will know what you are approving.
 
 After adoption, review the real records: which suggestions were accepted, which were noise, and how much time and usage each review took.
 
@@ -339,9 +339,9 @@ The lesson I take from this site's example is that connecting existing evidence 
 ## Sources and Further Reading
 
 - [This site's workflow at `15a6041`](https://github.com/justmaocom/justmaocom.github.io/blob/15a6041c0974248f91f3dd678a35ace5d1bec995/.github/workflows/pages-deploy.yml) and [PR #29](https://github.com/justmaocom/justmaocom.github.io/pull/29): the configuration and case study.
-- [Official Codex Code Review documentation](https://developers.openai.com/codex/cloud/code-review): GitHub integration, automatic reviews, guidance, and manual triggers.
+- [Official Codex Code Review documentation](https://learn.chatgpt.com/docs/third-party/github): GitHub integration, automatic reviews, guidance, and manual triggers.
 - [Pinned Codex Action README](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/README.md) and [security documentation](https://github.com/openai/codex-action/blob/bdf19a4a223ec2549a3e2274a0cf61556bc07675/docs/security.md): inputs, output, permissions, and job separation.
-- GitHub's [workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request), [security guide](https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions), and [protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches): events, tokens, and merge requirements.
+- GitHub's [workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request), [security guide](https://docs.github.com/en/actions/reference/security/secure-use), and [protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches): events, tokens, and merge requirements.
 - [pstack, Part 3: After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/): put verification and review into the agent's workflow.
 - [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): why file access, command execution, and credentials need separate consideration.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): format files and run tests automatically inside a Claude Code session, before the PR is opened.
