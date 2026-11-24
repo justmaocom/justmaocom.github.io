@@ -170,3 +170,4 @@ If you already have the skills installed, you can also just ask `ask-matt`. Desc
 - [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47): the list of 25 skills in the official plugin.
 - [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90): the full route map `ask-matt` uses to suggest your next step.
 - [pstack Series Guide: What It Is and Where to Start](/posts/pstack-series-guide/): my guide to another skill pack, pstack.
+- [mattpocock/skills vs pstack: Which Skill Pack to Install](/posts/mattpocock-skills-vs-pstack/): how the two packs differ and which to install first.
