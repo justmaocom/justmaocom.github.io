@@ -200,7 +200,7 @@ When the scan finishes, the terminal prints a summary. Here is the example from 
 ```
 {: .nolineno }
 
-`REPORT` is the report file, and `RESULTS` is this scan's results directory. A completed scan exits with 0 by default, even with findings. With `--fail-on-severity high`, high or critical findings make it exit with 1, and input or execution errors can produce 2.
+`REPORT` is the report file, and `RESULTS` is this scan's results directory. A completed scan exits with 0 by default, even with findings, and input or execution errors exit with 2. With `--fail-on-severity high`, high or critical findings make it exit with 1.
 
 A scan doesn't always get this far, though. It starts by outlining plausible attack scenarios, called the threat model. I tried it twice with a ChatGPT Team account, and both runs were blocked at that step with exit code 2. The CLI showed this message:
 
@@ -266,7 +266,7 @@ Then pick the next step based on how the scan went:
 | --- | --- |
 | The scan finished and the scope is what you wanted | Check each finding, and note the limitations the report lists |
 | An important directory wasn't scanned, or the report lists open questions | Work out whether scope, access, or context is missing, then decide whether to rescan just those directories |
-| The scan failed or was canceled | Use `cs scans logs` to find why that scan failed, fix the cause, then rerun it |
+| The scan failed or was canceled | Use `cs scans logs` to find why that scan didn't finish, fix the cause, then rerun it |
 
 Per the CLI reference, running the same scan again doesn't guarantee it fills the gaps. If you left out a path, use `--path`, described in the section on narrowing scope, to target that directory.
 
