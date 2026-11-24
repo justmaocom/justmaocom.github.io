@@ -24,3 +24,4 @@ e5f45f19812bd4a1e605da2be35a311626bdb061 # fix(seo): 英文 pstack 與 mattpococ
 4059dc69580af818bb5c799b89ce493c0d239ebf # fix(posts): mattpocock/skills 第 6 篇英文封面配合新標題重畫文字
 3338f64a004e8a9b7906c73e71ccc254dd912cac # docs(seo): 新增系列教學規則並修正 pstack 英文導讀連結文字
 dccbb6110d4ac4eece1713f96d68722e3d7babaa # fix(seo): 英文連結文字改用 AGENTS.md 新標題，並從 hooks 與 mattpocock 第 1 篇連過去
+4ffada3956b595ef19206f0ac602cc1749241af7 # docs(posts): 替 php2shell 與 Codex Security 兩篇補上同主題文章的內文連結
