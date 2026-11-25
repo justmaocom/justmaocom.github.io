@@ -23,9 +23,9 @@ You call both entry points yourself, and the difference is what happens next. Wi
 - The mattpocock/skills entry point is `/ask-matt`. Its [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9) describes it as a router over the other skills. You describe where you are, it suggests the next skill to call, and you call it yourself.
 - The pstack entry point is `/poteto-mode`. It matches the task to a playbook (a fixed set of steps written for one kind of task), copies the steps into a to-do list, and [starts working through them](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108).
 
-`/poteto-mode` reads the other skills its playbook needs. It goes ahead with anything reversible and stops before force-pushing a shared branch, deploying, or deleting data. [pstack autonomy rules](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)
+`/poteto-mode` reads the other skills its playbook needs. Under the [pstack autonomy rules](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78), it goes ahead with anything reversible and stops before force-pushing a shared branch, deploying, or deleting data.
 
-When it runs on its own while you're away, it also stops and hands back product decisions only you can make, and real dead ends. [Autonomous run playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)
+When it runs on its own while you're away, it also stops and hands back product decisions only you can make, and real dead ends (see the [autonomous run playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)).
 
 ## The Differences in One Table
 
@@ -45,7 +45,7 @@ I got the numbers in the table by counting files at the newer versions, so they 
 
 The mattpocock/skills series says 25 skills. The newer version adds `implement-spec`, `pr`, and `retro`, and drops `resolving-merge-conflicts`. The pstack series says 58, and `0.15.47` added `/reframe`.
 
-pstack works in Claude Code too, but a few steps behave differently there. Steps that need Cursor Automations or need to start Bugbot are skipped, and the review seat assigned to Gemini uses your current session's model instead. [pstack's Claude Code compatibility notes](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/docs/harness/claude-code.md)
+pstack works in Claude Code too, but a few steps behave differently there (see [pstack's Claude Code compatibility notes](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/docs/harness/claude-code.md)). Steps that need Cursor Automations or need to start Bugbot are skipped, and the review seat assigned to Gemini uses your current session's model instead.
 
 ## mattpocock/skills Keeps Decisions in the Repo
 
@@ -56,7 +56,7 @@ mattpocock/skills mostly produces files in your repo, so the next conversation o
 
 The later skills also write their results to files. Terms settled during a `grill-with-docs` interview go into `GLOSSARY.md`, and key decisions become ADRs (architecture decision records). `to-tickets` splits a spec into tickets (issues), each noting which others block it. For the full workflow, see [Part 2](/posts/mattpocock-skills-requirements-shared-language/) and [Part 3](/posts/mattpocock-skills-specs-work-breakdown/) of the mattpocock/skills series.
 
-Once you have tickets, you can use `/implement-spec` to build the whole spec in one run. It uses the dependencies between tickets to decide which work can run in parallel, then merges the results into one integration branch. [implement-spec steps](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)
+Once you have tickets, you can use `/implement-spec` to build the whole spec in one run. It uses the dependencies between tickets to decide which work can run in parallel, then merges the results into one integration branch (see the [implement-spec steps](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)).
 
 I think this pack fits best on projects with several maintainers, or where one feature takes several conversations to finish. The glossary, ADRs, and tickets stay in the repo, so whoever takes over can look up what was decided.
 
@@ -104,9 +104,9 @@ The two packs also update differently by default. The mattpocock/skills plugin [
 
 ## Choose Based on the Work in Front of You
 
-The two packs can also take turns on one task, such as adding an order CSV export to an admin dashboard. The team first needs to agree on which fields to export and who can download the file. mattpocock/skills can help you settle those questions and write the decisions into a spec for the next person. [Spec skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)
+The two packs can also take turns on one task, such as adding an order CSV export to an admin dashboard. The team first needs to agree on which fields to export and who can download the file. mattpocock/skills can help you settle those questions, and its [spec skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md) writes the decisions into a spec for the next person.
 
-Once the spec and acceptance criteria are settled, you can hand the same task to pstack's feature playbook. Following it, the AI plans the design, implements and verifies the export, and opens a PR. [Feature playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md)
+Once the spec and acceptance criteria are settled, you can hand the same task to pstack's [feature playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md). Following it, the AI plans the design, implements and verifies the export, and opens a PR.
 
 When you split work into stages like this, I suggest sticking to one pack per stage, so whoever takes over knows which tool to use next.
 
