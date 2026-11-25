@@ -36,7 +36,7 @@ tags: [標籤一, 標籤二]
 
 ## 作者與摘要
 
-- 未填 `author` 時，Chirpy 使用 `_config.yml` 的 `social.name` 與社群連結作為預設作者資料。本站目前會顯示 `JustMao`。
+- 本站 `_config.yml` 的 posts defaults 設了 `author: JustMao`，對應 `_data/authors.yml` 的同名 ID，文章署名因此連到「關於」頁。沒有這筆 defaults 時，Chirpy 改用 `social.name` 作為作者，署名連到 `social.links` 的第一個。
 - 要覆寫單篇作者，先在 `_data/authors.yml` 以 ID 建立作者資料，再填 `author: <author_id>`。多位作者則用 `authors: [<author1_id>, <author2_id>]`。不要直接把顯示名稱當成 ID，除非它正好就是 `_data/authors.yml` 的鍵。見 [Author Information](https://chirpy.cotes.page/posts/write-a-new-post/#author-information)。
 - `description` 是自訂摘要，會供文章列表、分享與 SEO metadata 等位置使用。未填時主題會由文章內容產生摘要；需要控制搜尋結果或卡片文字時應明填。見 [Post Description](https://chirpy.cotes.page/posts/write-a-new-post/#post-description)。
 
@@ -53,18 +53,18 @@ mermaid: true
 ```
 
 - `toc` 控制右側目錄。本站全域與 posts defaults 都是 `true`，單篇可用 `false` 關閉。見 [Table of Contents](https://chirpy.cotes.page/posts/write-a-new-post/#table-of-contents)。
-- `comments` 控制單篇留言區。本站 posts defaults 雖是 `true`，但 `_config.yml` 的 `comments.provider` 尚未設定，因此目前不會出現可用的留言系統。單篇 `false` 可在日後啟用 provider 後仍保持關閉。見 [Comments](https://chirpy.cotes.page/posts/write-a-new-post/#comments)。
+- `comments` 控制單篇留言區。本站 posts defaults 是 `true`，`_config.yml` 的 `comments.provider` 是 giscus，討論串存在本 repo 的 Discussions（`Announcements` 分類）。單篇設 `false` 可關閉留言區。見 [Comments](https://chirpy.cotes.page/posts/write-a-new-post/#comments)。
 - `pin: true` 把文章釘選在首頁上方，多篇釘選文章按發布日期由新到舊排列。欄位名稱是 `pin`，不是 `pinned`。見 [Pinned Posts](https://chirpy.cotes.page/posts/write-a-new-post/#pinned-posts)。
 - `math: true` 才會載入並處理文章中的數學式。行內與區塊公式依官方示例使用 MathJax 語法。見 [Mathematics](https://chirpy.cotes.page/posts/write-a-new-post/#mathematics)。
 - `mermaid: true` 才會載入 Mermaid，內容放在語言標記為 `mermaid` 的 fenced code block。見 [Mermaid](https://chirpy.cotes.page/posts/write-a-new-post/#mermaid)。
 
 ## 圖片與媒體
 
-文章內有多個相同媒體路徑前綴時，可設定：
+本站文章媒體放在 `/assets/img/posts/<slug>/`。文章內有多個相同媒體路徑前綴時，可設定：
 
 ```yaml
 ---
-media_subpath: /assets/img/2026/example/
+media_subpath: /assets/img/posts/example/
 ---
 ```
 
@@ -149,12 +149,3 @@ puts "hello"
 - 本站 `_config.yml` 已替 `_drafts` 設定 `comments: false`。
 
 草稿目錄、檔名與 `--drafts` 行為見 [Jekyll Drafts](https://jekyllrb.com/docs/posts/#drafts)。另一種做法是把文章留在 `_posts/` 並設 `published: false`，預覽時加 `--unpublished`；這是未發布文章，不等同 `_drafts` 工作流。見 [Jekyll front matter 的 `published`](https://jekyllrb.com/docs/front-matter/#predefined-global-variables)。
-
-## 建議納入 `CLAUDE.md` 的重點
-
-1. 提供一份本站可直接複製的 front matter 範本，日期固定示範 `+0800`。
-2. 寫明分類最多兩層，tags 用陣列並建議小寫；不要把 categories 寫成任意深度的階層。
-3. 記錄本站 `toc`、`comments` 的 defaults，以及留言 provider 目前為空。
-4. 收錄 `media_subpath`、預覽圖 `image.path/lqip/alt`、`pin`、`math`、`mermaid` 與 code block attributes。
-5. 補上 `_drafts` 與 `bundle exec jekyll serve --drafts` 流程。
-6. 明示 `~> 7.6` 的實際範圍是整個 7.x；若文件要保證只適用 7.6.x，應同步縮緊 Gemfile 約束或提交 lockfile。
