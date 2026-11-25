@@ -16,9 +16,9 @@ seo:
   page_title: "文章列表（第 :num 页）"
   archives_description: "JustMao 的全部 :count 篇文章，按发布日期由新到旧排列。"
   categories_description: "JustMao 的文章分类总览：:count 个分类，各自列出下面的文章。"
-  # 「專案」頁（_tabs/projects.md）；_data/projects.yml 新增或移除專案時，三個語系一起改
-  projects_title: "项目：政府采购法题库练习平台"
-  projects_description: "JustMao 自己开发的项目，附源代码与介绍文章。目前收录政府采购法题库练习平台：把官方 PDF／DOCX 题库导入数据库，每轮随机抽题，并统计出弱项。"
+  # 「專案」頁（_tabs/projects.md）的 <title> 與描述；寫成整頁的泛稱，不寫個別專案，新增專案時不用改
+  projects_title: "项目：自己开发的工具与应用，附源代码"
+  projects_description: "JustMao 自己开发的工具与应用程序。每个项目都附上源代码或网站链接，写过开发过程的，也链接到介绍文章。"
 
 # _includes/footer.html 頁尾兩欄的標題
 footer:

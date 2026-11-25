@@ -63,7 +63,7 @@ module SeoHook
   end
 
   # 「彙整」與「分類」這兩個 tab 沒有內文，不補描述的話 seo-tag 會沿用站台描述，與首頁重複。
-  # 「專案」頁的內文開頭只是泛稱，搜尋結果上看不出收錄了什麼，也改用 seo.projects_description。
+  # 「專案」頁的內文開頭沒寫出收錄哪一類專案，搜尋結果上看不出這頁有什麼，也改用 seo.projects_description。
   def describe_listing_tabs(site)
     counts = { 'archives' => site.posts.docs.size, 'categories' => site.pages.count { |page| page.data['layout'] == 'category' },
                'projects' => site.data['projects'].to_a.size }
