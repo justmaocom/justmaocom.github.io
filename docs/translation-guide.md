@@ -1,6 +1,6 @@
 # 三語翻譯規則
 
-本站每篇文章和有內文的頁面，都有繁中（預設，根目錄）、簡中（`/zh-CN/`）、英文（`/en/`）三個版本。這份文件整理翻譯與多語系撰寫的規則，內容取自本機給 AI 助手讀的專案說明 `CLAUDE.md`。不論是人工翻譯，還是請 AI 起稿，都照這份規則。
+本站每篇文章和有內文的頁面，都有繁中（預設，根目錄）、簡中（`/zh-CN/`）、英文（`/en/`）三個版本。這份文件整理翻譯與多語系撰寫的規則。不論是人工翻譯，還是請 AI 起稿，都照這份規則。
 
 多語系的建置機制（jekyll-polyglot、`_plugins/i18n-hook.rb`、hreflang）見 `_config.yml` 與各檔案開頭的註解；文章 front matter 與排版語法見[文章撰寫指南](chirpy-post-authoring.md)。
 
@@ -50,6 +50,9 @@
 | `文件維護` | `文档维护` | `Documentation` |
 | `軟體工程` | `软件工程` | `Software Engineering` |
 | `多語系網站` | `多语言网站` | `Multilingual Sites` |
+| `漏洞修補` | `漏洞修补` | `Vulnerability Patching` |
+| `供應鏈` | `供应链` | `Supply Chain` |
+| `程式碼安全` | `代码安全` | `Code Security` |
 | `AI Agent` | `AI Agent` | `AI Agents` |
 | `AI` | `AI` | `AI` |
 | `skills` | `skills` | `skills` |
