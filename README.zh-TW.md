@@ -15,6 +15,8 @@
 - `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
 - Giscus 留言，討論串存在本 repository 的 Discussions
+- 文章搜尋只在首頁，第一次使用時才下載搜尋索引
+- production 啟用 Google Analytics 與 Microsoft Clarity，歐洲時區的訪客同意後才載入
 - `llms.txt` 文章索引，以及請求帶 `Accept: text/markdown` 時回傳的 Markdown 版文章
 - 自訂網域 `justmao.com`，前面經過 Cloudflare
 
@@ -54,7 +56,7 @@ bash tools/test.sh
 ```text
 _posts/          正式文章，簡體中文與英文譯文在 zh-CN/ 與 en/ 子目錄
 _drafts/         草稿，需要時再建立
-_tabs/           側邊欄頁面
+_tabs/           側邊欄與頁尾頁面
 _includes/       覆寫或新增的主題片段
 _layouts/        覆寫的主題 layout
 _plugins/        自訂 Jekyll plugin，例如多語系網址改寫與 SEO 修正
@@ -62,13 +64,13 @@ _data/           聯絡方式、分享選單、專案頁資料與各語系介面
 assets/img/      網站與文章圖片
 assets/js/       自訂前端腳本
 assets/lib/      Chirpy 前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
-docs/            開發、文章撰寫與翻譯文件
+docs/            開發、文章撰寫、寫作風格、系列文與翻譯文件
 tools/           本機啟動、驗證與 IndexNow 腳本
 _config.yml      網站與主題設定
 index.html       首頁入口
 ```
 
-文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)，譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。多語系與 SEO 的實作說明寫在 `_plugins/` 各檔案開頭的註解。
+文章檔名使用 `YYYY-MM-DD-title.md`，放在 `_posts/`。簡體中文與英文譯文使用相同檔名，分別放在 `_posts/zh-CN/` 與 `_posts/en/`。Chirpy front matter、圖片、程式碼區塊與草稿規則請見[文章撰寫指南](docs/chirpy-post-authoring.md)。撰寫或修改文章內文前，先讀[文章寫法](docs/post-writing-style.md)。系列文請見[系列教學規則](docs/series-playbook.md)。譯文的用詞與分類對照請見[三語翻譯規則](docs/translation-guide.md)。多語系與 SEO 的實作說明寫在 `_plugins/` 各檔案開頭的註解。
 
 ## 部署
 

@@ -15,6 +15,8 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://
 - Self-hosted fonts and front-end libraries in `assets/lib`, with versions pinned by `package.json` and `package-lock.json`
 - PWA with an offline cache
 - Giscus comments, stored in the Discussions of this repository
+- Post search on the home page only, with the search index downloaded on first use
+- Google Analytics and Microsoft Clarity in production, loaded only after consent for visitors in European time zones
 - An `llms.txt` post index, and Markdown versions of posts for requests that send `Accept: text/markdown`
 - The custom domain `justmao.com`, served through Cloudflare
 
@@ -54,7 +56,7 @@ The script builds the site in production mode. It then checks the language prefi
 ```text
 _posts/          Posts, with Simplified Chinese and English translations in zh-CN/ and en/
 _drafts/         Drafts, created when needed
-_tabs/           Sidebar pages
+_tabs/           Sidebar and footer pages
 _includes/       Theme partials that this site overrides or adds
 _layouts/        Theme layouts that this site overrides
 _plugins/        Custom Jekyll plugins, such as localized URL rewriting and SEO fixes
@@ -62,13 +64,13 @@ _data/           Contact links, the share menu, project page data, and UI string
 assets/img/      Site and post images
 assets/js/       Custom front-end scripts
 assets/lib/      Chirpy front-end assets, copied from npm packages by tools/sync-lib.mjs
-docs/            Guides for local development, post authoring, and translation
+docs/            Guides for local development, post authoring, writing style, series, and translation
 tools/           Scripts that run the site locally, check it, and list URLs for IndexNow
 _config.yml      Site and theme settings
 index.html       Home page entry
 ```
 
-Post file names use the `YYYY-MM-DD-title.md` format and go in `_posts/`. The Simplified Chinese and English translations use the same file name and go in `_posts/zh-CN/` and `_posts/en/`. For Chirpy front matter, images, code blocks, and drafts, see the [post authoring guide](docs/chirpy-post-authoring.md). For translation wording and category mappings, see the [translation guide](docs/translation-guide.md). The comments at the top of each file in `_plugins/` explain how the multilingual output and the SEO fixes work.
+Post file names use the `YYYY-MM-DD-title.md` format and go in `_posts/`. The Simplified Chinese and English translations use the same file name and go in `_posts/zh-CN/` and `_posts/en/`. For Chirpy front matter, images, code blocks, and drafts, see the [post authoring guide](docs/chirpy-post-authoring.md). Before you write or edit post text, read the [writing style guide](docs/post-writing-style.md). For posts in a series, see the [series guide](docs/series-playbook.md). For translation wording and category mappings, see the [translation guide](docs/translation-guide.md). The comments at the top of each file in `_plugins/` explain how the multilingual output and the SEO fixes work.
 
 ## Deployment
 
