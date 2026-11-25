@@ -88,6 +88,23 @@ media_subpath: /assets/img/posts/example/
 
 之後 `![說明](cover.webp)` 等相對媒體路徑會套用此前綴。`media_subpath` 適用於該篇文章的圖片、音訊與影片資源；完整外部 URL 不需要它。見 [Media URL Prefix](https://chirpy.cotes.page/posts/write-a-new-post/#media-url-prefix)。
 
+文章圖片一律存成 WebP：
+
+- 只提交 `.webp`。PNG 與 SVG 原始檔留在本機，不進 repo。部分舊文章的目錄裡還有 `.svg`，新文章不再加。
+- 照片與插畫用有損壓縮：
+
+  ```bash
+  cwebp -q 85 -m 6 -sharp_yuv input.png -o output.webp
+  ```
+
+- 色塊為主的圖表改用無損壓縮，檔案通常更小。兩種都轉一次，提交檔案較小的那個：
+
+  ```bash
+  cwebp -lossless -z 9 input.png -o output.webp
+  ```
+
+- 封面同時是 `og:image`，檔案大小會直接影響首屏載入。
+
 文章的預覽圖使用 `image`：
 
 ```yaml
