@@ -28,11 +28,29 @@ tags: [標籤一, 標籤二]
 
 本站 `_config.yml` 已替 posts 設定 `layout: post`、`comments: true`、`toc: true` 與 `permalink: /posts/:title/`，文章通常不必重複填寫。Chirpy 的 7.6 設定基準可對照 [v7.6.0 的 `_config.yml`](https://github.com/cotes2020/jekyll-theme-chirpy/blob/v7.6.0/_config.yml)；Starter 的專案形態可對照 [chirpy-starter](https://github.com/cotes2020/chirpy-starter)。
 
-## 檔名、日期與分類
+## 檔名與日期
 
 - 正式文章放在 `_posts/`，檔名使用 `YYYY-MM-DD-title.md` 或 `.markdown`。日期部分決定 Jekyll 的文章日期，除非 front matter 的 `date` 另行覆寫。規則見 [Jekyll Posts](https://jekyllrb.com/docs/posts/#creating-post-files)。
 - Chirpy 建議 `date` 寫完整時間與 UTC offset：`YYYY-MM-DD HH:MM:SS +/-TTTT`。本站時區是 `Asia/Taipei`，一般使用 `+0800`。明寫 offset 可避免作者電腦、CI 與站台時區不同時造成發布日偏移。見 [Chirpy Writing a New Post](https://chirpy.cotes.page/posts/write-a-new-post/#timezone-of-date) 與 [Jekyll configuration options](https://jekyllrb.com/docs/configuration/options/#global-configuration)。
-- `categories` 是 YAML 陣列，Chirpy 的階層設計最多兩層，例如 `[程式開發, Ruby]`。可只填一層。`tags` 也是陣列，數量不受這個兩層限制；官方範本建議標籤名稱全用小寫。見 [Categories and Tags](https://chirpy.cotes.page/posts/write-a-new-post/#categories-and-tags)。
+
+## 分類與標籤
+
+`categories` 是 YAML 陣列，Chirpy 的階層設計最多兩層，可只填一層。`tags` 也是陣列，數量不受這個兩層限制；官方範本建議標籤名稱全用小寫。見 [Categories and Tags](https://chirpy.cotes.page/posts/write-a-new-post/#categories-and-tags)。
+
+本站的分類：
+
+- 採用「主題領域、具體主題」兩層結構，例如 `[資訊安全, 供應鏈]`。第一層放較廣的領域，例如 `AI`、`資訊安全`、`軟體工程`、`軟體開發`；第二層寫文章真正處理的主題，例如 `skills`、`FDE`、`攻擊鏈`、`Web應用`。
+- 分類描述主題，不描述內容型態，所以不用 `觀點筆記`、`專案實作` 這類分類。文章介紹某個工具時，也依它處理的主題分類，不歸到 `開發工具`。
+- 相同主題沿用既有名稱，避免建立意思相近的分類。既有分類列在[三語翻譯規則](translation-guide.md)的分類對照表，新增分類時在表上補一列。
+
+本站的標籤：
+
+- 名稱全用小寫。
+- 避免 `ai` 這類範圍過大的標籤。
+- 不借用業界已有固定意義的術語。例如 `platform-engineering` 專指內部開發者平台，不能拿來指產品的共用平台。
+- 縮寫與全稱可以並列，例如 `fde` 與 `forward-deployed-engineer`。
+- 需要標出文章型態時，加一個型態標籤，例如 `side-project`、`talk-notes`。
+- 三個語系的 `tags` 必須與原文完全相同，見[三語翻譯規則](translation-guide.md)。
 
 ## 作者與摘要
 
