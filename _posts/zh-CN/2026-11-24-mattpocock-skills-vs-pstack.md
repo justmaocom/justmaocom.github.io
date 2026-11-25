@@ -23,9 +23,9 @@ mermaid: true
 - mattpocock/skills 的入口是 `/ask-matt`。根据它的 [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9)，它的工作是帮你挑 skill：你描述现在的情况，它建议下一个该调用的 skill，再由你自己去调用。
 - pstack 的入口是 `/poteto-mode`。它会为任务挑一份 playbook（针对某类任务写好的固定步骤），把步骤抄进待办清单，然后[开始照做](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108)。
 
-`/poteto-mode` 会自行读取 playbook 用到的其他 skill。根据 [pstack 自主规则](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)，能撤销的操作它直接做，要向共享分支 force push、部署或删除数据之前，才会停下来。
+`/poteto-mode` 会自行读取 playbook 用到的其他 skill。根据 [pstack 自主规则](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78)，能撤销的操作它直接做，要向共享分支 force push、部署或删除数据之前，会先停下来。
 
-让它在你离开时自己跑的话，遇到要你决定的产品取舍，或工作确实做不下去，它也会停下来把问题交还给你（见[自主运行 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)）。
+让它在你离开时自己跑的话，遇到要你决定的产品取舍，或工作确实做不下去，它也会把问题交还给你（见[自主运行 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)）。
 
 ## 一张表看两套的差异
 
@@ -54,11 +54,11 @@ mattpocock/skills 产出的东西多半是 repo 里的文件，下一次对话�
 - `docs/agents/` 下面的三份文件，记录 issue 放在哪里、分类标签叫什么、领域文档在哪里。
 - `AGENTS.md` 或 `CLAUDE.md` 里的一个 `## Agent skills` 区块，让 AI 每次开工都读得到。
 
-之后的 skill 也一样把结果写成文件。`grill-with-docs` 访谈时确认的词汇会写进 `GLOSSARY.md`，重要决定写成 ADR（架构决策记录）。`to-tickets` 把规格切成一张张工作单（issue），每张写明被哪几张挡住。详细流程见 mattpocock/skills 系列的[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)与[第 3 篇](/posts/mattpocock-skills-specs-work-breakdown/)。
+之后的 skill 也一样会留下记录。`grill-with-docs` 访谈时确认的词汇会写进 `GLOSSARY.md`，重要决定写成 ADR（架构决策记录）。`to-tickets` 把规格切成一张张工作单（issue），每张写明被哪几张挡住。详细流程见 mattpocock/skills 系列的[第 2 篇](/posts/mattpocock-skills-requirements-shared-language/)与[第 3 篇](/posts/mattpocock-skills-specs-work-breakdown/)。
 
 工作单拆好后，可以用 `/implement-spec` 一次实现整份规格。它会根据工作单之间的依赖关系，安排哪些可以同时进行，最后把成果合并到同一个集成分支（见 [implement-spec 的步骤](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)）。
 
-我认为这套最适合多人维护，或一项功能要分好几次对话才做得完的项目。词汇表、ADR 和工作单都留在 repo 里，接手的人查得到当初做了哪些决定。
+我认为这套最适合多人维护，或一项功能要分好几次对话才做得完的项目。有了词汇表、ADR 和工作单，接手的人查得到当初做了哪些决定。
 
 ## pstack 把力气花在动手前后的检查
 
@@ -68,7 +68,7 @@ pstack 的强项是改代码前先看懂，改完再证明它能用。它的工�
 - 证明能用：`/interrogate` 让几个 AI 试着找出改动的漏洞，只留下确实能复现的问题；验证 skill 把手动验证写成 AI 能重跑的步骤（[第 3 篇](/posts/pstack-build-verify-merge/)）。
 - 自己跑：设好权限与费用上限后，让它在你离开时照 playbook 做完（[第 4 篇](/posts/pstack-principles-customization/)）。
 
-pstack 也有理清需求的工具，但结果放的地方不一样。`/reframe` 教你这类问题在专业上的说法，`/sharpen` 把任务想得更深、而不是做得更多，两者最后都会改写你这次的提示词。它们不会像 `grill-with-docs` 那样，把结论写进 repo 的文档。
+pstack 也有理清需求的工具，但结果放的地方不一样。`/reframe` 教你这类问题在专业上的说法，`/sharpen` 把任务想得更深但不扩大范围。两者最后都会改写你这次的提示词，不会像 `grill-with-docs` 那样把结论写进 repo 的文档。
 
 这些检查的代价是用量。pstack 经常派出子代理，也就是另外开一个 AI 去做子任务。评审与设计比较默认同时开[三个评审席位](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L92)，每个席位各跑一个子代理。
 
@@ -100,11 +100,11 @@ pstack 要先加入 Cursor 的插件库，在 Claude Code 里输入：
 
 同名不代表做法相同。mattpocock/skills 的 [`tdd`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/tdd/SKILL.md#L3) 是先写测试的红绿重构流程；pstack 的 [`tdd`](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/tdd/SKILL.md#L3) 只在你明确要求，或测试很好写的时候才用。
 
-两套的更新默认值也不一样。mattpocock/skills 的插件默认[会自动更新](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38)；pstack 来自第三方插件库，Claude Code [默认不自动更新](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28)。想把 pstack 固定在某个版本，做法见 [pstack 系列第 1 篇](/posts/pstack-install-routing/)。
+两套的默认更新方式也不一样。mattpocock/skills 的插件默认[会自动更新](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38)；pstack 来自第三方插件库，Claude Code [默认不自动更新](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28)。想把 pstack 固定在某个版本，做法见 [pstack 系列第 1 篇](/posts/pstack-install-routing/)。
 
 ## 按你手上的工作选
 
-两套也可以在同一项工作里接力。以给后台新增订单 CSV 导出功能为例，团队得先确定要导出哪些字段、谁可以下载。这时可以用 mattpocock/skills 把这些问题讨论清楚，再用[规格 skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)把共识整理成文档，交给下一个人接手。
+两套也可以在同一项工作里接力。以给后台新增订单 CSV 导出功能为例，团队得先确定要导出哪些字段、谁可以下载。这时可以用 mattpocock/skills 把这些问题讨论清楚，再用[规格 skill](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/to-spec/SKILL.md)把共识写成规格，交给下一个人接手。
 
 规格和验收条件确认后，同一项工作就能交给 pstack 的[功能 playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/feature.md)。按照这份 playbook，AI 会先规划设计，再实现并验证导出结果，最后创建 PR。
 

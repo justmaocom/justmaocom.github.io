@@ -18,14 +18,14 @@ If you want an AI coding assistant to follow a fixed workflow, you'll likely run
 
 ## The Biggest Difference Is Who Picks the Next Step
 
-You call both entry points yourself, and the difference is what happens next. With `/ask-matt`, you pick each next skill. With `/poteto-mode`, pstack plans the steps for your goal and works through them.
+You call both entry points yourself, and the difference is what happens next. With `/ask-matt`, you decide which skill to call next. With `/poteto-mode`, pstack plans the steps for your goal and works through them.
 
 - The mattpocock/skills entry point is `/ask-matt`. Its [`SKILL.md`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/ask-matt/SKILL.md#L1-L9) describes it as a router over the other skills. You describe where you are, it suggests the next skill to call, and you call it yourself.
 - The pstack entry point is `/poteto-mode`. It matches the task to a playbook (a fixed set of steps written for one kind of task), copies the steps into a to-do list, and [starts working through them](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L108).
 
 `/poteto-mode` reads the other skills its playbook needs. Under the [pstack autonomy rules](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/SKILL.md#L76-L78), it goes ahead with anything reversible and stops before force-pushing a shared branch, deploying, or deleting data.
 
-When it runs on its own while you're away, it also stops and hands back product decisions only you can make, and real dead ends (see the [autonomous run playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)).
+When it runs on its own while you're away, it also hands back product decisions that need your judgment, and real dead ends (see the [autonomous run playbook](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/poteto-mode/playbooks/autonomous-run.md#L3-L9)).
 
 ## The Differences in One Table
 
@@ -54,11 +54,11 @@ mattpocock/skills mostly produces files in your repo, so the next conversation o
 - Three files under `docs/agents/` that record where issues live, what the triage labels are called, and where the domain docs are.
 - An `## Agent skills` block in `AGENTS.md` or `CLAUDE.md`, so the AI reads it at the start of every session.
 
-The later skills also write their results to files. Terms settled during a `grill-with-docs` interview go into `GLOSSARY.md`, and key decisions become ADRs (architecture decision records). `to-tickets` splits a spec into tickets (issues), each noting which others block it. For the full workflow, see [Part 2](/posts/mattpocock-skills-requirements-shared-language/) and [Part 3](/posts/mattpocock-skills-specs-work-breakdown/) of the mattpocock/skills series.
+The later skills leave a record too. Terms settled during a `grill-with-docs` interview go into `GLOSSARY.md`, and key decisions become ADRs (architecture decision records). `to-tickets` splits a spec into tickets (issues), each noting which others block it. For the full workflow, see [Part 2](/posts/mattpocock-skills-requirements-shared-language/) and [Part 3](/posts/mattpocock-skills-specs-work-breakdown/) of the mattpocock/skills series.
 
 Once you have tickets, you can use `/implement-spec` to build the whole spec in one run. It uses the dependencies between tickets to decide which work can run in parallel, then merges the results into one integration branch (see the [implement-spec steps](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/implement-spec/SKILL.md#L17-L33)).
 
-I think this pack fits best on projects with several maintainers, or where one feature takes several conversations to finish. The glossary, ADRs, and tickets stay in the repo, so whoever takes over can look up what was decided.
+I think this pack fits best on projects with several maintainers, or where one feature takes several conversations to finish. With the glossary, ADRs, and tickets, whoever takes over can look up what was decided.
 
 ## pstack Puts Its Effort Into Checks Before and After the Change
 
@@ -100,7 +100,7 @@ Both packs have a `tdd` and a `teach`, but they don't overwrite each other. Clau
 
 The same name doesn't mean the same approach. The mattpocock/skills [`tdd`](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/skills/engineering/tdd/SKILL.md#L3) is a test-first red-green-refactor loop. The pstack [`tdd`](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/skills/tdd/SKILL.md#L3) only applies when you ask for it or when a test is cheap to write.
 
-The two packs also update differently by default. The mattpocock/skills plugin [updates itself by default](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38). pstack comes from a third-party marketplace, so Claude Code [doesn't auto-update it by default](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28). To pin pstack to a version, see [Part 1 of the pstack series](/posts/pstack-install-routing/).
+The two packs also handle updates differently. The mattpocock/skills plugin [updates itself by default](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md#L35-L38). pstack comes from a third-party marketplace, so Claude Code [doesn't auto-update it by default](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md#L28). To pin pstack to a version, see [Part 1 of the pstack series](/posts/pstack-install-routing/).
 
 ## Choose Based on the Work in Front of You
 
