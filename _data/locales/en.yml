@@ -16,6 +16,9 @@ seo:
   page_title: "All Posts (Page :num)"
   archives_description: "All :count posts on JustMao, newest first."
   categories_description: "Browse JustMao posts by topic: :count categories, each listing its posts."
+  # 「專案」頁（_tabs/projects.md）；_data/projects.yml 新增或移除專案時，三個語系一起改
+  projects_title: "Projects: Taiwan Procurement Act Exam Practice App"
+  projects_description: "Projects I've built, with source code and write-ups. Featured: a practice app for Taiwan's Government Procurement Act exam that draws random quiz rounds."
 
 # _includes/footer.html 頁尾兩欄的標題
 footer:

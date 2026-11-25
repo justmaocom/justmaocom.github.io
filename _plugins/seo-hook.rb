@@ -62,9 +62,11 @@ module SeoHook
     end
   end
 
-  # 「彙整」與「分類」這兩個 tab 沒有內文，不補描述的話 seo-tag 會沿用站台描述，與首頁重複
+  # 「彙整」與「分類」這兩個 tab 沒有內文，不補描述的話 seo-tag 會沿用站台描述，與首頁重複。
+  # 「專案」頁的內文開頭只是泛稱，搜尋結果上看不出收錄了什麼，也改用 seo.projects_description。
   def describe_listing_tabs(site)
-    counts = { 'archives' => site.posts.docs.size, 'categories' => site.pages.count { |page| page.data['layout'] == 'category' } }
+    counts = { 'archives' => site.posts.docs.size, 'categories' => site.pages.count { |page| page.data['layout'] == 'category' },
+               'projects' => site.data['projects'].to_a.size }
 
     site.collections['tabs'].docs.each do |tab|
       name = tab.basename_without_ext
@@ -73,7 +75,7 @@ module SeoHook
     end
   end
 
-  # 首頁、首頁的分頁與分類頁各自的 <title>；其他頁面回傳 nil，維持主題的輸出
+  # 首頁、首頁的分頁、分類頁與有 seo.<tab>_title 的 tab 頁各自的 <title>；其他頁面回傳 nil，維持主題的輸出
   def listing_title(doc)
     site = doc.site
     suffix = site.config['title_suffix'] || site.config['title']
@@ -84,6 +86,8 @@ module SeoHook
       "#{ fill(strings(site)['page_title'], num: doc.pager.page) } | #{ suffix }"
     elsif doc.url == '/'
       site.config['home_title']
+    elsif doc.is_a?(Jekyll::Document) && doc.collection.label == 'tabs' && strings(site)["#{ doc.basename_without_ext }_title"]
+      "#{ strings(site)["#{ doc.basename_without_ext }_title"] } | #{ suffix }"
     end
   end
 

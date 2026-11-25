@@ -71,7 +71,7 @@
 - **側邊欄頁面**：有內文的 tab（如 `_tabs/about.md`）要另備 `_tabs/zh-CN/`、`_tabs/en/` 的同名譯文。只有 layout 的 tab 由主題 locale 翻譯標題，不需要譯文。主題 locale 沒有的 tab（如 `projects`）不寫 `title`，改在 `_data/locales/<lang>.yml` 補 `tabs.<檔名>`；這些檔案會與 gem 內同名 locale 深度合併，只需放新增的字串。否則 `<title>` 會是空的。
 - **專案卡片**：`_data/projects.yml` 每新增一筆，三個語系的 `description` 都要填，欄位說明寫在該檔開頭。
 - **介面文字**：新增自訂 JS 或 CSS `content` 的介面文字時，三個語系都要給；參考 `assets/js/mermaid-zoom.js` 的 `STRINGS` 與 SCSS 的 `html:lang(...)`。
-- **SEO 文字樣板**：分頁與分類頁的 `<title>`、描述樣板放在 `_data/locales/<lang>.yml` 的 `seo`，三個語系都要給。
+- **SEO 文字樣板**：分頁、分類頁與「專案」頁的 `<title>`、描述樣板放在 `_data/locales/<lang>.yml` 的 `seo`，三個語系都要給。`_data/projects.yml` 新增或移除專案時，「專案」頁的 `projects_title` 與 `projects_description` 要一起改。
 - **站台名稱與描述**：各語系的 `title`、`home_title`、`tagline`、`description` 寫在 `_config.yml` 的 `i18n_site`。
 
 ## 修改多語系機制時
