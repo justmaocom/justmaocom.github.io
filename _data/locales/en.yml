@@ -16,6 +16,9 @@ seo:
   page_title: "All Posts (Page :num)"
   archives_description: "All :count posts on JustMao, newest first."
   categories_description: "Browse JustMao posts by topic: :count categories, each listing its posts."
+  # 「專案」頁（_tabs/projects.md）的 <title> 與描述；寫成整頁的泛稱，不寫個別專案，新增專案時不用改
+  projects_title: "Projects: Apps and Tools With Source Code"
+  projects_description: "Software tools and web apps I've built myself. Each project links to its source code or live site, and to a write-up on how I built it when there is one."
 
 # _includes/footer.html 頁尾兩欄的標題
 footer:

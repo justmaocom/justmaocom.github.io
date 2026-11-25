@@ -99,6 +99,9 @@ config['languages'].each do |lang|
      ->(s) { title[s] != "#{ CGI.unescapeHTML(s[/property="og:title" content="([^"]*)"/, 1]) } | #{ suffix }" && description[s] && description[s] != home_description }],
     ['「彙整」與「分類」頁有自己的描述', %w(archives categories).map { |tab| "#{ root }/#{ tab }/index.html" },
      ->(s) { description[s] && description[s] != home_description && description[s] !~ /:count/ }],
+    # 標題不能只是「專案 | 後綴」，描述不能是內文開頭的泛稱
+    ['「專案」頁有自己的標題與描述', ["#{ root }/projects/index.html"],
+     ->(s) { title[s] != "#{ CGI.unescapeHTML(s[/property="og:title" content="([^"]*)"/, 1]) } | #{ suffix }" && title[s].end_with?(" | #{ suffix }") && description[s] && description[s] != home_description && !description[s].start_with?('These are projects', '這裡收錄', '这里收录') }],
     # 沒有封面的文章不會有 preview-img；有的話第一張要立即載入，其餘維持 lazy
     ['第一張封面圖優先載入', Dir["#{ root }/{,posts/*/}index.html"],
      ->(s) { s[/class="[^"]*\bpreview-img\b[^>]*>\s*<img\b[^>]*>/].then { |cover| cover ? cover.include?('fetchpriority="high"') && cover !~ /shimmer|loading="lazy"/ : !s.include?('preview-img') } }],
