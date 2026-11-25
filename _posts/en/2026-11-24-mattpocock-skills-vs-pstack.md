@@ -135,7 +135,7 @@ If you still can't decide, both series guides have a table for picking a startin
 
 - [mattpocock/skills Series Guide: What It Is, How to Start](/posts/mattpocock-skills-series-guide/): six parts in development order.
 - [pstack Series Guide: What It Is and Where to Start](/posts/pstack-series-guide/): four parts in workflow order.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): write your own when neither pack fits.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): check permissions and pin versions before installing either pack.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): write your own when neither pack fits.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): check permissions and pin versions before installing either pack.
 - [mattpocock/skills README](https://github.com/mattpocock/skills/blob/d1478fcb140db0b93c0c8df17bcfd311844749d0/README.md): install instructions for each AI coding assistant (`1.3.2`).
 - [pstack README](https://github.com/cursor/plugins/blob/9e278fe4d4ecd8bfe98b1b79bf4be662efb338cc/pstack/README.md): the author's design ideas and the Claude Code install steps (`0.15.48`).

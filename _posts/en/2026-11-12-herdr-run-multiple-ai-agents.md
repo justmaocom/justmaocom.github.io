@@ -104,7 +104,7 @@ The official Install/TUI page also offers a one-line install command, `curl -fsS
 - What runs is whatever the server returns at that moment, which you have not read, and a later run may not be the same.
 - It installs into `~/.local/bin` and then updates itself with `herdr update`, so it never appears in your package manager's list. That makes it harder to see what you installed, and harder to remove it later. With brew or mise, you can look up the version, and upgrades and uninstalls use the same tool.
 
-That is not a claim that the install script is broken. It comes from my habit of reading first, then running, which I explained in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+That is not a claim that the install script is broken. It comes from my habit of reading first, then running, which I explained in [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/).
 
 If you do need the official script, download it to a file first:
 
@@ -391,6 +391,6 @@ There is also an official skill that lets an agent operate herdr. The line below
 herdr --skill
 ```
 
-I recommend reading any third-party skill before you install it; [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/) explains why.
+I recommend reading any third-party skill before you install it; [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/) explains why.
 
 Further reading: the [herdr README](https://github.com/herdrdev/herdr), the [v0.9.5 release](https://github.com/herdrdev/herdr/releases/tag/v0.9.5), the [docs home](https://herdr.dev/tui/docs/0.9.5/), [Install](https://herdr.dev/tui/docs/0.9.5/install/), [Quick start](https://herdr.dev/tui/docs/0.9.5/quick-start/), [Concepts](https://herdr.dev/tui/docs/0.9.5/concepts/), [Keyboard](https://herdr.dev/tui/docs/0.9.5/keyboard/), [Agents](https://herdr.dev/tui/docs/0.9.5/agents/), [Integrations](https://herdr.dev/tui/docs/0.9.5/integrations/), [Session state](https://herdr.dev/tui/docs/0.9.5/session-state/), [Configuration](https://herdr.dev/tui/docs/0.9.5/configuration/), [Windows support](https://herdr.dev/tui/docs/0.9.5/windows-beta/), and the [Homebrew formula](https://formulae.brew.sh/formula/herdr).

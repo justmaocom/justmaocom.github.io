@@ -48,7 +48,7 @@ flowchart LR
   B -.->|Stuck, unsure which skill| D["Ask /poteto-help"]
 ```
 
-How to install, how to pin a version, and the `/pstack:` prefix that commands need in Claude Code are all covered in [Part 1](/posts/pstack-install-routing/). If you want the same version as this series, I suggest cloning the repo, checking out `2f87c85`, and then adding it as a marketplace. For the step-by-step details and the risks of not pinning a version, see [Part 1](/posts/pstack-install-routing/) and [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+How to install, how to pin a version, and the `/pstack:` prefix that commands need in Claude Code are all covered in [Part 1](/posts/pstack-install-routing/). If you want the same version as this series, I suggest cloning the repo, checking out `2f87c85`, and then adding it as a marketplace. For the step-by-step details and the risks of not pinning a version, see [Part 1](/posts/pstack-install-routing/) and [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Who It's For, and Who It Isn't
 
@@ -174,5 +174,5 @@ You don't have to read the four parts in order. If you haven't installed pstack 
 - [Part 1](/posts/pstack-install-routing/) · [Part 2](/posts/pstack-understand-design/) · [Part 3](/posts/pstack-build-verify-merge/) · [Part 4](/posts/pstack-principles-customization/)
 - [mattpocock/skills Series Guide](/posts/mattpocock-skills-series-guide/) and [Part 1](/posts/mattpocock-skills-setup-routing-guide/): a series about a different set of skills.
 - [mattpocock/skills vs pstack: Which Skill Pack to Install](/posts/mattpocock-skills-vs-pstack/): how the two packs differ and which to install first.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.

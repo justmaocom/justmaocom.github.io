@@ -326,7 +326,7 @@ Suppose I have a website repository in a folder called `myapp`. I want one AI ag
    git push -u origin feature-login
    ```
 
-   Do the same for the other branch. You can then automate the review; see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/). For a fixed approach to structure checks, review, and merge conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
+   Do the same for the other branch. You can then automate the review; see [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/). For a fixed approach to structure checks, review, and merge conflicts, see [mattpocock/skills, Part 5: Structure, Code Review, and Merge Conflicts](/posts/mattpocock-skills-design-review-integration/).
 
 5. Merge: if you opened PRs, wait for them to be merged on the site, then update `main` in `myapp`:
 
@@ -445,7 +445,7 @@ The next time two AI agents need to work at once, I suggest starting with `git w
 
 - [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): project rules for the agent in each working directory.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): automatic checks at fixed moments in a working directory.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): automate the review.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): automate the review.
 - [herdr Tutorial: Run Multiple AI Agents in One Terminal](/posts/herdr-run-multiple-ai-agents/): watch several agents at once in a terminal.
 - [Herdr Desktop App: Manage AI Agents With Spaces and Tabs](/posts/herdr-app-desktop-manage-ai-agents/): the same job in a desktop app.
 - [git-worktree manual](https://git-scm.com/docs/git-worktree): the source of truth for command details.

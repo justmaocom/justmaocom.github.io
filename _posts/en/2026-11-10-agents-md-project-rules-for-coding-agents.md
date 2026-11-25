@@ -59,7 +59,7 @@ flowchart TD
   D -->|No| F[Put it in AGENTS.md]
 ```
 
-Subdirectory files come up later in this post. [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/) shows how to write a skill.
+Subdirectory files come up later in this post. [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/) shows how to write a skill.
 
 A rule that must always happen can't rely on an instruction file alone. The [Claude Code docs](https://code.claude.com/docs/en/memory) are explicit: these files are context (text added to the conversation for the model to read), not enforced configuration. The model takes them into account, but what it does in the end is still the model's decision.
 
@@ -144,7 +144,7 @@ Use the heading exactly as the docs write it, then list what reviewers should wa
 - Flag any password or API key written directly into the code
 ```
 
-To learn more about having an AI agent review PRs on GitHub, see my separate post [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
+To learn more about having an AI agent review PRs on GitHub, see my separate post [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/).
 
 ## How Codex Reads the Files: From the Root Down to Your Folder
 

@@ -334,6 +334,6 @@ Batch approval is still rolling out. Even if a batch needs only one 2FA challeng
 ## Further Reading
 
 - [npm Trusted Publishing guide](/posts/npm-trusted-publishing-github-actions/): start here if OIDC is not set up yet.
-- [npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown](/posts/npm-12-install-scripts-allowscripts/): blocking install scripts on the side that installs packages.
+- [npm 12 Blocks Install Scripts: allowScripts and Cooldown](/posts/npm-12-install-scripts-allowscripts/): blocking install scripts on the side that installs packages.
 - [Automating PR Review With GitHub Actions and an AI Agent](/posts/github-actions-ai-agent-pr-review/): automated workflow reviews.
 - [OWASP Agentic Top 10 Checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/): workflow risks more broadly.

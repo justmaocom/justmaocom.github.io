@@ -342,7 +342,7 @@ CI has no browser to sign in with, so use an API key instead. Set `OPENAI_API_KE
 
 There's also an official GitHub Action. Per the README, store an OpenAI API key as the repository secret `CODEX_SECURITY_API_KEY`, then copy the [weekly workflow example](https://github.com/openai/codex-security/blob/npm-v0.10.1/github-action/examples/repository.yml).
 
-Replace `REPLACE_WITH_REVIEWED_COMMIT` with the commit SHA listed in an Action release that you've reviewed. For why you'd pin actions to a commit SHA, see [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/).
+Replace `REPLACE_WITH_REVIEWED_COMMIT` with the commit SHA listed in an Action release that you've reviewed. For why you'd pin actions to a commit SHA, see [GitHub Actions Lockfiles: A gh actions-lock Tutorial](/posts/gh-actions-lock-workflow-lockfile/).
 
 The example sets an estimated cost limit of $5 per scan. By default, findings are only reported and don't fail the job. The job fails only when the scan itself errors, and a policy block like the one in Step 4 counts.
 
@@ -359,5 +359,5 @@ I suggest starting with a repo you know well, because you need to know the code 
 - [Codex Security CLI FAQ](https://learn.chatgpt.com/docs/security/cli/faq): false positives, varying results across scans, cost limits, and more.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): a ten-question self-check for your coding agent, MCP, and CI.
 - [Claude Code Sandbox Setup: Keep SSH Keys and Tokens Out](/posts/claude-code-sandbox-setup/): keep the commands an AI runs away from your keys and tokens.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): a real example of Codex reviewing PRs in CI.
-- [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/): lock the actions your workflows use to exact commits.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): a real example of Codex reviewing PRs in CI.
+- [GitHub Actions Lockfiles: A gh actions-lock Tutorial](/posts/gh-actions-lock-workflow-lockfile/): lock the actions your workflows use to exact commits.

@@ -32,7 +32,7 @@ claude update
 claude --version
 ```
 
-This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). In that post I only asked you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. I covered why you should limit an agent's permissions in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), so I won't repeat it here.
+This post is the hands-on follow-up to [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/). In that post I only asked you to "confirm whether `/sandbox` is on." This one shows how to configure it once it is. I covered why you should limit an agent's permissions in [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/), so I won't repeat it here.
 
 ## A Few Terms First
 
@@ -576,6 +576,6 @@ I ran through this post in order once, and everything I tested matched the offic
 - [Sandboxing](https://code.claude.com/docs/en/sandboxing): the full official guide, including troubleshooting and organization-level enforced settings.
 - [Permissions](https://code.claude.com/docs/en/permissions): how to write permission rules, and how to restrict the file tools.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): where this post started, a ten-question self-check.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): the risks of MCP servers and plugins, which run outside the sandbox.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): the risks of MCP servers and plugins, which run outside the sandbox.
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): hooks run with your full permissions and aren't limited by the sandbox.
 - [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): a plugin can add hooks and MCP servers that run outside the sandbox; which files to open before you install one.

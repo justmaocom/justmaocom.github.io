@@ -260,4 +260,4 @@ The smallest first step I'd suggest is to open your current access review sheet.
 - [Discourse's image-processing isolation fix](https://github.com/discourse/discourse/commit/a07188016987de1613c961277e2e928aaa7c37ec): how the `ImageMagick` wrapper, allowed read/write paths, and network restrictions land in code.
 - [Debian security advisory DSA-6417-1](https://lists.debian.org/debian-security-announce/2026/msg00328.html): the full package revision, and the format compatibility change one of its fixes causes.
 - [libheif's overlay calculation fix](https://github.com/strukturag/libheif/commit/85e21ad44eba931314337300a2376b8d28f085ae): the boundary calculation changes in `HeifPixelImage::overlay`.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): the same lesson applied to coding agents, where a small entry point's damage depends on the trust behind it.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): the same lesson applied to coding agents, where a small entry point's damage depends on the trust behind it.

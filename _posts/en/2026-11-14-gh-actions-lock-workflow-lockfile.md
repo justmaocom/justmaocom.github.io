@@ -1,5 +1,5 @@
 ---
-title: "gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile"
+title: "GitHub Actions Lockfiles: A gh actions-lock Tutorial"
 description: "A workflow that says @v3 can run different code when that tag moves. Learn how GitHub workflow lockfiles work, then lock and maintain one with gh actions-lock."
 date: 2026-11-14 18:32:00 +0800
 categories: [Security, Supply Chain]
@@ -484,5 +484,5 @@ I recommend starting in this order: turn on Dependabot, run `gh actions-lock`, r
 I would lock release workflows first. Following my [npm Trusted Publishing With GitHub Actions: A Setup Guide](/posts/npm-trusted-publishing-github-actions/) removes the long-lived token from your release workflow. But if an action in that workflow is swapped out, it can still ship a bad release.
 
 - [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/): approval and review checkpoints for the release pipeline itself.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): automated review in the same CI pipeline.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): automated review in the same CI pipeline.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): a fuller AI workflow risk check.

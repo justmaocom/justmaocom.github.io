@@ -346,6 +346,6 @@ I don't think you need to learn every skill before using pstack. Do the three st
 - [Claude Code notes](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/harness/claude-code.md): the differences between Cursor and Claude Code.
 - [`poteto-mode` SKILL.md](https://github.com/cursor/plugins/blob/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/skills/poteto-mode/SKILL.md): the full playbook list and how it matches tasks.
 - [Claude Code: Install and manage plugins](https://code.claude.com/docs/en/plugins/install): adding, versioning, updating, and removing marketplaces.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what to check before installing a plugin.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): descriptions, testing, and upkeep from a skill author's side.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): what to check before installing a plugin.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): descriptions, testing, and upkeep from a skill author's side.
 - [Part 1 of the mattpocock/skills series](/posts/mattpocock-skills-setup-routing-guide/) and the [series guide](/posts/mattpocock-skills-series-guide/): another skill set built around setting up first, then letting a help desk suggest the next step.

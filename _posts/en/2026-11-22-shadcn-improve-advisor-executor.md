@@ -124,7 +124,7 @@ The installer writes `skills-lock.json` in the project root with the source, com
 }
 ```
 
-The last line of the output warns that a skill has the same permissions as the agent. improve is four Markdown files with no scripts, so reading it before you install takes a few minutes. [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/) covers this kind of risk.
+The last line of the output warns that a skill has the same permissions as the agent. improve is four Markdown files with no scripts, so reading it before you install takes a few minutes. [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/) covers this kind of risk.
 
 ## Step 2: List problems with `/improve quick`
 
@@ -459,5 +459,5 @@ Switch to the executor's branch or go to its worktree, then start a new session 
 - [git worktree for AI Agents: Run Two Agents in One Repo](/posts/git-worktree-parallel-ai-agents/): the mechanism `execute` uses to isolate the executor.
 - [mattpocock/skills, Part 3: Spec, Tickets, or More Questions?](/posts/mattpocock-skills-specs-work-breakdown/): another way to break work into tickets someone else can pick up.
 - [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/): the overall flow that separates planning, building, and review.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): how to write a SKILL.md.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what to check before installing a third-party skill.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): how to write a SKILL.md.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): what to check before installing a third-party skill.

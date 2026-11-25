@@ -57,7 +57,7 @@ sequenceDiagram
   end
 ```
 
-When the agent uses the skill depends on the description in SKILL.md. I covered how a description affects triggering in [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/).
+When the agent uses the skill depends on the description in SKILL.md. I covered how a description affects triggering in [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/).
 
 This description says the agent must run it first for all HTML, CSS, and frontend JavaScript work ("MANDATORY: Execute FIRST"). It then lists a long set of trigger topics, such as dialogs, tables, dark mode, form validation, and Core Web Vitals.
 
@@ -639,5 +639,5 @@ To try it, I'd suggest scanning your own project with the `legacy-scan` command 
 - [Modern Web Guidance docs](https://developer.chrome.com/docs/modern-web-guidance): installation, example prompts, and how to set a Baseline target.
 - [Get started](https://developer.chrome.com/docs/modern-web-guidance/get-started): install commands for each agent, the Baseline target, and how to turn on guides for volatile features and origin trials.
 - [Modernization workflow](https://developer.chrome.com/docs/modern-web-guidance/modernization-workflow): the four-step process of running `legacy-scan` and having the agent make the changes.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): how the description in SKILL.md affects when a skill triggers.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): how the description in SKILL.md affects when a skill triggers.
 - [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): which files to read before installing a skill or plugin.

@@ -1,5 +1,5 @@
 ---
-title: "npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown"
+title: "npm 12 Blocks Install Scripts: allowScripts and Cooldown"
 description: "npm 12 no longer runs dependency install scripts by default. Approve the packages that need them and add a 7-day cooldown with min-release-age."
 date: 2026-11-14 18:00:00 +0800
 categories: [Security, Supply Chain]
@@ -367,5 +367,5 @@ I recommend starting with your existing project's review list. Restore the scrip
 
 - [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/): removing long-lived publishing tokens.
 - [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/): adding review checkpoints to the release pipeline.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): related AI tool and MCP risks.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): related AI tool and MCP risks.
 - [OWASP Agentic Top 10 checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/): a broader workflow review.
