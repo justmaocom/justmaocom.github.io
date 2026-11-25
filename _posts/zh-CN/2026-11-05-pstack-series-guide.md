@@ -173,5 +173,6 @@ flowchart TD
 - [指南目录](https://github.com/cursor/plugins/tree/2f87c854fe3e2fcda44ca86b46ede35aad3c46b7/pstack/docs/guide/)：从安装、overnight、原则到做出自己的 mode。
 - [第 1 篇](/posts/pstack-install-routing/)｜[第 2 篇](/posts/pstack-understand-design/)｜[第 3 篇](/posts/pstack-build-verify-merge/)｜[第 4 篇](/posts/pstack-principles-customization/)
 - [mattpocock/skills 系列导读](/posts/mattpocock-skills-series-guide/)和[系列（1）](/posts/mattpocock-skills-setup-routing-guide/)：另一套 skill 的系列文章。
+- [mattpocock/skills 与 pstack 对比：两套 skill 该装哪一套](/posts/mattpocock-skills-vs-pstack/)：两套的差别，以及该先装哪一套。
 - [自己写 Agent Skill：从 SKILL.md 结构到触发测试与维护](/posts/agent-skill-authoring-guide/)：skill 放哪里、`SKILL.md` 怎么写。
 - [装了第三方 skill 和 MCP 之后，你的 Coding Agent 多了哪些破口？](/posts/coding-agent-supply-chain-permission-risks/)：权限、沙箱和锁版本。

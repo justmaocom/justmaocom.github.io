@@ -170,3 +170,4 @@ _先找到自己卡住的地方，再从对应的那一篇读起。_
 - [`plugin.json`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/.claude-plugin/plugin.json#L21-L47)：官方插件收录的 25 个 skill 清单。
 - [`ask-matt/SKILL.md`](https://github.com/mattpocock/skills/blob/c55ee46073ed923f86ce59a5eb3b6d895095d1b7/skills/engineering/ask-matt/SKILL.md#L9-L90)：`ask-matt` 用来建议下一步的完整路线图。
 - [pstack 系列导读：这套 skill 是什么、四篇该怎么读](/posts/pstack-series-guide/)：另一套 skill（pstack）的系列导读。
+- [mattpocock/skills 与 pstack 对比：两套 skill 该装哪一套](/posts/mattpocock-skills-vs-pstack/)：两套的差别，以及该先装哪一套。
