@@ -26,3 +26,5 @@ e5f45f19812bd4a1e605da2be35a311626bdb061 # fix(seo): 英文 pstack 與 mattpococ
 dccbb6110d4ac4eece1713f96d68722e3d7babaa # fix(seo): 英文連結文字改用 AGENTS.md 新標題，並從 hooks 與 mattpocock 第 1 篇連過去
 4ffada3956b595ef19206f0ac602cc1749241af7 # docs(posts): 替 php2shell 與 Codex Security 兩篇補上同主題文章的內文連結
 2a82e677d25f6cb4ce8fd474bfd628f60aa40052 # docs(posts): 替兩篇系列導讀補上 mattpocock/skills 與 pstack 比較文的連結
+1febbf16cdfbc964fc102e3bc13e0934d68fef52 # fix(seo): 五篇英文文章的標題縮到 57 字元內並把主詞放前面
+4932f2e1a2c04332f7323d5d1f3b9f8f5b82bf9c # docs(posts): 英文文章引用五篇新標題的連結文字
