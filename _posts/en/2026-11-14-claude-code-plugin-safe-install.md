@@ -24,7 +24,7 @@ This post doesn't recommend any plugins. Wherever the post says what I'd do, tho
 > This post is based on official docs I read on 2026-11-14 (Taipei time): [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins), [Plugins overview](https://code.claude.com/docs/en/plugins), [Plugins reference](https://code.claude.com/docs/en/plugins-reference), [Plugin security](https://code.claude.com/docs/en/plugins/security), [Manage plugins for your organization](https://code.claude.com/docs/en/plugins/org), and [Marketplace reference](https://code.claude.com/docs/en/plugins/marketplace-reference). For the marketplace, I also read the README and marketplace listing of [anthropics/claude-plugins-official](https://github.com/anthropics/claude-plugins-official). On 2026-11-17, I rechecked some details against the same pages and added the parts about mods based on [Mods overview](https://code.claude.com/docs/en/plugins/mods/overview) and [Manage mods for your organization](https://code.claude.com/docs/en/plugins/mods/admin), read that day. I checked the terminal commands against the `--help` output of Claude Code 2.1.325 (2.1.326 for `plugin validate`). Commands and screens change between versions, so go by the version you have installed.
 {: .prompt-info }
 
-I covered why third-party extensions bring risk in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/). This post covers only the concrete steps for checking a plugin.
+I covered why third-party extensions bring risk in [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/). This post covers only the concrete steps for checking a plugin.
 
 ## A few terms first
 
@@ -316,7 +316,7 @@ These are instructions for Claude to read, and they don't run on their own, but 
 - Telling Claude to send data outside
 - Telling Claude to ignore your rules
 
-The "Entry 1: Instructions Hidden in Content" section of [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/) covers this kind of hidden instruction in detail.
+The "Entry 1: Instructions Hidden in Content" section of [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/) covers this kind of hidden instruction in detail.
 
 ### Check the component list with one command
 
@@ -420,7 +420,7 @@ The source can be any of these:
 Before adding one, I'd check these things:
 
 - **Who owns the repo.** Take the link only from a place you trust, such as the tool's official website or docs, not just from search results. Look-alike account names are common.
-- **Whether a version is pinned.** With a tag such as `#v1.2.0`, the marketplace contents won't change every time the owner commits. But a tag itself can be moved, as [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/) explains, so a tag only cuts down on changes.
+- **Whether a version is pinned.** With a tag such as `#v1.2.0`, the marketplace contents won't change every time the owner commits. But a tag itself can be moved, as [GitHub Actions Lockfiles: A gh actions-lock Tutorial](/posts/gh-actions-lock-workflow-lockfile/) explains, so a tag only cuts down on changes.
 - **A one-line install command can also add a marketplace.** If you type `/plugin install <name> --marketplace owner/repo` in a conversation and the marketplace hasn't been added yet, Claude Code first shows you the source and asks you to confirm. Running `claude plugin install <name> --marketplace owner/repo` in the terminal adds the marketplace right away without asking. When someone shares a command like this, check who `owner/repo` is first, just the same.
 
 ### Auto-update replaces the files you reviewed
@@ -522,7 +522,7 @@ claude plugin uninstall <plugin-name>@<marketplace> --scope <original-scope>
 
 - When you remove a Project-scope plugin in the interface, it asks you to choose **Disable for me** or **Uninstall for everyone**. The first turns it off only for you, written to your `.claude/settings.local.json`. The second removes it from the shared `.claude/settings.json`, which affects every collaborator.
 
-Removing a plugin doesn't revoke any tokens you gave it. If I'm removing a plugin because I suspect a problem, I'd also replace those tokens. For what to do next, see the "After an Incident (or a Suspected One)" checklist in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+Removing a plugin doesn't revoke any tokens you gave it. If I'm removing a plugin because I suspect a problem, I'd also replace those tokens. For what to do next, see the "After an Incident (or a Suspected One)" checklist in [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/).
 
 ### Remove a marketplace: its plugins go with it
 
@@ -620,5 +620,5 @@ After putting this post together, I've settled on one rule for myself: before I 
 If you want to keep reading, here are a few of my posts:
 
 - [Claude Code Hooks: Format, Test, and Flag Sensitive Files](/posts/claude-code-hooks-automate-checks/): what the hooks a plugin brings in actually do.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): how the skills inside a plugin are written.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): how the skills inside a plugin are written.
 - [OWASP Agentic Top 10 Checklist: Audit Your AI Workflow](/posts/owasp-agentic-top-10-ai-workflow-checklist/): check supply chain risks across your whole AI workflow with the same approach.

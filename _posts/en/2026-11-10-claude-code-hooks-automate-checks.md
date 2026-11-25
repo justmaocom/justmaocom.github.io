@@ -279,8 +279,8 @@ Start with one hook in the project's `.claude/settings.json`, confirm it in `/ho
 
 - [Claude Code hooks guide](https://code.claude.com/docs/en/hooks-guide): common uses and copyable examples.
 - [Hooks reference](https://code.claude.com/docs/en/hooks): events, input and output, and [Security considerations](https://code.claude.com/docs/en/hooks#security-considerations).
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permission and supply-chain risks.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): permission and supply-chain risks.
 - [Anthropic's AI-Native SDLC Playbook, With a Worked Example](/posts/ai-native-sdlc-playbook/): how skills differ from hooks.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): rule checks, AI review, and human approval after a PR opens.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): rule checks, AI review, and human approval after a PR opens.
 - [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): rules the AI only needs to know, not enforce.
 - [Claude Code Plugins: What to Check Before You Install One](/posts/claude-code-plugin-safe-install/): a plugin can bring in hooks someone else wrote.

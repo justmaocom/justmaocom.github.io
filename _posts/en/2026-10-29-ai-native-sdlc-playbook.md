@@ -365,5 +365,5 @@ Those answers give me a better chance of turning faster coding into software I c
 ## Further Reading
 
 - Louis Claxton, Anthropic: [The AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook): detailed practices and governance across the six stages. This post contains my reading notes and illustrative examples; its diagrams are original, not reproductions of the source's figures.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): how the PR review in Step 5 is split on this site among automated checks, AI review, and human approval.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): how the PR review in Step 5 is split on this site among automated checks, AI review, and human approval.
 - [What Is AGENTS.md? Write One for Codex and Claude Code](/posts/agents-md-project-rules-for-coding-agents/): keeping project rules in a file a coding agent can read.

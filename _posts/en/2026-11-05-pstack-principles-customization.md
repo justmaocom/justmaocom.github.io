@@ -36,7 +36,7 @@ claude plugin marketplace add ~/src/cursor-plugins
 claude plugin install pstack@cursor-plugins
 ```
 
-If you install with `/plugin marketplace add cursor/plugins` instead, you get whatever happens to be latest at that moment, not the version you've reviewed. I covered why that's risky in [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+If you install with `/plugin marketplace add cursor/plugins` instead, you get whatever happens to be latest at that moment, not the version you've reviewed. I covered why that's risky in [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/).
 
 pstack's docs use Cursor's form. In Claude Code (an AI coding assistant you use in the terminal), plugin commands carry the plugin name in front, such as `/pstack:correct`. The examples below use the Claude Code form; in Cursor, just drop the `pstack:`.
 
@@ -539,7 +539,7 @@ Unattended work may spin up several subagents, and it can end up costing more th
 - **Extra usage on a subscription**. If you're on a subscription such as Pro or Max and have turned on usage credits, remember to set a monthly spend limit. It's in claude.ai under Settings → Usage ([costs](https://code.claude.com/docs/en/costs)).
 - **Cursor too**. Check your plan's usage and limit settings before you let it run alone.
 
-For more on permission and supply-chain risks, and how to tighten permissions, see my post [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/).
+For more on permission and supply-chain risks, and how to tighten permissions, see my post [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/).
 
 ## Full Example: One Day's Flow
 
@@ -654,7 +654,7 @@ When you let it run alone, enforce the limits with permission settings and isola
 - [pstack, Part 1: Install in Claude Code, Then /poteto-mode](/posts/pstack-install-routing/): installing, updating, and pinning a version.
 - [pstack, Part 2: Understand Code and Compare Designs First](/posts/pstack-understand-design/): `/how`, `/why`, `/architect`, `/interrogate`, `/arena`, `/teach`, `/recall`, and `/swarm`, plus prototypes and plans.
 - [pstack, Part 3: After the Code Is Written, Prove It Works Before Merging](/posts/pstack-build-verify-merge/): the Build, Clean, Verify, and Prepare for Review stages, including playbooks, `/tdd`, verification skills, and babysit.
-- [Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.
+- [How to Write an Agent Skill: SKILL.md, Triggers, Tests](/posts/agent-skill-authoring-guide/): where skills live and how to write `SKILL.md`.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): permissions, sandboxes, and pinning versions.
 - [mattpocock/skills Series Guide: What It Is, How to Start](/posts/mattpocock-skills-series-guide/): the series guide for a different skill set.
 - [mattpocock/skills, Part 1: Install, Set Up, Then /ask-matt](/posts/mattpocock-skills-setup-routing-guide/): Part 1 of the series on a different skill set.

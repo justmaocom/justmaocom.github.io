@@ -26,11 +26,11 @@ The thing to replace is the long-lived token. A token is a passcode that stands 
 
 If your automated publishing works by putting an `NPM_TOKEN` in GitHub Actions secrets (where GitHub stores passwords and other sensitive values), that is a long-lived token. It stays valid until it is revoked or expires, and if it leaks, someone else can publish a new version as you.
 
-In [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/), I looked at this risk from the user's side. In the Nx case, according to [Nx's security advisory](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c), an attacker obtained an npm publish token through a GitHub Actions injection flaw. This post looks at the **publisher** side and removes one specific risk: a long-lived token sitting in CI.
+In [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/), I looked at this risk from the user's side. In the Nx case, according to [Nx's security advisory](https://github.com/nrwl/nx/security/advisories/GHSA-cxm3-wv7p-598c), an attacker obtained an npm publish token through a GitHub Actions injection flaw. This post looks at the **publisher** side and removes one specific risk: a long-lived token sitting in CI.
 
 To be clear, trusted publishing cannot stop that kind of incident by itself. If malicious commands have already been injected into the workflow, it can still publish. To add a human check on each version, see "Stricter Options" later in this post.
 
-This post covers only GitHub-hosted runners (machines provided by GitHub) and the matching settings on npmjs.com. For adding automated review to a workflow, see [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/).
+This post covers only GitHub-hosted runners (machines provided by GitHub) and the matching settings on npmjs.com. For adding automated review to a workflow, see [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/).
 
 > Based on npm's official guide, [Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers), as of 2026-11-11. npm is still adjusting this feature; for example, configurations created after 2026-09-03 allow only stage publish by default. So treat the official docs as the source of truth for the setup screens and defaults.
 {: .prompt-info }
@@ -382,10 +382,10 @@ I recommend moving GitHub Actions publishing from a long-lived key to a short-li
 
 ## Further Reading
 
-- [Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent](/posts/coding-agent-supply-chain-permission-risks/): what else users can do to lower the risk.
-- [Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example](/posts/github-actions-ai-agent-pr-review/): adding automated review to these workflows.
-- [gh actions-lock Tutorial: Pin GitHub Actions Dependencies With a Lockfile](/posts/gh-actions-lock-workflow-lockfile/): pinning the third-party actions a workflow uses.
-- [npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown](/posts/npm-12-install-scripts-allowscripts/): blocking install scripts when you install packages.
+- [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): what else users can do to lower the risk.
+- [AI PR Review With Codex and GitHub Actions: A Real PR](/posts/github-actions-ai-agent-pr-review/): adding automated review to these workflows.
+- [GitHub Actions Lockfiles: A gh actions-lock Tutorial](/posts/gh-actions-lock-workflow-lockfile/): pinning the third-party actions a workflow uses.
+- [npm 12 Blocks Install Scripts: allowScripts and Cooldown](/posts/npm-12-install-scripts-allowscripts/): blocking install scripts when you install packages.
 - [CVE-2026-123158: OpenSSH Password Bypass on Alpine (musl)](/posts/openssh-musl-password-bypass-alpine/): another security write-up of mine.
 
 Treat [Trusted publishing](https://docs.npmjs.com/trusted-publishers) as the official reference. See also:
