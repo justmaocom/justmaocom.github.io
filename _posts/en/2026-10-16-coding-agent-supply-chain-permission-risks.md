@@ -1,5 +1,5 @@
 ---
-title: "Third-Party Skills and MCP Servers: The New Attack Surface in Your Coding Agent"
+title: "Agent Skill and MCP Security Risks: 5 Cases, a Checklist"
 description: "Five real cases show how third-party skills and MCP servers widen a coding agent's attack surface—prompt injection, supply chain, permissions—plus a checklist."
 date: 2026-10-16 16:30:00 +0800
 categories: [Security, AI Agents]

@@ -1,5 +1,5 @@
 ---
-title: "Write Your Own Agent Skill: From SKILL.md to Testing and Upkeep"
+title: "How to Write an Agent Skill: SKILL.md, Triggers, Tests"
 description: "Writing your own Agent Skill? Covers SKILL.md rules, descriptions that trigger correctly, references and scripts, trigger and output tests, and upkeep."
 date: 2026-10-18 22:30:00 +0800
 categories: [AI, skills]

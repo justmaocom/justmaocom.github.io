@@ -1,5 +1,5 @@
 ---
-title: "Automating PR Review With GitHub Actions and an AI Agent: This Site as an Example"
+title: "AI PR Review With Codex and GitHub Actions: A Real PR"
 description: "What GitHub Actions checks, Codex AI review, and human approval each cover on this site's PR #29, with a copyable prompt and re-check steps for new commits."
 date: 2026-11-07 00:00:00 +0800
 categories: [AI, Software Development]

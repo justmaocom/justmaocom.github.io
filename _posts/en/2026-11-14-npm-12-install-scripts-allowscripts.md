@@ -1,5 +1,5 @@
 ---
-title: "npm 12 Blocks Install Scripts by Default: Review Scripts and Add a 7-Day Cooldown"
+title: "npm 12 Blocks Install Scripts: allowScripts and Cooldown"
 description: "npm 12 no longer runs dependency install scripts by default. Approve the packages that need them and add a 7-day cooldown with min-release-age."
 date: 2026-11-14 18:00:00 +0800
 categories: [Security, Supply Chain]
