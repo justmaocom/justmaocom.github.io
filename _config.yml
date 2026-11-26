@@ -112,6 +112,7 @@ webmaster_verifications:
 
 # Web Analytics Settings
 # 啟用的平台都要在 _includes/analytics/ 有一份排進 window.analyticsLoaders 的同名檔，否則會繞過 cookie 同意橫幅（見 assets/js/consent.js）
+# 新啟用的平台也要寫進三個語系的隱私權政策頁（_tabs/**/privacy.md）
 analytics:
   google:
     id: G-LNZMJLP1HD # fill in your Google Analytics ID
