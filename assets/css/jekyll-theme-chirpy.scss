@@ -761,10 +761,35 @@ footer {
       color: var(--link-color);
     }
 
+    /* 送出後等 listmonk 回應時（newsletter.js 停用按鈕），文字換成轉圈，按鈕寬度不變 */
     &:disabled {
-      opacity: 0.6;
+      position: relative;
+      color: transparent;
       pointer-events: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        width: 1rem;
+        height: 1rem;
+        margin: auto;
+        border: 2px solid var(--text-color);
+        border-right-color: transparent;
+        border-radius: 50%;
+        animation: newsletter-spin 0.75s linear infinite;
+
+        @media (prefers-reduced-motion: reduce) {
+          animation-duration: 1.5s;
+        }
+      }
     }
+  }
+}
+
+@keyframes newsletter-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
