@@ -760,6 +760,11 @@ footer {
       border-color: var(--link-color);
       color: var(--link-color);
     }
+
+    &:disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
   }
 }
 

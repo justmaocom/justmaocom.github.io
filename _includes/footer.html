@@ -81,14 +81,12 @@
     </section>
 
     {% comment %}
-      送到自架的 listmonk。l 是本語系的清單，next 是本語系的感謝頁，要與 listmonk 的 trusted URLs 完全相同。
+      送到自架的 listmonk，l 是本語系的清單。assets/js/newsletter.js 以 fetch 送出，結果寫進 .newsletter-status，不離開這一頁；
+      listmonk 的 trusted URLs 要含本站網址，它的 CORS 才讓這裡讀得到結果。
       ALTCHA 元件由 assets/js/newsletter.js 在第一次聚焦表單時才載入；auto="onsubmit" 讓它按下訂閱才拿題目。
       _config.yml 的 pwa.cache.deny_paths 擋掉題目網址，PWA 的快取才不會重複送出同一道過期的題目。
     {% endcomment %}
     {%- assign newsletter = site.data.locales[include.lang].newsletter -%}
-    {%- capture newsletter_next -%}
-      {{ site.url }}{{ site.baseurl }}{% unless include.lang == site.default_lang %}/{{ include.lang }}{% endunless %}/newsletter/thanks/
-    {%- endcapture -%}
     <section class="footer-newsletter" aria-labelledby="footer-newsletter">
       <h2 class="footer-heading" id="footer-newsletter">{{ site.data.locales[include.lang].footer.newsletter }}</h2>
       <form
@@ -99,7 +97,6 @@
       >
         <div id="newsletter-description">{{ newsletter.description }}</div>
         <input type="hidden" name="l" value="{{ site.data.newsletter[include.lang] }}">
-        <input type="hidden" name="next" value="{{ newsletter_next }}">
         <div class="newsletter-fields">
           <input
             type="email"
@@ -119,6 +116,12 @@
           hidelogo
           strings="{{ newsletter.altcha | jsonify | escape }}"
         ></altcha-widget>
+        <div
+          class="newsletter-status"
+          role="status"
+          data-success="{{ newsletter.success | escape }}"
+          data-error="{{ newsletter.error | escape }}"
+        ></div>
       </form>
     </section>
   </div>

@@ -1,6 +1,5 @@
 # 頁尾電子報表單（_includes/footer.html）送到的 listmonk 清單 UUID，每個語系一份清單。
-# 送出後 listmonk 轉回該語系的 /newsletter/thanks/；那三個網址要原樣列在 listmonk 設定的 trusted URLs，
-# 否則 listmonk 改顯示自己的英文確認頁。
+# 換清單時，../newsletter-server 的 static/public/templates/message.html 也寫了這三個 UUID，要一起改。
 zh-TW: e5319a16-63a3-42ee-a429-e0e0c3a16c5f
 zh-CN: 671a98cb-b6e1-4b1d-a273-0e8c0311ba3a
 en: 7f8d7557-abbe-44b3-90f3-7eb1f433975f
