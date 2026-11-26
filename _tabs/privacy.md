@@ -32,13 +32,12 @@ description: justmao.com 載入哪些分析工具與第三方服務、各自何�
 
 只封鎖本站的 cookie 關不掉分析工具。兩個工具仍會載入，Clarity 沒有 cookie 也會繼續收集資料，見 [Clarity 的同意說明](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management)。
 
-## 文章頁的留言、影片與分享按鈕會連到第三方
+## 文章頁的影片與分享按鈕會連到第三方
 
-文章頁上還有三項第三方服務，連線的時機各不相同。
+文章頁上還有兩項第三方服務，連線的時機各不相同。
 
 | 服務 | 什麼時候連線 | 送出什麼或存什麼 | 官方說明 |
 | --- | --- | --- | --- |
-| giscus 留言（giscus.app） | 打開文章頁就從 giscus.app 下載留言程式，捲到留言區才載入留言框 | 用 GitHub 帳號登入才能留言或按表情。留言公開存在本站 GitHub repo 的 Discussions 討論區。 | [giscus 隱私權政策](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md)、[GitHub 隱私權聲明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) |
 | YouTube 嵌入影片 | 有嵌入影片的文章，捲到影片附近時才載入 | 播放器從 www.youtube.com 載入，載入後 YouTube 會寫入它自己的 cookie | [Google 隱私權政策](https://policies.google.com/privacy) |
 | 分享按鈕（X、Facebook、Telegram、Weibo、Reddit、Threads） | 按下才連到該平台 | 該平台會收到這篇文章的標題與網址 | 各平台自己的政策 |
 
@@ -56,7 +55,7 @@ listmonk 不把你的 IP 位址存進訂閱資料。電子報不追蹤開信與�
 
 ## 有些資料只存在你的瀏覽器
 
-下表的資料存在你的瀏覽器，不會送回本站。前五項存在 localStorage（瀏覽器替每個網站保留的儲存空間），最後一項是離線快取。
+下表的資料存在你的瀏覽器，不會送回本站。前四項存在 localStorage（瀏覽器替每個網站保留的儲存空間），最後一項是離線快取。
 
 | 名稱 | 存什麼 |
 | --- | --- |
@@ -64,7 +63,6 @@ listmonk 不把你的 IP 位址存進訂閱資料。電子報不追蹤開信與�
 | `site-lang` | 你手動選過的語系 |
 | `site-lang-hint-dismissed` | 你關掉了語系提示列 |
 | `analytics-consent` | 歐洲時區訪客在 cookie 橫幅上的選擇 |
-| `giscus-session` | giscus 的登入狀態，登入後才寫入，登出時刪除 |
 | 離線快取 | 你看過的頁面與檔案，供離線瀏覽 |
 
 在瀏覽器清除本站的網站資料，就會刪掉上表全部項目。

@@ -14,7 +14,6 @@
 - [jekyll-polyglot](https://github.com/untra/polyglot) 多語系，正體中文在網站根目錄，簡體中文在 `/zh-CN/`，英文在 `/en/`
 - `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
-- Giscus 留言，討論串存在本 repository 的 Discussions
 - 文章搜尋只在首頁，第一次使用時才下載搜尋索引
 - 頁尾的電子報訂閱表單，送到自架的 [listmonk](https://listmonk.app/)；[ALTCHA](https://altcha.org/) 工作量證明驗證在讀者第一次點進表單時才載入
 - production 啟用 Google Analytics 與 Microsoft Clarity，歐洲時區的訪客同意後才載入

@@ -32,13 +32,12 @@ description: justmao.com 加载哪些分析工具与第三方服务、各自何�
 
 只屏蔽本站的 Cookie 无法关闭分析工具。两个工具仍会加载，Clarity 没有 Cookie 也会继续收集数据，见 [Clarity 的同意说明](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management)。
 
-## 文章页的评论、视频与分享按钮会连接第三方
+## 文章页的视频与分享按钮会连接第三方
 
-文章页上还有三项第三方服务，连接的时机各不相同。
+文章页上还有两项第三方服务，连接的时机各不相同。
 
 | 服务 | 什么时候连接 | 发送什么或存储什么 | 官方说明 |
 | --- | --- | --- | --- |
-| giscus 评论（giscus.app） | 打开文章页就从 giscus.app 下载评论程序，滚动到评论区才加载评论框 | 用 GitHub 账号登录才能评论或添加表情回应。评论公开存放在本站 GitHub 仓库的 Discussions 讨论区。 | [giscus 隐私政策](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md)、[GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) |
 | YouTube 嵌入视频 | 有嵌入视频的文章，滚动到视频附近时才加载 | 播放器从 www.youtube.com 加载，加载后 YouTube 会写入它自己的 Cookie | [Google 隐私政策](https://policies.google.com/privacy) |
 | 分享按钮（X、Facebook、Telegram、微博、Reddit、Threads） | 点击后才连接该平台 | 该平台会收到这篇文章的标题与网址 | 各平台自己的政策 |
 
@@ -56,7 +55,7 @@ listmonk 不会把你的 IP 地址存入订阅数据。电子报不跟踪打开�
 
 ## 有些数据只存在你的浏览器
 
-下表的数据存在你的浏览器，不会发回本站。前五项存在 localStorage（浏览器为每个网站保留的存储空间），最后一项是离线缓存。
+下表的数据存在你的浏览器，不会发回本站。前四项存在 localStorage（浏览器为每个网站保留的存储空间），最后一项是离线缓存。
 
 | 名称 | 存什么 |
 | --- | --- |
@@ -64,7 +63,6 @@ listmonk 不会把你的 IP 地址存入订阅数据。电子报不跟踪打开�
 | `site-lang` | 你手动选过的语言 |
 | `site-lang-hint-dismissed` | 你关闭了语言提示栏 |
 | `analytics-consent` | 欧洲时区访客在 Cookie 横幅上的选择 |
-| `giscus-session` | giscus 的登录状态，登录后才写入，退出登录时删除 |
 | 离线缓存 | 你看过的页面与文件，供离线浏览 |
 
 在浏览器中清除本站的网站数据，就会删除上表全部项目。

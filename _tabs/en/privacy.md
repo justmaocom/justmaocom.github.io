@@ -32,13 +32,12 @@ Outside European time zones, you can block analytics only in your browser:
 
 Blocking this site's cookies alone doesn't turn analytics off. Both tools still load, and Clarity keeps collecting data without cookies, as its [consent documentation](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management) explains.
 
-## Comments, videos, and share buttons on posts connect to third parties
+## Videos and share buttons on posts connect to third parties
 
-Posts use three more third-party services, and each one connects at a different time.
+Posts use two more third-party services, and each one connects at a different time.
 
 | Service | When it connects | What it sends or stores | Official policy |
 | --- | --- | --- | --- |
-| giscus comments (giscus.app) | Opening a post downloads the comment script from giscus.app. The comment box loads when you scroll to it. | You sign in with a GitHub account to comment or react. Comments are stored publicly in the Discussions section of this site's GitHub repo. | [giscus Privacy Policy](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md), [GitHub Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) |
 | YouTube embeds | On posts with an embedded video, loads when you scroll near the video | The player loads from www.youtube.com, and YouTube then sets its own cookies | [Google Privacy Policy](https://policies.google.com/privacy) |
 | Share buttons (X, Facebook, Telegram, Weibo, Reddit, Threads) | Connect to the platform only when you click | The platform receives the post's title and URL | Each platform's own policy |
 
@@ -56,7 +55,7 @@ To unsubscribe or have your address deleted, send an email through the Email lin
 
 ## Some data stays only in your browser
 
-The data in this table stays in your browser and is never sent back to this site. The first five items live in localStorage, a storage area your browser keeps for each site. The last one is the offline cache.
+The data in this table stays in your browser and is never sent back to this site. The first four items live in localStorage, a storage area your browser keeps for each site. The last one is the offline cache.
 
 | Name | What it stores |
 | --- | --- |
@@ -64,7 +63,6 @@ The data in this table stays in your browser and is never sent back to this site
 | `site-lang` | The language you picked |
 | `site-lang-hint-dismissed` | That you closed the language hint bar |
 | `analytics-consent` | Your choice on the cookie banner, for visitors in European time zones |
-| `giscus-session` | Your giscus sign-in state, written after you sign in and deleted when you sign out |
 | Offline cache | Pages and files you've viewed, for offline reading |
 
 Clearing this site's data in your browser deletes everything in the table.
