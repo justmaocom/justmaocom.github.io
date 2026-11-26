@@ -26,7 +26,7 @@ tags: [標籤一, 標籤二]
 ---
 ```
 
-本站 `_config.yml` 已替 posts 設定 `layout: post`、`comments: true`、`toc: true` 與 `permalink: /posts/:title/`，文章通常不必重複填寫。Chirpy 的 7.6 設定基準可對照 [v7.6.0 的 `_config.yml`](https://github.com/cotes2020/jekyll-theme-chirpy/blob/v7.6.0/_config.yml)；Starter 的專案形態可對照 [chirpy-starter](https://github.com/cotes2020/chirpy-starter)。
+本站 `_config.yml` 已替 posts 設定 `layout: post`、`toc: true` 與 `permalink: /posts/:title/`，文章通常不必重複填寫。Chirpy 的 7.6 設定基準可對照 [v7.6.0 的 `_config.yml`](https://github.com/cotes2020/jekyll-theme-chirpy/blob/v7.6.0/_config.yml)；Starter 的專案形態可對照 [chirpy-starter](https://github.com/cotes2020/chirpy-starter)。
 
 ## 檔名與日期
 
@@ -63,7 +63,6 @@ tags: [標籤一, 標籤二]
 ```yaml
 ---
 toc: false
-comments: false
 pin: true
 math: true
 mermaid: true
@@ -71,7 +70,6 @@ mermaid: true
 ```
 
 - `toc` 控制右側目錄。本站全域與 posts defaults 都是 `true`，單篇可用 `false` 關閉。見 [Table of Contents](https://chirpy.cotes.page/posts/write-a-new-post/#table-of-contents)。
-- `comments` 控制單篇留言區。本站 posts defaults 是 `true`，`_config.yml` 的 `comments.provider` 是 giscus，討論串存在本 repo 的 Discussions（`Announcements` 分類）。單篇設 `false` 可關閉留言區。見 [Comments](https://chirpy.cotes.page/posts/write-a-new-post/#comments)。
 - `pin: true` 把文章釘選在首頁上方，多篇釘選文章按發布日期由新到舊排列。欄位名稱是 `pin`，不是 `pinned`。見 [Pinned Posts](https://chirpy.cotes.page/posts/write-a-new-post/#pinned-posts)。
 - `math: true` 才會載入並處理文章中的數學式。行內與區塊公式依官方示例使用 MathJax 語法。見 [Mathematics](https://chirpy.cotes.page/posts/write-a-new-post/#mathematics)。
 - `mermaid: true` 才會載入 Mermaid，內容放在語言標記為 `mermaid` 的 fenced code block。見 [Mermaid](https://chirpy.cotes.page/posts/write-a-new-post/#mermaid)。
@@ -181,6 +179,5 @@ puts "hello"
 
 - 草稿放在 `_drafts/`，檔名不必有日期，例如 `_drafts/new-post.md`。Jekyll 沒有 `draft: true` 這個預設欄位。
 - 用 `bundle exec jekyll serve --drafts` 預覽。完成後改成正式日期檔名並移到 `_posts/`。
-- 本站 `_config.yml` 已替 `_drafts` 設定 `comments: false`。
 
 草稿目錄、檔名與 `--drafts` 行為見 [Jekyll Drafts](https://jekyllrb.com/docs/posts/#drafts)。另一種做法是把文章留在 `_posts/` 並設 `published: false`，預覽時加 `--unpublished`；這是未發布文章，不等同 `_drafts` 工作流。見 [Jekyll front matter 的 `published`](https://jekyllrb.com/docs/front-matter/#predefined-global-variables)。
