@@ -46,7 +46,7 @@ Posts use three more third-party services, and each one connects at a different 
 
 The newsletter form in the footer sends your address to listmonk, a newsletter system this site hosts at news.justmao.com. Your subscription includes your email address and the language list you subscribed to. Each of the three languages has its own list.
 
-listmonk doesn't store your IP address with your subscription, and it doesn't track newsletter opens or clicks. When you submit the form, the server still uses your IP address to limit how often one address can submit.
+listmonk doesn't store your IP address with your subscription. The newsletter doesn't track opens or clicks, because tracking is off in both listmonk and SMTP2GO. When you submit the form, the server still uses your IP address to limit how often one address can submit.
 
 Before you submit, your browser solves an ALTCHA challenge (proof-of-work) to show it's not a bot. It gets the challenge from news.justmao.com, with no third-party verification service. The widget's files are hosted on this site and download only when you first use the form.
 
