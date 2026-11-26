@@ -14,6 +14,12 @@ const registry = {
     ['css/all.min.css', 'fontawesome-free/css/all.min.css'],
     ['webfonts', 'fontawesome-free/webfonts'],
   ],
+  // The newsletter form's widget, not the theme's. The UMD build is minified and is renamed so that
+  // GitHub Pages serves it as JavaScript; the dist file has no license header, so LICENSE.txt ships with it.
+  altcha: [
+    ['dist/altcha.umd.cjs', 'altcha/altcha.min.js'],
+    ['LICENSE.txt', 'altcha/LICENSE.txt'],
+  ],
   clipboard: [['dist/clipboard.min.js', 'clipboard/clipboard.min.js']],
   dayjs: [
     ['dayjs.min.js', 'dayjs/dayjs.min.js'],

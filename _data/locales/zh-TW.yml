@@ -20,10 +20,26 @@ seo:
   projects_title: "專案：自己開發的工具與應用，附原始碼"
   projects_description: "JustMao 自己開發的工具與應用程式。每個專案都附上原始碼或網站連結，寫過開發過程的，也連到介紹文章。"
 
-# _includes/footer.html 頁尾兩欄的標題
+# _includes/footer.html 頁尾各欄的標題
 footer:
   explore: 瀏覽
   connect: 聯繫
+  newsletter: 電子報
+
+# _includes/footer.html 頁尾電子報表單的字串；altcha 是 ALTCHA 元件的 strings，沒列的沿用元件內建的英文
+newsletter:
+  description: 每週一封，整理 justmao.com 上週的新文章。
+  email: 電子郵件地址
+  subscribe: 訂閱
+  altcha:
+    label: 我不是機器人
+    verifying: 驗證中…
+    verified: 已驗證
+    # 留空：驗證中再按訂閱時元件不跳 alert，畫面上已顯示 verifying 的文字
+    waitAlert: ''
+    verificationRequired: 請先完成驗證。
+    error: 驗證失敗，請稍後再試。
+    expired: 驗證已過期，請再試一次。
 
 # _includes/post-search.html 首頁搜尋欄的字串；:count 是結果篇數，:query 是搜尋字詞
 search:

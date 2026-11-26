@@ -16,6 +16,7 @@
 - PWA 與離線快取
 - Giscus 留言，討論串存在本 repository 的 Discussions
 - 文章搜尋只在首頁，第一次使用時才下載搜尋索引
+- 頁尾的電子報訂閱表單，送到自架的 [listmonk](https://listmonk.app/)；[ALTCHA](https://altcha.org/) 工作量證明驗證在讀者第一次點進表單時才載入
 - production 啟用 Google Analytics 與 Microsoft Clarity，歐洲時區的訪客同意後才載入
 - `llms.txt` 文章索引，以及請求帶 `Accept: text/markdown` 時回傳的 Markdown 版文章
 - 自訂網域 `justmao.com`，前面經過 Cloudflare
@@ -60,10 +61,10 @@ _tabs/           側邊欄與頁尾頁面
 _includes/       覆寫或新增的主題片段
 _layouts/        覆寫的主題 layout
 _plugins/        自訂 Jekyll plugin，例如多語系網址改寫與 SEO 修正
-_data/           聯絡方式、分享選單、專案頁資料與各語系介面文字
+_data/           聯絡方式、分享選單、專案頁資料、電子報清單 UUID 與各語系介面文字
 assets/img/      網站與文章圖片
 assets/js/       自訂前端腳本
-assets/lib/      Chirpy 前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
+assets/lib/      Chirpy 與 ALTCHA 元件的前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
 docs/            開發、文章撰寫、寫作風格、系列文與翻譯文件
 tools/           本機啟動、驗證與 IndexNow 腳本
 _config.yml      網站與主題設定

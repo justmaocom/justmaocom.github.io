@@ -24,6 +24,7 @@ exclude_from_localization:
   - assets/js/i18n.js
   - assets/js/consent.js
   - assets/js/post-search.js
+  - assets/js/newsletter.js
   - assets/robots.txt
   - CNAME
   - google5762b861fb04640c.html
@@ -212,6 +213,9 @@ pwa:
     # shares the same domain name as the current website.
     deny_paths:
       # - "/example"  # URLs match `<SITE_URL>/example/*` will not be cached by the PWA
+      # 頁尾電子報表單向 news.justmao.com 拿的 ALTCHA 題目，5 分鐘就過期，每次都要拿新的。
+      # 主題的 service worker 只比對路徑、不看網域，所以寫路徑就擋得到別的網域
+      - /api/public/captcha/
 
 paginate: 10
 # 分頁網址帶尾斜線，與實際輸出的 /page2/ 一致，站內的分頁連結才不會多一次 301
