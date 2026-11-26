@@ -44,6 +44,14 @@
     button.disabled = false;
   });
 
+  // 送出途中離開這一頁，回來時按鈕可能還停用：Firefox 重新載入時會保留 JS 設的 disabled，
+  // 或瀏覽器從 bfcache 原樣還原這一頁（元件還留著用過的驗證結果）
+  addEventListener('pageshow', () => {
+    if (!button.disabled) return;
+    button.disabled = false;
+    form.querySelector('altcha-widget').reset?.();
+  });
+
   // 元件只在 unverified 狀態才會在送出時驗證，失敗或過期後讀者再按訂閱，要先 reset 才會重試。
   // 掛在按鈕的 click（按 Enter 也會觸發）而不是 submit：元件驗證失敗後會自己再送出一次，掛在 submit 會無限重試
   button.addEventListener('click', () => {

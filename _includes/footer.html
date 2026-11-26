@@ -83,7 +83,6 @@
     {% comment %}
       送到自架的 listmonk，l 是本語系的清單。assets/js/newsletter.js 以 fetch 送出，結果寫進 .newsletter-status，不離開這一頁；
       listmonk 的 trusted URLs 要含本站網址，它的 CORS 才讓這裡讀得到結果。
-      按鈕加 autocomplete="off"：Firefox 重新載入時會保留 JS 設的 disabled，送出途中重新整理的話按鈕會一直停用。
       ALTCHA 元件由 assets/js/newsletter.js 在第一次聚焦表單時才載入；auto="onsubmit" 讓它按下訂閱才拿題目。
       _config.yml 的 pwa.cache.deny_paths 擋掉題目網址，PWA 的快取才不會重複送出同一道過期的題目。
     {% endcomment %}
@@ -108,7 +107,7 @@
             aria-describedby="newsletter-description"
             placeholder="{{ newsletter.email }}"
           >
-          <button type="submit" autocomplete="off">{{ newsletter.subscribe }}</button>
+          <button type="submit">{{ newsletter.subscribe }}</button>
         </div>
         <altcha-widget
           challengeurl="https://news.justmao.com/api/public/captcha/altcha"
