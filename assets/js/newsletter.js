@@ -24,4 +24,11 @@
   form.addEventListener('submit', (event) => {
     if (!form.querySelector('.altcha')) event.preventDefault();
   });
+
+  // 元件只在 unverified 狀態才會在送出時驗證，失敗或過期後讀者再按訂閱，要先 reset 才會重試。
+  // 掛在按鈕的 click（按 Enter 也會觸發）而不是 submit：元件驗證失敗後會自己再送出一次，掛在 submit 會無限重試
+  form.querySelector('button[type="submit"]').addEventListener('click', () => {
+    const state = form.querySelector('.altcha')?.dataset.state;
+    if (state === 'error' || state === 'expired') form.querySelector('altcha-widget').reset();
+  });
 })();

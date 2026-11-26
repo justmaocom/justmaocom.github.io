@@ -35,7 +35,8 @@ newsletter:
     label: 我不是机器人
     verifying: 验证中…
     verified: 已验证
-    waitAlert: 验证中，请稍候。
+    # 留空：驗證中再按訂閱時元件不跳 alert，畫面上已顯示 verifying 的文字
+    waitAlert: ''
     verificationRequired: 请先完成验证。
     error: 验证失败，请稍后再试。
     expired: 验证已过期，请再试一次。

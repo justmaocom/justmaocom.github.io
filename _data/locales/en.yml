@@ -35,7 +35,8 @@ newsletter:
     label: I'm not a robot
     verifying: Verifying…
     verified: Verified
-    waitAlert: Verifying… please wait.
+    # 留空：驗證中再按訂閱時元件不跳 alert，畫面上已顯示 verifying 的文字
+    waitAlert: ''
     verificationRequired: Verification required.
     error: Verification failed. Try again later.
     expired: Verification expired. Try again.
