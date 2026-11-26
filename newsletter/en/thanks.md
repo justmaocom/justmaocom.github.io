@@ -4,6 +4,7 @@ lang: en
 layout: page
 permalink: /newsletter/thanks/
 noindex: true
+sitemap: false
 ---
 
 A confirmation email is on its way. Open it and click the confirmation link to finish subscribing. After that, you'll get one email a week with last week's new posts on justmao.com.

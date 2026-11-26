@@ -4,6 +4,7 @@ lang: zh-CN
 layout: page
 permalink: /newsletter/thanks/
 noindex: true
+sitemap: false
 ---
 
 确认邮件已经发出。打开邮件，点击里面的确认链接，订阅才算完成。之后每周一封，整理 justmao.com 上周的新文章。
