@@ -2,6 +2,7 @@
 
 tabs:
   projects: 项目
+  privacy: 隐私政策
 
 # _includes/projects.html 的連結文字
 projects:
