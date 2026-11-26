@@ -20,10 +20,25 @@ seo:
   projects_title: "Projects: Apps and Tools With Source Code"
   projects_description: "Software tools and web apps I've built myself. Each project links to its source code or live site, and to a write-up on how I built it when there is one."
 
-# _includes/footer.html 頁尾兩欄的標題
+# _includes/footer.html 頁尾各欄的標題
 footer:
   explore: Explore
   connect: Connect
+  newsletter: Newsletter
+
+# _includes/footer.html 頁尾電子報表單的字串；altcha 是 ALTCHA 元件的 strings，沒列的沿用元件內建的英文
+newsletter:
+  description: One email a week with last week's new posts on justmao.com.
+  email: Email address
+  subscribe: Subscribe
+  altcha:
+    label: I'm not a robot
+    verifying: Verifying…
+    verified: Verified
+    waitAlert: Verifying… please wait.
+    verificationRequired: Verification required.
+    error: Verification failed. Try again later.
+    expired: Verification expired. Try again.
 
 # _includes/post-search.html 首頁搜尋欄的字串；:count 是結果篇數，:query 是搜尋字詞
 search:

@@ -16,6 +16,7 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://
 - PWA with an offline cache
 - Giscus comments, stored in the Discussions of this repository
 - Post search on the home page only, with the search index downloaded on first use
+- A newsletter signup form in the footer that posts to a self-hosted [listmonk](https://listmonk.app/), with an [ALTCHA](https://altcha.org/) proof-of-work check that loads when a reader first focuses the form
 - Google Analytics and Microsoft Clarity in production, loaded only after consent for visitors in European time zones
 - An `llms.txt` post index, and Markdown versions of posts for requests that send `Accept: text/markdown`
 - The custom domain `justmao.com`, served through Cloudflare
@@ -60,10 +61,10 @@ _tabs/           Sidebar and footer pages
 _includes/       Theme partials that this site overrides or adds
 _layouts/        Theme layouts that this site overrides
 _plugins/        Custom Jekyll plugins, such as localized URL rewriting and SEO fixes
-_data/           Contact links, the share menu, project page data, and UI strings per language
+_data/           Contact links, the share menu, project page data, newsletter list IDs, and UI strings per language
 assets/img/      Site and post images
 assets/js/       Custom front-end scripts
-assets/lib/      Chirpy front-end assets, copied from npm packages by tools/sync-lib.mjs
+assets/lib/      Front-end assets for Chirpy and the ALTCHA widget, copied from npm packages by tools/sync-lib.mjs
 docs/            Guides for local development, post authoring, writing style, series, and translation
 tools/           Scripts that run the site locally, check it, and list URLs for IndexNow
 _config.yml      Site and theme settings

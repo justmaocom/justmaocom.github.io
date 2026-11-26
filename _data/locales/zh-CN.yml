@@ -20,10 +20,25 @@ seo:
   projects_title: "项目：自己开发的工具与应用，附源代码"
   projects_description: "JustMao 自己开发的工具与应用程序。每个项目都附上源代码或网站链接，写过开发过程的，也链接到介绍文章。"
 
-# _includes/footer.html 頁尾兩欄的標題
+# _includes/footer.html 頁尾各欄的標題
 footer:
   explore: 浏览
   connect: 联系
+  newsletter: 电子报
+
+# _includes/footer.html 頁尾電子報表單的字串；altcha 是 ALTCHA 元件的 strings，沒列的沿用元件內建的英文
+newsletter:
+  description: 每周一封，整理 justmao.com 上周的新文章。
+  email: 电子邮箱地址
+  subscribe: 订阅
+  altcha:
+    label: 我不是机器人
+    verifying: 验证中…
+    verified: 已验证
+    waitAlert: 验证中，请稍候。
+    verificationRequired: 请先完成验证。
+    error: 验证失败，请稍后再试。
+    expired: 验证已过期，请再试一次。
 
 # _includes/post-search.html 首頁搜尋欄的字串；:count 是結果篇數，:query 是搜尋字詞
 search:

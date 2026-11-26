@@ -24,6 +24,9 @@ updates:
     ignore:
       - dependency-name: mermaid
         update-types: ["version-update:semver-major"]
+      # listmonk v6.2.0 的表單元件是 altcha 2.x，伺服器端是 altcha-lib-go v1；等 listmonk 改用 3.x 再移除
+      - dependency-name: altcha
+        update-types: ["version-update:semver-major"]
     groups:
       static-assets:
         patterns:
