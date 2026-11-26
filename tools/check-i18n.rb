@@ -51,10 +51,10 @@ failures = []
      ->(url, _) { url == "#{ baseurl }/#{ lang }/assets/js/data/search.json" }],
     ['search.json 文章網址', Dir["#{ root }/assets/js/data/search.json"],
      ->(s) { s.scan(/"url": "([^"]*)"/).flatten }, ->(url, _) { url.start_with?("#{ baseurl }/#{ lang }/") }],
-    # 頁尾電子報表單的「清單 UUID 與 next」：清單要是本語系的（不能和預設語系同一份），next 要轉回本語系的感謝頁
+    # 頁尾電子報表單的清單 UUID 要是本語系的，不能和預設語系同一份
     ['電子報表單', html,
-     ->(s) { s.scan(%r{<form[^>]*\bnewsletter-form\b.*?</form>}m).map { |form| %w(l next).map { |name| form[/name="#{ name }" value="([^"]*)"/, 1] }.join(' ') } },
-     ->(value, _) { value == "#{ newsletter.fetch(lang) } #{ origin }/#{ lang }/newsletter/thanks/" && newsletter.fetch(lang) != newsletter.fetch(config['default_lang']) }],
+     ->(s) { s.scan(%r{<form[^>]*\bnewsletter-form\b.*?</form>}m).map { |form| form[/name="l" value="([^"]*)"/, 1] } },
+     ->(value, _) { value == newsletter.fetch(lang) && value != newsletter.fetch(config['default_lang']) }],
     *%w(feed.xml sitemap.xml llms.txt).map do |name|
       [name, Dir["#{ root }/#{ name }"], ->(s) { s.scan(/#{ Regexp.escape(origin) }[^"'<>\s]*/) }, is_local_prefix]
     end

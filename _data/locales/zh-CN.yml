@@ -31,6 +31,9 @@ newsletter:
   description: 每周一封，整理 justmao.com 上周的新文章。
   email: 电子邮箱地址
   subscribe: 订阅
+  # 送出後顯示在表單下方；error 涵蓋 listmonk 拒絕與限流（429 讀不到內容，和斷線分不出來）
+  success: 谢谢订阅！确认邮件已经发出，点击邮件里的确认链接，订阅才算完成。几分钟后还没收到的话，请检查垃圾邮件文件夹。
+  error: 订阅没有成功。请确认电子邮箱地址，一分钟后再试一次。
   altcha:
     label: 我不是机器人
     verifying: 验证中…

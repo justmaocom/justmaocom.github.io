@@ -2,7 +2,8 @@
  * 頁尾的電子報表單（_includes/footer.html）。
  *
  * 讀者第一次聚焦表單時才載入 ALTCHA 元件，每一頁不必多下載約 24 KB（gzip 後）。
- * 元件設為 auto="onsubmit"，按下訂閱時才向 news.justmao.com 拿題目，解完由元件自己送出表單。
+ * 元件設為 auto="onsubmit"，按下訂閱時才向 news.justmao.com 拿題目，解完由元件再送出一次表單。
+ * 那一次改由這裡以 fetch 送出，結果顯示在表單下方，讀者不會離開這一頁。
  */
 (() => {
   'use strict';
@@ -10,6 +11,7 @@
   const form = document.querySelector('.newsletter-form');
   if (!form) return;
   const button = form.querySelector('button[type="submit"]');
+  const status = form.querySelector('.newsletter-status');
 
   form.addEventListener(
     'focusin',
@@ -21,19 +23,25 @@
     { once: true }
   );
 
-  // 元件還沒掛上時送出會少了 altcha 欄位，listmonk 只會回 400，先擋下；掛上之後由元件接手。
-  // 驗證結果只能用一次，listmonk 會以錯誤頁拒絕重複的。元件沒攔下的那次就是真的送出
-  form.addEventListener('submit', (event) => {
-    if (!form.querySelector('.altcha')) event.preventDefault();
-    else if (!event.defaultPrevented) button.disabled = true;
-  });
-
-  // 從感謝頁按上一頁時按鈕可能還停用：瀏覽器原樣還原這一頁（bfcache，元件還留著用過的驗證結果），
-  // 或 Firefox 重新載入時保留按鈕的停用狀態（此時元件還沒載入，沒有 reset）
-  addEventListener('pageshow', () => {
-    if (!button.disabled) return;
+  // 元件還沒掛上時送出會少了 altcha 欄位，listmonk 只會回 400，先擋下；還沒驗證的那次由元件攔下。
+  // 驗證結果只能用一次，listmonk 會拒絕重複的：送出期間停用按鈕，送完不論成敗都 reset 元件，下次重新驗證
+  form.addEventListener('submit', async (event) => {
+    if (!form.querySelector('.altcha')) return event.preventDefault();
+    if (event.defaultPrevented) return;
+    event.preventDefault();
+    const body = new URLSearchParams(new FormData(form));
+    button.disabled = true;
+    status.textContent = '';
+    let ok = false;
+    try {
+      // urlencoded 的 POST 不會觸發 preflight，Nginx 在這個網址只收 POST。
+      // 限流的 429 由 Nginx 回、不帶 CORS 標頭，和斷線一樣走到 catch
+      ok = (await fetch(form.action, { method: 'POST', body })).ok;
+    } catch {}
+    status.textContent = ok ? status.dataset.success : status.dataset.error;
+    if (ok) form.elements.email.value = '';
+    form.querySelector('altcha-widget').reset();
     button.disabled = false;
-    form.querySelector('altcha-widget').reset?.();
   });
 
   // 元件只在 unverified 狀態才會在送出時驗證，失敗或過期後讀者再按訂閱，要先 reset 才會重試。

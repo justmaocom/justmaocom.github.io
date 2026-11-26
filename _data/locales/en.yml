@@ -31,6 +31,9 @@ newsletter:
   description: One email a week with last week's new posts on justmao.com.
   email: Email address
   subscribe: Subscribe
+  # 送出後顯示在表單下方；error 涵蓋 listmonk 拒絕與限流（429 讀不到內容，和斷線分不出來）
+  success: "Thanks for subscribing! A confirmation email is on its way. Click the link in it to finish subscribing. If it hasn't arrived in a few minutes, check your spam folder."
+  error: "The subscription didn't go through. Check your email address and try again in a minute."
   altcha:
     label: I'm not a robot
     verifying: Verifying…
