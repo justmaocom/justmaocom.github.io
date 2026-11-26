@@ -61,7 +61,7 @@ _tabs/           Sidebar and footer pages
 _includes/       Theme partials that this site overrides or adds
 _layouts/        Theme layouts that this site overrides
 _plugins/        Custom Jekyll plugins, such as localized URL rewriting and SEO fixes
-_data/           Contact links, the share menu, project page data, newsletter list IDs, and UI strings per language
+_data/           Contact links, the share menu, project page data, newsletter list UUIDs, and UI strings per language
 assets/img/      Site and post images
 assets/js/       Custom front-end scripts
 assets/lib/      Front-end assets for Chirpy and the ALTCHA widget, copied from npm packages by tools/sync-lib.mjs
