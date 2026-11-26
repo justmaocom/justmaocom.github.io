@@ -88,7 +88,7 @@
     {% endcomment %}
     {%- assign newsletter = site.data.locales[include.lang].newsletter -%}
     <section class="footer-newsletter" aria-labelledby="footer-newsletter">
-      <h2 class="footer-heading" id="footer-newsletter">{{ site.data.locales[include.lang].footer.newsletter }}</h2>
+      <h2 class="footer-heading" id="footer-newsletter"><i class="fas fa-envelope-open-text" aria-hidden="true"></i>{{ site.data.locales[include.lang].footer.newsletter }}</h2>
       <form
         class="newsletter-form"
         action="https://news.justmao.com/subscription/form"
