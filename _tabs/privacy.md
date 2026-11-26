@@ -25,11 +25,12 @@ description: justmao.com 載入哪些分析工具與第三方服務、各自何�
 - 時區不在歐洲：打開頁面就直接載入兩個工具。畫面上不會出現橫幅，頁尾也沒有「Cookie 設定」按鈕。
 - 時區在歐洲：頁面底部出現橫幅，按「接受」才載入。按「拒絕」就不載入，並刪掉上表的 cookie。之後可以按頁尾版權列旁的「Cookie 設定」，重新開啟橫幅。
 
-時區不在歐洲的訪客想關掉分析工具，只能在瀏覽器這一層處理：
+時區不在歐洲的訪客想關掉分析工具，只能在瀏覽器這一層擋下它們：
 
-- 在瀏覽器封鎖本站的 cookie。
 - 使用擋追蹤的擴充功能。
 - 安裝 [Google Analytics 停用外掛](https://tools.google.com/dlpage/gaoptout)，它只對 Google Analytics 有效。
+
+只封鎖本站的 cookie 關不掉分析工具。兩個工具仍會載入，Clarity 沒有 cookie 也會繼續收集資料，見 [Clarity 的同意說明](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management)。
 
 ## 文章頁的留言、影片與分享按鈕會連到第三方
 

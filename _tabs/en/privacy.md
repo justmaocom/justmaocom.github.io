@@ -25,11 +25,12 @@ Your browser's time zone decides whether the site asks you first:
 - Outside European time zones: both tools load as soon as you open a page. You see no banner, and the footer has no "Cookie settings" button.
 - In a European time zone: a banner appears at the bottom of the page, and the tools load only after you click "Accept". Click "Decline" and they don't load, and the site deletes the cookies in the table above. You can reopen the banner later with the "Cookie settings" button next to the copyright line in the footer.
 
-Outside European time zones, you can turn analytics off only in your browser:
+Outside European time zones, you can block analytics only in your browser:
 
-- Block cookies for this site in your browser.
 - Use an extension that blocks trackers.
 - Install the [Google Analytics Opt-out Browser Add-on](https://tools.google.com/dlpage/gaoptout). It works only for Google Analytics.
+
+Blocking this site's cookies alone doesn't turn analytics off. Both tools still load, and Clarity keeps collecting data without cookies, as its [consent documentation](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management) explains.
 
 ## Comments, videos, and share buttons on posts connect to third parties
 

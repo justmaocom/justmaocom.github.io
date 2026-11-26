@@ -25,11 +25,12 @@ description: justmao.com 加载哪些分析工具与第三方服务、各自何�
 - 时区不在欧洲：打开页面就直接加载两个工具。页面上不会出现横幅，页脚也没有“Cookie 设置”按钮。
 - 时区在欧洲：页面底部出现横幅，点击“接受”才加载。点击“拒绝”就不加载，并删除上表的 Cookie。之后可以点击页脚版权栏旁的“Cookie 设置”，重新打开横幅。
 
-时区不在欧洲的访客想关闭分析工具，只能在浏览器这一层处理：
+时区不在欧洲的访客想关闭分析工具，只能在浏览器这一层拦截它们：
 
-- 在浏览器中屏蔽本站的 Cookie。
 - 使用拦截跟踪的浏览器扩展。
 - 安装 [Google Analytics 停用插件](https://tools.google.com/dlpage/gaoptout)，它只对 Google Analytics 有效。
+
+只屏蔽本站的 Cookie 无法关闭分析工具。两个工具仍会加载，Clarity 没有 Cookie 也会继续收集数据，见 [Clarity 的同意说明](https://learn.microsoft.com/en-us/clarity/setup-and-installation/consent-management)。
 
 ## 文章页的评论、视频与分享按钮会连接第三方
 
