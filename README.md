@@ -15,7 +15,7 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://
 - Self-hosted fonts and front-end libraries in `assets/lib`, with versions pinned by `package.json` and `package-lock.json`
 - PWA with an offline cache
 - Post search on the home page only, with the search index downloaded on first use
-- A newsletter signup form in the footer that posts to a self-hosted [listmonk](https://listmonk.app/), with an [ALTCHA](https://altcha.org/) proof-of-work check that loads when a reader first focuses the form
+- A Newsletter page in the sidebar with a signup form that posts to a self-hosted [listmonk](https://listmonk.app/), with an [ALTCHA](https://altcha.org/) proof-of-work check that loads when a reader first focuses the form
 - Google Analytics and Microsoft Clarity in production, loaded only after consent for visitors in European time zones
 - An `llms.txt` post index, and Markdown versions of posts for requests that send `Accept: text/markdown`
 - The custom domain `justmao.com`, served through Cloudflare

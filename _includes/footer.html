@@ -79,51 +79,6 @@
         {% endfor %}
       </ul>
     </section>
-
-    {% comment %}
-      送到自架的 listmonk，l 是本語系的清單。assets/js/newsletter.js 以 fetch 送出，結果寫進 .newsletter-status，不離開這一頁；
-      listmonk 的 trusted URLs 要含本站網址，它的 CORS 才讓這裡讀得到結果。
-      ALTCHA 元件由 assets/js/newsletter.js 在第一次聚焦表單時才載入；auto="onsubmit" 讓它按下訂閱才拿題目。
-      _config.yml 的 pwa.cache.deny_paths 擋掉題目網址，PWA 的快取才不會重複送出同一道過期的題目。
-    {% endcomment %}
-    {%- assign newsletter = site.data.locales[include.lang].newsletter -%}
-    <section class="footer-newsletter" aria-labelledby="footer-newsletter">
-      <h2 class="footer-heading" id="footer-newsletter"><i class="fas fa-envelope-open-text" aria-hidden="true"></i>{{ site.data.locales[include.lang].footer.newsletter }}</h2>
-      <form
-        class="newsletter-form"
-        action="https://news.justmao.com/subscription/form"
-        method="post"
-        data-widget="{{ site.baseurl }}/assets/lib/altcha/altcha.min.js"
-      >
-        <div id="newsletter-description">{{ newsletter.description }}</div>
-        <input type="hidden" name="l" value="{{ site.data.newsletter[include.lang] }}">
-        <div class="newsletter-fields">
-          <input
-            type="email"
-            name="email"
-            required
-            autocomplete="email"
-            aria-label="{{ newsletter.email }}"
-            aria-describedby="newsletter-description"
-            placeholder="{{ newsletter.email }}"
-          >
-          <button type="submit">{{ newsletter.subscribe }}</button>
-        </div>
-        <altcha-widget
-          challengeurl="https://news.justmao.com/api/public/captcha/altcha"
-          auto="onsubmit"
-          hidefooter
-          hidelogo
-          strings="{{ newsletter.altcha | jsonify | escape }}"
-        ></altcha-widget>
-        <div
-          class="newsletter-status"
-          role="status"
-          data-success="{{ newsletter.success | escape }}"
-          data-error="{{ newsletter.error | escape }}"
-        ></div>
-      </form>
-    </section>
   </div>
 
   <p>
@@ -147,4 +102,3 @@
     {% endif %}
   </p>
 </footer>
-<script defer src="{{ site.baseurl }}/assets/js/newsletter.js"></script>

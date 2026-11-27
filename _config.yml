@@ -192,7 +192,7 @@ pwa:
     # shares the same domain name as the current website.
     deny_paths:
       # - "/example"  # URLs match `<SITE_URL>/example/*` will not be cached by the PWA
-      # 頁尾電子報表單向 news.justmao.com 拿的 ALTCHA 題目，5 分鐘就過期，每次都要拿新的。
+      # 電子報頁的訂閱表單向 news.justmao.com 拿的 ALTCHA 題目，5 分鐘就過期，每次都要拿新的。
       # 主題的 service worker 只比對路徑、不看網域，所以寫路徑就擋得到別的網域
       - /api/public/captcha/
 

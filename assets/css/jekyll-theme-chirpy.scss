@@ -708,31 +708,11 @@ footer {
   }
 }
 
-/* --- 頁尾的電子報表單（搭配 _includes/footer.html 與 assets/js/newsletter.js） --- */
+/* --- 電子報頁的訂閱表單（搭配 _includes/newsletter-form.html 與 assets/js/newsletter.js） --- */
 
-/* 比前兩欄寬，放得下輸入框與按鈕；窄螢幕時自成一列 */
-.footer-newsletter {
-  flex: 1 1 16rem;
-  max-width: 24rem;
-  padding: 1rem 1.25rem 1.25rem;
-  border: 1px solid color-mix(in srgb, var(--link-color) 35%, transparent);
-  border-radius: 1rem;
-  background: color-mix(in srgb, var(--link-color) 8%, var(--card-bg));
-  color: var(--text-color);
-
-  .footer-heading {
-    margin-bottom: 0.25rem;
-    color: var(--heading-color);
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: normal;
-    text-transform: none;
-
-    i {
-      margin-right: 0.4rem;
-      color: var(--link-color);
-    }
-  }
+.newsletter {
+  max-width: 32rem;
+  margin-block: 1.5rem;
 }
 
 .newsletter-form {

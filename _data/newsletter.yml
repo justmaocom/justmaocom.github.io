@@ -1,4 +1,4 @@
-# 頁尾電子報表單（_includes/footer.html）送到的 listmonk 清單 UUID，每個語系一份清單。
+# 電子報頁的訂閱表單（_includes/newsletter-form.html）送到的 listmonk 清單 UUID，每個語系一份清單。
 # 換清單時，../newsletter-server 的 static/public/templates/message.html 也寫了這三個 UUID，要一起改。
 zh-TW: e5319a16-63a3-42ee-a429-e0e0c3a16c5f
 zh-CN: 671a98cb-b6e1-4b1d-a273-0e8c0311ba3a

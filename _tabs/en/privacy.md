@@ -9,7 +9,7 @@ description: Which analytics tools and third-party services justmao.com loads, w
 
 When you read justmao.com, which third parties does your browser connect to, and what data does it leave behind? This page lists the tracking code and third-party services the site loads, and how you can turn them off.
 
-Last updated: 2026-11-26
+Last updated: 2026-11-27
 
 ## Analytics load only after visitors in European time zones agree
 
@@ -43,7 +43,7 @@ Posts use two more third-party services, and each one connects at a different ti
 
 ## The newsletter stores your address on a server this site runs
 
-The newsletter form in the footer sends your address to listmonk, a newsletter system this site hosts at news.justmao.com. Your subscription includes your email address and the language list you subscribed to. Each of the three languages has its own list.
+The signup form on the [Newsletter](/newsletter/) page sends your address to listmonk, a newsletter system this site hosts at news.justmao.com. Your subscription includes your email address and the language list you subscribed to. Each of the three languages has its own list.
 
 listmonk doesn't store your IP address with your subscription. The newsletter doesn't track opens or clicks, because tracking is off in both listmonk and SMTP2GO. When you submit the form, the server still uses your IP address to limit how often one address can submit.
 
