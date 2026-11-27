@@ -28,3 +28,6 @@ dccbb6110d4ac4eece1713f96d68722e3d7babaa # fix(seo): 英文連結文字改用 AG
 2a82e677d25f6cb4ce8fd474bfd628f60aa40052 # docs(posts): 替兩篇系列導讀補上 mattpocock/skills 與 pstack 比較文的連結
 1febbf16cdfbc964fc102e3bc13e0934d68fef52 # fix(seo): 五篇英文文章的標題縮到 57 字元內並把主詞放前面
 4932f2e1a2c04332f7323d5d1f3b9f8f5b82bf9c # docs(posts): 英文文章引用五篇新標題的連結文字
+4c508c6aa9f4eed35bc1186033e1b511809bb81a # docs(posts): 縮短五篇過長的描述
+8586b97723d789224cfca994e5e757da116dd679 # fix(seo): 英文 npm 發布流程標題改成 Lock Down npm Releases Beyond Trusted Publishing
+fa491b8b8eba87893479bf5402d4e2a11d3dca8f # docs(posts): 英文文章引用 npm 發布流程新標題的連結文字
