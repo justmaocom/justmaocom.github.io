@@ -327,7 +327,7 @@ Trusted publishing removes the long-lived token, but a compromised workflow can 
 
 - **Regular reviews:** audit the package's trusted publishers periodically, and delete publish tokens you no longer use.
 
-I explain how to set up these gates step by step in the follow-up, [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/). It also explains why a release with provenance can still be malicious.
+I explain how to set up these gates step by step in the follow-up, [Lock Down npm Releases Beyond Trusted Publishing](/posts/npm-release-pipeline-lockdown/). It also explains why a release with provenance can still be malicious.
 
 ## Limits You Should Know First
 
