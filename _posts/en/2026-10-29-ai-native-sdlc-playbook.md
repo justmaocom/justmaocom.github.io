@@ -1,6 +1,6 @@
 ---
 title: "Anthropic's AI-Native SDLC Playbook, With a Worked Example"
-description: "My reading of Anthropic's AI-native SDLC playbook: a sample waitlist feature through six stages, with prompts, acceptance tests, PR review, and a drill for stopping a release."
+description: "My reading of Anthropic's AI-native SDLC playbook: a waitlist feature through six stages, with prompts, acceptance tests, PR review, and a stop-release drill."
 date: 2026-10-29 08:30:00 +0800
 categories: [AI, Software Development]
 tags: [ai-native-sdlc, coding-agent, workflow, claude-code]

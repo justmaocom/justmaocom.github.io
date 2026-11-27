@@ -1,6 +1,6 @@
 ---
 title: "Claude Code Hooks: Format, Test, and Flag Sensitive Files"
-description: "Use Claude Code hooks to format files after edits, block Edit or Write calls targeting .env and .git, and run tests when a turn ends—and learn what hooks cannot block."
+description: "Use Claude Code hooks to format files after edits, block Edit or Write on .env and .git, and run tests when a turn ends. It also covers what hooks cannot block."
 date: 2026-11-10 11:00:00 +0800
 categories: [AI, Software Development]
 tags: [claude-code, coding-agent, workflow, testing]
