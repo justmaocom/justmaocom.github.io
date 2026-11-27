@@ -1,8 +1,8 @@
 <!-- The Top Bar -->
 {% comment %}
-  覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案：拿掉搜尋按鈕、搜尋框與「取消」按鈕（搜尋改放在首頁，
-  見 _includes/post-search.html），右側改放 .topbar-actions：深淺色切換從側欄底部移過來，
-  assets/js/i18n.js 再把語系選單插在它左邊。
+  覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案：拿掉主題的搜尋按鈕、搜尋框與「取消」按鈕（文章搜尋改放在首頁，
+  見 _includes/post-search.html），右側改放 .topbar-actions：AI 搜尋按鈕（assets/js/ai-search.js）與
+  從側欄底部移過來的深淺色切換，assets/js/i18n.js 再把語系選單插在最左邊。
   升級主題後與 gem 內的檔案比對。
 {% endcomment %}
 
@@ -63,7 +63,8 @@
 
     {% comment %}
       主題每一頁的腳本在初始化時直接替這三個 id 綁事件、不檢查元素存不存在，少了任一個，
-      後面的初始化（深淺色切換、回到頂端、tooltip）會一起中斷。搜尋已移到首頁，這裡只留藏起來的空殼。
+      後面的初始化（深淺色切換、回到頂端、tooltip）會一起中斷。主題的搜尋已移到首頁，這裡只留藏起來的空殼，
+      AI 搜尋按鈕也不能沿用這三個 id。
     {% endcomment %}
     <div hidden>
       <span id="search-trigger"></span>
@@ -71,7 +72,34 @@
       <input type="hidden" id="search-input">
     </div>
 
+    {% comment %}
+      元件需要的設定都放在按鈕的 data 屬性，由 assets/js/ai-search.js 照名稱設成元件的屬性。
+      索引混了三個語系與分頁、分類頁，request-options 以 folder 篩出本語系 /posts/ 底下的網址：
+      $lt 用 posts0，因為字元 0 緊接在 / 之後。
+    {% endcomment %}
+    {%- assign ai_search_posts = site.url | append: site.baseurl -%}
+    {%- unless site.active_lang == site.default_lang -%}
+      {%- assign ai_search_posts = ai_search_posts | append: '/' | append: site.active_lang -%}
+    {%- endunless -%}
+    {%- assign ai_search_posts = ai_search_posts | append: '/posts' -%}
+    {%- capture ai_search_request -%}
+      {"body":{"ai_search_options":{"retrieval":{"filters":{"folder":{"$gte":"{{ ai_search_posts }}/","$lt":"{{ ai_search_posts }}0"}}}}}}
+    {%- endcapture -%}
+
     <div class="topbar-actions d-flex align-items-center">
+      <button
+        type="button"
+        id="ai-search-trigger"
+        class="btn btn-link"
+        aria-label="{{ site.data.locales[include.lang].ai_search.button }}"
+        data-widget="{{ site.baseurl }}/assets/lib/ai-search-snippet/search-snippet.umd.js"
+        data-api-url="{{ site.ai_search_endpoint }}"
+        data-translations="{{ site.data.locales[include.lang].ai_search.modal | jsonify | escape }}"
+        data-request-options="{{ ai_search_request | escape }}"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
+
       {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
         {%- capture icon_system -%}
           <i class="fa-solid fa-display" data-theme-mode="system"></i>
@@ -122,4 +150,5 @@
       {% endunless %}
     </div>
   </div>
+  <script defer src="{{ site.baseurl }}/assets/js/ai-search.js"></script>
 </header>

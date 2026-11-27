@@ -50,6 +50,30 @@ search:
   clear: Clear
   results: "Results for “:query”: :count"
 
+# _includes/topbar.html 的 AI 搜尋按鈕；modal 是 <search-modal-snippet> 的 translations，沒列的沿用元件內建的英文。
+# 元件裡的「Powered by Cloudflare AI Search」寫死在元件內，不能翻譯
+ai_search:
+  button: AI search
+  modal:
+    placeholder: Search posts…
+    searchButtonLabel: Search
+    searchResultsAriaLabel: Search results
+    loadingAriaLabel: Loading
+    # 等待結果時輪流顯示，給了就整組取代元件內建的十句
+    loadingMessages: [Searching…]
+    modalEmptyStateDescription: Start typing to search
+    modalNoResultsTitle: No results found
+    # {query} 是搜尋字詞
+    modalNoResultsDescription: "No posts match “{query}”"
+    recentResults: Recent
+    favoriteResults: Favorites
+    addFavorite: Add to favorites
+    removeFavorite: Remove from favorites
+    navigateHint: Navigate
+    selectHint: Open
+    closeHint: Close
+    errorPrefix: "Error:"
+
 # _includes/topbar.html 深淺色按鈕的 aria-label
 theme:
   toggle: Switch color mode
