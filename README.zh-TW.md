@@ -15,7 +15,7 @@
 - `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
 - 文章搜尋只在首頁，第一次使用時才下載搜尋索引
-- 頁尾的電子報訂閱表單，送到自架的 [listmonk](https://listmonk.app/)；[ALTCHA](https://altcha.org/) 工作量證明驗證在讀者第一次點進表單時才載入
+- 側邊欄「電子報」頁的訂閱表單，送到自架的 [listmonk](https://listmonk.app/)；[ALTCHA](https://altcha.org/) 工作量證明驗證在讀者第一次點進表單時才載入
 - production 啟用 Google Analytics 與 Microsoft Clarity，歐洲時區的訪客同意後才載入
 - `llms.txt` 文章索引，以及請求帶 `Accept: text/markdown` 時回傳的 Markdown 版文章
 - 自訂網域 `justmao.com`，前面經過 Cloudflare

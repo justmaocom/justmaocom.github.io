@@ -8,7 +8,7 @@
 # - <title> 的站名後綴改用 _config.yml 的 title_suffix，首頁改用 home_title。
 # - 首頁的分頁與分類頁原本和別頁共用標題或描述：分頁的 <title> 補上頁碼；分類頁的 <title> 與
 #   描述依分類名稱、文章數與最新一篇產生。文字樣板在 _data/locales/<lang>.yml 的 seo。
-# - tab 頁（封存、分類、標籤、專案、關於、隱私權政策）是 collection 文件，Jekyll 會拿建置時間當它的 date，
+# - tab 頁是 collection 文件，Jekyll 會拿建置時間當它的 date，
 #   seo-tag 因此把它當成文章輸出。這裡拿掉日期、改回一般頁面，並把標題換成該語系的 tab 名稱。
 #   sitemap 裡 tab 頁的 lastmod 也是建置時間，每次部署都會變，一併拿掉。
 # - 「關於」頁被 seo-tag 當成首頁輸出 WebSite，和真正的首頁重複，改成 ProfilePage。

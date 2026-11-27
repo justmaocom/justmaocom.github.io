@@ -1,0 +1,40 @@
+{%- comment -%}
+  listmonk 的 trusted URLs 要含本站網址，它的 CORS 才讓這裡讀得到結果。
+{%- endcomment -%}
+{%- include lang.html -%}
+{%- assign newsletter = site.data.locales[lang].newsletter -%}
+<div class="newsletter">
+  <form
+    class="newsletter-form"
+    action="https://news.justmao.com/subscription/form"
+    method="post"
+    data-widget="{{ site.baseurl }}/assets/lib/altcha/altcha.min.js"
+  >
+    <input type="hidden" name="l" value="{{ site.data.newsletter[lang] }}">
+    <div class="newsletter-fields">
+      <input
+        type="email"
+        name="email"
+        required
+        autocomplete="email"
+        aria-label="{{ newsletter.email }}"
+        placeholder="{{ newsletter.email }}"
+      >
+      <button type="submit">{{ newsletter.subscribe }}</button>
+    </div>
+    <altcha-widget
+      challengeurl="https://news.justmao.com/api/public/captcha/altcha"
+      auto="onsubmit"
+      hidefooter
+      hidelogo
+      strings="{{ newsletter.altcha | jsonify | escape }}"
+    ></altcha-widget>
+    <div
+      class="newsletter-status"
+      role="status"
+      data-success="{{ newsletter.success | escape }}"
+      data-error="{{ newsletter.error | escape }}"
+    ></div>
+  </form>
+  <script defer src="{{ site.baseurl }}/assets/js/newsletter.js"></script>
+</div>

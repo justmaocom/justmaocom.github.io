@@ -3,6 +3,7 @@
 tabs:
   projects: Projects
   privacy: Privacy Policy
+  newsletter: Newsletter
 
 # _includes/projects.html 的連結文字
 projects:
@@ -25,11 +26,9 @@ seo:
 footer:
   explore: Explore
   connect: Connect
-  newsletter: Newsletter
 
-# _includes/footer.html 頁尾電子報表單的字串；altcha 是 ALTCHA 元件的 strings，沒列的沿用元件內建的英文
+# _includes/newsletter-form.html 電子報表單的字串；altcha 是 ALTCHA 元件的 strings，沒列的沿用元件內建的英文
 newsletter:
-  description: One email a week with last week's new posts on justmao.com.
   email: Email address
   subscribe: Subscribe
   # 送出後顯示在表單下方；error 涵蓋 listmonk 拒絕與限流（429 讀不到內容，和斷線分不出來）

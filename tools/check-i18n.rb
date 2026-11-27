@@ -51,7 +51,6 @@ failures = []
      ->(url, _) { url == "#{ baseurl }/#{ lang }/assets/js/data/search.json" }],
     ['search.json 文章網址', Dir["#{ root }/assets/js/data/search.json"],
      ->(s) { s.scan(/"url": "([^"]*)"/).flatten }, ->(url, _) { url.start_with?("#{ baseurl }/#{ lang }/") }],
-    # 頁尾電子報表單的清單 UUID 要是本語系的，不能和預設語系同一份
     ['電子報表單', html,
      ->(s) { s.scan(%r{<form[^>]*\bnewsletter-form\b.*?</form>}m).map { |form| form[/name="l" value="([^"]*)"/, 1] } },
      ->(value, _) { value == newsletter.fetch(lang) && value != newsletter.fetch(config['default_lang']) }],

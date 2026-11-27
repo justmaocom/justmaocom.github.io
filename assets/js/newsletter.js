@@ -1,7 +1,7 @@
 /**
- * 頁尾的電子報表單（_includes/footer.html）。
+ * 電子報頁的訂閱表單（_includes/newsletter-form.html）。
  *
- * 讀者第一次聚焦表單時才載入 ALTCHA 元件，每一頁不必多下載約 24 KB（gzip 後）。
+ * 讀者第一次聚焦表單時才載入 ALTCHA 元件，只看不訂閱的讀者不必多下載約 24 KB（gzip 後）。
  * 元件設為 auto="onsubmit"，按下訂閱時才向 news.justmao.com 拿題目，解完由元件再送出一次表單。
  * 那一次改由這裡以 fetch 送出，結果顯示在表單下方，讀者不會離開這一頁。
  */
@@ -9,7 +9,6 @@
   'use strict';
 
   const form = document.querySelector('.newsletter-form');
-  if (!form) return;
   const button = form.querySelector('button[type="submit"]');
   const status = form.querySelector('.newsletter-status');
 
