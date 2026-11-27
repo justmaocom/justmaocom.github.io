@@ -6,7 +6,7 @@
 #   標籤索引頁（/tags/）的 noindex 寫在 _tabs/tags.md。
 #   帶 noindex 的頁面一律移出 sitemap；<meta name="robots"> 由 _includes/metadata-hook.html 輸出。
 # - <title> 的站名後綴改用 _config.yml 的 title_suffix，首頁改用 home_title。
-# - 首頁的分頁與分類頁原本和別頁共用標題或描述：分頁的 <title> 補上頁碼；分類頁的 <title> 與
+# - 首頁的分頁與分類頁原本和別頁共用標題或描述：分頁的 <title> 與描述補上頁碼；分類頁的 <title> 與
 #   描述依分類名稱、文章數與最新一篇產生。文字樣板在 _data/locales/<lang>.yml 的 seo。
 # - tab 頁（封存、分類、標籤、專案、關於、隱私權政策）是 collection 文件，Jekyll 會拿建置時間當它的 date，
 #   seo-tag 因此把它當成文章輸出。這裡拿掉日期、改回一般頁面，並把標題換成該語系的 tab 名稱。
@@ -48,6 +48,18 @@ module SeoHook
   # 把樣板裡的 :name、:count 等換成實際的值
   def fill(template, values)
     values.reduce(template.to_s) { |text, (key, value)| text.gsub(":#{ key }", value.to_s) }
+  end
+
+  # 首頁分頁與首頁共用站台描述。比照 page_title，用 seo.page_description 寫上頁碼，
+  # 讓 <meta name="description">、og:description 與 JSON-LD 都和首頁不同。
+  def describe_home_pages(site)
+    template = strings(site)['page_description'] or return
+
+    site.pages.each do |page|
+      next unless page.data['layout'] == 'home' && page.pager && page.pager.page > 1
+
+      page.data['description'] = fill(template, num: page.pager.page)
+    end
   end
 
   # 分類頁由 jekyll-archives 產生，沒有 front matter，描述在這裡寫進 page.data 交給 seo-tag 輸出
@@ -205,6 +217,7 @@ end
 
 Jekyll::Hooks.register :site, :pre_render do |site|
   SeoHook.mark_noindex(site)
+  SeoHook.describe_home_pages(site)
   SeoHook.describe_categories(site)
   SeoHook.describe_listing_tabs(site)
 end

@@ -15,6 +15,7 @@ seo:
   category_title: "Posts in :name"
   category_description: "Posts filed under :name (:count in total). Latest: :latest"
   page_title: "All Posts (Page :num)"
+  page_description: "Page :num of all posts on JustMao, continuing the list, newest first."
   archives_description: "All :count posts on JustMao, newest first."
   categories_description: "Browse JustMao posts by topic: :count categories, each listing its posts."
   # 「專案」頁（_tabs/projects.md）的 <title> 與描述；寫成整頁的泛稱，不寫個別專案，新增專案時不用改
