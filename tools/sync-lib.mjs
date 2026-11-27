@@ -10,6 +10,12 @@ const lib = join(root, 'assets/lib');
 
 // npm package -> [path inside the package, path under assets/lib, excluded paths?]
 const registry = {
+  // The topbar's AI search modal, not the theme's. The minified UMD build defines every component in one file and has
+  // no license header, so LICENSE ships with it. Its sourceMappingURL points to a map left out (only devtools fetches it).
+  '@cloudflare/ai-search-snippet': [
+    ['dist/search-snippet.umd.js', 'ai-search-snippet/search-snippet.umd.js'],
+    ['LICENSE', 'ai-search-snippet/LICENSE'],
+  ],
   '@fortawesome/fontawesome-free': [
     ['css/all.min.css', 'fontawesome-free/css/all.min.css'],
     ['webfonts', 'fontawesome-free/webfonts'],

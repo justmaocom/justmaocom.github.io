@@ -53,9 +53,15 @@ listmonk 不把你的 IP 位址存進訂閱資料。電子報不追蹤開信與�
 
 想取消訂閱或要求刪除地址，請寫信到頁尾「聯繫」欄的 Email。
 
+## AI 搜尋會把你輸入的字詞送到 Cloudflare
+
+每一頁頂欄的放大鏡按鈕（或按 Ctrl/⌘+K）會打開 AI 搜尋視窗，搜尋由 Cloudflare AI Search 處理。你在搜尋框打字時，每停頓一下，瀏覽器就把框裡的字詞送到 Cloudflare AI Search（search.justmao.com），不必按 Enter。Cloudflare 同時會經手你的 IP 位址等連線資訊，處理方式見 [Cloudflare 隱私權政策](https://www.cloudflare.com/privacypolicy/)。
+
+搜尋元件內建一項使用統計，會另外把搜尋字詞與點過的結果送給 Cloudflare，本站把它關掉了。元件的檔案放在本站，你第一次打開搜尋視窗時才下載。你開啟過與收藏的結果只存在你的瀏覽器，見下一節的表格。
+
 ## 有些資料只存在你的瀏覽器
 
-下表的資料存在你的瀏覽器，不會送回本站。前四項存在 localStorage（瀏覽器替每個網站保留的儲存空間），最後一項是離線快取。
+下表的資料存在你的瀏覽器，不會送回本站。前六項存在 localStorage（瀏覽器替每個網站保留的儲存空間），最後一項是離線快取。
 
 | 名稱 | 存什麼 |
 | --- | --- |
@@ -63,6 +69,8 @@ listmonk 不把你的 IP 位址存進訂閱資料。電子報不追蹤開信與�
 | `site-lang` | 你手動選過的語系 |
 | `site-lang-hint-dismissed` | 你關掉了語系提示列 |
 | `analytics-consent` | 歐洲時區訪客在 cookie 橫幅上的選擇 |
+| `search-snippet:recent-results` | 你在 AI 搜尋最近開啟的 5 筆結果（標題、摘要與網址等） |
+| `search-snippet:favorite-results` | 你在 AI 搜尋收藏的結果（標題、摘要與網址等） |
 | 離線快取 | 你看過的頁面與檔案，供離線瀏覽 |
 
 在瀏覽器清除本站的網站資料，就會刪掉上表全部項目。

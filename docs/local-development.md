@@ -105,7 +105,7 @@ bundle exec htmlproofer _site/posts --disable-external
 
 ## 更新 assets/lib
 
-`assets/lib` 的版本由 `package.json` 的固定版本與 `package-lock.json` 的 sha512 integrity 決定。`tools/sync-lib.mjs` 從 `node_modules` 把主題與電子報頁訂閱表單需要的檔案複製到 `assets/lib/`。`fonts/` 與 `LICENSE` 不受腳本管理，維持原樣。
+`assets/lib` 的版本由 `package.json` 的固定版本與 `package-lock.json` 的 sha512 integrity 決定。`tools/sync-lib.mjs` 從 `node_modules` 把主題、電子報頁訂閱表單與頂欄 AI 搜尋需要的檔案複製到 `assets/lib/`。`fonts/` 與 `LICENSE` 不受腳本管理，維持原樣。
 
 更新需要 Node.js 與 npm。先改版本，再重新產生 `assets/lib`：
 

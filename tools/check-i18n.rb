@@ -54,6 +54,9 @@ failures = []
     ['電子報表單', html,
      ->(s) { s.scan(%r{<form[^>]*\bnewsletter-form\b.*?</form>}m).map { |form| form[/name="l" value="([^"]*)"/, 1] } },
      ->(value, _) { value == newsletter.fetch(lang) && value != newsletter.fetch(config['default_lang']) }],
+    ['AI 搜尋的文章範圍', html,
+     ->(s) { s.scan(/data-request-options="([^"]*)"/).map { |(json)| JSON.parse(CGI.unescapeHTML(json)).dig('body', 'ai_search_options', 'retrieval', 'filters', 'folder') } },
+     ->(folder, _) { folder == { '$gte' => "#{ origin }/#{ lang }/posts/", '$lt' => "#{ origin }/#{ lang }/posts0" } }],
     *%w(feed.xml sitemap.xml llms.txt).map do |name|
       [name, Dir["#{ root }/#{ name }"], ->(s) { s.scan(/#{ Regexp.escape(origin) }[^"'<>\s]*/) }, is_local_prefix]
     end

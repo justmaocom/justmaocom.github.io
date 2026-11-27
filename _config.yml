@@ -25,6 +25,7 @@ exclude_from_localization:
   - assets/js/consent.js
   - assets/js/post-search.js
   - assets/js/newsletter.js
+  - assets/js/ai-search.js
   - assets/robots.txt
   - CNAME
   - google5762b861fb04640c.html
@@ -182,6 +183,9 @@ assets:
     # specify the Jekyll environment, empty means both
     # only works if `assets.self_host.enabled` is 'true'
     # env: # [development | production]
+
+# 頂欄 AI 搜尋的 Cloudflare AI Search 端點（_includes/topbar.html），是 AI Search > Settings > Public endpoint > Custom domain 設的自訂網域
+ai_search_endpoint: https://search.justmao.com
 
 pwa:
   enabled: true # The option for PWA feature (installable)

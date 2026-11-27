@@ -53,9 +53,15 @@ listmonk 不会把你的 IP 地址存入订阅数据。电子报不跟踪打开�
 
 想取消订阅或要求删除地址，请发邮件到页脚“联系”栏的 Email。
 
+## AI 搜索会把你输入的字词发送到 Cloudflare
+
+每一页顶栏的放大镜按钮（或按 Ctrl/⌘+K）会打开 AI 搜索窗口，搜索由 Cloudflare AI Search 处理。你在搜索框打字时，每停顿一下，浏览器就把框里的字词发送到 Cloudflare AI Search（search.justmao.com），不必按 Enter。Cloudflare 同时会经手你的 IP 地址等连接信息，处理方式见 [Cloudflare 隐私政策](https://www.cloudflare.com/privacypolicy/)。
+
+搜索组件内置一项使用统计，会另外把搜索字词与点击过的结果发送给 Cloudflare，本站把它关闭了。组件的文件放在本站，你第一次打开搜索窗口时才下载。你打开过与收藏的结果只存在你的浏览器，见下一节的表格。
+
 ## 有些数据只存在你的浏览器
 
-下表的数据存在你的浏览器，不会发回本站。前四项存在 localStorage（浏览器为每个网站保留的存储空间），最后一项是离线缓存。
+下表的数据存在你的浏览器，不会发回本站。前六项存在 localStorage（浏览器为每个网站保留的存储空间），最后一项是离线缓存。
 
 | 名称 | 存什么 |
 | --- | --- |
@@ -63,6 +69,8 @@ listmonk 不会把你的 IP 地址存入订阅数据。电子报不跟踪打开�
 | `site-lang` | 你手动选过的语言 |
 | `site-lang-hint-dismissed` | 你关闭了语言提示栏 |
 | `analytics-consent` | 欧洲时区访客在 Cookie 横幅上的选择 |
+| `search-snippet:recent-results` | 你在 AI 搜索中最近打开的 5 条结果（标题、摘要与网址等） |
+| `search-snippet:favorite-results` | 你在 AI 搜索中收藏的结果（标题、摘要与网址等） |
 | 离线缓存 | 你看过的页面与文件，供离线浏览 |
 
 在浏览器中清除本站的网站数据，就会删除上表全部项目。

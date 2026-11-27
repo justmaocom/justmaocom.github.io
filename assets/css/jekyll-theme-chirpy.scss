@@ -156,7 +156,7 @@ html.mermaid-zoom-open {
   }
 }
 
-/* --- 頂欄右側的語系選單（assets/js/i18n.js）與深淺色切換（_includes/topbar.html），選單外觀比照主題原本在側欄的 #mode-toggle --- */
+/* --- 頂欄右側的語系選單（assets/js/i18n.js）、AI 搜尋按鈕與深淺色切換（_includes/topbar.html），選單外觀比照主題原本在側欄的 #mode-toggle --- */
 
 #topbar .topbar-actions {
   gap: 0.5rem;
@@ -167,8 +167,16 @@ html.mermaid-zoom-open {
   }
 }
 
+/* 右側三顆按鈕在 375px 以下的手機擠得站名折成兩行、超出頂欄，改成單行，放不下的以省略號截斷 */
+#topbar-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* 外框加深框線與文字，讓按鈕在頂欄中看得出來 */
-#topbar :is(#lang-toggle, #mode-toggle) {
+#topbar :is(#lang-toggle, #ai-search-trigger, #mode-toggle) {
   display: flex;
   align-items: center;
   height: 2rem;
@@ -220,16 +228,16 @@ html.mermaid-zoom-open {
   }
 }
 
-#topbar #mode-toggle {
+#topbar :is(#ai-search-trigger, #mode-toggle) {
   justify-content: center;
   width: 2rem;
   padding: 0;
   border-radius: 50%;
+}
 
-  /* 主題只替側欄裡的 #mode-toggle 寫了這組規則：三個圖示只顯示目前模式那一個 */
-  > i {
-    display: none;
-  }
+/* 主題只替側欄裡的 #mode-toggle 寫了這組規則：三個圖示只顯示目前模式那一個 */
+#topbar #mode-toggle > i {
+  display: none;
 }
 
 :root[data-bs-theme='light'][data-theme-persisted] #topbar #mode-toggle > i[data-theme-mode='light'],
@@ -284,6 +292,23 @@ html.mermaid-zoom-open {
       }
     }
   }
+}
+
+/* --- AI 搜尋的視窗（assets/js/ai-search.js）：元件 0.0.43 的深色值只寫在 prefers-color-scheme: dark 裡，
+   系統是淺色時 theme="dark" 仍是淺色。這裡補上元件自己的深色值，頁面的規則蓋得過元件 shadow DOM 裡的 :host --- */
+
+search-modal-snippet[theme='dark'] {
+  --search-snippet-background: #1a1b1e;
+  --search-snippet-surface: #25262b;
+  --search-snippet-text-color: #c1c2c5;
+  --search-snippet-text-secondary: #909296;
+  --search-snippet-text-description: #adb5bd;
+  --search-snippet-border-color: #373a40;
+  --search-snippet-hover-background: #2c2e33;
+  --search-snippet-focus-ring: #4dabf740;
+  --search-snippet-error-color: #ff6b6b;
+  --search-snippet-error-background: #3d1f1f;
+  color-scheme: dark;
 }
 
 /* --- 語系提示列（搭配 assets/js/i18n.js）：fixed 在視窗底部，插入時不推擠版面（不影響 CLS） --- */
