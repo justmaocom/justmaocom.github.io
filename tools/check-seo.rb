@@ -92,6 +92,16 @@ config['languages'].each do |lang|
     ['首頁標題', ["#{ root }/index.html"], ->(s) { title[s] == home_title }],
     ['首頁分頁的標題帶頁碼', Dir["#{ root }/page*/index.html"],
      ->(s) { title[s] != home_title && title[s] =~ /\d/ && title[s].end_with?(" | #{ suffix }") }],
+    # 分頁原本沿用站台描述。頁碼要出現在描述裡，og:description 也要同一句，不能只改 <title>
+    ['首頁分頁有自己的描述', Dir["#{ root }/page*/index.html"],
+     ->(s) {
+       num = s[%r{rel="canonical" href="[^"]*/page(\d+)/"}, 1]
+       text = description[s]
+       text && num && text != home_description && text.include?(num) && !text.include?(':num') &&
+         s[/property="og:description" content="([^"]*)"/, 1] == text
+     }],
+    ['首頁卡片標題不是重複的 h1', ["#{ root }/index.html", *Dir["#{ root }/page*/index.html"]],
+     ->(s) { s.scan(/<h1[\s>]/).size <= 1 && s.include?('class="card-title') && !s.include?('<h1 class="card-title') }],
     ['分頁連結帶尾斜線', Dir["#{ root }/{,page*/}index.html"],
      ->(s) { s.scan(%r{href="[^"]*/page\d+/?"}).then { |links| links.any? && links.all? { |link| link.end_with?('/"') } } }],
     # 標題不能只是「分類名稱 | 後綴」，描述不能沿用站台描述

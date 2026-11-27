@@ -16,6 +16,7 @@ seo:
   category_title: "“:name”分类文章"
   category_description: "“:name”分类下的 :count 篇文章，最新一篇是《:latest》。"
   page_title: "文章列表（第 :num 页）"
+  page_description: "JustMao 的文章列表第 :num 页，接在前面几页之后，同样按发布日期由新到旧排列。"
   archives_description: "JustMao 的全部 :count 篇文章，按发布日期由新到旧排列。"
   categories_description: "JustMao 的文章分类总览：:count 个分类，各自列出下面的文章。"
   # 「專案」頁（_tabs/projects.md）的 <title> 與描述；寫成整頁的泛稱，不寫個別專案，新增專案時不用改

@@ -2,7 +2,9 @@
 layout: default
 ---
 {% comment %}
-  覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案，只在 #post-list 前面加上首頁搜尋欄（_includes/post-search.html）。
+  覆寫自 jekyll-theme-chirpy 7.6.0 的同名檔案。
+  - 在 #post-list 前面加上首頁搜尋欄（_includes/post-search.html）。
+  - 文章卡片標題用 h2。主題原檔是 h1，一頁 10 篇就會有 10 個 h1。字級由 .card-title 固定為 1.25rem，與標籤是 h1 或 h2 無關。
   升級主題後與 gem 內的檔案比對。
 {% endcomment %}
 
@@ -100,7 +102,7 @@ layout: default
 
         <div class="col-md-{{ card_body_col }}">
           <div class="card-body d-flex flex-column">
-            <h1 class="card-title my-2 mt-md-0">{{ post.title }}</h1>
+            <h2 class="card-title my-2 mt-md-0">{{ post.title }}</h2>
 
             <div class="card-text content mt-0 mb-3">
               <p>{% include post-summary.html %}</p>
