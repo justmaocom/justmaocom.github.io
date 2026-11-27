@@ -97,7 +97,12 @@
         data-translations="{{ site.data.locales[include.lang].ai_search.modal | jsonify | escape }}"
         data-request-options="{{ ai_search_request | escape }}"
       >
-        <i class="fa-solid fa-magnifying-glass"></i>
+        {% comment %} Font Awesome 沒有內含 AI 的放大鏡，改用內嵌 SVG，線條跟著按鈕的 color 變色 {% endcomment %}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <circle cx="10.5" cy="10.5" r="8.5" stroke-width="2"/>
+          <path d="M16.75 16.75 22 22" stroke-width="2.5"/>
+          <path d="M6 14 8.5 7 11 14M6.9 11.6h3.2M14.5 7v7" stroke-width="1.6"/>
+        </svg>
       </button>
 
       {% unless site.theme_mode == 'light' or site.theme_mode == 'dark' %}
