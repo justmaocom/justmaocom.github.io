@@ -1,5 +1,5 @@
 ---
-title: "Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline"
+title: "Lock Down npm Releases Beyond Trusted Publishing"
 description: "The malicious tensorlake release carried valid provenance. Add review gates to your npm release with GitHub environments, rulesets, and staged publishing."
 date: 2026-11-14 18:25:00 +0800
 categories: [Security, Supply Chain]
