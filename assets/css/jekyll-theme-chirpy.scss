@@ -167,6 +167,14 @@ html.mermaid-zoom-open {
   }
 }
 
+/* 右側三顆按鈕在 375px 以下的手機擠得站名折成兩行、超出頂欄，改成單行，放不下的以省略號截斷 */
+#topbar-title {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 /* 外框加深框線與文字，讓按鈕在頂欄中看得出來 */
 #topbar :is(#lang-toggle, #ai-search-trigger, #mode-toggle) {
   display: flex;
