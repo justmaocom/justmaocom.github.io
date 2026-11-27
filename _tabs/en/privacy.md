@@ -53,9 +53,15 @@ The newsletter uses double opt-in. You get a confirmation email first, and you'r
 
 To unsubscribe or have your address deleted, send an email through the Email link in the footer's "Connect" column.
 
+## AI search sends what you type to Cloudflare
+
+The magnifying glass button in the top bar of every page (or Ctrl/⌘+K) opens the AI search window, and Cloudflare AI Search handles the search. As you type, your browser sends the text in the search box to Cloudflare AI Search (search.justmao.com) each time you pause, without waiting for Enter. Cloudflare also handles connection data such as your IP address; see the [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/) for how it processes it.
+
+The search widget has built-in usage stats that would also send your queries and the results you click to Cloudflare. This site turns them off. The widget's files are hosted on this site and download only when you first open the search window. The results you open or add to favorites stay in your browser; see the table in the next section.
+
 ## Some data stays only in your browser
 
-The data in this table stays in your browser and is never sent back to this site. The first four items live in localStorage, a storage area your browser keeps for each site. The last one is the offline cache.
+The data in this table stays in your browser and is never sent back to this site. The first six items live in localStorage, a storage area your browser keeps for each site. The last one is the offline cache.
 
 | Name | What it stores |
 | --- | --- |
@@ -63,6 +69,8 @@ The data in this table stays in your browser and is never sent back to this site
 | `site-lang` | The language you picked |
 | `site-lang-hint-dismissed` | That you closed the language hint bar |
 | `analytics-consent` | Your choice on the cookie banner, for visitors in European time zones |
+| `search-snippet:recent-results` | The last 5 results you opened in AI search (title, description, URL, and similar data) |
+| `search-snippet:favorite-results` | Results you added to favorites in AI search (title, description, URL, and similar data) |
 | Offline cache | Pages and files you've viewed, for offline reading |
 
 Clearing this site's data in your browser deletes everything in the table.
