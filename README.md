@@ -15,6 +15,7 @@ The site is built with [Jekyll](https://jekyllrb.com/) and the [Chirpy](https://
 - Self-hosted fonts and front-end libraries in `assets/lib`, with versions pinned by `package.json` and `package-lock.json`
 - PWA with an offline cache
 - Post search on the home page only, with the search index downloaded on first use
+- AI search on every page through Cloudflare AI Search: a top-bar button or Ctrl/⌘+K opens a search window that loads on first use and lists only posts in the current language
 - A Newsletter page in the sidebar with a signup form that posts to a self-hosted [listmonk](https://listmonk.app/), with an [ALTCHA](https://altcha.org/) proof-of-work check that loads when a reader first focuses the form
 - Google Analytics and Microsoft Clarity in production, loaded only after consent for visitors in European time zones
 - An `llms.txt` post index, and Markdown versions of posts for requests that send `Accept: text/markdown`
@@ -64,7 +65,7 @@ _data/           Contact links, the share menu, project page data, newsletter li
 assets/img/      Site and post images
 assets/js/       Custom front-end scripts
 assets/js/dist/  Theme service worker override that changes on every build, so browsers detect updates
-assets/lib/      Front-end assets for Chirpy and the ALTCHA widget, copied from npm packages by tools/sync-lib.mjs
+assets/lib/      Front-end assets for Chirpy, the ALTCHA widget, and the AI search widget, copied from npm packages by tools/sync-lib.mjs
 docs/            Guides for local development, post authoring, writing style, series, and translation
 tools/           Scripts that run the site locally, check it, and list URLs for IndexNow
 _config.yml      Site and theme settings

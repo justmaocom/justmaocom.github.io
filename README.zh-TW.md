@@ -15,6 +15,7 @@
 - `assets/lib` 提供自架的字型與前端套件，版本由 `package.json` 與 `package-lock.json` 鎖定
 - PWA 與離線快取
 - 文章搜尋只在首頁，第一次使用時才下載搜尋索引
+- 每一頁的頂欄都有 AI 搜尋，由 Cloudflare AI Search 處理：按放大鏡或 Ctrl/⌘+K 打開搜尋視窗，第一次使用時才載入，只列出目前語系的文章
 - 側邊欄「電子報」頁的訂閱表單，送到自架的 [listmonk](https://listmonk.app/)；[ALTCHA](https://altcha.org/) 工作量證明驗證在讀者第一次點進表單時才載入
 - production 啟用 Google Analytics 與 Microsoft Clarity，歐洲時區的訪客同意後才載入
 - `llms.txt` 文章索引，以及請求帶 `Accept: text/markdown` 時回傳的 Markdown 版文章
@@ -64,7 +65,7 @@ _data/           聯絡方式、分享選單、專案頁資料、電子報清單
 assets/img/      網站與文章圖片
 assets/js/       自訂前端腳本
 assets/js/dist/  覆寫主題的 service worker，每次建置內容都不同，瀏覽器才偵測得到新版
-assets/lib/      Chirpy 與 ALTCHA 元件的前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
+assets/lib/      Chirpy、ALTCHA 元件與 AI 搜尋元件的前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
 docs/            開發、文章撰寫、寫作風格、系列文與翻譯文件
 tools/           本機啟動、驗證與 IndexNow 腳本
 _config.yml      網站與主題設定
