@@ -63,6 +63,7 @@ _plugins/        自訂 Jekyll plugin，例如多語系網址改寫與 SEO 修�
 _data/           聯絡方式、分享選單、專案頁資料、電子報清單 UUID 與各語系介面文字
 assets/img/      網站與文章圖片
 assets/js/       自訂前端腳本
+assets/js/dist/  覆寫主題的 service worker，每次建置內容都不同，瀏覽器才偵測得到新版
 assets/lib/      Chirpy 與 ALTCHA 元件的前端資源，由 tools/sync-lib.mjs 從 npm 套件複製
 docs/            開發、文章撰寫、寫作風格、系列文與翻譯文件
 tools/           本機啟動、驗證與 IndexNow 腳本
