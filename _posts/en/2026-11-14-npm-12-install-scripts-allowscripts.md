@@ -366,6 +366,6 @@ I recommend starting with your existing project's review list. Restore the scrip
 ## Further Reading
 
 - [npm Trusted Publishing setup guide](/posts/npm-trusted-publishing-github-actions/): removing long-lived publishing tokens.
-- [Trusted Publishing Is Not Enough: Lock Down Your npm Release Pipeline](/posts/npm-release-pipeline-lockdown/): adding review checkpoints to the release pipeline.
+- [Lock Down npm Releases Beyond Trusted Publishing](/posts/npm-release-pipeline-lockdown/): adding review checkpoints to the release pipeline.
 - [Agent Skill and MCP Security Risks: 5 Cases, a Checklist](/posts/coding-agent-supply-chain-permission-risks/): related AI tool and MCP risks.
 - [OWASP Agentic Top 10 checklist](/posts/owasp-agentic-top-10-ai-workflow-checklist/): a broader workflow review.
