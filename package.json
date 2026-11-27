@@ -5,6 +5,7 @@
     "sync-lib": "node tools/sync-lib.mjs"
   },
   "dependencies": {
+    "@cloudflare/ai-search-snippet": "0.0.43",
     "@fortawesome/fontawesome-free": "7.3.1",
     "altcha": "2.3.0",
     "clipboard": "2.0.11",
